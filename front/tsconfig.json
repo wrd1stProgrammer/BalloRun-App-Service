@@ -1,0 +1,16 @@
+{
+    "extends": "expo/tsconfig.base",
+    "compilerOptions": {
+      "strict": true,
+      "target": "esnext",
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "jsx": "react-native",
+      // "typeRoots": ["./node_modules/@types", "./typings"]
+    },
+    // "include": ["./src/**/*", "typings.d.ts"]
+  }
+  

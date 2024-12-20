@@ -1,0 +1,38 @@
+{
+  "name": "back",
+  "version": "1.0.0",
+  "description": "back",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wrd1stProgrammer/semicolonApp.git"
+  },
+  "keywords": [
+    "5101"
+  ],
+  "author": "minsik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wrd1stProgrammer/semicolonApp/issues"
+  },
+  "homepage": "https://github.com/wrd1stProgrammer/semicolonApp#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "@actions/github": "^6.0.0",
+    "body-parser": "^1.20.3",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "http": "^0.0.1-security",
+    "http-status-codes": "^2.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.10.0",
+    "mongoose": "^8.8.3",
+    "morgan": "^1.10.0"
+    
+  }
+}
