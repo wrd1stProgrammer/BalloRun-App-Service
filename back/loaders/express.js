@@ -10,5 +10,5 @@ module.exports = async (app, server) => {  // server 추가
     app.use(morgan('dev'));
 
 
-    console.log('Express 및 Socket.IO 설정 완료');
+    console.log('Express  설정 완료');
 };

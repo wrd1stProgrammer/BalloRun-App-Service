@@ -11,11 +11,11 @@ async function startServer() {
   const server = http.createServer(app);
 
   // server,app -> loaders
-  await require(".")(app, server);
+  await require(".")(app,server);
 
   // 서버 리스닝 시작
   server
-    .listen(3000, () => {
+    .listen(3001, () => {
       console.log(`
       ################################################
       🛡️  서버 온 : ${app.get("port")} 🛡️
@@ -27,5 +27,4 @@ async function startServer() {
       process.exit(1);
     });
 }
-
 startServer();
