@@ -6,7 +6,7 @@ import {jwtDecode} from 'jwt-decode';
 import { navigate,resetAndNavigate } from "../../navigation/NavigationUtils";
 import { refresh_tokens } from "../../redux/config/apiConfig";
 import { refetchUser } from "../../redux/actions/userAction";
-import Logo from "../../assets/images/coin.png";
+import Logo from "../../assets/images/eighteenSplash.png";
 
 
 interface DecodedToken {
@@ -17,7 +17,9 @@ const SplashScreen: FC = () => {
 
   const [isStop, setIsStop] = useState(false);
   const scale = new Animated.Value(1);
+  
   const dispatch = useAppDispatch();
+
   const tokenCheck = async () => {
     const access_token = token_storage.getString('access_token') as string;
     const refresh_token = token_storage.getString('refresh_token') as string;
