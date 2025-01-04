@@ -4,6 +4,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { useAppDispatch } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
+import { navigate } from '../../navigation/NavigationUtils';
 
 
 const HomeScreen: React.FC = () => {
@@ -30,15 +31,20 @@ const HomeScreen: React.FC = () => {
       {/* 메인 콘텐츠: 2개의 카드 */}
       <View style={styles.cardList}>
         {/* 배달하기 카드 */}
-        <TouchableOpacity style={[styles.card, styles.deliveryCard]}>
+        <TouchableOpacity style={[styles.card, styles.deliveryCard]} >
           <Ionicons name="bicycle" size={28} color="#fff" />
           <Text style={styles.cardTextWhite}>배달하기</Text>
         </TouchableOpacity>
 
         {/* 주문하기 카드 */}
-        <TouchableOpacity style={[styles.card, styles.orderCard]}>
+        <TouchableOpacity style={[styles.card, styles.orderCard]} onPress = {() => navigate('CafeListScreen')}>
           <Ionicons name="restaurant" size={28} color="#8A67F8" />
           <Text style={styles.cardTextDark}>주문하기</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.card, styles.deliveryCard]} onPress= {() => navigate('LoginScreen')}>
+          <Ionicons name="save" size={28} color="#fff" />
+          <Text style={styles.cardTextWhite}> 임시 로그인 화면으로 이동동</Text>
         </TouchableOpacity>
       </View>
     </View>
