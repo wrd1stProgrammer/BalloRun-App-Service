@@ -2,13 +2,13 @@ import React from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import cafe1 from "../../assets/cafeicon/cafe1.png";
-import cafe2 from "../../assets/cafeicon/cafe1.png";
-import cafe3 from "../../assets/cafeicon/cafe1.png";
+import cafe2 from "../../assets/cafeicon/cafe2.png";
+import cafe3 from "../../assets/cafeicon/cafe3.png";
 import { useNavigation } from '@react-navigation/native';
+import { goBack, navigate } from '../../navigation/NavigationUtils';
 
 const CafeListScreen: React.FC = () => {
 
-    const navigation = useNavigation()
 
   // 더미 데이터: 카페 리스트
   const cafes = [
@@ -19,27 +19,27 @@ const CafeListScreen: React.FC = () => {
 
   // 각 카페 항목 렌더링
   const renderCafeItem = ({ item }: { item: any }) => (
-    <View style={styles.cafeItem}>
+    <TouchableOpacity style={styles.cafeItem} onPress={() => navigate('CafeMenuListScreen')}>
       <Image source={item.icon} style={styles.cafeIcon} />
       <View style={styles.cafeDetails}>
         <Text style={styles.cafeName}>{item.name}</Text>
         <Text style={styles.cafeRating}>⭐ {item.rating}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="black" onPress={() => navigation.goBack()} />
+        <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>주문하기</Text>
-        <TouchableOpacity style={styles.cartButton}>
+        <TouchableOpacity style={styles.cartButton} onPress={() => navigate('BasketScreen')}>
           <Ionicons name="cart-outline" size={24} color="white" />
           <View style={styles.cartBadge}>
-            <Text style={styles.cartBadgeText}>2</Text>
+            <Text style={styles.cartBadgeText}>0</Text>
           </View>
         </TouchableOpacity>
       </View>
