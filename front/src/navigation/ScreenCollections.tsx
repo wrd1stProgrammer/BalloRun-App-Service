@@ -6,6 +6,8 @@ import HomeScreen from "../screens/dash/HomeScreen";
 import BasketScreen from "../screens/dash/BasketScreen";
 import ChattingSceen from "../screens/dash/ChattingScreen";
 import ProfileScreen from "../screens/dash/ProfileScreen";
+import CafeListScreen from "../screens/order/CafeListScreen";
+import CafeMenuListScreen from "../screens/order/CafeMenuListScreen";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -36,8 +38,18 @@ export const dashboardStack = [
     {
         name: 'ProfileScreen',
         component: ProfileScreen,
+    },]
+
+export const orderStack = [
+    {
+        name: 'CafeListScreen',
+        component: CafeListScreen,
     },
+    {
+        name: 'CafeMenuListScreen',
+        component: CafeMenuListScreen
+    }
+]
+;
 
-];
-
-export const mergedStacks = [...dashboardStack, ...authStack];
+export const mergedStacks = [...dashboardStack, ...authStack, ...orderStack];
