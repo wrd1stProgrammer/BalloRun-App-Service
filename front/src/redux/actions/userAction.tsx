@@ -64,9 +64,6 @@ export const register = (email:string, userId:string, password:string, username:
 };
 
 
-
-
-
 export const refetchUser = () => async (dispatch: any) => {
   try {
     const res = await appAxios.get('/user/profile');
