@@ -14,14 +14,14 @@ import {
 } from 'react-native';
 import { navigate } from '../../navigation/NavigationUtils';
 import bgImage from "../../assets/images/bg.png";
-
+import { useAppDispatch } from '../../redux/config/reduxHook';
+import { login } from '../../redux/actions/userAction';
 /**
  * [설명]
  * 1) "로그인" 버튼을 처음 누르면 아이디/비밀번호 입력 영역이 애니메이션으로 펼쳐지고,
  * 2) 입력 시 키보드가 올라와도 화면이 자동으로 위로 밀려서 입력 필드가 가려지지 않도록 처리.
  */
 const LoginScreen: React.FC = () => {
-  // ID/PW 입력란 보이는지 여부
   const [showLoginInputs, setShowLoginInputs] = useState(false);
 
   // 높이 애니메이션용
@@ -31,8 +31,10 @@ const LoginScreen: React.FC = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
 
+  const dispatch = useAppDispatch();
+
   // "로그인" 버튼 누를 때 호출
-  const handlePressLogin = () => {
+  const handlePressLogin = async() => {
     // 아직 입력란이 안보일 때 → 폼 펼치기
     if (!showLoginInputs) {
       setShowLoginInputs(true);
@@ -43,16 +45,16 @@ const LoginScreen: React.FC = () => {
         useNativeDriver: false,
       }).start();
     } else {
-      // 이미 펼쳐진 상태면 → 실제 로그인 로직
-      navigate('BottomTab');
-      console.log('로그인 시도: ', { userId, password });
-      // 여기서 예: dispatch(loginAction({ userId, password })) ...
+      // 이미 펼쳐진 상태
+
+      // navigate('BottomTab'); -> 홈 수정 때문에.
+      await dispatch(login(userId, password)); // 로그인 Action 
     }
   };
 
   const goRegister = () => {
     console.log('회원가입 누름');
-    // 예: navigate('RegisterScreen');
+    navigate('RegisterScreen');
   };
 
   // 로그인 버튼 텍스트: 입력란 펼쳐진 상태면 "로그인하기", 아니면 "로그인"

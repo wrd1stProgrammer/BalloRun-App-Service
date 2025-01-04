@@ -23,6 +23,8 @@ const getProfile = async (req, res) => {
         username: user.username,
         _id: user._id,
         userId: user.userId,
+        userImage: user?.userImage,
+        point: user.point,
         email: user.email,
       }, // 임시로 4개만 뿌림.
     });
@@ -44,15 +46,15 @@ const updateProfile = async (req, res) => {
     throw new NotFoundError("User not found");
   }
 
-  const { name, bio, userImage } = req.body;
+  const { username, email, userImage } = req.body;
 
-  if (!name && !bio && !userImage) {
+  if (!username && !email && !userImage) {
     throw new BadRequestError("No Update Fields provided");
   }
 
   try {
-    if (name) user.name = name;
-    if (bio) user.bio = bio;
+    if (username) user.name = name;
+    if (email) user.bio = bio;
     if (userImage) user.userImage = userImage;
 
     await user.save();

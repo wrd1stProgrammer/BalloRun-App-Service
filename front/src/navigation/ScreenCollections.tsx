@@ -6,6 +6,7 @@ import HomeScreen from "../screens/dash/HomeScreen";
 import BasketScreen from "../screens/dash/BasketScreen";
 import ChattingSceen from "../screens/dash/ChattingScreen";
 import ProfileScreen from "../screens/dash/ProfileScreen";
+import RegisterScreen from "../screens/auth/RegisterScreen";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -17,7 +18,11 @@ export const authStack = [
     {
         name: 'LoginScreen',
         component: LoginScreen,
-    }
+    },
+    {
+        name: 'RegisterScreen',
+        component: RegisterScreen,
+    },
 ];
 
 export const dashboardStack = [

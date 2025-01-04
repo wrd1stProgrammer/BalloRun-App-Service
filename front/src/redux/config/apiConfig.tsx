@@ -20,6 +20,11 @@ appAxios.interceptors.response.use(
   response => response,
   async error => {
     if (error.response && error.response.status === 401) {
+      // 만약 요청이 /auth/login, /auth/register 등이라면 refresh_tokens() 시도하지 않도록
+      if (error.config.url.includes('/auth/login')) {
+        return Promise.reject(error);
+      }
+
       try {
         const newAccessToken = await refresh_tokens();
         if (newAccessToken) {
@@ -30,14 +35,10 @@ appAxios.interceptors.response.use(
         console.log('Error Refreshing Token');
       }
     }
-
-    if (error.response && error.response.status != 401) {
-      const errorMessage = error.response.data.msg || 'something went wrong';
-      Alert.alert(errorMessage);
-    }
     return Promise.reject(error);
   },
 );
+
 
 export const refresh_tokens = async () => { //여기 수정필요
   try {

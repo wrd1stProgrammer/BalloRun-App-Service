@@ -42,7 +42,7 @@ const BottomTab: FC = () => {
           }
           return (
             <Ionicons
-              name={iconName}
+              name={iconName} // maybe type Error?
               size={size ?? 24}
               color={color}
             />

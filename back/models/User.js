@@ -1,16 +1,43 @@
 const mongoose = require('mongoose');
 const jwt = require("jsonwebtoken");
 
-const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true }, 
-  userId: { type: String, required: true ,unique: true},
-  password: { type: String, required: true },
-  username:{type:String,required:true,unique:true}, 
-  userImage: {type:String}, //프로필 이미지 로직 추가 해야함
-  authStatus: { type: Number, default: 0 },
-},{ timestamps: true } // 생성 및 수정 시각 자동 기록
+const UserSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      match: [
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        "Please provide a valid email",
+      ],
+      unique: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      match: [/^[a-zA-Z0-9_]{3,30}$/, "Please provide a valid username"],
+      unique: true,
+    },
+    userId: {
+      type: String,
+      maxlength: 50,
+      minlength: 5,
+      unique: true,
+    },
+    password: {
+       type: String,
+       required: true,
+    },
+    userImage: {
+      type: String,
+    },
+    point:{
+      type: Number,
+      default:0,
+    },
+  },
+  { timestamps: true }
 );
-
 
 UserSchema.methods.createAccessToken = function () {
     return jwt.sign(

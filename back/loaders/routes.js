@@ -20,7 +20,7 @@ module.exports = async (app) => {
     
     // app.use("/file", authMiddleware,fileRouter);
     // app.use("/feed", authMiddleware, feedRouter);
-    app.use("/auth",authMiddleware,authRouter);
+    app.use("/auth",authRouter);
     app.use("/user",authMiddleware,userRouter);
 
     console.log('라우트 OK');
