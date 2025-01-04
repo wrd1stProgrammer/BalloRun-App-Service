@@ -1,47 +1,21 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
-import { goBack } from '../../navigation/NavigationUtils';
+import { goBack, navigate } from '../../navigation/NavigationUtils';
+import menuItems from '../../assets/cafeData/cafeMenuData';
 
 const CafeMenuListScreen: React.FC = () => {
   // 더미 데이터
-  const menuItems = [
-    {
-      id: '1',
-      name: '아이스아메리카노',
-      restaurant: 'Rose Garden',
-      price: '2000원',
-      image: '',
-    },
-    {
-      id: '2',
-      name: '아이스티(샷추가)',
-      restaurant: 'Cafenio Restaurant',
-      price: '3500원',
-      image: '',    },
-    {
-      id: '3',
-      name: '블루베리 스무디',
-      restaurant: 'Kaji Firm Kitchen',
-      price: '4000원',
-      image: '',    },
-    {
-      id: '4',
-      name: '딸기 스무디',
-      restaurant: 'Kabab Restaurant',
-      price: '4300원',
-      image: '',    },
-  ];
 
   const renderMenuItem = ({ item }: { item: any }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.image} />
+      <Image source={item.image} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.name}</Text>
         <Text style={styles.restaurant}>{item.restaurant}</Text>
         <Text style={styles.price}>{item.price}</Text>
       </View>
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity style={styles.addButton} onPress={() => {console.log('add to cart')}}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>
@@ -76,7 +50,7 @@ const CafeMenuListScreen: React.FC = () => {
       />
 
       {/* 하단 버튼 */}
-      <TouchableOpacity style={styles.cartButton}>
+      <TouchableOpacity style={styles.cartButton} onPress={() => navigate('BasketScreen')}>
         <Text style={styles.cartButtonText}>장바구니에 추가하기</Text>
       </TouchableOpacity>
     </View>

@@ -2,13 +2,14 @@
 
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { useAppDispatch } from '../../redux/config/reduxHook';
+import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
 import { navigate } from '../../navigation/NavigationUtils';
+import { selectUser } from '../../redux/reducers/userSlice';
 
 
 const HomeScreen: React.FC = () => {
-  const user = useAppDispatch();
+  const user = useAppSelector(selectUser);
 
   return (
     <View style={styles.container}>
@@ -16,7 +17,7 @@ const HomeScreen: React.FC = () => {
       <View style={styles.headerContainer}>
         <View style={styles.greetingContainer}>
           <Text style={styles.userName}>
-            박영서님, 안녕하세요
+            {user?.username}님, 안녕하세요
           </Text>
           <Text style={styles.subTitle}>
             에이틴에서 편함을 주문해보세요

@@ -1,4 +1,4 @@
-// ++ New Screen 
+// ++ New Screen
 import SplashScreen from "../screens/auth/SplashSceen";
 import LoginScreen from "../screens/auth/LoginScreen";
 import BottomTab from "./BottomTab";
@@ -9,52 +9,57 @@ import ProfileScreen from "../screens/dash/ProfileScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
 import CafeListScreen from "../screens/order/CafeListScreen";
 import CafeMenuListScreen from "../screens/order/CafeMenuListScreen";
+import OrderWriteLoacation from "../screens/order/OrderWriteLoacation";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
 export const authStack = [
-    {
-        name: 'SplashScreen',
-        component: SplashScreen,
-    },
-    {
-        name: 'LoginScreen',
-        component: LoginScreen,
-    },
-    {
-        name: 'RegisterScreen',
-        component: RegisterScreen,
-    },
+  {
+    name: "SplashScreen",
+    component: SplashScreen,
+  },
+  {
+    name: "LoginScreen",
+    component: LoginScreen,
+  },
+  {
+    name: "RegisterScreen",
+    component: RegisterScreen,
+  },
 ];
 
 export const dashboardStack = [
-    {
-        name: 'BottomTab',
-        component: BottomTab,
-    },
-    {
-        name: 'HomeScreen',
-        component: HomeScreen,
-    },
-    {
-        name: 'BasketScreen',
-        component: BasketScreen,
-    },
-    {
-        name: 'ProfileScreen',
-        component: ProfileScreen,
-    },]
+  {
+    name: "BottomTab",
+    component: BottomTab,
+  },
+  {
+    name: "HomeScreen",
+    component: HomeScreen,
+  },
+  {
+    name: "BasketScreen",
+    component: BasketScreen,
+  },
+  {
+    name: "ProfileScreen",
+    component: ProfileScreen,
+  },
+];
 
 export const orderStack = [
-    {
-        name: 'CafeListScreen',
-        component: CafeListScreen,
-    },
-    {
-        name: 'CafeMenuListScreen',
-        component: CafeMenuListScreen
-    }
-]
-;
+  {
+    name: "CafeListScreen",
+    component: CafeListScreen,
+  },
+  {
+    name: "CafeMenuListScreen",
+    component: CafeMenuListScreen,
+  },
+  {
+    name: "OrderWriteLoacation",
+    component: OrderWriteLoacation,
+  },
+];
 
 export const mergedStacks = [...dashboardStack, ...authStack, ...orderStack];
