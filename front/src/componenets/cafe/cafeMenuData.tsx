@@ -1,8 +1,8 @@
 // 타입 정의
-import menu1 from './menuImage/image-1.png'
-import menu2 from './menuImage/image-2.png'
-import menu3 from './menuImage/image-3.png'
-import menu4 from './menuImage/image-4.png'
+import menu1 from '../../assets/cafeData/menuImage/image-1.png'
+import menu2 from '../../assets/cafeData/menuImage/image-2.png'
+import menu3 from '../../assets/cafeData/menuImage/image-3.png'
+import menu4 from '../../assets/cafeData/menuImage/image-4.png'
 
 
 interface MenuItem {

@@ -114,13 +114,13 @@ const RegisterScreen: React.FC = () => {
 
       {/* 이름 입력 */}
       <TextInput
-        label="이름"
+        label="닉네임"
         mode="flat"
         value={username}
         onChangeText={setName}
         autoCapitalize="words"
         style={styles.input}
-        placeholder="이름을 입력해주세요"
+        placeholder="닉네임을 입력해주세요"
       />
 
       {/* 약관 동의 */}

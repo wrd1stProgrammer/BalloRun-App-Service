@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { UnauthenticatedError } = require("../errors");
+const { UnauthenticatedError,NotFoundError } = require("../errors");
 const User = require("../models/User");
 const JWT_KEY = process.env.ACCESS_TOKEN_SECRET;
 
@@ -9,7 +9,7 @@ const auth = async (req, res, next) => {
   // check header
   const authHeader = req.headers.authorization;
 
-  //console.log("Authorization Header:", authHeader); // 추가
+  console.log("Authorization Header:", authHeader); // 추가
 
   if (!authHeader || !authHeader.startsWith("Bearer")) {
     console.log("No authorization header!");
@@ -28,10 +28,10 @@ const auth = async (req, res, next) => {
     // req.user = { userid: payload.userid, username: payload.username };
 
     // const user = await User.findById(payload.userid);
-    req.user = { userId: payload.id };  // payload.id를 사용하여 req.user에 할당
+    req.user = { userId: payload.userId };  // payload.id를 사용하여 req.user에 할당
     //console.log("req.user after setting:", req.user); // req.user 로그 추가
 
-    const user = await User.findById(payload.id);  // payload.id를 사용하여 사용자 조회
+    const user = await User.findById(payload.userId);  // payload.id를 사용하여 사용자 조회
     //console.log("user found:", user); // user 로그 추가
 
 

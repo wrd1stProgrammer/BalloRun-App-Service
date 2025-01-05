@@ -11,26 +11,27 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useNavigation } from "@react-navigation/native";
 import { goBack, navigate } from "../../navigation/NavigationUtils";
-import cafes  from "../../assets/cafeData/cafeNameData";
+import cafes  from "../../componenets/cafe/cafeNameData";
+
+
 const CafeListScreen: React.FC = () => {
   // 더미 데이터: 카페 리스트
 
 
-  // 각 카페 항목 렌더링
+  // 각 카페 항목 렌더링 + cafeName CafeMenuListScreen 에 전달.
   const renderCafeItem = ({ item }: { item: any }) => (
-  
-      <TouchableOpacity
-        style={styles.cafeItem}
-        onPress={() => navigate("CafeMenuListScreen")}
-      >
-        <Image source={item.icon} style={styles.cafeIcon} />
-        <View style={styles.cafeDetails}>
-          <Text style={styles.cafeName}>{item.name}</Text>
-          <Text style={styles.cafeRating}>⭐ {item.rating}</Text>
-        </View>
-      </TouchableOpacity>
-   
+    <TouchableOpacity
+      style={styles.cafeItem}
+      onPress={() => navigate("CafeMenuListScreen", { cafeName: item.name })}
+    > 
+      <Image source={item.icon} style={styles.cafeIcon} />
+      <View style={styles.cafeDetails}>
+        <Text style={styles.cafeName}>{item.name}</Text>
+        <Text style={styles.cafeRating}>⭐ {item.rating}</Text>
+      </View>
+    </TouchableOpacity>
   );
+  
 
   return (
     <View style={styles.container} >

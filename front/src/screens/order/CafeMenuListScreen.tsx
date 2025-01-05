@@ -1,24 +1,69 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons'; 
-import { goBack, navigate } from '../../navigation/NavigationUtils';
-import menuItems from '../../assets/cafeData/cafeMenuData';
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { goBack, navigate } from "../../navigation/NavigationUtils";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { useAppDispatch } from "../../redux/config/reduxHook";
+import { getCafeMenusBycafeName } from "../../redux/actions/menuAction";
+
+
+interface CafeMenuListScreenParams {
+  cafeName: string; // CafeListScreen에서 넘어오는 카페 이름
+}
 
 const CafeMenuListScreen: React.FC = () => {
-  // 더미 데이터
+  const route = useRoute<RouteProp<{ params: CafeMenuListScreenParams }>>();
+  const { cafeName } = route.params;
+  const dispatch = useAppDispatch()
 
+  const [menuItems, setMenuItems] = useState<any[]>([]); // 서버에서 받아온 메뉴 데이터
+  const [loading, setLoading] = useState(true); // 로딩 상태 관리
+  const [selectedItems, setSelectedItems] = useState<any[]>([]); // 장바구니 선택 항목
+
+  // 서버에서 메뉴 데이터를 가져오는 함수
+  const fetchMenuItems = async () => {
+    try {
+      const menus = await dispatch(getCafeMenusBycafeName(cafeName));
+      setMenuItems(menus); // 데이터 설정
+    } catch (error) {
+      console.error("메뉴 데이터를 가져오는 중 에러 발생:", error);
+    } finally {
+      setLoading(false); // 로딩 상태 종료
+    }
+  };
+
+  // 화면이 로드될 때 데이터를 가져옴
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
+  // 메뉴 아이템 클릭 시 선택 상태에 추가
+  const handleSelectItem = (item: any) => {
+    const found = selectedItems.find((selected) => selected._id === item._id);
+    if (!found) {
+      setSelectedItems((prev) => [...prev, item]);
+    }
+  };
+
+  // 메뉴 렌더링
   const renderMenuItem = ({ item }: { item: any }) => (
-    <View style={styles.card}>
-      <Image source={item.image} style={styles.image} />
+    <TouchableOpacity style={styles.card} onPress={() => handleSelectItem(item)}>
+      <Image source={{ uri: item.imageUrl }} style={styles.image} />
       <View style={styles.info}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.restaurant}>{item.restaurant}</Text>
-        <Text style={styles.price}>{item.price}</Text>
+        <Text style={styles.itemName}>{item.menuName}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.price}>{item.price}원</Text>
       </View>
-      <TouchableOpacity style={styles.addButton} onPress={() => {console.log('add to cart')}}>
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
-    </View>
+      <Ionicons name="add-circle-outline" size={24} color="green" />
+    </TouchableOpacity>
   );
 
   return (
@@ -26,32 +71,47 @@ const CafeMenuListScreen: React.FC = () => {
       {/* 상단 바 */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
-            <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.dropdown}>
-          <Text style={styles.dropdownText}>나인틴 카페</Text>
+          <Text style={styles.dropdownText}>{cafeName}</Text>
         </TouchableOpacity>
-    
-          <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name ='search' size={25} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name ='settings' size={25} />
-          </TouchableOpacity>
+
+        <TouchableOpacity style={styles.iconButton}>
+          <Ionicons name="search" size={25} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.iconButton}>
+          <Ionicons name="settings" size={25} />
+        </TouchableOpacity>
       </View>
 
-      {/* 메뉴 리스트 */}
-      <Text style={styles.sectionTitle}>인기있는 음료</Text>
-      <FlatList
-        data={menuItems}
-        renderItem={renderMenuItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.menuList}
-      />
+      {/* 로딩 중 표시 */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#6C63FF" style={styles.loader} />
+      ) : (
+        <>
+          {/* 메뉴 리스트 */}
+          <Text style={styles.sectionTitle}>인기있는 음료</Text>
 
-      {/* 하단 버튼 */}
-      <TouchableOpacity style={styles.cartButton} onPress={() => navigate('BasketScreen')}>
-        <Text style={styles.cartButtonText}>장바구니에 추가하기</Text>
+          <FlatList
+            data={menuItems}
+            renderItem={renderMenuItem}
+            keyExtractor={(item) => item._id} // _id 사용
+            contentContainerStyle={styles.menuList}
+          />
+        </>
+      )}
+
+      {/* 장바구니 이동 버튼 */}
+      <TouchableOpacity
+        style={styles.cartButton}
+        onPress={() => navigate("BasketScreen", { selectedItems })}
+      >
+        <Text style={styles.cartButtonText}>
+          장바구니로 이동 ({selectedItems.length}개)
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -62,43 +122,38 @@ export default CafeMenuListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   backButton: {
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  backButtonText: {
-    fontSize: 18,
-  },
   dropdown: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   dropdownText: {
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    gap: 8,
+    fontWeight: "bold",
   },
   iconButton: {
     marginLeft: 8,
   },
-  iconText: {
-    fontSize: 18,
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginHorizontal: 16,
     marginVertical: 16,
   },
@@ -106,17 +161,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
     padding: 12,
     marginBottom: 12,
     borderRadius: 8,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 2,
     shadowOffset: { width: 0, height: 2 },
+    justifyContent: "space-between",
   },
   image: {
     width: 80,
@@ -129,38 +185,29 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
-  restaurant: {
+  description: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 4,
   },
   price: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 4,
   },
-  addButton: {
-    backgroundColor: '#e0e0e0',
-    borderRadius: 16,
-    padding: 8,
-  },
-  addButtonText: {
-    fontSize: 18,
-    color: '#666',
-  },
   cartButton: {
-    backgroundColor: '#d0a6f3',
+    backgroundColor: "#d0a6f3",
     padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 8,
     margin: 16,
   },
   cartButtonText: {
     fontSize: 16,
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

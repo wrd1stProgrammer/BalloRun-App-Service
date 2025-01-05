@@ -4,7 +4,7 @@ import React from 'react'
 const OrderWriteLoacation: React.FC = () => {
   return (
     <View>
-      <Text>ChattingSceen</Text>
+      <Text>OrderWriteLoacation Screen</Text>
     </View>
   )
 }

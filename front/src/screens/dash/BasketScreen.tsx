@@ -1,57 +1,84 @@
 import { Image, TouchableOpacity, StyleSheet, Text, View, FlatList } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
-import menu1 from '../../assets/cafeData/menuImage/image-1.png';
 import { goBack, navigate } from '../../navigation/NavigationUtils';
+import { useRoute, RouteProp } from '@react-navigation/native';
 
 interface MenuItem {
   id: string;
   name: string;
   restaurant: string;
-  price: number; // 가격 숫자 형태
-  image: any; // 이미지 경로 또는 URL
+  price: number | string; // 원래 문자열일 수도 있으니 상황에 맞게
+  image: any; 
 }
 
-// 데이터 배열 정의
-const menuItems: MenuItem[] = [
-  {
-    id: '1',
-    name: '아이스아메리카노',
-    restaurant: '나인틴 카페',
-    price: 1000,
-    image: menu1,
-  },
-];
+interface BasketScreenParams {
+  selectedItems: MenuItem[];
+}
 
 const BasketScreen: React.FC = () => {
-  const [quantities, setQuantities] = useState<{ [key: string]: number }>({
-    '1': 2, // 초기 수량 설정
-  });
+  const route = useRoute<RouteProp<{ params: BasketScreenParams }>>();
+  const { selectedItems } = route.params;
 
+  // 각 item.id별 수량 관리
+  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+
+  useEffect(() => {
+    // 장바구니로 넘어온 selectedItems가 있을 경우,
+    // 각 아이템의 기본 수량을 1로 초기화
+    const initialQuantities: { [key: string]: number } = {};
+    selectedItems.forEach((item) => {
+      initialQuantities[item.id] = 1;
+    });
+    setQuantities(initialQuantities);
+  }, [selectedItems]);
+
+  // 수량 증가
   const increaseQuantity = (id: string) => {
-    setQuantities((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
-  };
-
-  const decreaseQuantity = (id: string) => {
     setQuantities((prev) => ({
       ...prev,
-      [id]: Math.max((prev[id] || 1) - 1, 1), // 최소값 1 유지
+      [id]: (prev[id] || 0) + 1,
     }));
   };
 
+  // 수량 감소
+  const decreaseQuantity = (id: string) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: Math.max((prev[id] || 1) - 1, 1),
+    }));
+  };
+
+  // 총 금액 계산
   const calculateTotal = () => {
-    return menuItems.reduce((total, item) => {
+    return selectedItems.reduce((total, item) => {
       const quantity = quantities[item.id] || 1;
-      return total + item.price * quantity;
+
+      // price가 문자열이라면 숫자로 변환
+      let priceNumber = 0;
+      if (typeof item.price === 'string') {
+        // 예: '3000원' 이면 '3000' 부분만 추출
+        priceNumber = parseInt(item.price.replace(/\D/g, ''), 10);
+      } else {
+        priceNumber = item.price;
+      }
+      return total + priceNumber * quantity;
     }, 0);
   };
 
+  // 장바구니 목록 렌더
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.card}>
       <Image source={item.image} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.price}>가격: {item.price.toLocaleString()}원</Text>
+        <Text style={styles.price}>
+          가격: 
+          {typeof item.price === 'string'
+            ? item.price
+            : `${item.price.toLocaleString()}원`}
+        </Text>
+        {/* 수량 조절 */}
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             style={styles.quantityButton}
@@ -81,9 +108,9 @@ const BasketScreen: React.FC = () => {
         <Text style={styles.headerTitle}>장바구니</Text>
       </View>
 
-      {/* 메뉴 리스트 */}
+      {/* 장바구니에 담긴 메뉴 리스트 */}
       <FlatList
-        data={menuItems}
+        data={selectedItems}
         renderItem={renderMenuItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.menuList}
@@ -94,7 +121,10 @@ const BasketScreen: React.FC = () => {
         <Text style={styles.totalPrice}>
           총 금액: {calculateTotal().toLocaleString()}원
         </Text>
-        <TouchableOpacity style={styles.orderButton} onPress={() => navigate('OrderWriteLoacation')}>
+        <TouchableOpacity
+          style={styles.orderButton}
+          onPress={() => navigate('OrderWriteLoacation')}
+        >
           <Text style={styles.orderButtonText}>
             {calculateTotal().toLocaleString()}원 배달 주문하기
           </Text>

@@ -2,6 +2,7 @@ const express = require('express');
 const authMiddleware = require("../middlewares/authentication");
 const authRouter = require("../routes/auth");
 const userRouter = require("../routes/user");
+const cafeRouter = require("../routes/cafe");
 // const userRouter = require("../routes/user"); 예시
 
 module.exports = async (app) => {
@@ -22,6 +23,8 @@ module.exports = async (app) => {
     // app.use("/feed", authMiddleware, feedRouter);
     app.use("/auth",authRouter);
     app.use("/user",authMiddleware,userRouter);
+    app.use("/cafe",authMiddleware,cafeRouter);
+
 
     console.log('라우트 OK');
 };

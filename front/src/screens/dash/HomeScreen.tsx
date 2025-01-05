@@ -11,6 +11,8 @@ import { selectUser } from '../../redux/reducers/userSlice';
 const HomeScreen: React.FC = () => {
   const user = useAppSelector(selectUser);
 
+
+
   return (
     <View style={styles.container}>
       {/* 상단 프로필/인사 문구 영역 */}
@@ -24,7 +26,7 @@ const HomeScreen: React.FC = () => {
           </Text>
         </View>
         {/* 프로필 아이콘 (예: 실제 이미지 대체) */}
-        <TouchableOpacity style={styles.profileIconWrapper}>
+        <TouchableOpacity style={styles.profileIconWrapper} >
           <Ionicons name="person-circle" size={36} color="#999" />
         </TouchableOpacity>
       </View>

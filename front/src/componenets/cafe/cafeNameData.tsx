@@ -12,7 +12,7 @@ interface Cafe {
 
 // 데이터 배열 정의
 const cafes: Cafe[] = [
-  { id: "1", name: "나인틴", rating: 4.7, icon: cafe1 },
+  { id: "1", name: "nineteen", rating: 4.7, icon: cafe1 },
   { id: "2", name: "홍도 앞 커피", rating: 4.3, icon: cafe2 },
   { id: "3", name: "1학생활관 앞 커피", rating: 4.0, icon: cafe3 },
 ];
