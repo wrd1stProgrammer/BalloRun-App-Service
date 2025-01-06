@@ -21,7 +21,6 @@ interface CafeMenuListScreenParams {
 
 const CafeMenuListScreen: React.FC = () => {
   const menu = useAppSelector(selectMenu);
-  console.log(menu)
 
   const route = useRoute<RouteProp<{ params: CafeMenuListScreenParams }>>();
   const { cafeName } = route.params;

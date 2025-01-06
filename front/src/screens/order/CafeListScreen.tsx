@@ -12,11 +12,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { goBack, navigate } from "../../navigation/NavigationUtils";
 import cafes  from "../../componenets/cafe/cafeNameData";
+import { useAppSelector } from "../../redux/config/reduxHook";
+import { selectMenu } from "../../redux/reducers/menuSlice";
 
 
 const CafeListScreen: React.FC = () => {
   // 더미 데이터: 카페 리스트
-
+  const menu = useAppSelector(selectMenu);
+  
 
   // 각 카페 항목 렌더링 + cafeName CafeMenuListScreen 에 전달.
   const renderCafeItem = ({ item }: { item: any }) => (
@@ -47,7 +50,7 @@ const CafeListScreen: React.FC = () => {
         >
           <Ionicons name="cart-outline" size={24} color="white" />
           <View style={styles.cartBadge}>
-            <Text style={styles.cartBadgeText}>0</Text>
+            <Text style={styles.cartBadgeText}>{menu.items.length}</Text>
           </View>
         </TouchableOpacity>
       </View>
