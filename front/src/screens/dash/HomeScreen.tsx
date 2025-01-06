@@ -12,7 +12,6 @@ const HomeScreen: React.FC = () => {
   const user = useAppSelector(selectUser);
 
 
-
   return (
     <View style={styles.container}>
       {/* 상단 프로필/인사 문구 영역 */}
@@ -20,6 +19,15 @@ const HomeScreen: React.FC = () => {
         <View style={styles.greetingContainer}>
           <Text style={styles.userName}>
             {user?.username}님, 안녕하세요
+          </Text>
+          <Text style={styles.userName}>
+            email: {user?.email}
+          </Text>
+          <Text style={styles.userName}>
+            point: {user?.point}
+          </Text>
+          <Text style={styles.userName}>
+            userId: {user?.userId}
           </Text>
           <Text style={styles.subTitle}>
             에이틴에서 편함을 주문해보세요

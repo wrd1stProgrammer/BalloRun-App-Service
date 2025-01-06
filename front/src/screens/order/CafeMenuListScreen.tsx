@@ -11,18 +11,21 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { goBack, navigate } from "../../navigation/NavigationUtils";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useAppDispatch } from "../../redux/config/reduxHook";
+import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
 import { getCafeMenusBycafeName } from "../../redux/actions/menuAction";
-
+import { selectMenu, setMenu } from "../../redux/reducers/menuSlice";
 
 interface CafeMenuListScreenParams {
   cafeName: string; // CafeListScreen에서 넘어오는 카페 이름
 }
 
 const CafeMenuListScreen: React.FC = () => {
+  const menu = useAppSelector(selectMenu);
+  console.log(menu)
+
   const route = useRoute<RouteProp<{ params: CafeMenuListScreenParams }>>();
   const { cafeName } = route.params;
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   const [menuItems, setMenuItems] = useState<any[]>([]); // 서버에서 받아온 메뉴 데이터
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
@@ -49,21 +52,31 @@ const CafeMenuListScreen: React.FC = () => {
   const handleSelectItem = (item: any) => {
     const found = selectedItems.find((selected) => selected._id === item._id);
     if (!found) {
-      setSelectedItems((prev) => [...prev, item]);
+      const updatedItems = [...selectedItems, item];
+      setSelectedItems(updatedItems);
+
+      // 총 가격 계산
+      const totalPrice = updatedItems.reduce(
+        (sum, current) => sum + current.price,0);
+
+      // Redux에 업데이트된 항목 전달
+      dispatch(setMenu({ items: updatedItems, price: totalPrice }));
     }
   };
 
   // 메뉴 렌더링
   const renderMenuItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.card} onPress={() => handleSelectItem(item)}>
+    <View style={styles.card}>
       <Image source={{ uri: item.imageUrl }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.menuName}</Text>
         <Text style={styles.description}>{item.description}</Text>
         <Text style={styles.price}>{item.price}원</Text>
       </View>
-      <Ionicons name="add-circle-outline" size={24} color="green" />
-    </TouchableOpacity>
+      <TouchableOpacity onPress={() => handleSelectItem(item)}>
+        <Ionicons name="add-circle-outline" size={24} color="green" />
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -110,8 +123,9 @@ const CafeMenuListScreen: React.FC = () => {
         onPress={() => navigate("BasketScreen", { selectedItems })}
       >
         <Text style={styles.cartButtonText}>
-          장바구니로 이동 ({selectedItems.length}개)
+          장바구니로 이동 ({menu.items.length}개)
         </Text>
+        <Text style={styles.cartButtonText}>{menu.price}원</Text>
       </TouchableOpacity>
     </View>
   );
