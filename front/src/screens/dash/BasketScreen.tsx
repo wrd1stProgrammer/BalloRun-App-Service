@@ -3,22 +3,22 @@ import React, { useState, useEffect } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
 import { goBack, navigate } from '../../navigation/NavigationUtils';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { useAppSelector } from '../../redux/config/reduxHook';
+import { selectMenu } from '../../redux/reducers/menuSlice';
 
 interface MenuItem {
   id: string;
-  name: string;
+  menuName: string;
   restaurant: string;
   price: number | string; // 원래 문자열일 수도 있으니 상황에 맞게
-  image: any; 
+  imageUrl: any; 
 }
 
-interface BasketScreenParams {
-  selectedItems: MenuItem[];
-}
 
 const BasketScreen: React.FC = () => {
-  const route = useRoute<RouteProp<{ params: BasketScreenParams }>>();
-  const { selectedItems } = route.params;
+  const menu = useAppSelector(selectMenu);
+  const selectedItems = menu.items
+
 
   // 각 item.id별 수량 관리
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
@@ -69,9 +69,9 @@ const BasketScreen: React.FC = () => {
   // 장바구니 목록 렌더
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.card}>
-      <Image source={item.image} style={styles.image} />
+      <Image source={{ uri: item.imageUrl }} style={styles.image} />
       <View style={styles.info}>
-        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemName}>{item.menuName}</Text>
         <Text style={styles.price}>
           가격: 
           {typeof item.price === 'string'

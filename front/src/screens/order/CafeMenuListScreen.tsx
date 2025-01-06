@@ -119,7 +119,8 @@ const CafeMenuListScreen: React.FC = () => {
       {/* 장바구니 이동 버튼 */}
       <TouchableOpacity
         style={styles.cartButton}
-        onPress={() => navigate("BasketScreen", { selectedItems })}
+        onPress={() => {
+          navigate("BasketScreen", { selectedItems })}}
       >
         <Text style={styles.cartButtonText}>
           장바구니로 이동 ({menu.items.length}개)
