@@ -23,11 +23,31 @@ interface MenuState {
         state.price = action.payload.price;
         state.quantitiy = action.payload.quantitiy;
       },
-      updateQuantity: (state, action:PayloadAction<{ items: any[]; price: number; quantitiy: number }>) => {
-        state.items = action.payload.items;
-        state.price = action.payload.price;
-        state.quantitiy = action.payload.quantitiy;
+      updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
+        const { id, quantity } = action.payload;
+        const itemIndex = state.items.findIndex((item) => item._id === id);
       
+        if (itemIndex !== -1) {
+          // 수량 업데이트
+          state.items[itemIndex].quantity = quantity;
+      
+          // 총 가격 및 총 수량 재계산
+          let totalPrice = 0;
+          let totalQuantity = 0;
+      
+          state.items.forEach((item) => {
+            const priceNumber =
+              typeof item.price === 'string'
+                ? parseInt(item.price.replace(/\D/g, ''), 10)
+                : item.price;
+      
+            totalPrice += priceNumber * item.quantity;
+            totalQuantity += item.quantity;
+          });
+      
+          state.price = totalPrice;
+          state.quantitiy = totalQuantity;
+        }
       }
     },
   });
