@@ -3,7 +3,7 @@ import React from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { goBack, navigate } from '../../navigation/NavigationUtils';
 import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
-import { selectMenu, updateQuantity } from '../../redux/reducers/menuSlice';
+import { selectMenu, updateQuantity, removeItem } from '../../redux/reducers/menuSlice';
 
 interface MenuItem {
   _id: string;
@@ -24,6 +24,12 @@ const BasketScreen: React.FC = () => {
     if (item) {
       dispatch(updateQuantity({ id, quantity: item.quantity + 1 }));
     }
+  };
+
+  const removeMenuItem = (id: string) => {
+    dispatch(updateQuantity({ id, quantity: 0 })); // 수량을 0으로 업데이트하거나
+    // 또는 새로운 액션을 만들어 삭제 처리
+    dispatch(removeItem(id)); // 삭제 액션 호출
   };
 
   // 수량 감소
@@ -48,6 +54,14 @@ const BasketScreen: React.FC = () => {
   // 장바구니 목록 렌더
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.card}>
+      {/* 삭제 버튼 */}
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => removeMenuItem(item._id)}
+      >
+        <Ionicons name="close" size={20} color="#fff" />
+      </TouchableOpacity>
+  
       <Image source={{ uri: item.imageUrl }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.menuName}</Text>
@@ -75,6 +89,7 @@ const BasketScreen: React.FC = () => {
       </View>
     </View>
   );
+  
 
   return (
     <View style={styles.container}>
@@ -115,6 +130,19 @@ const BasketScreen: React.FC = () => {
 export default BasketScreen;
 
 const styles = StyleSheet.create({
+  deleteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#ff4d4f', // 빨간색 배경
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10, // 다른 컴포넌트 위에 표시
+  },
+  
   container: {
     flex: 1,
     backgroundColor: '#fff',
