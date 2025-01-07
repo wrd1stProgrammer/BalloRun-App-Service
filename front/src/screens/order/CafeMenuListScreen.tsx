@@ -28,7 +28,7 @@ const CafeMenuListScreen: React.FC = () => {
 
   const [menuItems, setMenuItems] = useState<any[]>([]);  //서버에서 받아온 메뉴 데이터
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
-  const [selectedItems, setSelectedItems] = useState<any[]>([]); // 장바구니 선택 항목
+  //const [selectedItems, setSelectedItems] = useState<any[]>([]); // 장바구니 선택 항목
 
   // 서버에서 메뉴 데이터를 가져오는 함수
   const fetchMenuItems = async () => {
@@ -54,23 +54,23 @@ const CafeMenuListScreen: React.FC = () => {
       return;
     }
   
-    setSelectedItems((prevItems) => {
-      const foundIndex = prevItems.findIndex(
+    dispatch((dispatch, getState) => {
+      const currentMenu = getState().menu;
+      const updatedItems = [...currentMenu.items];
+  
+      const foundIndex = updatedItems.findIndex(
         (selected) => selected._id === item._id
       );
   
-      let updatedItems;
-  
       if (foundIndex !== -1) {
-        // 이미 선택된 항목이라면 개수를 증가
-        updatedItems = prevItems.map((selected, index) =>
-          index === foundIndex
-            ? { ...selected, quantity: (selected.quantity || 0) + 1 }
-            : selected
-        );
+        // 이미 선택된 항목이라면 개수 증가
+        updatedItems[foundIndex] = {
+          ...updatedItems[foundIndex],
+          quantity: (updatedItems[foundIndex].quantity || 1) + 1,
+        };
       } else {
         // 새로 선택된 항목이라면 초기 개수를 1로 설정
-        updatedItems = [...prevItems, { ...item, quantity: 1 }];
+        updatedItems.push({ ...item, quantity: 1 });
       }
   
       // 총 가격 계산
@@ -79,12 +79,20 @@ const CafeMenuListScreen: React.FC = () => {
         0
       );
   
-      // Redux에 업데이트된 항목 전달
-      dispatch(setMenu({ items: updatedItems, price: totalPrice }));
+      // 총 개수 계산
+      const totalQuantity = updatedItems.reduce(
+        (sum, current) => sum + (current.quantity || 1),
+        0
+      );
   
-      return updatedItems;
+ 
+  
+      // Redux에 업데이트된 항목 전달
+      dispatch(setMenu({ items: updatedItems, price: totalPrice, quantitiy: totalQuantity }));
     });
   };
+  
+  
   
   
   
@@ -149,7 +157,7 @@ const CafeMenuListScreen: React.FC = () => {
           navigate("BasketScreen")}}
       >
         <Text style={styles.cartButtonText}>
-          장바구니로 이동 ({menu.items.length}개)
+          장바구니로 이동 ({menu.quantitiy}개)
         </Text>
         <Text style={styles.cartButtonText}>{menu.price}원</Text>
       </TouchableOpacity>

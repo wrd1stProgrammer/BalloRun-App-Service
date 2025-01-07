@@ -1,69 +1,47 @@
 import { Image, TouchableOpacity, StyleSheet, Text, View, FlatList } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import Ionicons from '@expo/vector-icons/Ionicons'; 
+import React from 'react';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { goBack, navigate } from '../../navigation/NavigationUtils';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { useAppSelector } from '../../redux/config/reduxHook';
-import { selectMenu } from '../../redux/reducers/menuSlice';
+import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
+import { selectMenu, updateQuantity } from '../../redux/reducers/menuSlice';
 
 interface MenuItem {
-  id: string;
+  _id: string;
   menuName: string;
-  restaurant: string;
-  price: number | string; // 원래 문자열일 수도 있으니 상황에 맞게
-  imageUrl: any; 
+  cafeName: string;
+  price: number | string;
+  imageUrl: string;
+  quantity: number;
 }
-
 
 const BasketScreen: React.FC = () => {
   const menu = useAppSelector(selectMenu);
-  console.log(menu)
-  const selectedItems = menu.items
-
-
-  // 각 item.id별 수량 관리
-  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
-
-  useEffect(() => {
-    // 장바구니로 넘어온 selectedItems가 있을 경우,
-    // 각 아이템의 기본 수량을 1로 초기화
-    const initialQuantities: { [key: string]: number } = {};
-    selectedItems.forEach((item) => {
-      initialQuantities[item.id] = 1;
-    });
-    setQuantities(initialQuantities);
-  }, [selectedItems]);
+  const dispatch = useAppDispatch();
 
   // 수량 증가
   const increaseQuantity = (id: string) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
+    const item = menu.items.find((item) => item._id === id);
+    if (item) {
+      dispatch(updateQuantity({ id, quantity: item.quantity + 1 }));
+    }
   };
 
   // 수량 감소
   const decreaseQuantity = (id: string) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: Math.max((prev[id] || 1) - 1, 1),
-    }));
+    const item = menu.items.find((item) => item._id === id);
+    if (item && item.quantity > 1) {
+      dispatch(updateQuantity({ id, quantity: item.quantity - 1 }));
+    }
   };
 
   // 총 금액 계산
   const calculateTotal = () => {
-    return selectedItems.reduce((total, item) => {
-      const quantity = quantities[item.id] || 1;
-
-      // price가 문자열이라면 숫자로 변환
-      let priceNumber = 0;
-      if (typeof item.price === 'string') {
-        // 예: '3000원' 이면 '3000' 부분만 추출
-        priceNumber = parseInt(item.price.replace(/\D/g, ''), 10);
-      } else {
-        priceNumber = item.price;
-      }
-      return total + priceNumber * quantity;
+    return menu.items.reduce((total, item) => {
+      const priceNumber =
+        typeof item.price === 'string'
+          ? parseInt(item.price.replace(/\D/g, ''), 10)
+          : item.price;
+      return total + priceNumber * item.quantity;
     }, 0);
   };
 
@@ -74,23 +52,22 @@ const BasketScreen: React.FC = () => {
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.menuName}</Text>
         <Text style={styles.price}>
-          가격: 
+          가격:{' '}
           {typeof item.price === 'string'
             ? item.price
             : `${item.price.toLocaleString()}원`}
         </Text>
-        {/* 수량 조절 */}
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             style={styles.quantityButton}
-            onPress={() => decreaseQuantity(item.id)}
+            onPress={() => decreaseQuantity(item._id)}
           >
             <Text style={styles.quantityButtonText}>-</Text>
           </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantities[item.id] || 1}</Text>
+          <Text style={styles.quantityText}>{item.quantity}</Text>
           <TouchableOpacity
             style={styles.quantityButton}
-            onPress={() => increaseQuantity(item.id)}
+            onPress={() => increaseQuantity(item._id)}
           >
             <Text style={styles.quantityButtonText}>+</Text>
           </TouchableOpacity>
@@ -111,9 +88,9 @@ const BasketScreen: React.FC = () => {
 
       {/* 장바구니에 담긴 메뉴 리스트 */}
       <FlatList
-        data={selectedItems}
+        data={menu.items}
         renderItem={renderMenuItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.menuList}
       />
 
