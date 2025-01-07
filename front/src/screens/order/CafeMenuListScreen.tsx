@@ -26,7 +26,7 @@ const CafeMenuListScreen: React.FC = () => {
   const { cafeName } = route.params;
   const dispatch = useAppDispatch();
 
-  const [menuItems, setMenuItems] = useState<any[]>([]); // 서버에서 받아온 메뉴 데이터
+  const [menuItems, setMenuItems] = useState<any[]>([]);  //서버에서 받아온 메뉴 데이터
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
   const [selectedItems, setSelectedItems] = useState<any[]>([]); // 장바구니 선택 항목
 
@@ -49,19 +49,45 @@ const CafeMenuListScreen: React.FC = () => {
 
   // 메뉴 아이템 클릭 시 선택 상태에 추가
   const handleSelectItem = (item: any) => {
-    const found = selectedItems.find((selected) => selected._id === item._id);
-    if (!found) {
-      const updatedItems = [...selectedItems, item];
-      setSelectedItems(updatedItems);
-
+    if (!item || typeof item.price !== "number") {
+      console.error("Invalid item or missing price:", item);
+      return;
+    }
+  
+    setSelectedItems((prevItems) => {
+      const foundIndex = prevItems.findIndex(
+        (selected) => selected._id === item._id
+      );
+  
+      let updatedItems;
+  
+      if (foundIndex !== -1) {
+        // 이미 선택된 항목이라면 개수를 증가
+        updatedItems = prevItems.map((selected, index) =>
+          index === foundIndex
+            ? { ...selected, quantity: (selected.quantity || 0) + 1 }
+            : selected
+        );
+      } else {
+        // 새로 선택된 항목이라면 초기 개수를 1로 설정
+        updatedItems = [...prevItems, { ...item, quantity: 1 }];
+      }
+  
       // 총 가격 계산
       const totalPrice = updatedItems.reduce(
-        (sum, current) => sum + current.price,0);
-
+        (sum, current) => sum + (current.price || 0) * (current.quantity || 1),
+        0
+      );
+  
       // Redux에 업데이트된 항목 전달
       dispatch(setMenu({ items: updatedItems, price: totalPrice }));
-    }
+  
+      return updatedItems;
+    });
   };
+  
+  
+  
 
   // 메뉴 렌더링
   const renderMenuItem = ({ item }: { item: any }) => (
@@ -120,7 +146,7 @@ const CafeMenuListScreen: React.FC = () => {
       <TouchableOpacity
         style={styles.cartButton}
         onPress={() => {
-          navigate("BasketScreen", { selectedItems })}}
+          navigate("BasketScreen")}}
       >
         <Text style={styles.cartButtonText}>
           장바구니로 이동 ({menu.items.length}개)

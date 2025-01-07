@@ -17,6 +17,7 @@ interface MenuItem {
 
 const BasketScreen: React.FC = () => {
   const menu = useAppSelector(selectMenu);
+  console.log(menu)
   const selectedItems = menu.items
 
 
