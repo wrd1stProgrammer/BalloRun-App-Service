@@ -7,7 +7,7 @@ import { resetAndNavigate } from '../../navigation/NavigationUtils';
 export const getCafeMenusBycafeName = (cafeName:string) => async(dispatch: any) => {
     try {
         const res = await appAxios.get(`/cafe/getmenus/${cafeName}`);
-        console.log(res);
+        // console.log(res);
         return res.data;
       } catch (error: any) {
         console.log('카페메뉴 불러오기 에러 :  ->', error);

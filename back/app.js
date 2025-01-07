@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const redis = require("redis");
 const http = require("http"); // HTTP 서버 모듈 추가
 
 dotenv.config();
@@ -12,6 +13,22 @@ async function startServer() {
 
   // server,app -> loaders
   await require(".")(app,server);
+
+    //* Redis 연결
+    const redisClient = redis.createClient({
+      url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
+      legacyMode: true, // 반드시 설정 !!
+    });
+    redisClient.on("connect", () => {
+      console.info("Redis connected!");
+    });
+    redisClient.on("error", (err) => {
+      console.error("Redis Client Error", err);
+    });
+    await redisClient.connect().then(); // redis v4 연결 (비동기)
+    app.set("redisClient", redisClient); // 클라이언트를 앱에 저장
+    const redisCli = redisClient.v4; // 기본 redisClient 객체는 콜백기반인데 v4버젼은 프로미스 기반이라 사용
+    // loaders 에 분리해도 됨.
 
   // 서버 리스닝 시작
   server

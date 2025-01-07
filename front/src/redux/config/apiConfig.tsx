@@ -42,7 +42,7 @@ appAxios.interceptors.response.use(
 
 export const refresh_tokens = async () => { //여기 수정필요
   try {
-    const refresh_token = token_storage.getString('refreshToken');
+    const refresh_token = token_storage.getString('refresh_token');
     const response = await axios.post(REFRESH_TOKEN, {
       refresh_token,
     });
