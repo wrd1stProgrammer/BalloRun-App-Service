@@ -9,6 +9,10 @@
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <!-- END OPTIONAL PERMISSIONS -->
 
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+
   <queries>
     <!-- Support checking for http(s) links via the Linking API -->
     <intent>
@@ -24,6 +28,7 @@
     android:name="com.google.android.geo.API_KEY" 
     android:value="AIzaSyBxGkcR9TFrCBVAwzTWacT8oIb4mn2CSXU"
 />
+
     <activity android:name=".MainActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.App.SplashScreen" android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
