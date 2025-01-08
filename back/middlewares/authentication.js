@@ -40,9 +40,8 @@ const auth = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.log("authorization errorrrrrr!");
     console.log("authorization error:", error); // 추가
-    throw new UnauthenticatedError("Authentication invalid");
+    // throw new UnauthenticatedError("Authentication invalid");
   }
 };
 
