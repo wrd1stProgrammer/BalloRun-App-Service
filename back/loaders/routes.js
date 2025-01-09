@@ -24,6 +24,7 @@ module.exports = async (app) => {
     app.use("/auth",authRouter);
     app.use("/user",authMiddleware,userRouter);
     app.use("/cafe",authMiddleware,cafeRouter);
+    app.use("/order",authMiddleware,orderRouter);
 
 
     console.log('라우트 OK');

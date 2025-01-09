@@ -2,20 +2,24 @@ import { appAxios } from '../config/apiConfig';
 import {persistor} from '../config/store';
 import { resetAndNavigate } from '../../navigation/NavigationUtils';
 
-export const orderNowContactHandler = (
+
+// 지금 배달 Action
+export const orderNowHandler = (
     items: any[],
     lat: string,
     lng: string,
+    pickupTime: Number, // any?
     isMatch: boolean,
     deliveryType: 'direct' | 'cupHolder' 
   ) => async (dispatch: any) => {
     try {
-      const res = await appAxios.post(`/order/orderNowContact`, {
+      const res = await appAxios.post(`/order/orderNow`, {
         items, 
         lat,
         lng,
         isMatch,
         deliveryType,
+        pickupTime,
       });
   
       return res.data;
@@ -25,3 +29,28 @@ export const orderNowContactHandler = (
     }
   };
 
+  //예약 배달 Action
+  export const orderLaterHandler = (
+    items: any[],
+    lat: string,
+    lng: string,
+    isMatch: boolean,
+    pickupTime: Number, // any?
+    deliveryType: 'direct' | 'cupHolder' 
+  ) => async (dispatch: any) => {
+    try {
+      const res = await appAxios.post(`/order/orderLater`, {
+        items, 
+        lat,
+        lng,
+        isMatch,
+        deliveryType,
+        pickupTime,
+      });
+  
+      return res.data;
+    } catch (error: any) {
+      console.error('주문 요청 실패:', error);
+      throw error;
+    }
+  };
