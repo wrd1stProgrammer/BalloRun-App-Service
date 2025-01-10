@@ -29,7 +29,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     <BottomSheet
       ref={bottomSheetRef}
       index={0}
-      snapPoints={['25%', '40%']}
+      snapPoints={['25%', '43%']}
       style={styles.bottomSheet}
     >
       <View style={styles.sheetContent}>
