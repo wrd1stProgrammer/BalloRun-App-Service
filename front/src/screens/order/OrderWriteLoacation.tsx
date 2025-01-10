@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polygon, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import LocationBottomSheet from './LocationBottom/LocationBottomSheet';
@@ -22,12 +22,24 @@ const OrderWriteLocation = () => {
 
   const [region, setRegion] = useState(jnuRegion);
   const [address, setAddress] = useState(`${jnuRegion.latitude}, ${jnuRegion.longitude}`);
-  const [startTime, setStartTime] = useState('3시 30분');
-  const [endTime, setEndTime] = useState('4시 30분');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [deliveryFee, setDeliveryFee] = useState('1000원');
 
   const bottomSheetRef = useRef(null);
 
+  useEffect(() => {
+    const now = new Date();
+    const koreaTimeOffset = 9 * 60; // KST is UTC+9
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const koreaTime = new Date(utc + koreaTimeOffset * 60000);
+
+    const formatTime = (date: any) => `${date.getHours()}시 ${date.getMinutes()}분`;
+
+    const oneHourLater = new Date(koreaTime.getTime() + 60 * 60 * 1000);
+    setStartTime(formatTime(koreaTime));
+    setEndTime(formatTime(oneHourLater));
+  }, []);
   const handleRegionChange = (newRegion: Region) => {
     const minLat = Math.min(...jnuBoundary.map((point) => point.latitude));
     const maxLat = Math.max(...jnuBoundary.map((point) => point.latitude));
