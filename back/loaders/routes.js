@@ -3,6 +3,7 @@ const authMiddleware = require("../middlewares/authentication");
 const authRouter = require("../routes/auth");
 const userRouter = require("../routes/user");
 const cafeRouter = require("../routes/cafe");
+const orderRouter = require("../routes/order");
 // const userRouter = require("../routes/user"); 예시
 
 module.exports = async (app) => {

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const OrderSchema = new mongoose.Schema(
   {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // 주문한 사용자
     items: {
       type: [
         {
@@ -11,7 +12,7 @@ const OrderSchema = new mongoose.Schema(
           description: { type: String },
           imageUrl: { type: String }, // Cloudinary URL
         },
-      ], // 주문 아이템 배열
+      ],
       required: true,
     },
     lat: { type: String, required: true }, // 위도
@@ -23,6 +24,12 @@ const OrderSchema = new mongoose.Schema(
       required: true,
     },
     pickupTime: { type: Date, required: false }, // 예약 배달일 경우 픽업 시간
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'inProgress', 'completed'], // 주문 상태
+      default: 'pending',
+    },
+    riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더
     createdAt: { type: Date, default: Date.now }, // 생성 시간
   },
   {
