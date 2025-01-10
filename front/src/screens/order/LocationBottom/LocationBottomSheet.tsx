@@ -1,14 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 
 type LocationBottomSheetProps = {
   address: string;
   setAddress: (value: string) => void;
   startTime: string;
-  setStartTime: (value: string) => void;
+  setStartTime: () => void;
   endTime: string;
-  setEndTime: (value: string) => void;
+  setEndTime: () => void;
   deliveryFee: string;
   setDeliveryFee: (value: string) => void;
   bottomSheetRef: React.RefObject<BottomSheet>;
@@ -28,7 +28,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      index={0} // 기본적으로 활성화된 상태
+      index={0}
       snapPoints={['25%', '40%']}
       style={styles.bottomSheet}
     >
@@ -42,18 +42,18 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
         <Text style={styles.label}>배달 요청 시간</Text>
         <View style={styles.timeInputContainer}>
-          <TextInput
-            style={[styles.input, styles.timeInput, styles.inputCompact]}
-            value={startTime}
-            onChangeText={setStartTime}
-            placeholder="시작 시간"
-          />
-          <TextInput
-            style={[styles.input, styles.timeInput, styles.inputCompact]}
-            value={endTime}
-            onChangeText={setEndTime}
-            placeholder="종료 시간"
-          />
+          <TouchableOpacity
+            style={[styles.input, styles.timeInput]}
+            onPress={setStartTime}
+          >
+            <Text style={styles.timeText}>{startTime || '시작 시간 선택'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.input, styles.timeInput]}
+            onPress={setEndTime}
+          >
+            <Text style={styles.timeText}>{endTime || '종료 시간 선택'}</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.label}>배달비 설정</Text>
@@ -64,7 +64,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           keyboardType="numeric"
         />
 
-        <TouchableOpacity style={[styles.saveButton, styles.buttonCompact]}>
+        <TouchableOpacity style={styles.saveButton}>
           <Text style={styles.saveButtonText}>SAVE LOCATION</Text>
         </TouchableOpacity>
       </View>
@@ -109,6 +109,12 @@ const styles = StyleSheet.create({
   timeInput: {
     flex: 1,
     marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timeText: {
+    color: '#333',
+    fontSize: 14,
   },
   saveButton: {
     backgroundColor: '#6200ee',
@@ -116,10 +122,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 16,
-  },
-  buttonCompact: {
-    paddingVertical: 10,
-    marginTop: 12,
   },
   saveButtonText: {
     color: 'white',

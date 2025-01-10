@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Modal, Text } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import MapView, { Marker, Polygon, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import LocationBottomSheet from './LocationBottom/LocationBottomSheet';
 
@@ -22,24 +23,14 @@ const OrderWriteLocation = () => {
 
   const [region, setRegion] = useState(jnuRegion);
   const [address, setAddress] = useState(`${jnuRegion.latitude}, ${jnuRegion.longitude}`);
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 60 * 60 * 1000));
   const [deliveryFee, setDeliveryFee] = useState('1000원');
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
 
   const bottomSheetRef = useRef(null);
 
-  useEffect(() => {
-    const now = new Date();
-    const koreaTimeOffset = 9 * 60; // KST is UTC+9
-    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-    const koreaTime = new Date(utc + koreaTimeOffset * 60000);
-
-    const formatTime = (date: any) => `${date.getHours()}시 ${date.getMinutes()}분`;
-
-    const oneHourLater = new Date(koreaTime.getTime() + 60 * 60 * 1000);
-    setStartTime(formatTime(koreaTime));
-    setEndTime(formatTime(oneHourLater));
-  }, []);
   const handleRegionChange = (newRegion: Region) => {
     const minLat = Math.min(...jnuBoundary.map((point) => point.latitude));
     const maxLat = Math.max(...jnuBoundary.map((point) => point.latitude));
@@ -56,6 +47,8 @@ const OrderWriteLocation = () => {
     setRegion(limitedRegion);
     setAddress(`${limitedRegion.latitude}, ${limitedRegion.longitude}`);
   };
+
+  const formatTime = (date:any) => `${date.getHours()}시 ${date.getMinutes()}분`;
 
   return (
     <View style={styles.container}>
@@ -84,14 +77,47 @@ const OrderWriteLocation = () => {
       <LocationBottomSheet
         address={address}
         setAddress={setAddress}
-        startTime={startTime}
-        setStartTime={setStartTime}
-        endTime={endTime}
-        setEndTime={setEndTime}
+        startTime={formatTime(startTime)}
+        setStartTime={() => setShowStartPicker(true)}
+        endTime={formatTime(endTime)}
+        setEndTime={() => setShowEndPicker(true)}
         deliveryFee={deliveryFee}
         setDeliveryFee={setDeliveryFee}
         bottomSheetRef={bottomSheetRef}
       />
+
+      {/* Start Time Picker */}
+      {showStartPicker && (
+        <DateTimePicker
+          value={startTime}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowStartPicker(false);
+            if (selectedDate) {
+              setStartTime(selectedDate);
+              if (selectedDate >= endTime) {
+                setEndTime(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+              }
+            }
+          }}
+        />
+      )}
+
+      {/* End Time Picker */}
+      {showEndPicker && (
+        <DateTimePicker
+          value={endTime}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowEndPicker(false);
+            if (selectedDate) setEndTime(selectedDate);
+          }}
+        />
+      )}
     </View>
   );
 };
