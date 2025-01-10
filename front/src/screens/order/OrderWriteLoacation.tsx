@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polygon, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import LocationBottomSheet from './LocationBottom/LocationBottomSheet';
 
 const OrderWriteLocation = () => {
   // 전남대학교 영역
@@ -11,19 +12,23 @@ const OrderWriteLocation = () => {
     longitudeDelta: 0.005,
   };
 
-  // 전남대학교 경계 폴리곤 (예제)
   const jnuBoundary = [
-  { latitude: 35.182031, longitude: 126.897108 }, // 좌상단
-  { latitude: 35.182031, longitude: 126.911955 }, // 우상단
-  { latitude: 35.171504, longitude: 126.911955 }, // 우하단
-  { latitude: 35.171504, longitude: 126.897108 }, // 좌하단
-  { latitude: 35.182031, longitude: 126.897108 }, // 닫힘 (첫 좌표와 동일)
+    { latitude: 35.182031, longitude: 126.897108 },
+    { latitude: 35.182031, longitude: 126.911955 },
+    { latitude: 35.171504, longitude: 126.911955 },
+    { latitude: 35.171504, longitude: 126.897108 },
+    { latitude: 35.182031, longitude: 126.897108 },
   ];
 
   const [region, setRegion] = useState(jnuRegion);
+  const [address, setAddress] = useState(`${jnuRegion.latitude}, ${jnuRegion.longitude}`);
+  const [startTime, setStartTime] = useState('3시 30분');
+  const [endTime, setEndTime] = useState('4시 30분');
+  const [deliveryFee, setDeliveryFee] = useState('1000원');
 
-  // 지도 이동 제한
-  const handleRegionChange = (newRegion:Region) => {
+  const bottomSheetRef = useRef(null);
+
+  const handleRegionChange = (newRegion: Region) => {
     const minLat = Math.min(...jnuBoundary.map((point) => point.latitude));
     const maxLat = Math.max(...jnuBoundary.map((point) => point.latitude));
     const minLng = Math.min(...jnuBoundary.map((point) => point.longitude));
@@ -37,6 +42,7 @@ const OrderWriteLocation = () => {
     };
 
     setRegion(limitedRegion);
+    setAddress(`${limitedRegion.latitude}, ${limitedRegion.longitude}`);
   };
 
   return (
@@ -44,43 +50,39 @@ const OrderWriteLocation = () => {
       <MapView
         provider={PROVIDER_GOOGLE}
         style={styles.map}
-        customMapStyle={customMapStyle}
         initialRegion={jnuRegion}
-        onRegionChangeComplete={handleRegionChange} // 지도 이동 제한
+        onRegionChangeComplete={handleRegionChange}
       >
-        {/* 전남대학교 경계 표시 */}
         <Polygon
           coordinates={jnuBoundary}
-          strokeColor="rgba(0,0,255,0.8)" // 경계선 색상
-          fillColor="rgba(0,0,255,0.1)" // 내부 채우기 색상
+          strokeColor="rgba(0,0,255,0.8)"
+          fillColor="rgba(0,0,255,0.1)"
           strokeWidth={2}
         />
-
-        {/* 화면 중앙에 마커 */}
         <Marker
           coordinate={{
             latitude: region.latitude,
             longitude: region.longitude,
           }}
           title="현재 위치"
-          description={`위도: ${region.latitude.toFixed(6)}, 경도: ${region.longitude.toFixed(6)}`}
         />
       </MapView>
-      <View style={styles.coordinateBox}>
-        <Text style={styles.text}>위도: {region.latitude.toFixed(6)}</Text>
-        <Text style={styles.text}>경도: {region.longitude.toFixed(6)}</Text>
-      </View>
+
+      {/* Bottom Sheet */}
+      <LocationBottomSheet
+        address={address}
+        setAddress={setAddress}
+        startTime={startTime}
+        setStartTime={setStartTime}
+        endTime={endTime}
+        setEndTime={setEndTime}
+        deliveryFee={deliveryFee}
+        setDeliveryFee={setDeliveryFee}
+        bottomSheetRef={bottomSheetRef}
+      />
     </View>
   );
 };
-
-const customMapStyle = [
-  {
-    featureType: "all",
-    elementType: "labels.text",
-    stylers: [{ visibility: "on" }], // 텍스트 숨기기
-  },
-];
 
 const styles = StyleSheet.create({
   container: {
@@ -88,21 +90,6 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-  },
-  coordinateBox: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 10,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-  },
-  text: {
-    fontSize: 14,
-    fontWeight: 'bold',
   },
 });
 
