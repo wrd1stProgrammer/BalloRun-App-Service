@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, Modal, Text } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MapView, { Marker, Polygon, PROVIDER_GOOGLE, Region } from 'react-native-maps';
-import LocationBottomSheet from './LocationBottom/LocationBottomSheet';
+import LocationBottomSheet from './OrderWriteLocationComponent/LocationBottomSheet';
+import CustomMapView from './OrderWriteLocationComponent/CustomMapView';
 
 const OrderWriteLocation = () => {
   // 전남대학교 영역
@@ -52,26 +53,12 @@ const OrderWriteLocation = () => {
 
   return (
     <View style={styles.container}>
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={jnuRegion}
+      <CustomMapView
+        region={region}
         onRegionChangeComplete={handleRegionChange}
-      >
-        <Polygon
-          coordinates={jnuBoundary}
-          strokeColor="rgba(0,0,255,0.8)"
-          fillColor="rgba(0,0,255,0.1)"
-          strokeWidth={2}
-        />
-        <Marker
-          coordinate={{
-            latitude: region.latitude,
-            longitude: region.longitude,
-          }}
-          title="현재 위치"
-        />
-      </MapView>
+        jnuBoundary={jnuBoundary}
+      />
+
 
       {/* Bottom Sheet */}
       <LocationBottomSheet

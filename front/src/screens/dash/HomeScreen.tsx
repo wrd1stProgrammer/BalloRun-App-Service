@@ -20,17 +20,8 @@ const HomeScreen: React.FC = () => {
           <Text style={styles.userName}>
             {user?.username}님, 안녕하세요
           </Text>
-          <Text style={styles.userName}>
-            email: {user?.email}
-          </Text>
-          <Text style={styles.userName}>
-            point: {user?.point}
-          </Text>
-          <Text style={styles.userName}>
-            userId: {user?.userId}
-          </Text>
-          <Text style={styles.subTitle}>
-            에이틴에서 편함을 주문해보세요
+          <Text>
+          캠퍼스 커피에서 편함을 주문해보세요.
           </Text>
         </View>
         {/* 프로필 아이콘 (예: 실제 이미지 대체) */}
@@ -52,11 +43,6 @@ const HomeScreen: React.FC = () => {
           <Ionicons name="restaurant" size={28} color="#8A67F8" />
           <Text style={styles.cardTextDark}>주문하기</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.card, styles.deliveryCard]} onPress= {() => navigate('LoginScreen')}>
-          <Ionicons name="save" size={28} color="#fff" />
-          <Text style={styles.cardTextWhite}> 임시 로그인 화면으로 이동동</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -76,7 +62,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   greetingContainer: {
     flex: 1,
@@ -104,9 +90,10 @@ const styles = StyleSheet.create({
   // 카드 영역
   cardList: {
     // 배치(간격 등) 조절
+
   },
   card: {
-    height: 100,
+    height: 200,
     borderRadius: 12,
     marginBottom: 16,
     padding: 16,
@@ -124,11 +111,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#8A67F8',
     // 그림자 색 조금 진하게
     shadowColor: '#8A67F8',
+    justifyContent: 'center',
+
   },
   orderCard: {
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#8A67F8',
+    justifyContent: 'center',
+
   },
   cardTextWhite: {
     color: '#fff',
