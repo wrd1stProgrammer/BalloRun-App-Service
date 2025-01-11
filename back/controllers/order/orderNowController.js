@@ -1,6 +1,6 @@
 const Order = require("../../models/Order");
 const User = require("../../models/User");
-const io = require("socket.io")(server); // 또는 app.get('io')를 사용할 수도 있음
+// const io = require("socket.io")(server); // 또는 app.get('io')를 사용할 수도 있음
 
 const orderNowDirectCreate = async (req, res) => {
   const { items, lat, lng, isMatch, deliveryType, pickupTime } = req.body;
@@ -84,7 +84,7 @@ const matchRider = async (req, res) => {
      3. .emit("orderMatched",...) 이건 주문이 매칭 됐다는 것을 주문자와 라이더에게
         실시간으로 알려줌 
      4. orderMatched 를 .on 으로 받았다면 그때 주문자와 라이더의 screen,상태 업데이트
-     
+
      */
 
     res.status(200).json(order);
