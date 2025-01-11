@@ -26,7 +26,7 @@ const OrderSchema = new mongoose.Schema(
     pickupTime: { type: Date, required: false }, // 예약 배달일 경우 픽업 시간
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'inProgress', 'completed'], // 주문 상태
+      enum: ['pending', 'matched', 'accepted', 'inProgress', 'delivered', 'cancelled'], // 주문 상태
       default: 'pending',
     },
     riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더

@@ -41,7 +41,6 @@ const WebSocketContainer = ({ children }: Props) => {
         transports: ["websocket"],
         auth: { token: access_token },
       });
-      console.log(socket);
 
       socket.on("connect_error", async (err) => {
         console.log("에러 connect_error");
@@ -81,3 +80,22 @@ const WebSocketContainer = ({ children }: Props) => {
 };
 
 export default WebSocketContainer;
+
+
+/*
+import { WebSocketContext }... 이걸 가져옴
+const socket = useContext(WebSocketContext);
+
+socket.on("orderMatched", (data) => {
+  console.log("Order matched:", data);
+
+  // Redux를 사용해 상태 업데이트
+  dispatch(updateOrderStatus(data));
+
+  // UI 변경 등 추가 작업
+});
+
+--> 이런식으로 emit 한 것을 on 으로 받는 것, 반대로 클라에서 emit 한 걸 서버에서 on으로
+받을 수도 있음.
+
+*/

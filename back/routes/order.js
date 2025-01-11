@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   getMenusBycafeName
-} = require("../controllers/order/orderController");
+} = require("../controllers/order/orderNowController");
 
 const router = express.Router();
 
