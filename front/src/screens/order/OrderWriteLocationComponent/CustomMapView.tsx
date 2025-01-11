@@ -1,17 +1,26 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import MapView, { Marker, Polygon, PROVIDER_GOOGLE, Region, LatLng } from 'react-native-maps';
-
-// Props 타입 정의
-interface CustomMapViewProps {
-  region: Region; // 지도 영역 정보 (latitude, longitude, latitudeDelta, longitudeDelta)
-  onRegionChangeComplete: (region: Region) => void; // 영역 변경 시 호출되는 함수
-  jnuBoundary: LatLng[]; // 전남대학교 경계 배열
-}
+import MapView, { Marker, Polygon, PROVIDER_GOOGLE } from 'react-native-maps';
+import CustomMarker from './CustomMarker'; // CustomMarker 컴포넌트 임포트
+import { CustomMapViewProps } from './CustomMapViewProps'; // Props 타입 정의 임포트
 
 const CustomMapView: React.FC<CustomMapViewProps> = ({ region, onRegionChangeComplete, jnuBoundary }) => {
-    
-
+  const markers = React.useMemo(() => [
+    {
+      id: 1,
+      coordinate: { latitude: 35.179661, longitude: 126.90638 },
+      title: 'AI융합대학',
+      description: '여기는 마커 1입니다.',
+      image: require('../../../assets/images/AIpart.png'), // 로컬 이미지 파일
+    },
+    {
+      id: 2,
+      coordinate: { latitude: 35.177735, longitude: 126.909421 },
+      title: '공과대학',
+      description: '여기는 마커 2입니다.',
+      image: require('../../../assets/images/Engineerpart.png'), // 로컬 이미지 파일
+    },
+  ], []);
 
   return (
     <MapView
@@ -33,6 +42,11 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({ region, onRegionChangeCom
         }}
         title="현재 위치"
       />
+      {markers.map((marker) => (
+        <Marker key={marker.id} coordinate={marker.coordinate} title={marker.title} description={marker.description}>
+          <CustomMarker marker={marker} />
+        </Marker>
+      ))}
     </MapView>
   );
 };
