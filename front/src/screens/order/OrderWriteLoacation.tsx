@@ -11,7 +11,7 @@ const OrderWriteLocation = () => {
     latitude: 35.176735,
     longitude: 126.908421,
     latitudeDelta: 0.005,
-    longitudeDelta: 0.005,
+    longitudeDelta: 0.002,
   };
 
   const jnuBoundary = [
