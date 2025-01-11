@@ -35,11 +35,13 @@ const WebSocketContainer = ({ children }: Props) => {
   }, [refresh_token]);
 
   useEffect(() => {
+    
     if (access_token) {
       const socket = io(`http://${IPV4}:3000`, {
         transports: ["websocket"],
         auth: { token: access_token },
       });
+      console.log(socket);
 
       socket.on("connect_error", async (err) => {
         console.log("에러 connect_error");

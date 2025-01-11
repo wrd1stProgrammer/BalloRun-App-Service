@@ -3,6 +3,8 @@ const dotenv = require("dotenv");
 const redis = require("redis");
 const socketIo = require("socket.io"); // Socket.IO
 const http = require("http"); // HTTP 서버 모듈 추가
+const jwt = require("jsonwebtoken");
+const User = require("./models/User");
 const configureSocket = require("./loaders/socket"); // Socket.IO 설정 로더
 
 dotenv.config();
@@ -20,6 +22,9 @@ async function startServer() {
       methods: ["GET", "POST"],
     },
   });
+
+  // Socket.IO 설정
+  configureSocket(io);
 
   // server,app -> loaders
   await require(".")(app, server);
@@ -39,10 +44,6 @@ async function startServer() {
   app.set("redisClient", redisClient); // 클라이언트를 앱에 저장
   const redisCli = redisClient.v4; // 기본 redisClient 객체는 콜백기반인데 v4버젼은 프로미스 기반이라 사용
   // loaders 에 분리해도 됨.
-
-  // Socket 은 loaders 에 리펙토링 함.
-  configureSocket(io);
-
 
   // 서버 리스닝 시작
   server

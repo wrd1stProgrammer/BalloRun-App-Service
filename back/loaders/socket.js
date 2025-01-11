@@ -3,6 +3,11 @@ const User = require("../models/User"); // User 모델 import
 
 
 module.exports = (io) => {
+  if (!io) {
+    console.error("Socket.IO 객체가 전달되지 않았습니다.");
+    return;
+  }
+
   io.use(async (socket, next) => {
     console.log("Socket.IO Middleware 작동 중...");
     const token = socket.handshake.auth.token;
@@ -14,12 +19,12 @@ module.exports = (io) => {
       const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
       socket.user = decodedToken;
 
-      const user = await User.findById(socket.user.id);
+      const user = await User.findById(socket.user.userId);
       if (!user) {
         return next(new Error("User not found"));
       }
 
-      socket.user.username = user.username; // username 추가 -> 필요없을 듯.?
+      // socket.user.username = user.username; // username 추가 -> 필요없을 듯.?
       next();
     } catch (err) {
       if (err.name === "TokenExpiredError") {
@@ -33,6 +38,6 @@ module.exports = (io) => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`${socket.user.id} 연결되었습니다.`);
+    console.log(`${socket.user.userId} 연결되었습니다.`);
   });
 };
