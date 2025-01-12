@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,6 +14,7 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
 import { getCafeMenusBycafeName } from "../../redux/actions/menuAction";
 import { selectMenu, setMenu } from "../../redux/reducers/menuSlice";
+import { WebSocketContext } from "../../utils/Socket";
 
 interface CafeMenuListScreenParams {
   cafeName: string; // CafeListScreen에서 넘어오는 카페 이름
@@ -21,6 +22,7 @@ interface CafeMenuListScreenParams {
 
 const CafeMenuListScreen: React.FC = () => {
   const menu = useAppSelector(selectMenu);
+  const socket = useContext(WebSocketContext);
 
   const route = useRoute<RouteProp<{ params: CafeMenuListScreenParams }>>();
   const { cafeName } = route.params;
@@ -42,10 +44,25 @@ const CafeMenuListScreen: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (!socket) return;
+  
+    socket.on("socketTest", (message) => {
+      console.log("Received from server:", message);
+    });
+  
+    return () => {
+      socket.off("socketTest"); // 클린업
+    };
+  }, [socket]);
+  
+
   // 화면이 로드될 때 데이터를 가져옴
   useEffect(() => {
     fetchMenuItems();
   }, []);
+
+  
 
   // 메뉴 아이템 클릭 시 선택 상태에 추가
   const handleSelectItem = (item: any) => {

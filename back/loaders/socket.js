@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User"); // User 모델 import
 
-
 module.exports = (io) => {
   if (!io) {
     console.error("Socket.IO 객체가 전달되지 않았습니다.");
@@ -37,7 +36,22 @@ module.exports = (io) => {
     }
   });
 
+  // 소켓 연결
   io.on("connection", (socket) => {
     console.log(`${socket.user.userId} 연결되었습니다.`);
+
+    const userRoom = socket.user.userId;
+    socket.join(userRoom); // 사용자 전용 방에 조인
+
+    socket.on("disconnect", () => {
+      console.log(`${socket.user.userId} 연결 해제됨.`);
+    });
   });
+
+  // 특정 이벤트를 외부에서 송출할 수 있도록 함수 반환
+  const emitSocketTest = (message) => {
+    io.emit("socketTest", message);
+  };
+
+  return { emitSocketTest };
 };

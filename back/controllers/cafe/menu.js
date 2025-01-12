@@ -1,11 +1,12 @@
 const Menu = require("../../models/Menu");
 
-
 const getMenusBycafeName = async (req, res) => {
   const { cafeName } = req.params;
   // Redis 클라이언트 가져오기
   const redisClient = req.app.get("redisClient");
-  const redisCli = redisClient.v4
+  const redisCli = redisClient.v4;
+
+  const emitSocketTest = req.app.get("emitSocketTest");
 
   try {
     
@@ -14,7 +15,9 @@ const getMenusBycafeName = async (req, res) => {
 
     const cachedMenus = await redisCli.get(cacheKey);
 
+
     if (cachedMenus) {
+      emitSocketTest(`Cached menus for ${cachedMenus}`);
       console.log("Redis 캐시에서 메뉴 로드");
       return res.json(JSON.parse(cachedMenus)); // 캐시된 데이터 반환
     }
@@ -31,7 +34,7 @@ const getMenusBycafeName = async (req, res) => {
     await redisCli.set(cacheKey, stringifiedMenus, { EX: 300 }); // TTL: 300초
     console.log("Redis에 메뉴 캐싱 완료");
 
-
+    emitSocketTest(`Loaded menus for ${stringifiedMenus}`);
     // 클라이언트에 응답
     res.json(menus);
   } catch (error) {

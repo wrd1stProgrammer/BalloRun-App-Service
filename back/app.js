@@ -23,8 +23,10 @@ async function startServer() {
     },
   });
 
-  // Socket.IO 설정
-  configureSocket(io);
+  // Socket.IO 설정 및 emit 함수 등록 -> 여기서 emit 할 거 여러가지 등록
+  const { emitSocketTest } = configureSocket(io);
+  app.set("emitSocketTest", emitSocketTest);
+
 
   // server,app -> loaders
   await require(".")(app, server);
