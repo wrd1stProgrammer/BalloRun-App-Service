@@ -3,8 +3,21 @@ import { StyleSheet, View } from 'react-native';
 import MapView, { Region } from 'react-native-maps';
 import CustomMapView from './OrderWriteLocationComponent/CustomMapView';
 import LocationBottomSheet from './OrderWriteLocationComponent/LocationBottomSheet';
+import { RouteProp } from '@react-navigation/native';
 
-const OrderWriteLocation = () => {
+type RootStackParamList = {
+  OrderWriteLocation: { deliveryMethod:  'direct' | 'cupHolder' };
+};
+
+type OrderWriteLocationRouteProp = RouteProp<RootStackParamList, 'OrderWriteLocation'>;
+
+interface Props {
+  route: OrderWriteLocationRouteProp;
+}
+
+const OrderWriteLocation: React.FC<Props> = ({ route }) => {
+  const { deliveryMethod } = route.params; // navigate에서 전달된 데이터 가져오기
+  
   const bottomSheetRef = useRef(null);
 
   const jnuRegion: Region = {
@@ -52,6 +65,7 @@ const OrderWriteLocation = () => {
 
       <LocationBottomSheet
         address={address}
+        deliveryMethod={deliveryMethod} // deliveryMethod를 LocationBottomSheet로 전달
         bottomSheetRef={bottomSheetRef}
       />
     </View>

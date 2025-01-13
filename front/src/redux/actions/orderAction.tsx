@@ -13,6 +13,7 @@ export const orderNowHandler = (
   deliveryType: 'direct' | 'cupHolder'
 ) => async (dispatch: any) => {
   try {
+    
     const res = await appAxios.post(`/order/orderNow`, {
       items,
       lat,

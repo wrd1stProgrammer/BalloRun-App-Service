@@ -11,11 +11,13 @@ import { orderNowHandler } from '../../../redux/actions/orderAction';
 interface LocationBottomSheetProps {
   address: string;
   bottomSheetRef: React.RefObject<any>;
+  deliveryMethod: 'direct' | 'cupHolder';
 }
 
 const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   address,
   bottomSheetRef,
+  deliveryMethod
 }) => {
   const dispatch = useDispatch();
   const order = useAppSelector(selectOrder);
@@ -24,18 +26,18 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
   const [startTime, setStartTimeLocal] = React.useState(new Date());
   const [endTime, setEndTimeLocal] = React.useState(new Date(new Date().getTime() + 60 * 60 * 1000));
-  const [deliveryFee, setDeliveryFeeLocal] = React.useState('1000');
+  const [deliveryFee, setDeliveryFeeLocal] = React.useState("1000");
   const [showStartPicker, setShowStartPicker] = React.useState(false);
   const [showEndPicker, setShowEndPicker] = React.useState(false);
 
   const handleSave = async () => {
     try {
+      
       const [lat, lng] = address.split(',').map((s) => s.trim());
       if (!lat || !lng) {
         console.error('Invalid address format');
         return;
       }
-  
       // Redux 상태 업데이트
       dispatch(setAddress({ lat, lng }));
       dispatch(setStartTime(startTime.getTime()));
@@ -49,9 +51,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       }
   
       // 서버로 데이터 전송
-      const isMatch = true;
-      const deliveryType: 'direct' | 'cupHolder' = 'direct';
-  
+      const isMatch = false;
+      deliveryMethod = 'direct'
       const response = await (dispatch as any)(
         orderNowHandler(
           menu.items, // MenuItem[]
@@ -59,7 +60,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           lng,
           startTime.getTime(),
           isMatch,
-          deliveryType
+          deliveryMethod
         )
       );
   

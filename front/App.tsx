@@ -7,6 +7,7 @@ import { persistor, store } from "./src/redux/config/store";
 import { PersistGate } from "redux-persist/integration/react";
 import Navigation from "./src/navigation/Navigation";
 import WebSocketContainer from "./src/utils/Socket";
+import './reanimatedConfig';
 
 const App: React.FC = () => {
   return (

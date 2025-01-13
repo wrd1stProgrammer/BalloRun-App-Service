@@ -1,5 +1,5 @@
 import { Image, TouchableOpacity, StyleSheet, Text, View, FlatList } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { goBack, navigate } from '../../navigation/NavigationUtils';
 import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
@@ -14,11 +14,12 @@ interface MenuItem {
   quantity: number;
 }
 
+
 const BasketScreen: React.FC = () => {
+  const [deliveryMethod, setDeliveryMethod] = useState('direct'); // 배달방식 선택 상태
   const menu = useAppSelector(selectMenu);
   const dispatch = useAppDispatch();
 
-  // 수량 증가
   const increaseQuantity = (id: string) => {
     const item = menu.items.find((item) => item._id === id);
     if (item) {
@@ -27,12 +28,10 @@ const BasketScreen: React.FC = () => {
   };
 
   const removeMenuItem = (id: string) => {
-    dispatch(updateQuantity({ id, quantity: 0 })); // 수량을 0으로 업데이트하거나
-    // 또는 새로운 액션을 만들어 삭제 처리
-    dispatch(removeItem(id)); // 삭제 액션 호출
+    dispatch(updateQuantity({ id, quantity: 0 }));
+    dispatch(removeItem(id));
   };
 
-  // 수량 감소
   const decreaseQuantity = (id: string) => {
     const item = menu.items.find((item) => item._id === id);
     if (item && item.quantity > 1) {
@@ -40,7 +39,6 @@ const BasketScreen: React.FC = () => {
     }
   };
 
-  // 총 금액 계산
   const calculateTotal = () => {
     return menu.items.reduce((total, item) => {
       const priceNumber =
@@ -51,22 +49,19 @@ const BasketScreen: React.FC = () => {
     }, 0);
   };
 
-  // 장바구니 목록 렌더
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.card}>
-      {/* 삭제 버튼 */}
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => removeMenuItem(item._id)}
       >
         <Ionicons name="close" size={20} color="#fff" />
       </TouchableOpacity>
-  
+
       <Image source={{ uri: item.imageUrl }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.menuName}</Text>
         <Text style={styles.price}>
-          가격:{' '}
           {typeof item.price === 'string'
             ? item.price
             : `${item.price.toLocaleString()}원`}
@@ -89,11 +84,9 @@ const BasketScreen: React.FC = () => {
       </View>
     </View>
   );
-  
 
   return (
     <View style={styles.container}>
-      {/* 상단 바 */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
@@ -101,7 +94,6 @@ const BasketScreen: React.FC = () => {
         <Text style={styles.headerTitle}>장바구니</Text>
       </View>
 
-      {/* 장바구니에 담긴 메뉴 리스트 */}
       <FlatList
         data={menu.items}
         renderItem={renderMenuItem}
@@ -109,14 +101,50 @@ const BasketScreen: React.FC = () => {
         contentContainerStyle={styles.menuList}
       />
 
-      {/* 하단 총 금액 및 버튼 */}
       <View style={styles.footer}>
-        <Text style={styles.totalPrice}>
-          총 금액: {calculateTotal().toLocaleString()}원
-        </Text>
+        <View style={styles.deliveryMethodContainer}>
+          <Text style={styles.deliveryMethodTitle}>배달방식을 선택해주세요</Text>
+          <View style={styles.deliveryButtonsContainer}>
+            <TouchableOpacity
+              style={[
+                styles.deliveryButton,
+                deliveryMethod === 'direct' && styles.selectedButton,
+              ]}
+              onPress={() => setDeliveryMethod('direct')}
+            >
+              <Text
+                style={
+                  deliveryMethod === 'direct'
+                    ? styles.selectedButtonText
+                    : styles.deliveryButtonText
+                }
+              >
+
+                직접배달
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.deliveryButton,
+                deliveryMethod === 'cupHolder' && styles.selectedButton,
+              ]}
+              onPress={() => setDeliveryMethod('cupHolder')}
+            >
+              <Text
+                style={
+                  deliveryMethod === 'cupHolder'
+                    ? styles.selectedButtonText
+                    : styles.deliveryButtonText
+                }
+              >
+                음료보관대
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         <TouchableOpacity
           style={styles.orderButton}
-          onPress={() => navigate('OrderWriteLoacation')}
+          onPress={() => navigate('OrderWriteLoacation', { deliveryMethod })}
         >
           <Text style={styles.orderButtonText}>
             {calculateTotal().toLocaleString()}원 배달 주문하기
@@ -134,15 +162,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#ff4d4f', // 빨간색 배경
+    backgroundColor: '#ff4d4f',
     width: 24,
     height: 24,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10, // 다른 컴포넌트 위에 표시
+    zIndex: 10,
   },
-  
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -220,10 +247,36 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#eee',
   },
-  totalPrice: {
-    fontSize: 18,
+  deliveryMethodContainer: {
+    marginBottom: 16,
+  },
+  deliveryMethodTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginBottom: 8,
+  },
+  deliveryButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  deliveryButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  selectedButton: {
+    backgroundColor: '#d0a6f3',
+  },
+  deliveryButtonText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  selectedButtonText: {
+    fontSize: 14,
+    color: '#fff',
   },
   orderButton: {
     backgroundColor: '#d0a6f3',
