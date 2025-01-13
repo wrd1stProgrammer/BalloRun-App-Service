@@ -39,6 +39,8 @@ const orderNowDirectCreate = async (req, res) => {
   }
 };
 
+
+// 매치 부분이라 코드 분리 해야할 것 같은데
 const matchRider = async (req, res) => {
   const { orderId, riderId } = req.body; // 주문자 라이더
 
@@ -48,6 +50,8 @@ const matchRider = async (req, res) => {
       return res.status(404).json({ message: "주문을 찾을 수 없습니다." });
 
     order.status = "matched"; // 매칭상태 업데이트
+    // + 매칭 됐다고 orderId, riderId 에 socket 처리..?
+    // 
     order.riderId = riderId; // 라이더ID 지정.
     await order.save();
 

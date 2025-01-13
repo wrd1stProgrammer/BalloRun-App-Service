@@ -24,8 +24,10 @@ async function startServer() {
   });
 
   // Socket.IO 설정 및 emit 함수 등록 -> 여기서 emit 할 거 여러가지 등록
-  const { emitSocketTest } = configureSocket(io);
+  const { emitSocketTest,emitMatchTest } = configureSocket(io);
   app.set("emitSocketTest", emitSocketTest);
+  app.set("emitMatchTest", emitMatchTest);
+
 
 
   // server,app -> loaders
