@@ -5,6 +5,8 @@ import { useDispatch } from 'react-redux';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { setStartTime, setEndTime, setAddress, setDeliveryFee, selectOrder } from '../../../redux/reducers/orderSlice';
 import { useAppSelector } from '../../../redux/config/reduxHook';
+import { selectMenu } from '../../../redux/reducers/menuSlice';
+import { orderNowHandler } from '../../../redux/actions/orderAction';
 
 interface LocationBottomSheetProps {
   address: string;
@@ -17,6 +19,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 }) => {
   const dispatch = useDispatch();
   const order = useAppSelector(selectOrder);
+  const menu = useAppSelector(selectMenu);
+
 
   const [startTime, setStartTimeLocal] = React.useState(new Date());
   const [endTime, setEndTimeLocal] = React.useState(new Date(new Date().getTime() + 60 * 60 * 1000));
@@ -24,17 +28,45 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [showStartPicker, setShowStartPicker] = React.useState(false);
   const [showEndPicker, setShowEndPicker] = React.useState(false);
 
-  const handleSave = () => {
-    const [lat, lng] = address.split(',').map((s) => s.trim());
-    if (lat && lng) {
-      dispatch(setAddress({ lat, lng })); // Redux 업데이트
-    } else {
-      console.error('Invalid address format');
+  const handleSave = async () => {
+    try {
+      const [lat, lng] = address.split(',').map((s) => s.trim());
+      if (!lat || !lng) {
+        console.error('Invalid address format');
+        return;
+      }
+  
+      // Redux 상태 업데이트
+      dispatch(setAddress({ lat, lng }));
+      dispatch(setStartTime(startTime.getTime()));
+      dispatch(setEndTime(endTime.getTime()));
+      dispatch(setDeliveryFee(Number(deliveryFee)));
+  
+      // 배열인지 확인
+      if (!Array.isArray(menu.items)) {
+        console.error('menu.items is not an array');
+        return;
+      }
+  
+      // 서버로 데이터 전송
+      const isMatch = true;
+      const deliveryType: 'direct' | 'cupHolder' = 'direct';
+  
+      const response = await (dispatch as any)(
+        orderNowHandler(
+          menu.items, // MenuItem[]
+          lat,
+          lng,
+          startTime.getTime(),
+          isMatch,
+          deliveryType
+        )
+      );
+  
+      console.log('주문 성공:', response);
+    } catch (error) {
+      console.error('주문 중 에러 발생:', error);
     }
-    dispatch(setStartTime(startTime.getTime()));
-    dispatch(setEndTime(endTime.getTime()));
-    dispatch(setDeliveryFee(Number(deliveryFee)));
-    console.log(order);
   };
 
   return (
