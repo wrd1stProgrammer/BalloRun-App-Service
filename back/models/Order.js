@@ -23,7 +23,9 @@ const OrderSchema = new mongoose.Schema(
       enum: ['direct', 'cupHolder'], // 배달 타입 (직접, 컵홀더)
       required: true,
     },
-    pickupTime: { type: Date, required: false }, // 예약 배달일 경우 픽업 시간
+    pickupTime: { type: Date, required: false }, // 예약 배달일 경우 희망 픽업 시간
+    requestedAt: { type: Date, default: Date.now }, // 배달 요청 시작 시간
+    deliveryFee: { type: Number, required: false, default: 0 }, // 배달 수수료
     status: {
       type: String,
       enum: ['pending', 'matched', 'accepted', 'inProgress', 'delivered', 'cancelled'], // 주문 상태

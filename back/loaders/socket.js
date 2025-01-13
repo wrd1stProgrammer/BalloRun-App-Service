@@ -48,10 +48,15 @@ module.exports = (io) => {
     });
   });
 
-  // 특정 이벤트를 외부에서 송출할 수 있도록 함수 반환
+  // Test Socket 함수임.
   const emitSocketTest = (message) => {
     io.emit("socketTest", message);
   };
+  
+  const emitMatchTest = (message) => {
+    io.emit("matchTest", message);
+  }
+  
 
-  return { emitSocketTest };
+  return { emitSocketTest,emitMatchTest };
 };
