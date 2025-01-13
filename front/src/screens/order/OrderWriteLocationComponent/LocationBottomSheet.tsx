@@ -1,8 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useDispatch } from 'react-redux';
 import BottomSheet from '@gorhom/bottom-sheet';
-import { setStartTime, setEndTime, setAddress, setDeliveryFee, selectOrder} from '../../../redux/reducers/orderSlice';
+import { setStartTime, setEndTime, setAddress, setDeliveryFee, selectOrder } from '../../../redux/reducers/orderSlice';
 import { useAppSelector } from '../../../redux/config/reduxHook';
 
 interface LocationBottomSheetProps {
@@ -16,11 +17,12 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 }) => {
   const dispatch = useDispatch();
   const order = useAppSelector(selectOrder);
-  
 
   const [startTime, setStartTimeLocal] = React.useState(new Date());
   const [endTime, setEndTimeLocal] = React.useState(new Date(new Date().getTime() + 60 * 60 * 1000));
   const [deliveryFee, setDeliveryFeeLocal] = React.useState('1000');
+  const [showStartPicker, setShowStartPicker] = React.useState(false);
+  const [showEndPicker, setShowEndPicker] = React.useState(false);
 
   const handleSave = () => {
     const [lat, lng] = address.split(',').map((s) => s.trim());
@@ -32,7 +34,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     dispatch(setStartTime(startTime.getTime()));
     dispatch(setEndTime(endTime.getTime()));
     dispatch(setDeliveryFee(Number(deliveryFee)));
-    console.log(order)
+    console.log(order);
   };
 
   return (
@@ -53,17 +55,48 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         <View style={styles.timeInputContainer}>
           <TouchableOpacity
             style={[styles.input, styles.timeInput]}
-            onPress={() => setStartTimeLocal(new Date())}
+            onPress={() => setShowStartPicker(true)}
           >
             <Text style={styles.timeText}>{`${startTime.getHours()}시 ${startTime.getMinutes()}분`}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.input, styles.timeInput]}
-            onPress={() => setEndTimeLocal(new Date(new Date().getTime() + 60 * 60 * 1000))}
+            onPress={() => setShowEndPicker(true)}
           >
             <Text style={styles.timeText}>{`${endTime.getHours()}시 ${endTime.getMinutes()}분`}</Text>
           </TouchableOpacity>
         </View>
+
+        {showStartPicker && (
+          <DateTimePicker
+            value={startTime}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowStartPicker(false);
+              if (selectedDate) {
+                setStartTimeLocal(selectedDate);
+                if (selectedDate >= endTime) {
+                  setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+                }
+              }
+            }}
+          />
+        )}
+
+        {showEndPicker && (
+          <DateTimePicker
+            value={endTime}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowEndPicker(false);
+              if (selectedDate) setEndTimeLocal(selectedDate);
+            }}
+          />
+        )}
 
         <Text style={styles.label}>배달비 설정</Text>
         <TextInput
