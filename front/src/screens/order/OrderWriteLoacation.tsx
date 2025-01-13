@@ -22,16 +22,7 @@ const OrderWriteLocation = () => {
     { latitude: 35.182031, longitude: 126.897108 },
   ];
 
-  const [region, setRegion] = useState(jnuRegion);
-  const [address, setAddress] = useState(`${jnuRegion.latitude}, ${jnuRegion.longitude}`);
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 60 * 60 * 1000));
-  const [deliveryFee, setDeliveryFee] = useState('1000원');
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
-
-  const bottomSheetRef = useRef(null);
-
+  const [region, setRegion] = useState(jnuRegion); 
   const handleRegionChange = (newRegion: Region) => {
     const minLat = Math.min(...jnuBoundary.map((point) => point.latitude));
     const maxLat = Math.max(...jnuBoundary.map((point) => point.latitude));
@@ -48,6 +39,18 @@ const OrderWriteLocation = () => {
     setRegion(limitedRegion);
     setAddress(`${limitedRegion.latitude}, ${limitedRegion.longitude}`);
   };
+  
+  const [address, setAddress] = useState(`${jnuRegion.latitude}, ${jnuRegion.longitude}`);
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 60 * 60 * 1000));
+  const [deliveryFee, setDeliveryFee] = useState('1000원');
+
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+
+  const bottomSheetRef = useRef(null);
+
+
 
   const formatTime = (date:any) => `${date.getHours()}시 ${date.getMinutes()}분`;
 
