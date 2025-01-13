@@ -35,15 +35,14 @@ const WebSocketContainer = ({ children }: Props) => {
   }, [refresh_token]);
 
   useEffect(() => {
-    
     if (access_token) {
       const socket = io(`http://${IPV4}:3000`, {
         transports: ["websocket"],
         auth: { token: access_token },
       });
-
+  
       socket.on("connect_error", async (err) => {
-        console.log("에러 connect_error");
+        console.log("WebSocket connect_error:", err.message);
         if (err.message === "Authentication error: Token expired") {
           const new_access_token = await handleTokenExpiry();
           if (new_access_token) {
@@ -54,23 +53,23 @@ const WebSocketContainer = ({ children }: Props) => {
           console.error("Socket connection error:", err);
         }
       });
-
+  
       socket.on("connect", () => {
-        console.log("Connected to server 소켓 컨테이네 확인");
+        console.log("WebSocket connected!");
       });
-
-      socket.on("error", (object) => {
-        const { data, url } = object;
-        socket.emit(`${url}`, { ...data, token: access_token });
+  
+      socket.on("disconnect", (reason) => {
+        console.warn("WebSocket disconnected:", reason);
       });
-
+  
       setWebSocket(socket);
-
+  
       return () => {
         socket.disconnect();
       };
     }
   }, [access_token, handleTokenExpiry]);
+  
 
   return (
     <WebSocketContext.Provider value={webSocket}>

@@ -1,30 +1,40 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { useDispatch } from 'react-redux';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { setStartTime, setEndTime, setAddress, setDeliveryFee, selectOrder} from '../../../redux/reducers/orderSlice';
+import { useAppSelector } from '../../../redux/config/reduxHook';
 
-type LocationBottomSheetProps = {
+interface LocationBottomSheetProps {
   address: string;
-  setAddress: (value: string) => void;
-  startTime: string;
-  setStartTime: () => void;
-  endTime: string;
-  setEndTime: () => void;
-  deliveryFee: string;
-  setDeliveryFee: (value: string) => void;
-  bottomSheetRef: React.RefObject<BottomSheet>;
-};
+  bottomSheetRef: React.RefObject<any>;
+}
 
 const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   address,
-  setAddress,
-  startTime,
-  setStartTime,
-  endTime,
-  setEndTime,
-  deliveryFee,
-  setDeliveryFee,
   bottomSheetRef,
 }) => {
+  const dispatch = useDispatch();
+  const order = useAppSelector(selectOrder);
+  
+
+  const [startTime, setStartTimeLocal] = React.useState(new Date());
+  const [endTime, setEndTimeLocal] = React.useState(new Date(new Date().getTime() + 60 * 60 * 1000));
+  const [deliveryFee, setDeliveryFeeLocal] = React.useState('1000');
+
+  const handleSave = () => {
+    const [lat, lng] = address.split(',').map((s) => s.trim());
+    if (lat && lng) {
+      dispatch(setAddress({ lat, lng })); // Redux 업데이트
+    } else {
+      console.error('Invalid address format');
+    }
+    dispatch(setStartTime(startTime.getTime()));
+    dispatch(setEndTime(endTime.getTime()));
+    dispatch(setDeliveryFee(Number(deliveryFee)));
+    console.log(order)
+  };
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -37,22 +47,21 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         <TextInput
           style={[styles.input, styles.inputCompact]}
           value={address}
-          onChangeText={setAddress}
         />
 
         <Text style={styles.label}>배달 요청 시간</Text>
         <View style={styles.timeInputContainer}>
           <TouchableOpacity
             style={[styles.input, styles.timeInput]}
-            onPress={setStartTime}
+            onPress={() => setStartTimeLocal(new Date())}
           >
-            <Text style={styles.timeText}>{startTime || '시작 시간 선택'}</Text>
+            <Text style={styles.timeText}>{`${startTime.getHours()}시 ${startTime.getMinutes()}분`}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.input, styles.timeInput]}
-            onPress={setEndTime}
+            onPress={() => setEndTimeLocal(new Date(new Date().getTime() + 60 * 60 * 1000))}
           >
-            <Text style={styles.timeText}>{endTime || '종료 시간 선택'}</Text>
+            <Text style={styles.timeText}>{`${endTime.getHours()}시 ${endTime.getMinutes()}분`}</Text>
           </TouchableOpacity>
         </View>
 
@@ -60,11 +69,11 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         <TextInput
           style={[styles.input, styles.inputCompact]}
           value={deliveryFee}
-          onChangeText={setDeliveryFee}
+          onChangeText={setDeliveryFeeLocal}
           keyboardType="numeric"
         />
 
-        <TouchableOpacity style={styles.saveButton}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>SAVE LOCATION</Text>
         </TouchableOpacity>
       </View>
