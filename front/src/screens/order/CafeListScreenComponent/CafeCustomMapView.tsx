@@ -1,6 +1,7 @@
 import React from "react";
 import MapView, { Marker } from "react-native-maps";
 import { StyleSheet } from "react-native";
+import CustomMarker from "../OrderWriteLocationComponent/CustomMarker";
 
 interface CafeCustomMapViewProps {
   cafes: {
@@ -9,6 +10,7 @@ interface CafeCustomMapViewProps {
     latitude: number;
     longitude: number;
     rating: number;
+    icon: any; // 이미지 경로
   }[];
 }
 
@@ -30,9 +32,14 @@ const CafeCustomMapView: React.FC<CafeCustomMapViewProps> = ({ cafes }) => {
             latitude: cafe.latitude,
             longitude: cafe.longitude,
           }}
-          title={cafe.name}
-          description={`Rating: ${cafe.rating}`}
-        />
+        >
+          <CustomMarker
+            marker={{
+              image: cafe.icon,
+              title: `${cafe.name}\nRating: ${cafe.rating}`,
+            }}
+          />
+        </Marker>
       ))}
     </MapView>
   );

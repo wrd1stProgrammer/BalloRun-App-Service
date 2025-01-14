@@ -7,7 +7,7 @@ interface Cafe {
   id: string;
   name: string;
   rating: number;
-  icon: string; // 이미지 경로 또는 URL
+  icon: any; // 이미지 경로 또는 URL
   latitude: number; // 위도
   longitude: number; // 경도
 }
