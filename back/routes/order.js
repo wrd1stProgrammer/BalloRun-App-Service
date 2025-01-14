@@ -15,7 +15,7 @@ router.post('/orderNow',orderNowDirectCreate);
 router.post('/orderLater',);
 // 
 router.get('/getCompletedOrders',getCompletedOrders);
-router.get('/getOngoingOreder',getOngoingOrders);
+router.get('/getOngoingOrders',getOngoingOrders);
 
 
 module.exports = router;

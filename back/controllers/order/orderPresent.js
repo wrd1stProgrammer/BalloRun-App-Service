@@ -30,9 +30,9 @@ const getCompletedOrders = async (req, res) => {
       status: { $in: ["delivered", "cancelled"] },
     }).lean();
 
-    if (!completedOrders || completedOrders.length === 0) {
-      return res.status(404).json({ message: "완료된 주문 내역이 없습니다." });
-    }
+    // if (!completedOrders || completedOrders.length === 0) {
+    //   return res.status(404).json({ message: "완료된 주문 내역이 없습니다." });
+    // }
 
     // 3. Redis에 저장 (TTL: 몇초로 할까? 일단 300sec)
     await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 300 });
@@ -66,9 +66,9 @@ const getOngoingOrders = async (req, res) => {
       status: { $in: ["pending", "matched", "inProgress","accepted"] },
     }).lean();
 
-    if (!ongoingOrders || ongoingOrders.length === 0) {
-      return res.status(404).json({ message: "진행 중인 주문이 없습니다." });
-    }
+    // if (!ongoingOrders || ongoingOrders.length === 0) {
+    //   return res.status(404).json({ message: "진행 중인 주문이 없습니다." });
+    // }
 
     // 3. Redis에 저장 (TTL: 몇초로 할까? 일단 300sec)
     await redisCli.set(cacheKey, JSON.stringify(ongoingOrders), { EX: 300 });

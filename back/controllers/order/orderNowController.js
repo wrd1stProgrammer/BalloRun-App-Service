@@ -7,7 +7,7 @@ const orderNowDirectCreate = async (req, res) => {
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
   console.log(userId);
-
+  console.log('배달요청 들어온 데이터', items,lat,lng,isMatch,deliveryType,pickupTime);
   try {
     // 배달 타입이 'direct'인지 확인
     if (deliveryType === "direct") {

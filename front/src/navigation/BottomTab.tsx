@@ -12,6 +12,7 @@ import HomeScreen from '../screens/dash/HomeScreen';
 import BasketScreen from '../screens/dash/BasketScreen';
 import ChattingScreen from '../screens/dash/ChattingScreen';
 import ProfileScreen from '../screens/dash/ProfileScreen';
+import DeliveryRequestListScreen from '../screens/order/DeliveryRequestListScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -33,7 +34,7 @@ const BottomTab: FC = () => {
           // route.name 별 아이콘 설정
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Basket') {
+          } else if (route.name === 'DeliveryRequestListScreen') {
             iconName = focused ? 'cart' : 'cart-outline';
           } else if (route.name === 'Chatting') {
             iconName = focused ? 'chatbubble' : 'chatbubble-outline';
@@ -51,7 +52,7 @@ const BottomTab: FC = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Basket" component={BasketScreen} />
+      <Tab.Screen name="DeliveryRequestListScreen" component={DeliveryRequestListScreen} />
       <Tab.Screen name="Chatting" component={ChattingScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

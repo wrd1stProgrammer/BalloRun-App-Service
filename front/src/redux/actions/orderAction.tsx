@@ -10,10 +10,10 @@ export const orderNowHandler = (
   lng: string,
   pickupTime: number,
   isMatch: boolean,
-  deliveryType: 'direct' | 'cupHolder'
+  deliveryType: 'direct' | 'cupHolder',
+  deliveryFee: Number,
 ) => async (dispatch: any) => {
   try {
-    
     const res = await appAxios.post(`/order/orderNow`, {
       items,
       lat,
@@ -21,6 +21,7 @@ export const orderNowHandler = (
       pickupTime,
       isMatch,
       deliveryType,
+      deliveryFee,
     });
 
     return res.data;
@@ -56,3 +57,24 @@ export const orderNowHandler = (
       throw error;
     }
   };
+
+  export const getCompletedOrdersHandler =() => async(dispatch:any) => {
+    try {
+      const res = await appAxios.get(`/order/getCompletedOrders`);
+      return res.data
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }
+
+  export const getOngoingOrdersHandler =() => async(dispatch:any) => {
+    try {
+      const res = await appAxios.get(`/order/getOngoingOrders`);
+      return res.data
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }
+

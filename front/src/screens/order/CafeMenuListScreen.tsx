@@ -44,17 +44,6 @@ const CafeMenuListScreen: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (!socket) return;
-  
-    socket.on("socketTest", (message) => {
-      console.log("Received from server:", message);
-    });
-  
-    return () => {
-      socket.off("socketTest"); // 클린업
-    };
-  }, [socket]);
   
 
   // 화면이 로드될 때 데이터를 가져옴

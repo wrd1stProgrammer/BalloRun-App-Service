@@ -5,6 +5,7 @@ import { useAppDispatch } from "../redux/config/reduxHook";
 import { token_storage } from "../redux/config/storage";
 import { IPV4 } from "@env";
 import { refresh_tokens } from "../redux/config/apiConfig";
+import { jwtDecode } from "jwt-decode";
 
 interface Props {
   children?: React.ReactNode;
@@ -20,15 +21,34 @@ const WebSocketContainer = ({ children }: Props) => {
 
   const handleTokenExpiry = useCallback(async () => {
     if (refresh_token) {
-      const new_access_token = await refresh_tokens();
-      if (new_access_token) {
-        token_storage.set("access_token", new_access_token); // 새 토큰 저장
-        return new_access_token;
-      } else {
+      try {
+        // refresh_token 디코딩하여 만료 시간 확인
+        const decodedToken: { exp: number } = jwtDecode(refresh_token); // 토큰 디코딩
+        const currentTime = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
+  
+        if (decodedToken.exp < currentTime) {
+          console.log("Refresh token 만료됨, 재로그인 필요");
+          resetAndNavigate("LoginScreen");
+          return null;
+        }
+  
+        console.log("Refresh token 유효, 새로운 access token 요청");
+        const new_access_token = await refresh_tokens();
+  
+        if (new_access_token) {
+          token_storage.set("access_token", new_access_token); // 새 토큰 저장
+          return new_access_token;
+        } else {
+          resetAndNavigate("LoginScreen");
+          return null;
+        }
+      } catch (err) {
+        console.error("Refresh token 검증 중 오류 발생:", err);
         resetAndNavigate("LoginScreen");
         return null;
       }
     } else {
+      console.log("Refresh token 없음");
       resetAndNavigate("LoginScreen");
       return null;
     }

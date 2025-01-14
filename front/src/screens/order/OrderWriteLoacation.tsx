@@ -6,7 +6,6 @@ import MapView, { Region } from 'react-native-maps';
 import CustomMapView from './OrderWriteLocationComponent/CustomMapView';
 import LocationBottomSheet from './OrderWriteLocationComponent/LocationBottomSheet';
 import { RouteProp } from '@react-navigation/native';
-
 type RootStackParamList = {
   OrderWriteLocation: { deliveryMethod: 'direct' | 'cupHolder' };
 };

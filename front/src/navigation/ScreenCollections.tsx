@@ -10,6 +10,7 @@ import RegisterScreen from "../screens/auth/RegisterScreen";
 import CafeListScreen from "../screens/order/CafeListScreen";
 import CafeMenuListScreen from "../screens/order/CafeMenuListScreen";
 import OrderWriteLoacation from "../screens/order/OrderWriteLoacation";
+import DeliveryRequestListScreen from "../screens/order/DeliveryRequestListScreen";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -59,6 +60,10 @@ export const orderStack = [
   {
     name: "OrderWriteLoacation",
     component: OrderWriteLoacation,
+  },
+  {
+    name:"DeliveryRequestListScreen",
+    component: DeliveryRequestListScreen,
   },
 ];
 
