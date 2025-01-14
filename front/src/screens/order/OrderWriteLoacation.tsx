@@ -1,12 +1,14 @@
 import React, { useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import MapView, { Region } from 'react-native-maps';
 import CustomMapView from './OrderWriteLocationComponent/CustomMapView';
 import LocationBottomSheet from './OrderWriteLocationComponent/LocationBottomSheet';
 import { RouteProp } from '@react-navigation/native';
 
 type RootStackParamList = {
-  OrderWriteLocation: { deliveryMethod:  'direct' | 'cupHolder' };
+  OrderWriteLocation: { deliveryMethod: 'direct' | 'cupHolder' };
 };
 
 type OrderWriteLocationRouteProp = RouteProp<RootStackParamList, 'OrderWriteLocation'>;
@@ -17,7 +19,7 @@ interface Props {
 
 const OrderWriteLocation: React.FC<Props> = ({ route }) => {
   const { deliveryMethod } = route.params; // navigate에서 전달된 데이터 가져오기
-  
+  const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
 
   const jnuRegion: Region = {
@@ -57,12 +59,19 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
 
   return (
     <View style={styles.container}>
+      {/* 지도 */}
       <CustomMapView
         region={region}
         onRegionChangeComplete={handleRegionChange}
         jnuBoundary={jnuBoundary}
       />
 
+      {/* 뒤로가기 아이콘 */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="black" />
+      </TouchableOpacity>
+
+      {/* 위치 정보 하단 시트 */}
       <LocationBottomSheet
         address={address}
         deliveryMethod={deliveryMethod} // deliveryMethod를 LocationBottomSheet로 전달
@@ -76,8 +85,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  map: {
-    flex: 1,
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 20,
+    padding: 8,
+    zIndex: 10,
   },
 });
 

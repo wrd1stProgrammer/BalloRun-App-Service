@@ -52,7 +52,6 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   
       // 서버로 데이터 전송
       const isMatch = false;
-      deliveryMethod = 'direct'
       const response = await (dispatch as any)(
         orderNowHandler(
           menu.items, // MenuItem[]

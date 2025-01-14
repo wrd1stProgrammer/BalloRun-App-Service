@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,25 +8,23 @@ import {
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import MapView, { Marker } from "react-native-maps";
 
 import { useNavigation } from "@react-navigation/native";
 import { goBack, navigate } from "../../navigation/NavigationUtils";
-import cafes  from "../../componenets/cafe/cafeNameData";
+import cafes from "../../componenets/cafe/cafeNameData";
 import { useAppSelector } from "../../redux/config/reduxHook";
 import { selectMenu } from "../../redux/reducers/menuSlice";
 
-
 const CafeListScreen: React.FC = () => {
-  // 더미 데이터: 카페 리스트
+  const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
   const menu = useAppSelector(selectMenu);
-  
 
-  // 각 카페 항목 렌더링 + cafeName CafeMenuListScreen 에 전달.
   const renderCafeItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.cafeItem}
       onPress={() => navigate("CafeMenuListScreen", { cafeName: item.name })}
-    > 
+    >
       <Image source={item.icon} style={styles.cafeIcon} />
       <View style={styles.cafeDetails}>
         <Text style={styles.cafeName}>{item.name}</Text>
@@ -34,12 +32,11 @@ const CafeListScreen: React.FC = () => {
       </View>
     </TouchableOpacity>
   );
-  
 
   return (
-    <View style={styles.container} >
+    <View style={styles.container}>
       {/* 헤더 */}
-      <View style={styles.header} >
+      <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
@@ -55,14 +52,57 @@ const CafeListScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* 카페 리스트 */}
-      <Text style={styles.sectionTitle}>주문 가능 카페</Text>
-      <FlatList
-        data={cafes}
-        renderItem={renderCafeItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-      />
+      {/* 뷰 전환 버튼 */}
+      <View style={styles.toggleButtons}>
+        <TouchableOpacity
+          style={[
+            styles.toggleButton,
+            isListView ? styles.activeButton : styles.inactiveButton,
+          ]}
+          onPress={() => setIsListView(true)}
+        >
+          <Text
+            style={isListView ? styles.activeButtonText : styles.inactiveButtonText}
+          >
+            리스트로 주문하기
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.toggleButton,
+            !isListView ? styles.activeButton : styles.inactiveButton,
+          ]}
+          onPress={() => setIsListView(false)}
+        >
+          <Text
+            style={!isListView ? styles.activeButtonText : styles.inactiveButtonText}
+          >
+            지도로 주문하기
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 리스트 또는 지도 표시 */}
+      {isListView ? (
+        <FlatList
+          data={cafes}
+          renderItem={renderCafeItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+        />
+      ) : (
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 35.1595454, // 초기 지도 중심 (예: 광주)
+            longitude: 126.8526012,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+        >
+
+        </MapView>
+      )}
     </View>
   );
 };
@@ -112,10 +152,29 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+  toggleButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginVertical: 16,
+  },
+  toggleButton: {
+    flex: 1,
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 8,
+  },
+  activeButton: {
+    backgroundColor: "#6C63FF",
+  },
+  inactiveButton: {
+    backgroundColor: "#E5E7EB",
+  },
+  activeButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  inactiveButtonText: {
+    color: "#6B7280",
   },
   list: {
     paddingBottom: 16,
@@ -144,5 +203,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6B7280",
     marginTop: 4,
+  },
+  map: {
+    flex: 1,
   },
 });
