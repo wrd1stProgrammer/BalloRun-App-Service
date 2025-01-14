@@ -8,13 +8,12 @@ import {
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import MapView, { Marker } from "react-native-maps";
 
-import { useNavigation } from "@react-navigation/native";
 import { goBack, navigate } from "../../navigation/NavigationUtils";
 import cafes from "../../componenets/cafe/cafeNameData";
 import { useAppSelector } from "../../redux/config/reduxHook";
 import { selectMenu } from "../../redux/reducers/menuSlice";
+import CafeCustomMapView from "./CafeListScreenComponent/CafeCustomMapView";
 
 const CafeListScreen: React.FC = () => {
   const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
@@ -91,23 +90,16 @@ const CafeListScreen: React.FC = () => {
           contentContainerStyle={styles.list}
         />
       ) : (
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: 35.1595454, // 초기 지도 중심 (예: 광주)
-            longitude: 126.8526012,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-        >
-
-        </MapView>
+        <CafeCustomMapView cafes={cafes} />
       )}
     </View>
   );
 };
 
 export default CafeListScreen;
+
+// 스타일은 기존 코드 유지
+
 
 // 스타일
 const styles = StyleSheet.create({
@@ -203,8 +195,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6B7280",
     marginTop: 4,
-  },
-  map: {
-    flex: 1,
   },
 });
