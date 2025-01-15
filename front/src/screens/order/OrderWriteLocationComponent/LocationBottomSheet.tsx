@@ -28,6 +28,11 @@ interface LocationBottomSheetProps {
   deliveryMethod: "direct" | "cupHolder";
 }
 
+const toKST = (date: Date) => {
+  const offset = 9 * 60; // KST offset in minutes
+  return new Date(date.getTime() + offset * 60 * 1000);
+};
+
 const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   address,
   bottomSheetRef,
@@ -37,9 +42,9 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const menu = useAppSelector(selectMenu);
   const socket = useContext(WebSocketContext);
 
-  const [startTime, setStartTimeLocal] = React.useState(new Date());
+  const [startTime, setStartTimeLocal] = React.useState(toKST(new Date()));
   const [endTime, setEndTimeLocal] = React.useState(
-    new Date(new Date().getTime() + 60 * 60 * 1000)
+    toKST(new Date(new Date().getTime() + 60 * 60 * 1000))
   );
   const [deliveryFee, setDeliveryFeeLocal] = React.useState("500");
   const [showStartPicker, setShowStartPicker] = React.useState(false);
@@ -47,14 +52,12 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
   const handleSave = async () => {
     try {
-      console.log(Number(deliveryFee))
       const [lat, lng] = address.split(",").map((s) => s.trim());
       if (!lat || !lng) {
         console.error("Invalid address format");
         return;
       }
 
-      // Redux 상태 업데이트
       dispatch(setAddress({ lat, lng }));
       dispatch(setStartTime(startTime.getTime()));
       dispatch(setEndTime(endTime.getTime()));
@@ -79,13 +82,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         )
       );
 
-      // Navigate to the next screen and start loading
-      navigate("DeliveryRequestListScreen", { loading: true });
-
-      // Listen for socket response to stop loading
-      socket?.on("emitMatchTest", () => {
-        console.log("Socket response received");
-        navigate("DeliveryRequestListScreen", { loading: false });
+      navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen",
       });
     } catch (error) {
       console.error("Error during order request:", error);
@@ -101,10 +99,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     >
       <View style={styles.sheetContent}>
         <Text style={styles.label}>배달 상세 주소</Text>
-        <TextInput
-          style={[styles.input, styles.inputCompact]}
-          value={address}
-        />
+        <TextInput style={[styles.input, styles.inputCompact]} value={address} />
 
         <Text style={styles.label}>배달 요청 시간</Text>
         <View style={styles.timeInputContainer}>
@@ -112,17 +107,17 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             style={[styles.input, styles.timeInput]}
             onPress={() => setShowStartPicker(true)}
           >
-            <Text
-              style={styles.timeText}
-            >{`${startTime.getHours()}시 ${startTime.getMinutes()}분`}</Text>
+            <Text style={styles.timeText}>
+              {`${startTime.getHours()}시 ${startTime.getMinutes()}분`}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.input, styles.timeInput]}
             onPress={() => setShowEndPicker(true)}
           >
-            <Text
-              style={styles.timeText}
-            >{`${endTime.getHours()}시 ${endTime.getMinutes()}분`}</Text>
+            <Text style={styles.timeText}>
+              {`${endTime.getHours()}시 ${endTime.getMinutes()}분`}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -135,10 +130,11 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             onChange={(event, selectedDate) => {
               setShowStartPicker(false);
               if (selectedDate) {
-                setStartTimeLocal(selectedDate);
-                if (selectedDate >= endTime) {
+                const kstDate = toKST(selectedDate);
+                setStartTimeLocal(kstDate);
+                if (kstDate >= endTime) {
                   setEndTimeLocal(
-                    new Date(selectedDate.getTime() + 60 * 60 * 1000)
+                    new Date(kstDate.getTime() + 60 * 60 * 1000)
                   );
                 }
               }
@@ -154,7 +150,9 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             display="default"
             onChange={(event, selectedDate) => {
               setShowEndPicker(false);
-              if (selectedDate) setEndTimeLocal(selectedDate);
+              if (selectedDate) {
+                setEndTimeLocal(toKST(selectedDate));
+              }
             }}
           />
         )}
@@ -163,7 +161,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         <TextInput
           style={[styles.input, styles.inputCompact]}
           value={deliveryFee}
-          onChangeText={(text) => {setDeliveryFeeLocal(text)}}
+          onChangeText={(text) => setDeliveryFeeLocal(text)}
           keyboardType="numeric"
         />
 

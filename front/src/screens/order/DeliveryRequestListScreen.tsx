@@ -1,17 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   StyleSheet,
   View,
   Text,
   FlatList,
   ActivityIndicator,
-  TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import axios from "axios";
 import { format } from "date-fns";
 import { useAppDispatch } from "../../redux/config/reduxHook";
-import { getCompletedOrdersHandler, getOngoingOrdersHandler } from "../../redux/actions/orderAction";
+import {
+  getCompletedOrdersHandler,
+  getOngoingOrdersHandler,
+} from "../../redux/actions/orderAction";
+import { WebSocketContext } from "../../utils/Socket";
 
 interface OrderItem {
   _id: string;
@@ -24,34 +26,47 @@ interface OrderItem {
   deliveryFee: number;
 }
 
-const DeliveryRequestListScreen : React.FC = ({ navigation }: any) => {
-  const [loading, setLoading] = useState(true);
+const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
+  const [loading, setLoading] = useState(route.params?.loading ?? true);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const dispatch = useAppDispatch();
+  const socket = useContext(WebSocketContext);
 
   // API 호출하여 데이터 가져오기
   const fetchOrders = async () => {
     try {
       const completedOrdersResponse = await dispatch(getCompletedOrdersHandler());
       const ongoingOrdersResponse = await dispatch(getOngoingOrdersHandler());
-  
+
       setOrders([
-        ...(completedOrdersResponse || []), // undefined일 경우 빈 배열 처리
+        ...(completedOrdersResponse || []),
         ...(ongoingOrdersResponse || []),
       ]);
-
-      console.log(orders,'셋오더');
     } catch (error) {
       console.error("주문 데이터 가져오기 실패:", error);
-      setOrders([]); // 오류 발생 시 빈 배열로 초기화
+      setOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    // 화면 포커스될 때 데이터 새로고침
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchOrders();
+    });
+
+    // 소켓 이벤트 처리
+    socket?.on("emitMatchTest", () => {
+      console.log("Socket response received");
+      fetchOrders();
+    });
+
+    return () => {
+      unsubscribe();
+      socket?.off("emitMatchTest");
+    };
+  }, [navigation, socket]);
 
   const renderStatus = (status: string) => {
     switch (status) {
@@ -89,16 +104,15 @@ const DeliveryRequestListScreen : React.FC = ({ navigation }: any) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6200ee" />
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-
         <Text style={styles.title}>배달 요청 목록</Text>
       </View>
 
@@ -108,7 +122,7 @@ const DeliveryRequestListScreen : React.FC = ({ navigation }: any) => {
         renderItem={renderOrder}
         contentContainerStyle={styles.listContent}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -132,6 +146,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingBottom: 80, // 하단 여백 추가
   },
   card: {
     backgroundColor: "#fff",

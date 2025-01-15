@@ -52,8 +52,11 @@ const BottomTab: FC = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="DeliveryRequestListScreen" component={DeliveryRequestListScreen} />
-      <Tab.Screen name="Chatting" component={ChattingScreen} />
+      <Tab.Screen
+  name="DeliveryRequestListScreen"
+  component={DeliveryRequestListScreen}
+/>      
+    <Tab.Screen name="Chatting" component={ChattingScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
