@@ -47,32 +47,18 @@ const getCompletedOrders = async (req, res) => {
 
 const getOngoingOrders = async (req, res) => {
   const userId = req.user.userId;
-  const redisClient = req.app.get("redisClient");
-  const redisCli = redisClient.v4; // Redis v4 클라이언트 사용
-  const cacheKey = `ongoingOrders:${userId}`;
+  //const redisClient = req.app.get("redisClient");
+  //const redisCli = redisClient.v4; // Redis v4 클라이언트 사용
+  //const cacheKey = `ongoingOrders:${userId}`;
   const emitMatchTest = req.app.get("emitMatchTest");
 
   try {
-    // 1. Redis 캐시에서 데이터 확인
-    const cachedData = await redisCli.get(cacheKey);
-    if (cachedData) {
-      console.log("Redis에서 진행 중인 주문 데이터를 가져옴");
-      return res.json(JSON.parse(cachedData));
-    }
-
-    // 2. Redis에 데이터가 없으면 MongoDB에서 조회
+    
     const ongoingOrders = await Order.find({
       userId,
       status: { $in: ["pending", "matched", "inProgress","accepted"] },
     }).lean();
 
-    // if (!ongoingOrders || ongoingOrders.length === 0) {
-    //   return res.status(404).json({ message: "진행 중인 주문이 없습니다." });
-    // }
-
-    // 3. Redis에 저장 (TTL: 몇초로 할까? 일단 300sec)
-    await redisCli.set(cacheKey, JSON.stringify(ongoingOrders), { EX: 300 });
-    console.log("Redis에 진행 중인 주문 데이터를 캐싱");
 
     // !! 주문 요청 성공 Socket Test Code
     emitMatchTest(`주문 요청 성공!?`);
