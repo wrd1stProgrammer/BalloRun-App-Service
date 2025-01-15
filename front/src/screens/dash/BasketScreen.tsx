@@ -1,9 +1,21 @@
-import { Image, TouchableOpacity, StyleSheet, Text, View, FlatList, Alert } from 'react-native';
-import React, { useState } from 'react';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { goBack, navigate } from '../../navigation/NavigationUtils';
-import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
-import { selectMenu, updateQuantity, removeItem } from '../../redux/reducers/menuSlice';
+import {
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Alert,
+} from "react-native";
+import React, { useState } from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { goBack, navigate } from "../../navigation/NavigationUtils";
+import { useAppSelector, useAppDispatch } from "../../redux/config/reduxHook";
+import {
+  selectMenu,
+  updateQuantity,
+  removeItem,
+} from "../../redux/reducers/menuSlice";
 
 interface MenuItem {
   _id: string;
@@ -12,11 +24,12 @@ interface MenuItem {
   price: number | string;
   imageUrl: string;
   quantity: number;
+  RequiredOption: string | null;
+  AdditionalOptions: string[];
 }
 
-
 const BasketScreen: React.FC = () => {
-  const [deliveryMethod, setDeliveryMethod] = useState('direct'); // 배달방식 선택 상태
+  const [deliveryMethod, setDeliveryMethod] = useState("direct"); // 배달방식 선택 상태
   const menu = useAppSelector(selectMenu);
   const dispatch = useAppDispatch();
 
@@ -42,8 +55,8 @@ const BasketScreen: React.FC = () => {
   const calculateTotal = () => {
     return menu.items.reduce((total, item) => {
       const priceNumber =
-        typeof item.price === 'string'
-          ? parseInt(item.price.replace(/\D/g, ''), 10)
+        typeof item.price === "string"
+          ? parseInt(item.price.replace(/\D/g, ""), 10) //타입오류인가 잘 모르겠음 ㅠ
           : item.price;
       return total + priceNumber * item.quantity;
     }, 0);
@@ -62,10 +75,18 @@ const BasketScreen: React.FC = () => {
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.menuName}</Text>
         <Text style={styles.price}>
-          {typeof item.price === 'string'
+          {typeof item.price === "string"
             ? item.price
             : `${item.price.toLocaleString()}원`}
         </Text>
+        <Text style={styles.optionsText}>
+          필수 옵션: {item.RequiredOption || "선택 안 함"}
+        </Text>
+        {(item.AdditionalOptions ?? []).length > 0 && (
+          <Text style={styles.optionsText}>
+            추가 옵션: {item.AdditionalOptions.join(", ")}
+          </Text>
+        )}
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             style={styles.quantityButton}
@@ -93,46 +114,50 @@ const BasketScreen: React.FC = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>장바구니</Text>
       </View>
-
       <FlatList
-        data={menu.items}
+        data={menu.items as MenuItem[]} // 타입 단언 추가
         renderItem={renderMenuItem}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item) =>
+          `${item._id}-${
+            item.RequiredOption || "default"
+          }-${item.AdditionalOptions.join(",")}`
+        }
         contentContainerStyle={styles.menuList}
       />
 
       <View style={styles.footer}>
         <View style={styles.deliveryMethodContainer}>
-          <Text style={styles.deliveryMethodTitle}>배달방식을 선택해주세요</Text>
+          <Text style={styles.deliveryMethodTitle}>
+            배달방식을 선택해주세요
+          </Text>
           <View style={styles.deliveryButtonsContainer}>
             <TouchableOpacity
               style={[
                 styles.deliveryButton,
-                deliveryMethod === 'direct' && styles.selectedButton,
+                deliveryMethod === "direct" && styles.selectedButton,
               ]}
-              onPress={() => setDeliveryMethod('direct')}
+              onPress={() => setDeliveryMethod("direct")}
             >
               <Text
                 style={
-                  deliveryMethod === 'direct'
+                  deliveryMethod === "direct"
                     ? styles.selectedButtonText
                     : styles.deliveryButtonText
                 }
               >
-
                 직접배달
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.deliveryButton,
-                deliveryMethod === 'cupHolder' && styles.selectedButton,
+                deliveryMethod === "cupHolder" && styles.selectedButton,
               ]}
-              onPress={() => setDeliveryMethod('cupHolder')}
+              onPress={() => setDeliveryMethod("cupHolder")}
             >
               <Text
                 style={
-                  deliveryMethod === 'cupHolder'
+                  deliveryMethod === "cupHolder"
                     ? styles.selectedButtonText
                     : styles.deliveryButtonText
                 }
@@ -145,16 +170,16 @@ const BasketScreen: React.FC = () => {
         <TouchableOpacity
           style={styles.orderButton}
           onPress={() => {
-                    if (menu.items && menu.items.length > 0) {
-                      navigate('OrderWriteLoacation', { deliveryMethod });
-                    } else {
-                      Alert.alert(
-                        "장바구니가 비어 있습니다",
-                        "상품을 추가한 후 장바구니로 이동할 수 있습니다.",
-                        [{ text: "확인", onPress: () => console.log("Alert 닫기") }]
-                      );
-                    }
-                  }}
+            if (menu.items && menu.items.length > 0) {
+              navigate("OrderWriteLoacation", { deliveryMethod });
+            } else {
+              Alert.alert(
+                "장바구니가 비어 있습니다",
+                "상품을 추가한 후 장바구니로 이동할 수 있습니다.",
+                [{ text: "확인", onPress: () => console.log("Alert 닫기") }]
+              );
+            }
+          }}
         >
           <Text style={styles.orderButtonText}>
             {calculateTotal().toLocaleString()}원 배달 주문하기
@@ -169,47 +194,47 @@ export default BasketScreen;
 
 const styles = StyleSheet.create({
   deleteButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: '#ff4d4f',
+    backgroundColor: "#ff4d4f",
     width: 24,
     height: 24,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     zIndex: 10,
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   backButton: {
     marginRight: 8,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   menuList: {
     padding: 16,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
     padding: 12,
     marginBottom: 12,
     borderRadius: 8,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 2,
     shadowOffset: { width: 0, height: 2 },
@@ -225,78 +250,83 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   price: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 4,
   },
+  optionsText: {
+    fontSize: 12,
+    color: "#999",
+    marginTop: 2,
+  },
   quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 8,
   },
   quantityButton: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
     borderRadius: 16,
     padding: 8,
   },
   quantityButtonText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#666',
+    fontWeight: "bold",
+    color: "#666",
   },
   quantityText: {
     marginHorizontal: 12,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   footer: {
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: "#eee",
   },
   deliveryMethodContainer: {
     marginBottom: 16,
   },
   deliveryMethodTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   deliveryButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   deliveryButton: {
     flex: 1,
     padding: 12,
     borderRadius: 8,
-    backgroundColor: '#f0f0f0',
-    alignItems: 'center',
+    backgroundColor: "#f0f0f0",
+    alignItems: "center",
     marginHorizontal: 4,
   },
   selectedButton: {
-    backgroundColor: '#d0a6f3',
+    backgroundColor: "#d0a6f3",
   },
   deliveryButtonText: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   selectedButtonText: {
     fontSize: 14,
-    color: '#fff',
+    color: "#fff",
   },
   orderButton: {
-    backgroundColor: '#d0a6f3',
+    backgroundColor: "#d0a6f3",
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 8,
   },
   orderButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
   },
 });

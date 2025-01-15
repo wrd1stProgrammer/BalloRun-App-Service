@@ -1,9 +1,9 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
-import { useAppDispatch } from "../../redux/config/reduxHook";
-import { setMenu } from "../../redux/reducers/menuSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
+import { selectMenu, setMenu } from "../../redux/reducers/menuSlice";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface MenuOptionParams {
@@ -13,23 +13,49 @@ interface MenuOptionParams {
     menuName: string;
     description: string;
     price: number;
-    cafeName: string; // 추가된 cafeName 필드
+    cafeName: string;
   };
 }
 
 const CafeMenuOption: React.FC = () => {
+    const menu = useAppSelector(selectMenu);
+  
   const route = useRoute<RouteProp<{ params: MenuOptionParams }>>();
   const navigation = useNavigation();
   const { menuItem } = route.params;
   const dispatch = useAppDispatch();
 
+  const [selectedRequiredOption, setSelectedRequiredOption] = useState<string | null>(null);
+  const [selectedAdditionalOptions, setSelectedAdditionalOptions] = useState<string[]>([]);
+
+  const handleRequiredOptionSelect = (option: string) => {
+    setSelectedRequiredOption(option);
+  };
+
+  const handleAdditionalOptionToggle = (option: string) => {
+    setSelectedAdditionalOptions((prevOptions) =>
+      prevOptions.includes(option)
+        ? prevOptions.filter((o) => o !== option)
+        : [...prevOptions, option]
+    );
+  };
+
   const handleAddToCart = () => {
+    if (!selectedRequiredOption) {
+      Alert.alert("알림", "필수 옵션을 선택해주세요!");
+      return;
+    }
+
     dispatch((dispatch, getState) => {
       const currentMenu = getState().menu;
       const updatedItems = [...currentMenu.items];
 
+      // 동일 메뉴 및 옵션 체크
       const foundIndex = updatedItems.findIndex(
-        (selected) => selected._id === menuItem._id
+        (selected) =>
+          selected._id === menuItem._id &&
+          selected.RequiredOption === selectedRequiredOption &&
+          JSON.stringify(selected.AdditionalOptions) === JSON.stringify(selectedAdditionalOptions)
       );
 
       if (foundIndex !== -1) {
@@ -38,7 +64,12 @@ const CafeMenuOption: React.FC = () => {
           quantity: (updatedItems[foundIndex].quantity || 1) + 1,
         };
       } else {
-        updatedItems.push({ ...menuItem, quantity: 1 });
+        updatedItems.push({
+          ...menuItem,
+          quantity: 1,
+          RequiredOption: selectedRequiredOption,
+          AdditionalOptions: selectedAdditionalOptions,
+        });
       }
 
       const totalPrice = updatedItems.reduce(
@@ -58,18 +89,19 @@ const CafeMenuOption: React.FC = () => {
           quantitiy: totalQuantity,
         })
       );
+
+      console.log(menu)
     });
 
     navigation.goBack();
   };
 
   return (
-    
     <View style={styles.container}>
       {/* 상단 바 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{menuItem.cafeName}</Text>
       </View>
@@ -84,19 +116,43 @@ const CafeMenuOption: React.FC = () => {
 
       {/* 필수 옵션 */}
       <Text style={styles.sectionTitle}>필수 옵션</Text>
-      <TouchableOpacity style={styles.optionButton}>
+      <TouchableOpacity
+        style={[
+          styles.optionButton,
+          selectedRequiredOption === "Ice" && styles.selectedOption,
+        ]}
+        onPress={() => handleRequiredOptionSelect("Ice")}
+      >
         <Text>Ice</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.optionButton}>
+      <TouchableOpacity
+        style={[
+          styles.optionButton,
+          selectedRequiredOption === "Hot" && styles.selectedOption,
+        ]}
+        onPress={() => handleRequiredOptionSelect("Hot")}
+      >
         <Text>Hot</Text>
       </TouchableOpacity>
 
       {/* 추가 옵션 */}
       <Text style={styles.sectionTitle}>추가 옵션</Text>
-      <TouchableOpacity style={styles.optionButton}>
+      <TouchableOpacity
+        style={[
+          styles.optionButton,
+          selectedAdditionalOptions.includes("샷추가") && styles.selectedOption,
+        ]}
+        onPress={() => handleAdditionalOptionToggle("샷추가")}
+      >
         <Text>샷추가 (+500원)</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.optionButton}>
+      <TouchableOpacity
+        style={[
+          styles.optionButton,
+          selectedAdditionalOptions.includes("디카페인 변경") && styles.selectedOption,
+        ]}
+        onPress={() => handleAdditionalOptionToggle("디카페인 변경")}
+      >
         <Text>디카페인 변경 (+500원)</Text>
       </TouchableOpacity>
 
@@ -107,95 +163,92 @@ const CafeMenuOption: React.FC = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 16,
-      backgroundColor: "#FFFFFF",
-    },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between", // 양쪽 정렬
-      height: 56, // 상단 바 높이 설정
-      position: "relative", // 중앙 정렬을 위한 기준 설정
-    },
-    backButton: {
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      zIndex: 1, // 뒤로 가기 버튼이 텍스트 위로 오도록 설정
-    },
-    backButtonText: {
-      fontSize: 20,
-      color: "#8A67F8",
-      fontWeight: "bold",
-    },
-    headerTitle: {
-      fontSize: 18,
-      fontWeight: "bold",
-      color: "#333333",
-      position: "absolute", // 중앙 배치
-      left: 0,
-      right: 0,
-      textAlign: "center", // 텍스트를 중앙 정렬
-      zIndex: 0, // 뒤로 가기 버튼보다 아래로 설정
-    },
-    image: {
-      width: "100%",
-      height: 220,
-      borderRadius: 12,
-      marginBottom: 16,
-      resizeMode: "cover",
-    },
-    title: {
-      fontSize: 22,
-      fontWeight: "bold",
-      color: "#333333",
-      marginBottom: 4,
-    },
-    description: {
-      fontSize: 14,
-      color: "#666666",
-      marginBottom: 8,
-    },
-    price: {
-      fontSize: 20,
-      fontWeight: "bold",
-      color: "#8A67F8",
-      marginBottom: 16,
-    },
-    sectionTitle: {
-      fontSize: 16,
-      fontWeight: "bold",
-      marginTop: 16,
-      marginBottom: 8,
-      color: "#333333",
-    },
-    optionButton: {
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      borderWidth: 1,
-      borderColor: "#E0E0E0",
-      borderRadius: 8,
-      marginBottom: 8,
-      backgroundColor: "#F9F9F9",
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    addButton: {
-      marginTop: 24,
-      paddingVertical: 16,
-      backgroundColor: "#8A67F8",
-      borderRadius: 8,
-      alignItems: "center",
-    },
-    addButtonText: {
-      color: "#FFFFFF",
-      fontSize: 18,
-      fontWeight: "bold",
-    },
-  });
-  
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#FFFFFF",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: 56,
+    position: "relative",
+  },
+  backButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333333",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    textAlign: "center",
+  },
+  image: {
+    width: "100%",
+    height: 220,
+    borderRadius: 12,
+    marginBottom: 16,
+    resizeMode: "cover",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#333333",
+    marginBottom: 4,
+  },
+  description: {
+    fontSize: 14,
+    color: "#666666",
+    marginBottom: 8,
+  },
+  price: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#8A67F8",
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 16,
+    marginBottom: 8,
+    color: "#333333",
+  },
+  optionButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: "#F9F9F9",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  selectedOption: {
+    backgroundColor: "#8A67F8",
+    borderColor: "#8A67F8",
+  },
+  addButton: {
+    marginTop: 24,
+    paddingVertical: 16,
+    backgroundColor: "#8A67F8",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+});
 
 export default CafeMenuOption;
