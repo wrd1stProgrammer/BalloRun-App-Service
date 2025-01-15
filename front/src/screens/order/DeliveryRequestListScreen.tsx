@@ -98,9 +98,7 @@ const DeliveryRequestListScreen : React.FC = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
+
         <Text style={styles.title}>배달 요청 목록</Text>
       </View>
 

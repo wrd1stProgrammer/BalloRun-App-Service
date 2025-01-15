@@ -41,12 +41,13 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [endTime, setEndTimeLocal] = React.useState(
     new Date(new Date().getTime() + 60 * 60 * 1000)
   );
-  const [deliveryFee, setDeliveryFeeLocal] = React.useState("1000");
+  const [deliveryFee, setDeliveryFeeLocal] = React.useState("500");
   const [showStartPicker, setShowStartPicker] = React.useState(false);
   const [showEndPicker, setShowEndPicker] = React.useState(false);
 
   const handleSave = async () => {
     try {
+      console.log(Number(deliveryFee))
       const [lat, lng] = address.split(",").map((s) => s.trim());
       if (!lat || !lng) {
         console.error("Invalid address format");
@@ -162,7 +163,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         <TextInput
           style={[styles.input, styles.inputCompact]}
           value={deliveryFee}
-          onChangeText={setDeliveryFeeLocal}
+          onChangeText={(text) => {setDeliveryFeeLocal(text)}}
           keyboardType="numeric"
         />
 

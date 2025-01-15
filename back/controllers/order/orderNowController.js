@@ -3,7 +3,7 @@ const User = require("../../models/User");
 // const io = require("socket.io")(server); // 또는 app.get('io')를 사용할 수도 있음
 
 const orderNowDirectCreate = async (req, res) => {
-  const { items, lat, lng, isMatch, deliveryType, pickupTime } = req.body;
+  const { items, lat, lng, isMatch, deliveryFee, deliveryType, pickupTime } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
   console.log(userId);
@@ -17,6 +17,7 @@ const orderNowDirectCreate = async (req, res) => {
         lat,
         lng,
         isMatch,
+        deliveryFee,
         deliveryType,
         pickupTime,
       });
