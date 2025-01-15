@@ -1,4 +1,4 @@
-  import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   Image,
   FlatList,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { goBack, navigate } from "../../navigation/NavigationUtils";
@@ -28,7 +29,7 @@ const CafeMenuListScreen: React.FC = () => {
   const { cafeName } = route.params;
   const dispatch = useAppDispatch();
 
-  const [menuItems, setMenuItems] = useState<any[]>([]);  //서버에서 받아온 메뉴 데이터
+  const [menuItems, setMenuItems] = useState<any[]>([]); //서버에서 받아온 메뉴 데이터
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
   //const [selectedItems, setSelectedItems] = useState<any[]>([]); // 장바구니 선택 항목
 
@@ -44,14 +45,10 @@ const CafeMenuListScreen: React.FC = () => {
     }
   };
 
-  
-
   // 화면이 로드될 때 데이터를 가져옴
   useEffect(() => {
     fetchMenuItems();
   }, []);
-
-  
 
   // 메뉴 아이템 클릭 시 선택 상태에 추가
   const handleSelectItem = (item: any) => {
@@ -59,15 +56,15 @@ const CafeMenuListScreen: React.FC = () => {
       console.error("Invalid item or missing price:", item);
       return;
     }
-  
+
     dispatch((dispatch, getState) => {
       const currentMenu = getState().menu;
       const updatedItems = [...currentMenu.items];
-  
+
       const foundIndex = updatedItems.findIndex(
         (selected) => selected._id === item._id
       );
-  
+
       if (foundIndex !== -1) {
         // 이미 선택된 항목이라면 개수 증가
         updatedItems[foundIndex] = {
@@ -78,30 +75,29 @@ const CafeMenuListScreen: React.FC = () => {
         // 새로 선택된 항목이라면 초기 개수를 1로 설정
         updatedItems.push({ ...item, quantity: 1 });
       }
-  
+
       // 총 가격 계산
       const totalPrice = updatedItems.reduce(
         (sum, current) => sum + (current.price || 0) * (current.quantity || 1),
         0
       );
-  
+
       // 총 개수 계산
       const totalQuantity = updatedItems.reduce(
         (sum, current) => sum + (current.quantity || 1),
         0
       );
-  
- 
-  
+
       // Redux에 업데이트된 항목 전달
-      dispatch(setMenu({ items: updatedItems, price: totalPrice, quantitiy: totalQuantity }));
+      dispatch(
+        setMenu({
+          items: updatedItems,
+          price: totalPrice,
+          quantitiy: totalQuantity,
+        })
+      );
     });
   };
-  
-  
-  
-  
-  
 
   // 메뉴 렌더링
   const renderMenuItem = ({ item }: { item: any }) => (
@@ -157,10 +153,20 @@ const CafeMenuListScreen: React.FC = () => {
       )}
 
       {/* 장바구니 이동 버튼 */}
+      {/* 장바구니 이동 버튼 */}
       <TouchableOpacity
         style={styles.cartButton}
         onPress={() => {
-          navigate("BasketScreen")}}
+          if (menu.items && menu.items.length > 0) {
+            navigate("BasketScreen");
+          } else {
+            Alert.alert(
+              "장바구니가 비어 있습니다",
+              "상품을 추가한 후 장바구니로 이동할 수 있습니다.",
+              [{ text: "확인", onPress: () => console.log("Alert 닫기") }]
+            );
+          }
+        }}
       >
         <Text style={styles.cartButtonText}>
           장바구니로 이동 ({menu.quantitiy}개)

@@ -1,4 +1,4 @@
-import { Image, TouchableOpacity, StyleSheet, Text, View, FlatList } from 'react-native';
+import { Image, TouchableOpacity, StyleSheet, Text, View, FlatList, Alert } from 'react-native';
 import React, { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { goBack, navigate } from '../../navigation/NavigationUtils';
@@ -144,7 +144,17 @@ const BasketScreen: React.FC = () => {
         </View>
         <TouchableOpacity
           style={styles.orderButton}
-          onPress={() => navigate('OrderWriteLoacation', { deliveryMethod })}
+          onPress={() => {
+                    if (menu.items && menu.items.length > 0) {
+                      navigate('OrderWriteLoacation', { deliveryMethod });
+                    } else {
+                      Alert.alert(
+                        "장바구니가 비어 있습니다",
+                        "상품을 추가한 후 장바구니로 이동할 수 있습니다.",
+                        [{ text: "확인", onPress: () => console.log("Alert 닫기") }]
+                      );
+                    }
+                  }}
         >
           <Text style={styles.orderButtonText}>
             {calculateTotal().toLocaleString()}원 배달 주문하기
