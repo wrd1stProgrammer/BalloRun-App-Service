@@ -101,18 +101,17 @@ const CafeMenuListScreen: React.FC = () => {
 
   // 메뉴 렌더링
   const renderMenuItem = ({ item }: { item: any }) => (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => handleSelectItem(item)}>
       <Image source={{ uri: item.imageUrl }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.menuName}</Text>
         <Text style={styles.description}>{item.description}</Text>
         <Text style={styles.price}>{item.price}원</Text>
       </View>
-      <TouchableOpacity onPress={() => handleSelectItem(item)}>
-        <Ionicons name="add-circle-outline" size={24} color="green" />
-      </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
+  
+
 
   return (
     <View style={styles.container}>
@@ -148,6 +147,7 @@ const CafeMenuListScreen: React.FC = () => {
             renderItem={renderMenuItem}
             keyExtractor={(item) => item._id} // _id 사용
             contentContainerStyle={styles.menuList}
+            numColumns={2}
           />
         </>
       )}
@@ -218,44 +218,47 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   menuList: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 8, // 좌우 여백
   },
   card: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#f9f9f9",
-    padding: 12,
-    marginBottom: 12,
+    padding: 16,
+    marginBottom: 12, // 카드 간 간격
     borderRadius: 8,
     elevation: 2,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 2,
     shadowOffset: { width: 0, height: 2 },
-    justifyContent: "space-between",
+    width: "48%", // 2열로 배열
+    marginHorizontal: 4, // 카드 간 좌우 간격
+    alignItems: "center", // 카드 내부 중앙 정렬
   },
   image: {
-    width: 80,
-    height: 80,
+    width: "100%", // 이미지가 카드 너비를 채우도록
+    height: 100,
     borderRadius: 8,
-    marginRight: 12,
+    marginBottom: 8,
   },
   info: {
-    flex: 1,
+    alignItems: "center", // 텍스트 중앙 정렬
   },
   itemName: {
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
   },
   description: {
     fontSize: 14,
     color: "#666",
     marginTop: 4,
+    textAlign: "center",
   },
   price: {
     fontSize: 14,
     fontWeight: "bold",
     marginTop: 4,
+    textAlign: "center",
   },
   cartButton: {
     backgroundColor: "#d0a6f3",
