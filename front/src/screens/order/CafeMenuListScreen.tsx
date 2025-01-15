@@ -51,57 +51,11 @@ const CafeMenuListScreen: React.FC = () => {
   }, []);
 
   // 메뉴 아이템 클릭 시 선택 상태에 추가
-  const handleSelectItem = (item: any) => {
-    if (!item || typeof item.price !== "number") {
-      console.error("Invalid item or missing price:", item);
-      return;
-    }
 
-    dispatch((dispatch, getState) => {
-      const currentMenu = getState().menu;
-      const updatedItems = [...currentMenu.items];
-
-      const foundIndex = updatedItems.findIndex(
-        (selected) => selected._id === item._id
-      );
-
-      if (foundIndex !== -1) {
-        // 이미 선택된 항목이라면 개수 증가
-        updatedItems[foundIndex] = {
-          ...updatedItems[foundIndex],
-          quantity: (updatedItems[foundIndex].quantity || 1) + 1,
-        };
-      } else {
-        // 새로 선택된 항목이라면 초기 개수를 1로 설정
-        updatedItems.push({ ...item, quantity: 1 });
-      }
-
-      // 총 가격 계산
-      const totalPrice = updatedItems.reduce(
-        (sum, current) => sum + (current.price || 0) * (current.quantity || 1),
-        0
-      );
-
-      // 총 개수 계산
-      const totalQuantity = updatedItems.reduce(
-        (sum, current) => sum + (current.quantity || 1),
-        0
-      );
-
-      // Redux에 업데이트된 항목 전달
-      dispatch(
-        setMenu({
-          items: updatedItems,
-          price: totalPrice,
-          quantitiy: totalQuantity,
-        })
-      );
-    });
-  };
 
   // 메뉴 렌더링
   const renderMenuItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.card} onPress={() => handleSelectItem(item)}>
+    <TouchableOpacity style={styles.card} onPress={() => navigate("CafeMenuOption", { menuItem: item })}>
       <Image source={{ uri: item.imageUrl }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.menuName}</Text>
@@ -140,7 +94,7 @@ const CafeMenuListScreen: React.FC = () => {
       ) : (
         <>
           {/* 메뉴 리스트 */}
-          <Text style={styles.sectionTitle}>인기있는 음료</Text>
+          <Text style={styles.sectionTitle}>메뉴</Text>
 
           <FlatList
             data={menuItems}
