@@ -33,22 +33,53 @@ const BasketScreen: React.FC = () => {
   const menu = useAppSelector(selectMenu);
   const dispatch = useAppDispatch();
 
-  const increaseQuantity = (id: string) => {
-    const item = menu.items.find((item) => item._id === id);
+  const increaseQuantity = (
+    id: string,
+    RequiredOption: string | null,
+    AdditionalOptions: string[]
+  ) => {
+    const item = menu.items.find(
+      (item) =>
+        item._id === id &&
+        item.RequiredOption === RequiredOption &&
+        JSON.stringify(item.AdditionalOptions) === JSON.stringify(AdditionalOptions)
+    );
     if (item) {
-      dispatch(updateQuantity({ id, quantity: item.quantity + 1 }));
+      dispatch(updateQuantity({
+        id,
+        quantity: item.quantity + 1,
+        requiredOption: RequiredOption,
+        additionalOptions: AdditionalOptions,
+      }));
     }
   };
 
-  const removeMenuItem = (id: string) => {
-    dispatch(updateQuantity({ id, quantity: 0 }));
-    dispatch(removeItem(id));
+  const removeMenuItem = (
+    id: string,
+    RequiredOption: string | null,
+    AdditionalOptions: string[]
+  ) => {
+    dispatch(removeItem({ id, requiredOption:RequiredOption, additionalOptions:AdditionalOptions }));
   };
 
-  const decreaseQuantity = (id: string) => {
-    const item = menu.items.find((item) => item._id === id);
+  const decreaseQuantity = (
+    id: string,
+    RequiredOption: string | null,
+    AdditionalOptions: string[]
+  ) => {
+    const item = menu.items.find(
+      (item) =>
+        item._id === id &&
+        item.RequiredOption === RequiredOption &&
+        JSON.stringify(item.AdditionalOptions) === JSON.stringify(AdditionalOptions)
+    );
     if (item && item.quantity > 1) {
-      dispatch(updateQuantity({ id, quantity: item.quantity - 1 }));
+      dispatch(updateQuantity({
+        id,
+        quantity: item.quantity - 1,
+        requiredOption: RequiredOption,
+        additionalOptions: AdditionalOptions,
+      }));
     }
   };
 
@@ -56,7 +87,7 @@ const BasketScreen: React.FC = () => {
     return menu.items.reduce((total, item) => {
       const priceNumber =
         typeof item.price === "string"
-          ? parseInt(item.price.replace(/\D/g, ""), 10) //타입오류인가 잘 모르겠음 ㅠ
+          ? parseInt(item.price.replace(/\D/g, ""), 10)
           : item.price;
       return total + priceNumber * item.quantity;
     }, 0);
@@ -66,7 +97,7 @@ const BasketScreen: React.FC = () => {
     <View style={styles.card}>
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => removeMenuItem(item._id)}
+        onPress={() => removeMenuItem(item._id, item.RequiredOption, item.AdditionalOptions)}
       >
         <Ionicons name="close" size={20} color="#fff" />
       </TouchableOpacity>
@@ -90,14 +121,26 @@ const BasketScreen: React.FC = () => {
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             style={styles.quantityButton}
-            onPress={() => decreaseQuantity(item._id)}
+            onPress={() =>
+              decreaseQuantity(
+                item._id,
+                item.RequiredOption,
+                item.AdditionalOptions
+              )
+            }
           >
             <Text style={styles.quantityButtonText}>-</Text>
           </TouchableOpacity>
           <Text style={styles.quantityText}>{item.quantity}</Text>
           <TouchableOpacity
             style={styles.quantityButton}
-            onPress={() => increaseQuantity(item._id)}
+            onPress={() =>
+              increaseQuantity(
+                item._id,
+                item.RequiredOption,
+                item.AdditionalOptions
+              )
+            }
           >
             <Text style={styles.quantityButtonText}>+</Text>
           </TouchableOpacity>

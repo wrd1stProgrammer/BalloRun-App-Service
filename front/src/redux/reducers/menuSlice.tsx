@@ -39,9 +39,14 @@ export const menuSlice = createSlice({
       state.price = action.payload.price;
       state.quantitiy = action.payload.quantitiy;
     },
-    removeItem: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      state.items = state.items.filter((item) => item._id !== id);
+    removeItem: (state, action: PayloadAction<{ id: string; requiredOption: string | null; additionalOptions: string[] }>) => {
+      const { id, requiredOption, additionalOptions } = action.payload;
+      state.items = state.items.filter(
+        (item) =>
+          !(item._id === id &&
+            item.RequiredOption === requiredOption &&
+            JSON.stringify(item.AdditionalOptions) === JSON.stringify(additionalOptions))
+      );
 
       // 총 가격 및 총 수량 재계산
       let totalPrice = 0;
@@ -55,9 +60,14 @@ export const menuSlice = createSlice({
       state.price = totalPrice;
       state.quantitiy = totalQuantity;
     },
-    updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
-      const { id, quantity } = action.payload;
-      const itemIndex = state.items.findIndex((item) => item._id === id);
+    updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number; requiredOption: string | null; additionalOptions: string[] }>) => {
+      const { id, quantity, requiredOption, additionalOptions } = action.payload;
+      const itemIndex = state.items.findIndex(
+        (item) =>
+          item._id === id &&
+          item.RequiredOption === requiredOption &&
+          JSON.stringify(item.AdditionalOptions) === JSON.stringify(additionalOptions)
+      );
 
       if (itemIndex !== -1) {
         // 수량 업데이트
