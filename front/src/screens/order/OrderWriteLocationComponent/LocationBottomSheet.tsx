@@ -49,6 +49,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [deliveryFee, setDeliveryFeeLocal] = React.useState("500");
   const [showStartPicker, setShowStartPicker] = React.useState(false);
   const [showEndPicker, setShowEndPicker] = React.useState(false);
+  const [reservationChecked, setReservationChecked] = React.useState(false);
 
   const handleSave = async () => {
     try {
@@ -104,24 +105,62 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         <Text style={styles.label}>배달 요청 시간</Text>
         <View style={styles.timeInputContainer}>
           <TouchableOpacity
-            style={[styles.input, styles.timeInput]}
-            onPress={() => setShowStartPicker(true)}
+            style={[
+              styles.input,
+              styles.timeInput,
+              !reservationChecked && styles.disabledTimeInput,
+            ]}
+            onPress={() => {
+              if (reservationChecked) setShowStartPicker(true);
+            }}
           >
-            <Text style={styles.timeText}>
+            <Text
+              style={[
+                styles.timeText,
+                !reservationChecked && styles.disabledTimeText,
+              ]}
+            >
               {`${startTime.getHours()}시 ${startTime.getMinutes()}분`}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.input, styles.timeInput]}
-            onPress={() => setShowEndPicker(true)}
+            style={[
+              styles.input,
+              styles.timeInput,
+             
+            ]}
+            onPress={() => {
+              if (reservationChecked) setShowEndPicker(true);
+            }}
           >
-            <Text style={styles.timeText}>
+            <Text
+              style={[
+                styles.timeText,
+                
+              ]}
+            >
               {`${endTime.getHours()}시 ${endTime.getMinutes()}분`}
             </Text>
           </TouchableOpacity>
+
+          {/* 배달 예약 체크박스 */}
+          <View style={styles.checkboxWrapper}>
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => setReservationChecked(!reservationChecked)}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  reservationChecked && styles.checkboxChecked,
+                ]}
+              />
+              <Text style={styles.checkboxText}>배달 예약</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {showStartPicker && (
+        {showStartPicker && reservationChecked && (
           <DateTimePicker
             value={startTime}
             mode="time"
@@ -201,17 +240,46 @@ const styles = StyleSheet.create({
   },
   timeInputContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
   },
   timeInput: {
     flex: 1,
     marginRight: 8,
     alignItems: "center",
     justifyContent: "center",
+    height: 50,
+  },
+  disabledTimeInput: {
+    backgroundColor: "#d3d3d3", // 비활성화 상태 색상
   },
   timeText: {
     color: "#333",
     fontSize: 14,
+  },
+  disabledTimeText: {
+    color: "#a9a9a9", // 비활성화 상태 텍스트 색상
+  },
+  checkboxWrapper: {
+    justifyContent: "center",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: "#6200ee",
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  checkboxChecked: {
+    backgroundColor: "#6200ee",
+  },
+  checkboxText: {
+    fontSize: 14,
+    color: "#333",
   },
   saveButton: {
     backgroundColor: "#6200ee",
