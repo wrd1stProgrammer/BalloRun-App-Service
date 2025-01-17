@@ -3,11 +3,11 @@ const User = require("../../models/User");
 // const io = require("socket.io")(server); // 또는 app.get('io')를 사용할 수도 있음
 
 const orderNowDirectCreate = async (req, res) => {
-  const { items, lat, lng, isMatch, deliveryFee, deliveryType, pickupTime } = req.body;
+  //요청사항 추가
+  const { items, lat, lng, isMatch, deliveryFee, deliveryType, pickupTime, } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
-  console.log(userId);
-  console.log('배달요청 들어온 데이터', items,lat,lng,isMatch,deliveryType,pickupTime);
+  
   try {
     // 배달 타입이 'direct'인지 확인
     if (deliveryType === "direct") {
@@ -20,6 +20,7 @@ const orderNowDirectCreate = async (req, res) => {
         deliveryFee,
         deliveryType,
         pickupTime,
+        // 배달원 요청사항
       });
 
       const savedOrder = await order.save();
@@ -27,10 +28,23 @@ const orderNowDirectCreate = async (req, res) => {
 
       return res.status(201).json(savedOrder);
     } else if (deliveryType === "cupHolder") {
-      // cupHolder 배달 처리 로직
-      return res
-        .status(400)
-        .json({ message: "현재 cupHolder 배달 타입은 지원하지 않습니다." });
+      const order = new Order({
+        userId: userId, // authMiddleware로 사용자 확인
+        items,
+        lat,
+        lng,
+        isMatch,
+        deliveryFee,
+        deliveryType,
+        pickupTime,
+        // 배달원 요청사항
+        // 층수
+      });
+
+      const savedOrder = await order.save();
+
+      return res.status(201).json(savedOrder);
+
     } else {
       return res.status(400).json({ message: "잘못된 배달 타입입니다." });
     }

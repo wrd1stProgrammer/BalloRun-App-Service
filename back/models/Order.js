@@ -33,6 +33,8 @@ const OrderSchema = new mongoose.Schema(
     },
     riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더
     createdAt: { type: Date, default: Date.now }, // 생성 시간
+    floor: {type:Number ,default: false}, // 컵홀더 선택시 층 선택 
+    riderRequest: {type:String ,default: false},
   },
   {
     timestamps: true, // createdAt, updatedAt 자동 생성
