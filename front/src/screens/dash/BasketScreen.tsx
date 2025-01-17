@@ -87,7 +87,7 @@ const BasketScreen: React.FC = () => {
     return menu.items.reduce((total, item) => {
       const priceNumber =
         typeof item.price === "string"
-          ? parseInt(item.price.replace(/\D/g, ""), 10)
+          ? parseInt(item.price.replace(/\D/g, ""), 10) 
           : item.price;
       return total + priceNumber * item.quantity;
     }, 0);

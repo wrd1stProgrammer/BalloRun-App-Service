@@ -107,7 +107,6 @@ const CafeMenuListScreen: React.FC = () => {
       )}
 
       {/* 장바구니 이동 버튼 */}
-      {/* 장바구니 이동 버튼 */}
       <TouchableOpacity
         style={styles.cartButton}
         onPress={() => {

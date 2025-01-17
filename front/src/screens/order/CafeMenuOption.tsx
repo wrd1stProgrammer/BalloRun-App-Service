@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useNavigation } from "@react-navigation/native";
+import { goBack } from "../../navigation/NavigationUtils";
 import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
 import { selectMenu, setMenu } from "../../redux/reducers/menuSlice";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -18,10 +18,9 @@ interface MenuOptionParams {
 }
 
 const CafeMenuOption: React.FC = () => {
-    const menu = useAppSelector(selectMenu);
+  const menu = useAppSelector(selectMenu);
   
   const route = useRoute<RouteProp<{ params: MenuOptionParams }>>();
-  const navigation = useNavigation();
   const { menuItem } = route.params;
   const dispatch = useAppDispatch();
 
@@ -93,14 +92,14 @@ const CafeMenuOption: React.FC = () => {
       console.log(menu)
     });
 
-    navigation.goBack();
+    goBack();
   };
 
   return (
     <View style={styles.container}>
       {/* 상단 바 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{menuItem.cafeName}</Text>

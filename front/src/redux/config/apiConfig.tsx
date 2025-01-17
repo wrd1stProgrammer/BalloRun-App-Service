@@ -43,6 +43,7 @@ appAxios.interceptors.response.use(
 export const refresh_tokens = async () => { //여기 수정필요
   try {
     const refresh_token = token_storage.getString('refresh_token');
+    console.log("클라 리프레시 토큰 재발급에서 rf 토큰 :", refresh_token);
     const response = await axios.post(REFRESH_TOKEN, {
       refresh_token,
     });

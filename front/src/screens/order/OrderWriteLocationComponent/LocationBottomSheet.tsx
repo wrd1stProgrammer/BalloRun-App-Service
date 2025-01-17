@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -49,6 +49,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [deliveryFee, setDeliveryFeeLocal] = React.useState("500");
   const [showStartPicker, setShowStartPicker] = React.useState(false);
   const [showEndPicker, setShowEndPicker] = React.useState(false);
+
+
 
   const handleSave = async () => {
     try {
@@ -128,6 +130,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             is24Hour={true}
             display="default"
             onChange={(event, selectedDate) => {
+              console.log(menu.items);
               setShowStartPicker(false);
               if (selectedDate) {
                 const kstDate = toKST(selectedDate);

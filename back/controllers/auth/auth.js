@@ -115,6 +115,7 @@ const refreshToken = async (req, res) => {
   console.log('0');
     const { refresh_token } = req.body;
     if (!refresh_token) {
+      console.log('리프레시 토큰',refresh_token);
       throw new BadRequestError("Refresh token is required");
     }
   
