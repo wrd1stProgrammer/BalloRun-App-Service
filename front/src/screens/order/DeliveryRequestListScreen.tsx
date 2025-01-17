@@ -24,6 +24,7 @@ interface OrderItem {
   status: string;
   pickupTime: string;
   deliveryFee: number;
+  createdAt: number;
 }
 
 const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
@@ -38,10 +39,17 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       const completedOrdersResponse = await dispatch(getCompletedOrdersHandler());
       const ongoingOrdersResponse = await dispatch(getOngoingOrdersHandler());
 
-      setOrders([
+      const allOrders = [
         ...(completedOrdersResponse || []),
         ...(ongoingOrdersResponse || []),
-      ]);
+      ];
+
+      // 최신순 정렬 (createdAt 기준)
+      allOrders.sort((a: OrderItem, b: OrderItem) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      setOrders(allOrders);
     } catch (error) {
       console.error("주문 데이터 가져오기 실패:", error);
       setOrders([]);
@@ -68,19 +76,6 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
     };
   }, [navigation, socket]);
 
-  const renderStatus = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Text style={styles.pendingStatus}>수락 대기중</Text>;
-      case "inProgress":
-        return <Text style={styles.inProgressStatus}>요청 진행중</Text>;
-      case "delivered":
-        return <Text style={styles.completedStatus}>수락 완료</Text>;
-      default:
-        return <Text style={styles.defaultStatus}>기타 상태</Text>;
-    }
-  };
-
   const renderOrder = ({ item }: { item: OrderItem }) => (
     <View style={styles.card}>
       <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
@@ -96,7 +91,6 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
         </Text>
       </View>
       <View style={styles.row}>
-        {renderStatus(item.status)}
         <Text style={styles.deliveryFee}>{item.deliveryFee}원</Text>
       </View>
     </View>
@@ -125,6 +119,7 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
