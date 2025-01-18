@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"  # Metro Bundler 포트
+    volumes:
+      - ./front:/app
+      #- /app/node_modules
+    command: npm start -- --reset-cache
+
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"  # Express 서버 포트
+    volumes:
+      - ./back:/app
+      - /app/node_modules
+    environment:
+      - MONGO_PW=PAD0MzMGKxsDGwsR
+      - REDIS_HOST=redis-14438.c281.us-east-1-2.ec2.redns.redis-cloud.com
+      - REDIS_PORT=14438
+      - REDIS_USERNAME=default
+      - REDIS_PASSWORD=AoWvAXv3JTPRBrgwxRX58G9AVxFhQzpj
+    command: node app.js
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:7.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongo-data:
