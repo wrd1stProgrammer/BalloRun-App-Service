@@ -19,10 +19,10 @@ const CafeCustomMapView: React.FC<CafeCustomMapViewProps> = ({ cafes }) => {
     <MapView
       style={styles.map}
       initialRegion={{
-        latitude: 35.1595454, // 초기 지도 중심 (예: 광주)
-        longitude: 126.8526012,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitude: 35.176735,
+        longitude: 126.908421,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.002,
       }}
     >
       {cafes.map((cafe) => (

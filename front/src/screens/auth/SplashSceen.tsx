@@ -67,8 +67,7 @@ const SplashScreen: FC = () => {
         <Animated.Image
           source={Logo}
           style={{
-            width: '60%',
-            height: '25%',
+            flex:1,
             resizeMode: 'contain',
             transform: [{scale}],
           }}

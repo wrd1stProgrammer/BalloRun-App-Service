@@ -63,7 +63,7 @@ const CafeListScreen: React.FC = () => {
           <Text
             style={isListView ? styles.activeButtonText : styles.inactiveButtonText}
           >
-            리스트로 주문하기
+            리스트로 카페찾기
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -76,7 +76,7 @@ const CafeListScreen: React.FC = () => {
           <Text
             style={!isListView ? styles.activeButtonText : styles.inactiveButtonText}
           >
-            지도로 주문하기
+            지도로 카페찾기
           </Text>
         </TouchableOpacity>
       </View>
