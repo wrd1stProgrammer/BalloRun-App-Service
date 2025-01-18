@@ -36,6 +36,7 @@ const orderLaterDirectCreate = async (req, res) => {
           isMatch,
           deliveryFee,
           deliveryType,
+          startTime,
           pickupTime,
           // 배달원 요청사항
           // 층수

@@ -17,7 +17,7 @@ import {
 } from "../../../redux/reducers/orderSlice";
 import { useAppSelector } from "../../../redux/config/reduxHook";
 import { selectMenu } from "../../../redux/reducers/menuSlice";
-import { orderNowHandler } from "../../../redux/actions/orderAction";
+import { orderNowHandler,orderLaterHandler } from "../../../redux/actions/orderAction";
 import { useContext } from "react";
 import { WebSocketContext } from "../../../utils/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
@@ -72,7 +72,34 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       }
 
       const isMatch = false;
-
+      if (reservationChecked) {
+        console.log('지금배달 액션');
+        await dispatch(
+          orderLaterHandler(
+            menu.items,
+            lat,
+            lng,
+            startTime.getTime(),
+            endTime.getTime(),
+            isMatch,
+            deliveryMethod,
+            Number(deliveryFee)
+          )
+        );
+      } else{
+        console.log('예약약배달 액션');
+        await dispatch(
+          orderNowHandler(
+            menu.items,
+            lat,
+            lng,
+            startTime.getTime(),
+            isMatch,
+            deliveryMethod,
+            Number(deliveryFee)
+          )
+        );
+      }
       await dispatch(
         orderNowHandler(
           menu.items,

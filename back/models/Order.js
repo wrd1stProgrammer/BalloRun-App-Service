@@ -11,6 +11,8 @@ const OrderSchema = new mongoose.Schema(
           price: { type: Number, required: true },
           description: { type: String },
           imageUrl: { type: String }, // Cloudinary URL
+          RequiredOption: { type: String, required: true }, // 필수 옵션
+          AdditionalOptions: { type: [String], required: false }, // 추가 옵션
         },
       ],
       required: true,

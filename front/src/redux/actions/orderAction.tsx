@@ -8,7 +8,7 @@ export const orderNowHandler = (
   items:any[], // 명시적으로 타입 정의
   lat: string,
   lng: string,
-  pickupTime: number,
+  pickupTime: number, // 픽업희망 시간간
   isMatch: boolean,
   deliveryType: 'direct' | 'cupHolder',
   deliveryFee: Number,
@@ -37,9 +37,11 @@ export const orderNowHandler = (
     items: any[],
     lat: string,
     lng: string,
-    isMatch: boolean,
+    orderTime: number, // 주문시작 시간 (예약때만 쓰자);
     pickupTime: Number, // any?
-    deliveryType: 'direct' | 'cupHolder' 
+    isMatch: boolean,
+    deliveryType: 'direct' | 'cupHolder' ,
+    deliveryFee: Number,
   ) => async (dispatch: any) => {
     try {
       const res = await appAxios.post(`/order/orderLater`, {
@@ -49,6 +51,8 @@ export const orderNowHandler = (
         isMatch,
         deliveryType,
         pickupTime,
+        orderTime,
+        deliveryFee,
       });
   
       return res.data;

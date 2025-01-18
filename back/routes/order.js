@@ -5,6 +5,10 @@ const {
 } = require("../controllers/order/orderNowController");
 
 const {
+  orderLaterDirectCreate,
+} = require("../controllers/order/orderLaterController");
+
+const {
   getCompletedOrders,
   getOngoingOrders,
 } = require("../controllers/order/orderPresent");
@@ -12,7 +16,7 @@ const {
 const router = express.Router();
 
 router.post('/orderNow',orderNowDirectCreate);
-router.post('/orderLater',);
+router.post('/orderLater',orderLaterDirectCreate);
 // 
 router.get('/getCompletedOrders',getCompletedOrders);
 router.get('/getOngoingOrders',getOngoingOrders);
