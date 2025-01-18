@@ -8,7 +8,9 @@ export const orderNowHandler = (
   items:any[], // 명시적으로 타입 정의
   lat: string,
   lng: string,
-  pickupTime: number, // 픽업희망 시간간
+  startTime: number, // 픽업희망 시간간
+  endTime: number, // 픽업희망 시간간
+
   isMatch: boolean,
   deliveryType: 'direct' | 'cupHolder',
   deliveryFee: Number,
@@ -20,7 +22,8 @@ export const orderNowHandler = (
       items,
       lat,
       lng,
-      pickupTime,
+      startTime,  //시작
+      endTime,    //끝끝
       isMatch,
       deliveryType,
       deliveryFee,
@@ -41,8 +44,8 @@ export const orderNowHandler = (
     items: any[],
     lat: string,
     lng: string,
-    orderTime: number, // 주문시작 시간 (예약때만 쓰자);
-    pickupTime: Number, // any?
+    startTime: number, // 주문시작 시간 (예약때만 쓰자);
+    endTime: Number, // any?
     isMatch: boolean,
     deliveryType: 'direct' | 'cupHolder' ,
     deliveryFee: Number,
@@ -55,8 +58,8 @@ export const orderNowHandler = (
         lng,
         isMatch,
         deliveryType,
-        pickupTime,
-        orderTime,
+        startTime,    //시작
+        endTime,     //끝나느시간간
         deliveryFee,
         riderRequest
       });

@@ -4,7 +4,7 @@ const User = require("../../models/User");
 
 const orderNowDirectCreate = async (req, res) => {
   //요청사항 추가
-  const { items, lat, lng, isMatch, deliveryFee, deliveryType, pickupTime,riderRequest } = req.body;
+  const { items, lat, lng, isMatch, deliveryFee, deliveryType,startTime,endTime,riderRequest } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
   
@@ -19,7 +19,8 @@ const orderNowDirectCreate = async (req, res) => {
         isMatch,
         deliveryFee,
         deliveryType,
-        pickupTime,
+        startTime,
+        endTime, 
         riderRequest // 배달원 요청사항
       });
 
@@ -35,8 +36,9 @@ const orderNowDirectCreate = async (req, res) => {
         lng,
         isMatch,
         deliveryFee,
-        deliveryType,
-        pickupTime,
+        deliveryType, 
+        startTime,
+        endTime, 
         riderRequest// 배달원 요청사항
         // 층수
       });

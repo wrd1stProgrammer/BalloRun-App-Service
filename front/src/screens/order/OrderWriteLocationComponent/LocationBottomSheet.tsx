@@ -115,6 +115,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             lat,
             lng,
             startTime.getTime(),
+            endTime.getTime(),
             isMatch,
             deliveryMethod,
             Number(deliveryFee),

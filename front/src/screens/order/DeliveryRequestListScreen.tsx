@@ -6,14 +6,17 @@ import {
   FlatList,
   ActivityIndicator,
   SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
-import { format } from "date-fns";
-import { useAppDispatch } from "../../redux/config/reduxHook";
+import { formatDistanceToNow, format } from "date-fns";
+import { ko } from "date-fns/locale";
+import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
 import {
   getCompletedOrdersHandler,
   getOngoingOrdersHandler,
 } from "../../redux/actions/orderAction";
 import { WebSocketContext } from "../../utils/Socket";
+import { selectUser } from "../../redux/reducers/userSlice";
 
 interface OrderItem {
   _id: string;
@@ -22,10 +25,11 @@ interface OrderItem {
   lng: string;
   deliveryType: string;
   status: string;
-  pickupTime: string;
+  startTime: string;
   deliveryFee: number;
   createdAt: number;
-  riderRequest: string
+  riderRequest: string;
+  endTime: string
 }
 
 const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
@@ -33,8 +37,8 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
+  const user = useAppSelector(selectUser);
 
-  // API 호출하여 데이터 가져오기
   const fetchOrders = async () => {
     try {
       const completedOrdersResponse = await dispatch(getCompletedOrdersHandler());
@@ -45,7 +49,6 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
         ...(ongoingOrdersResponse || []),
       ];
 
-      // 최신순 정렬 (createdAt 기준)
       allOrders.sort((a: OrderItem, b: OrderItem) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
@@ -60,14 +63,11 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   };
 
   useEffect(() => {
-    // 화면 포커스될 때 데이터 새로고침
     const unsubscribe = navigation.addListener("focus", () => {
       fetchOrders();
     });
 
-    // 소켓 이벤트 처리
     socket?.on("emitMatchTest", () => {
-      console.log("Socket response received");
       fetchOrders();
     });
 
@@ -79,23 +79,50 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
 
   const renderOrder = ({ item }: { item: OrderItem }) => (
     <View style={styles.card}>
-      <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
-      <Text style={styles.address}>
-        {item.lat}, {item.lng}
+      <View style={styles.rowHeader}>
+        <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
+        <TouchableOpacity>
+          <Text style={styles.moreButton}>...</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.address}>{`${item.lat}, ${item.lng}`}</Text>
+      <Text
+        style={
+          item.status === "pending"
+            ? styles.pendingStatus
+            : item.status === "inProgress"
+            ? styles.inProgressStatus
+            : styles.completedStatus
+        }
+      >
+        {item.status === "pending"
+          ? "수락 대기 중"
+          : item.status === "inProgress"
+          ? "수락 완료"
+          : "완료"}
       </Text>
-      <View style={styles.row}>
+      <View style={styles.rowFooter}>
         <Text style={styles.deliveryType}>
           {item.deliveryType === "direct" ? "직접 배달" : "음료 보관함"}
         </Text>
-        <Text style={styles.deliveryType}>
-          {item.riderRequest}
-        </Text>
-        <Text style={styles.date}>
-          {format(new Date(item.pickupTime), "yyyy/MM/dd HH:mm")}
-        </Text>
+        <Text style={styles.timeInfo}>{`${format(
+          new Date(item.startTime),
+          "HH:mm"
+        )}`}</Text>
+                <Text style={styles.timeInfo}>{`${format(
+          new Date(item.endTime),
+          "HH:mm"
+        )}`}</Text>
       </View>
-      <View style={styles.row}>
-        <Text style={styles.deliveryFee}>{item.deliveryFee}원</Text>
+      <View style={styles.rowFooter}>
+
+        <Text style={styles.deliveryFee}>{`${item.deliveryFee}원`}</Text>
+        <Text style={styles.timeInfo}>{item.riderRequest}</Text>
+
+        <Text style={styles.timeAgo}>{`${formatDistanceToNow(
+          new Date(item.createdAt),
+          { addSuffix: true, locale: ko }
+        )}`}</Text>
       </View>
     </View>
   );
@@ -111,7 +138,7 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>배달 요청 목록</Text>
+        <Text style={styles.title}>{user?.username}님의 배달 요청 목록</Text>
       </View>
 
       <FlatList
@@ -124,15 +151,12 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f9f9f9",
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
     padding: 16,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
@@ -141,11 +165,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    marginLeft: 16,
   },
   listContent: {
     padding: 16,
-    paddingBottom: 80, // 하단 여백 추가
   },
   card: {
     backgroundColor: "#fff",
@@ -158,17 +180,26 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  rowHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   cafeName: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 8,
+  },
+  moreButton: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#ccc",
   },
   address: {
     fontSize: 14,
     color: "#666",
-    marginBottom: 12,
+    marginVertical: 8,
   },
-  row: {
+  rowFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -178,7 +209,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
-  date: {
+  timeInfo: {
     fontSize: 14,
     color: "#666",
   },
@@ -186,6 +217,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#6200ee",
+  },
+  timeAgo: {
+    fontSize: 12,
+    color: "#999",
   },
   pendingStatus: {
     fontSize: 14,
@@ -200,11 +235,6 @@ const styles = StyleSheet.create({
   completedStatus: {
     fontSize: 14,
     color: "#6200ee",
-    fontWeight: "bold",
-  },
-  defaultStatus: {
-    fontSize: 14,
-    color: "#9e9e9e",
     fontWeight: "bold",
   },
   loadingContainer: {
