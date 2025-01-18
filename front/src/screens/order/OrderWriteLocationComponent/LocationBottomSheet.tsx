@@ -122,18 +122,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           )
         );
       }
-      await dispatch(
-        orderNowHandler(
-          menu.items,
-          lat,
-          lng,
-          startTime.getTime(),
-          isMatch,
-          deliveryMethod,
-          Number(deliveryFee),
-          deliveryRequest
-        )
-      );
+
 
       navigate("BottomTab", {
         screen: "DeliveryRequestListScreen",
@@ -146,7 +135,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      index={1}
+      index={2}
       snapPoints={["3%",'25%', "48%"]}
       style={styles.bottomSheet}
     >
