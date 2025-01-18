@@ -4,7 +4,7 @@ const User = require("../../models/User");
 
 const orderNowDirectCreate = async (req, res) => {
   //요청사항 추가
-  const { items, lat, lng, isMatch, deliveryFee, deliveryType, pickupTime, } = req.body;
+  const { items, lat, lng, isMatch, deliveryFee, deliveryType, pickupTime,riderRequest } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
   
@@ -20,7 +20,7 @@ const orderNowDirectCreate = async (req, res) => {
         deliveryFee,
         deliveryType,
         pickupTime,
-        // 배달원 요청사항
+        riderRequest // 배달원 요청사항
       });
 
       const savedOrder = await order.save();
@@ -37,7 +37,7 @@ const orderNowDirectCreate = async (req, res) => {
         deliveryFee,
         deliveryType,
         pickupTime,
-        // 배달원 요청사항
+        riderRequest// 배달원 요청사항
         // 층수
       });
 

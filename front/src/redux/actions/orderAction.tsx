@@ -12,6 +12,8 @@ export const orderNowHandler = (
   isMatch: boolean,
   deliveryType: 'direct' | 'cupHolder',
   deliveryFee: Number,
+  riderRequest: string
+
 ) => async (dispatch: any) => {
   try {
     const res = await appAxios.post(`/order/orderNow`, {
@@ -22,6 +24,8 @@ export const orderNowHandler = (
       isMatch,
       deliveryType,
       deliveryFee,
+      riderRequest
+
     });
 
     return res.data;
@@ -42,6 +46,7 @@ export const orderNowHandler = (
     isMatch: boolean,
     deliveryType: 'direct' | 'cupHolder' ,
     deliveryFee: Number,
+    riderRequest: string
   ) => async (dispatch: any) => {
     try {
       const res = await appAxios.post(`/order/orderLater`, {
@@ -53,6 +58,7 @@ export const orderNowHandler = (
         pickupTime,
         orderTime,
         deliveryFee,
+        riderRequest
       });
   
       return res.data;

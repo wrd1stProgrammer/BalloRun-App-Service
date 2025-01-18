@@ -5,7 +5,7 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Alert
+  Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
@@ -15,15 +15,18 @@ import {
   setEndTime,
   setAddress,
   setDeliveryFee,
+  setDeliveyRequest,
   selectOrder,
 } from "../../../redux/reducers/orderSlice";
 import { useAppSelector } from "../../../redux/config/reduxHook";
 import { selectMenu } from "../../../redux/reducers/menuSlice";
-import { orderNowHandler,orderLaterHandler } from "../../../redux/actions/orderAction";
+import {
+  orderNowHandler,
+  orderLaterHandler,
+} from "../../../redux/actions/orderAction";
 import { useContext } from "react";
 import { WebSocketContext } from "../../../utils/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
-import { Platform } from "react-native";
 
 interface LocationBottomSheetProps {
   address: string;
@@ -51,6 +54,9 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     toKST(new Date(new Date().getTime() + 60 * 60 * 1000))
   );
   const [deliveryFee, setDeliveryFeeLocal] = React.useState("500");
+
+  const [deliveryRequest, setDeliberyRequest] = React.useState("없음")
+
   const [showStartPicker, setShowStartPicker] = React.useState(false);
   const [showEndPicker, setShowEndPicker] = React.useState(false);
   const [reservationChecked, setReservationChecked] = React.useState(false);
@@ -76,6 +82,9 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       dispatch(setStartTime(startTime.getTime()));
       dispatch(setEndTime(endTime.getTime()));
       dispatch(setDeliveryFee(Number(deliveryFee)));
+      dispatch(setDeliveyRequest(deliveryRequest));
+
+
 
       if (!Array.isArray(menu.items)) {
         console.error("menu.items is not an array");
@@ -83,8 +92,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       }
 
       const isMatch = false;
-      if (reservationChecked) {
-        console.log('지금배달 액션');
+      if (!reservationChecked) {
+        console.log("지금배달 액션");
         await dispatch(
           orderLaterHandler(
             menu.items,
@@ -94,11 +103,12 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             endTime.getTime(),
             isMatch,
             deliveryMethod,
-            Number(deliveryFee)
+            Number(deliveryFee),
+            deliveryRequest
           )
         );
-      } else{
-        console.log('예약약배달 액션');
+      } else {
+        console.log("예약배달 액션");
         await dispatch(
           orderNowHandler(
             menu.items,
@@ -107,7 +117,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             startTime.getTime(),
             isMatch,
             deliveryMethod,
-            Number(deliveryFee)
+            Number(deliveryFee),
+            deliveryRequest
           )
         );
       }
@@ -119,7 +130,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           startTime.getTime(),
           isMatch,
           deliveryMethod,
-          Number(deliveryFee)
+          Number(deliveryFee),
+          deliveryRequest
         )
       );
 
@@ -135,7 +147,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     <BottomSheet
       ref={bottomSheetRef}
       index={1}
-      snapPoints={["3%", "43%"]}
+      snapPoints={["3%",'25%', "48%"]}
       style={styles.bottomSheet}
     >
       <View style={styles.sheetContent}>
@@ -157,11 +169,15 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               if (reservationChecked) setShowStartPicker(true);
             }}
           >
-            <Text style={[
+            <Text
+              style={[
                 styles.timeText_1,
                 !reservationChecked && styles.disabledTimeText,
-              ]}>
-              {`${startTime.getFullYear()}년 ${startTime.getMonth() + 1}월 ${startTime.getDate()}일`}
+              ]}
+            >
+              {`${startTime.getFullYear()}년 ${
+                startTime.getMonth() + 1
+              }월 ${startTime.getDate()}일`}
             </Text>
             <Text
               style={[
@@ -178,9 +194,10 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               setShowEndPicker(true);
             }}
           >
-
             <Text style={styles.timeText_1}>
-              {`${endTime.getFullYear()}년 ${endTime.getMonth() + 1}월 ${endTime.getDate()}일`}
+              {`${endTime.getFullYear()}년 ${
+                endTime.getMonth() + 1
+              }월 ${endTime.getDate()}일`}
             </Text>
 
             <Text style={[styles.timeText]}>
@@ -205,48 +222,54 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           </View>
         </View>
 
-
-
         {showStartPicker && reservationChecked && (
-  <DateTimePicker
-    value={startTime}
-    mode="time"
-    is24Hour={true}
-    display="default"
-    onChange={(event, selectedDate) => {
-      setShowStartPicker(false);
-      if (selectedDate) {
-        if (selectedDate < new Date()) {
-          Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
-          return;
-        }
-        setStartTimeLocal(selectedDate);
-        if (selectedDate >= endTime) {
-          setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
-        }
-      }
-    }}
-  />
-)}
+          <DateTimePicker
+            value={startTime}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowStartPicker(false);
+              if (selectedDate) {
+                if (selectedDate < new Date()) {
+                  Alert.alert(
+                    "유효하지 않은 시간",
+                    "현재 시간보다 이전 시간을 선택할 수 없습니다."
+                  );
+                  return;
+                }
+                setStartTimeLocal(selectedDate);
+                if (selectedDate >= endTime) {
+                  setEndTimeLocal(
+                    new Date(selectedDate.getTime() + 60 * 60 * 1000)
+                  );
+                }
+              }
+            }}
+          />
+        )}
 
-{showEndPicker && (
-  <DateTimePicker
-    value={endTime}
-    mode="time"
-    is24Hour={true}
-    display="default"
-    onChange={(event, selectedDate) => {
-      setShowEndPicker(false);
-      if (selectedDate) {
-        if (selectedDate <= startTime) {
-          Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
-          return;
-        }
-        setEndTimeLocal(selectedDate);
-      }
-    }}
-  />
-)}
+        {showEndPicker && (
+          <DateTimePicker
+            value={endTime}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowEndPicker(false);
+              if (selectedDate) {
+                if (selectedDate <= startTime) {
+                  Alert.alert(
+                    "유효하지 않은 시간",
+                    "종료 시간은 시작 시간보다 늦어야 합니다."
+                  );
+                  return;
+                }
+                setEndTimeLocal(selectedDate);
+              }
+            }}
+          />
+        )}
 
         <Text style={styles.label}>배달비 설정</Text>
         <TextInput
@@ -254,6 +277,13 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           value={deliveryFee}
           onChangeText={(text) => setDeliveryFeeLocal(text)}
           keyboardType="numeric"
+        />
+
+        <Text style={styles.label}>배달 요청사항</Text>
+        <TextInput
+          style={[styles.input, styles.inputCompact]}
+          value={deliveryRequest}
+          onChangeText={(text) => setDeliberyRequest(text)}
         />
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -287,7 +317,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   inputCompact: {
-    padding: 8,
+    paddingLeft: 8,
+    paddingTop:3,
+    paddingBottom:3,
     marginBottom: 12,
   },
   timeInputContainer: {
@@ -339,10 +371,10 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: "#6200ee",
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 16,
+    marginTop: 5,
   },
   saveButtonText: {
     color: "white",

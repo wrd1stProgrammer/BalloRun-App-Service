@@ -25,6 +25,7 @@ interface OrderItem {
   pickupTime: string;
   deliveryFee: number;
   createdAt: number;
+  riderRequest: string
 }
 
 const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
@@ -85,6 +86,9 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       <View style={styles.row}>
         <Text style={styles.deliveryType}>
           {item.deliveryType === "direct" ? "직접 배달" : "음료 보관함"}
+        </Text>
+        <Text style={styles.deliveryType}>
+          {item.riderRequest}
         </Text>
         <Text style={styles.date}>
           {format(new Date(item.pickupTime), "yyyy/MM/dd HH:mm")}

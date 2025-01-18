@@ -8,6 +8,7 @@ interface OrderState {
   endTime: number;
   deliveryType: 'direct' | 'cupHolder';
   deliveryFee: number;
+  riderRequest: string;
 }
 
 const initialState: OrderState = {
@@ -16,7 +17,8 @@ const initialState: OrderState = {
   deliveryType: 'direct',
   startTime: 0,
   endTime: 0,
-  deliveryFee: 0
+  deliveryFee: 0,
+  riderRequest: ""
 };
 
 export const orderSlice = createSlice({
@@ -30,6 +32,7 @@ export const orderSlice = createSlice({
       state.endTime = action.payload.endTime;
       state.deliveryType = action.payload.deliveryType;
       state.deliveryFee = action.payload.deliveryFee;
+      state.riderRequest = action.payload.riderRequest
     },
     setStartTime: (state, action: PayloadAction<number>) => {
       state.startTime = action.payload;
@@ -43,11 +46,14 @@ export const orderSlice = createSlice({
     },
     setDeliveryFee: (state, action: PayloadAction<number>) => {
       state.deliveryFee = action.payload;
-    }
+    },
+    setDeliveyRequest: (state, action: PayloadAction<string>) => {
+      state.riderRequest = action.payload;
+    }, 
   },
 });
 
-export const { setOrder, setStartTime, setEndTime, setAddress, setDeliveryFee } = orderSlice.actions;
+export const { setOrder, setStartTime, setEndTime, setAddress, setDeliveryFee, setDeliveyRequest } = orderSlice.actions;
 
 export const selectOrder = (state: any) => state.order;
 
