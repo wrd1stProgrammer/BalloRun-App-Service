@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  Alert
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
@@ -14,6 +15,7 @@ import {
   setEndTime,
   setAddress,
   setDeliveryFee,
+  selectOrder,
 } from "../../../redux/reducers/orderSlice";
 import { useAppSelector } from "../../../redux/config/reduxHook";
 import { selectMenu } from "../../../redux/reducers/menuSlice";
@@ -21,6 +23,7 @@ import { orderNowHandler,orderLaterHandler } from "../../../redux/actions/orderA
 import { useContext } from "react";
 import { WebSocketContext } from "../../../utils/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
+import { Platform } from "react-native";
 
 interface LocationBottomSheetProps {
   address: string;
@@ -40,6 +43,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const menu = useAppSelector(selectMenu);
+  const order = useAppSelector(selectOrder);
   const socket = useContext(WebSocketContext);
 
   const [startTime, setStartTimeLocal] = React.useState(toKST(new Date()));
@@ -51,8 +55,15 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [showEndPicker, setShowEndPicker] = React.useState(false);
   const [reservationChecked, setReservationChecked] = React.useState(false);
 
+  React.useEffect(() => {
+    if (!reservationChecked) {
+      // 체크박스 해제 시 startTime을 다시 설정
+      const now = toKST(new Date());
+      setStartTimeLocal(now);
+    }
+  }, [reservationChecked]);
 
-
+  // 위치를 확정하는 버튼을 누르면 작동하는 함수
   const handleSave = async () => {
     try {
       const [lat, lng] = address.split(",").map((s) => s.trim());
@@ -129,7 +140,10 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     >
       <View style={styles.sheetContent}>
         <Text style={styles.label}>배달 상세 주소</Text>
-        <TextInput style={[styles.input, styles.inputCompact]} value={address} />
+        <TextInput
+          style={[styles.input, styles.inputCompact]}
+          value={address}
+        />
 
         <Text style={styles.label}>배달 요청 시간</Text>
         <View style={styles.timeInputContainer}>
@@ -143,6 +157,12 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
               if (reservationChecked) setShowStartPicker(true);
             }}
           >
+            <Text style={[
+                styles.timeText_1,
+                !reservationChecked && styles.disabledTimeText,
+              ]}>
+              {`${startTime.getFullYear()}년 ${startTime.getMonth() + 1}월 ${startTime.getDate()}일`}
+            </Text>
             <Text
               style={[
                 styles.timeText,
@@ -153,21 +173,17 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.input,
-              styles.timeInput,
-             
-            ]}
+            style={[styles.input, styles.timeInput]}
             onPress={() => {
-              if (reservationChecked) setShowEndPicker(true);
+              setShowEndPicker(true);
             }}
           >
-            <Text
-              style={[
-                styles.timeText,
-                
-              ]}
-            >
+
+            <Text style={styles.timeText_1}>
+              {`${endTime.getFullYear()}년 ${endTime.getMonth() + 1}월 ${endTime.getDate()}일`}
+            </Text>
+
+            <Text style={[styles.timeText]}>
               {`${endTime.getHours()}시 ${endTime.getMinutes()}분`}
             </Text>
           </TouchableOpacity>
@@ -189,42 +205,48 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           </View>
         </View>
 
-        {showStartPicker && reservationChecked && (
-          <DateTimePicker
-            value={startTime}
-            mode="time"
-            is24Hour={true}
-            display="default"
-            onChange={(event, selectedDate) => {
-              console.log(menu.items);
-              setShowStartPicker(false);
-              if (selectedDate) {
-                const kstDate = toKST(selectedDate);
-                setStartTimeLocal(kstDate);
-                if (kstDate >= endTime) {
-                  setEndTimeLocal(
-                    new Date(kstDate.getTime() + 60 * 60 * 1000)
-                  );
-                }
-              }
-            }}
-          />
-        )}
 
-        {showEndPicker && (
-          <DateTimePicker
-            value={endTime}
-            mode="time"
-            is24Hour={true}
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowEndPicker(false);
-              if (selectedDate) {
-                setEndTimeLocal(toKST(selectedDate));
-              }
-            }}
-          />
-        )}
+
+        {showStartPicker && reservationChecked && (
+  <DateTimePicker
+    value={startTime}
+    mode="time"
+    is24Hour={true}
+    display="default"
+    onChange={(event, selectedDate) => {
+      setShowStartPicker(false);
+      if (selectedDate) {
+        if (selectedDate < new Date()) {
+          Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
+          return;
+        }
+        setStartTimeLocal(selectedDate);
+        if (selectedDate >= endTime) {
+          setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+        }
+      }
+    }}
+  />
+)}
+
+{showEndPicker && (
+  <DateTimePicker
+    value={endTime}
+    mode="time"
+    is24Hour={true}
+    display="default"
+    onChange={(event, selectedDate) => {
+      setShowEndPicker(false);
+      if (selectedDate) {
+        if (selectedDate <= startTime) {
+          Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
+          return;
+        }
+        setEndTimeLocal(selectedDate);
+      }
+    }}
+  />
+)}
 
         <Text style={styles.label}>배달비 설정</Text>
         <TextInput
@@ -280,14 +302,18 @@ const styles = StyleSheet.create({
     height: 50,
   },
   disabledTimeInput: {
-    backgroundColor: "#d3d3d3", // 비활성화 상태 색상
+    backgroundColor: "#d3d3d3",
+  },
+  timeText_1: {
+    color: "#333",
+    fontSize: 11,
   },
   timeText: {
     color: "#333",
     fontSize: 14,
   },
   disabledTimeText: {
-    color: "#a9a9a9", // 비활성화 상태 텍스트 색상
+    color: "#a9a9a9",
   },
   checkboxWrapper: {
     justifyContent: "center",
