@@ -159,7 +159,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     <BottomSheet
       ref={bottomSheetRef}
       index={2}
-      snapPoints={["3%", "25%", "48%", "55"]}
+      snapPoints={["3%", "25%", "48%", "50"]}
       style={styles.bottomSheet}
     >
       <View style={styles.sheetContent}>
@@ -330,6 +330,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    
   },
   sheetContent: {
     flex: 1,
@@ -338,7 +339,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   input: {
     backgroundColor: "#f2f2f2",

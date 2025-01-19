@@ -33,17 +33,21 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({
       />
 
       {/* Add current location marker */}
+      {floor &&
+      
       <Marker
-        coordinate={{
-          latitude: region.latitude,
-          longitude: region.longitude,
-        }}
-        title="현재 위치"
-      />
+          coordinate={{
+            latitude: region.latitude,
+            longitude: region.longitude,
+          }}
+          title="현재 위치"
+        />
+        }
 
       {/* Conditionally render markers */}
       {!floor && (
         <>
+
           {markers.map((marker) => (
             <Marker
               key={marker.id}
