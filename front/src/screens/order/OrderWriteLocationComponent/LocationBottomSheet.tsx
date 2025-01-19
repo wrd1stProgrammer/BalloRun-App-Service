@@ -43,6 +43,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   address,
   bottomSheetRef,
   deliveryMethod,
+  
 }) => {
 
 

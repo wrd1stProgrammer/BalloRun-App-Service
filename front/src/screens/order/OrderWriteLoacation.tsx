@@ -1,11 +1,13 @@
+// OrderWriteLocation.tsx
 import React, { useRef, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import MapView, { Region } from 'react-native-maps';
+import { RouteProp } from '@react-navigation/native';
 import CustomMapView from './OrderWriteLocationComponent/CustomMapView';
 import LocationBottomSheet from './OrderWriteLocationComponent/LocationBottomSheet';
-import { RouteProp } from '@react-navigation/native';
+import { Region, LatLng } from 'react-native-maps';
+
 type RootStackParamList = {
   OrderWriteLocation: { deliveryMethod: 'direct' | 'cupHolder' };
 };
@@ -20,9 +22,6 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
   const { deliveryMethod } = route.params; // navigate에서 전달된 데이터 가져오기
   const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
-
-  
-
 
   const jnuRegion: Region = {
     latitude: 35.176735,
@@ -59,6 +58,33 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
     setAddress(`${limitedRegion.latitude}, ${limitedRegion.longitude}`);
   };
 
+  const markers = [
+    {
+      id: 1,
+      coordinate: { latitude: 35.179661, longitude: 126.90638 },
+      title: 'AI융합대학',
+      description: '여기는 마커 1입니다.',
+      image: require('../../assets/images/AIpart.png'),
+      floors: ["1층"],
+    },
+    {
+      id: 2,
+      coordinate: { latitude: 35.177735, longitude: 126.909421 },
+      title: '공과대학',
+      description: '여기는 마커 2입니다.',
+      image: require('../../assets/images/Engineerpart.png'),
+      floors: ["2층", "3층"],
+    },
+    {
+      id: 3,
+      coordinate: { latitude: 35.178735, longitude: 126.907421 },
+      title: '자연과학대학',
+      description: '여기는 마커 3입니다.',
+      image: require('../../assets/images/AIpart.png'),
+      floors: ["1층", "3층"],
+    },
+  ];
+
   return (
     <View style={styles.container}>
       {/* 지도 */}
@@ -67,6 +93,7 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
         onRegionChangeComplete={handleRegionChange}
         jnuBoundary={jnuBoundary}
         deliveryMethod={deliveryMethod}
+        markers={markers}
       />
 
       {/* 뒤로가기 아이콘 */}
@@ -77,7 +104,7 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
       {/* 위치 정보 하단 시트 */}
       <LocationBottomSheet
         address={address}
-        deliveryMethod={deliveryMethod} // deliveryMethod를 LocationBottomSheet로 전달
+        deliveryMethod={deliveryMethod}
         bottomSheetRef={bottomSheetRef}
       />
     </View>
