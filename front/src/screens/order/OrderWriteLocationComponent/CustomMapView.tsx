@@ -24,7 +24,6 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({ deliveryMethod, region, o
       title: 'AI융합대학',
       description: '여기는 마커 1입니다.',
       image: require('../../../assets/images/AIpart.png'), // 로컬 이미지 파일
-      floor: //1층,2층,3층
     },
     {
       id: 2,
@@ -32,7 +31,6 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({ deliveryMethod, region, o
       title: '공과대학',
       description: '여기는 마커 2입니다.',
       image: require('../../../assets/images/Engineerpart.png'), // 로컬 이미지 파일
-      floor: 
     },
   ], []);
   // 임시 데이터
