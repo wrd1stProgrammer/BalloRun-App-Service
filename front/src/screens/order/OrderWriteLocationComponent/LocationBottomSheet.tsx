@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { LatLng } from 'react-native-maps';
+
 import {
   StyleSheet,
   View,
@@ -28,10 +30,21 @@ import { useContext } from "react";
 import { WebSocketContext } from "../../../utils/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
 
+
+export interface MarkerData {
+  id: number;
+  coordinate: LatLng;
+  title: string;
+  description: string;
+  image: any;
+  floors: string[]; // 층 데이터를 배열로 저장
+}
+
 interface LocationBottomSheetProps {
   address: string;
   bottomSheetRef: React.RefObject<any>;
   deliveryMethod: "direct" | "cupHolder";
+  markers: MarkerData[]
 }
 
 const toKST = (date: Date) => {
@@ -43,7 +56,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   address,
   bottomSheetRef,
   deliveryMethod,
-  
+  markers
 }) => {
 
 

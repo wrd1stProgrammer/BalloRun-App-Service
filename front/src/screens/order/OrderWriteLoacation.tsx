@@ -106,6 +106,8 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
         address={address}
         deliveryMethod={deliveryMethod}
         bottomSheetRef={bottomSheetRef}
+        markers={markers}
+
       />
     </View>
   );
