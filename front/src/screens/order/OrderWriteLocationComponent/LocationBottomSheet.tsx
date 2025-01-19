@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
 import BottomSheet from "@gorhom/bottom-sheet";
 import {
@@ -59,8 +60,6 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   markers
 }) => {
 
-
-
   const dispatch = useAppDispatch();
   const menu = useAppSelector(selectMenu);
   const order = useAppSelector(selectOrder);
@@ -78,9 +77,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [showEndPicker, setShowEndPicker] = React.useState(false);
   const [reservationChecked, setReservationChecked] = React.useState(false);
   const [floor, setfloor] = React.useState(false);
-
-
-
+  const [selectedFloor, setSelectedFloor] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!reservationChecked) {
@@ -90,16 +87,13 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     }
   }, [reservationChecked]);
 
-
   React.useEffect(() => {
     if (deliveryMethod == "direct"){
-      setfloor(true)
+      setfloor(true);
+    } else {
+      setfloor(false);
     }
-    else {
-      setfloor(false)
-    }
-    
-  }, [])
+  }, []);
 
   // 위치를 확정하는 버튼을 누르면 작동하는 함수
   const handleSave = async () => {
@@ -115,8 +109,6 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       dispatch(setEndTime(endTime.getTime()));
       dispatch(setDeliveryFee(Number(deliveryFee)));
       dispatch(setDeliveyRequest(deliveryRequest));
-
-
 
       if (!Array.isArray(menu.items)) {
         console.error("menu.items is not an array");
@@ -156,7 +148,6 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         );
       }
 
-
       navigate("BottomTab", {
         screen: "DeliveryRequestListScreen",
       });
@@ -174,31 +165,31 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     >
       <View style={styles.sheetContent}>
 
+        {floor && (
+          <>
+            <Text style={styles.label}>배달 상세 주소</Text>
+            <TextInput
+              style={[styles.input, styles.inputCompact]}
+              value={address}
+            />
+          </>
+        )}
 
-      {floor && (
-        <>
-          <Text style={styles.label}>배달 상세 주소</Text>
-          <TextInput
-            style={[styles.input, styles.inputCompact]}
-            value={address}
-          />
-        </>
-      )}
-
-      {!floor && (
-              <>
-                <Text style={styles.label}>층을 선택해주세요</Text>
-                <TextInput
-                  style={[styles.input, styles.inputCompact]}
-                  value={address}
-                />
-              </>
-            )}
-
-       
-
-
-
+        {!floor && (
+          <>
+            <Text style={styles.label}>층을 선택해주세요</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedFloor}
+                onValueChange={(itemValue) => setSelectedFloor(itemValue)}
+              >
+                {markers[0]?.floors.map((floor) => (
+                  <Picker.Item key={floor} label={floor} value={floor} />
+                ))}
+              </Picker>
+            </View>
+          </>
+        )}
 
         <Text style={styles.label}>배달 요청 시간</Text>
         <View style={styles.timeInputContainer}>
@@ -248,7 +239,6 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             </Text>
           </TouchableOpacity>
 
-          {/* 배달 예약 체크박스 */}
           <View style={styles.checkboxWrapper}>
             <TouchableOpacity
               style={styles.checkboxContainer}
@@ -423,6 +413,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  pickerContainer: {
+    backgroundColor: "#f2f2f2",
+    borderRadius: 5,
+    marginBottom: 10,
   },
 });
 
