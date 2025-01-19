@@ -45,7 +45,8 @@ interface LocationBottomSheetProps {
   address: string;
   bottomSheetRef: React.RefObject<any>;
   deliveryMethod: "direct" | "cupHolder";
-  markers: MarkerData[]
+  markers: MarkerData[];
+  selectedMarker: MarkerData | null; // 선택된 마커 추가
 }
 
 const toKST = (date: Date) => {
@@ -57,7 +58,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   address,
   bottomSheetRef,
   deliveryMethod,
-  markers
+  markers,
+  selectedMarker, // 선택된 마커
 }) => {
 
   const dispatch = useAppDispatch();
@@ -70,9 +72,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     toKST(new Date(new Date().getTime() + 60 * 60 * 1000))
   );
   const [deliveryFee, setDeliveryFeeLocal] = React.useState("500");
-
-  const [deliveryRequest, setDeliberyRequest] = React.useState("없음")
-
+  const [deliveryRequest, setDeliberyRequest] = React.useState("없음");
   const [showStartPicker, setShowStartPicker] = React.useState(false);
   const [showEndPicker, setShowEndPicker] = React.useState(false);
   const [reservationChecked, setReservationChecked] = React.useState(false);
@@ -88,14 +88,13 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   }, [reservationChecked]);
 
   React.useEffect(() => {
-    if (deliveryMethod == "direct"){
+    if (deliveryMethod === "direct") {
       setfloor(true);
     } else {
       setfloor(false);
     }
-  }, []);
+  }, [deliveryMethod]);
 
-  // 위치를 확정하는 버튼을 누르면 작동하는 함수
   const handleSave = async () => {
     try {
       const [lat, lng] = address.split(",").map((s) => s.trim());
@@ -160,11 +159,10 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     <BottomSheet
       ref={bottomSheetRef}
       index={2}
-      snapPoints={["3%",'25%', "48%"]}
+      snapPoints={["3%", "25%", "48%", "55"]}
       style={styles.bottomSheet}
     >
       <View style={styles.sheetContent}>
-
         {floor && (
           <>
             <Text style={styles.label}>배달 상세 주소</Text>
@@ -175,7 +173,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           </>
         )}
 
-        {!floor && (
+        {!floor && selectedMarker && (
           <>
             <Text style={styles.label}>층을 선택해주세요</Text>
             <View style={styles.pickerContainer}>
@@ -183,7 +181,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
                 selectedValue={selectedFloor}
                 onValueChange={(itemValue) => setSelectedFloor(itemValue)}
               >
-                {markers[0]?.floors.map((floor) => (
+                {selectedMarker.floors.map((floor) => (
                   <Picker.Item key={floor} label={floor} value={floor} />
                 ))}
               </Picker>
@@ -351,8 +349,8 @@ const styles = StyleSheet.create({
   },
   inputCompact: {
     paddingLeft: 8,
-    paddingTop:3,
-    paddingBottom:3,
+    paddingTop: 3,
+    paddingBottom: 3,
     marginBottom: 12,
   },
   timeInputContainer: {

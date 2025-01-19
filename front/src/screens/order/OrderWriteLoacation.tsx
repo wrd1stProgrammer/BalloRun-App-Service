@@ -1,4 +1,3 @@
-// OrderWriteLocation.tsx
 import React, { useRef, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
 import CustomMapView from './OrderWriteLocationComponent/CustomMapView';
 import LocationBottomSheet from './OrderWriteLocationComponent/LocationBottomSheet';
-import { Region, LatLng } from 'react-native-maps';
+import { Region } from 'react-native-maps';
 
 type RootStackParamList = {
   OrderWriteLocation: { deliveryMethod: 'direct' | 'cupHolder' };
@@ -19,7 +18,7 @@ interface Props {
 }
 
 const OrderWriteLocation: React.FC<Props> = ({ route }) => {
-  const { deliveryMethod } = route.params; // navigate에서 전달된 데이터 가져오기
+  const { deliveryMethod } = route.params;
   const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
 
@@ -40,7 +39,7 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
 
   const [region, setRegion] = useState(jnuRegion);
   const [address, setAddress] = useState(`${jnuRegion.latitude}, ${jnuRegion.longitude}`);
-
+const [selectedMarker, setSelectedMarker] = useState<any>(null); // 타입 명시
   const handleRegionChange = (newRegion: Region) => {
     const minLat = Math.min(...jnuBoundary.map((point) => point.latitude));
     const maxLat = Math.max(...jnuBoundary.map((point) => point.latitude));
@@ -65,7 +64,7 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
       title: 'AI융합대학',
       description: '여기는 마커 1입니다.',
       image: require('../../assets/images/AIpart.png'),
-      floors: ["1층"],
+      floors: ['AI 융합대학 1층','AI 융합대학 2층 301호 앞'],
     },
     {
       id: 2,
@@ -73,7 +72,7 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
       title: '공과대학',
       description: '여기는 마커 2입니다.',
       image: require('../../assets/images/Engineerpart.png'),
-      floors: ["2층", "3층"],
+      floors: ['공과대학 7호관 2층', '공과대학 7호관 3층'],
     },
     {
       id: 3,
@@ -81,33 +80,31 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
       title: '자연과학대학',
       description: '여기는 마커 3입니다.',
       image: require('../../assets/images/AIpart.png'),
-      floors: ["1층", "3층"],
+      floors: ['자연과학대학 1층','자연과학대학 2층','자연과학대학 3층'],
     },
   ];
 
   return (
     <View style={styles.container}>
-      {/* 지도 */}
       <CustomMapView
         region={region}
         onRegionChangeComplete={handleRegionChange}
         jnuBoundary={jnuBoundary}
         deliveryMethod={deliveryMethod}
         markers={markers}
+        onMarkerPress={setSelectedMarker}
       />
 
-      {/* 뒤로가기 아이콘 */}
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
 
-      {/* 위치 정보 하단 시트 */}
       <LocationBottomSheet
         address={address}
         deliveryMethod={deliveryMethod}
         bottomSheetRef={bottomSheetRef}
         markers={markers}
-
+        selectedMarker={selectedMarker}
       />
     </View>
   );

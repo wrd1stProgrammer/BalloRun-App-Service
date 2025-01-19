@@ -1,52 +1,57 @@
 import React from 'react';
+import MapView, { Marker, Polygon } from 'react-native-maps';
 import { StyleSheet } from 'react-native';
-import MapView, { Marker, Polygon, PROVIDER_GOOGLE } from 'react-native-maps';
-import CustomMarker from './CustomMarker'; // CustomMarker 컴포넌트 임포트
-import { CustomMapViewProps } from './CustomMapViewProps'; // Props 타입 정의 임포트
+import { CustomMapViewProps } from './CustomMapViewProps';
+import CustomMarker from './CustomMarker';
 
-const CustomMapView: React.FC<CustomMapViewProps> = ({ deliveryMethod, region, onRegionChangeComplete, jnuBoundary, markers }) => {
+const CustomMapView: React.FC<CustomMapViewProps> = ({
+  deliveryMethod,
+  region,
+  onRegionChangeComplete,
+  jnuBoundary,
+  markers,
+  onMarkerPress,
+}) => {
   const [floor, setFloor] = React.useState(false);
 
   React.useEffect(() => {
-    if (deliveryMethod === "direct") {
-      setFloor(true);
-    } else {
-      setFloor(false);
-    }
+    setFloor(deliveryMethod === 'direct');
   }, [deliveryMethod]);
-
-
-  // 여기 임시 데이터로 다른 파일로 옮겨야 할듯듯
-  
-  // 임시 데이터
 
   return (
     <MapView
-      provider={PROVIDER_GOOGLE}
       style={styles.map}
       initialRegion={region}
       onRegionChangeComplete={onRegionChangeComplete}
     >
+      {/* Draw a polygon boundary */}
       <Polygon
         coordinates={jnuBoundary}
         strokeColor="rgba(0,0,255,0.8)"
         fillColor="rgba(0,0,255,0.1)"
         strokeWidth={2}
       />
-      
-      {/* floor이 false일 때만 렌더링 */}
 
-          <Marker
-            coordinate={{
-              latitude: region.latitude,
-              longitude: region.longitude,
-            }}
-            title="현재 위치"
-          />
+      {/* Add current location marker */}
+      <Marker
+        coordinate={{
+          latitude: region.latitude,
+          longitude: region.longitude,
+        }}
+        title="현재 위치"
+      />
+
+      {/* Conditionally render markers */}
       {!floor && (
         <>
           {markers.map((marker) => (
-            <Marker key={marker.id} coordinate={marker.coordinate} title={marker.title} description={marker.description}>
+            <Marker
+              key={marker.id}
+              coordinate={marker.coordinate}
+              title={marker.title}
+              onPress={() => onMarkerPress(marker)}
+            >
+              {/* Render a custom marker */}
               <CustomMarker marker={marker} />
             </Marker>
           ))}
