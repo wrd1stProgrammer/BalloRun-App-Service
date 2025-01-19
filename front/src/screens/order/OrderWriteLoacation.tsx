@@ -21,6 +21,9 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
   const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
 
+  
+
+
   const jnuRegion: Region = {
     latitude: 35.176735,
     longitude: 126.908421,
@@ -63,6 +66,7 @@ const OrderWriteLocation: React.FC<Props> = ({ route }) => {
         region={region}
         onRegionChangeComplete={handleRegionChange}
         jnuBoundary={jnuBoundary}
+        deliveryMethod={deliveryMethod}
       />
 
       {/* 뒤로가기 아이콘 */}

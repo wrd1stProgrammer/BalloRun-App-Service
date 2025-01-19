@@ -44,6 +44,9 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   bottomSheetRef,
   deliveryMethod,
 }) => {
+
+
+
   const dispatch = useAppDispatch();
   const menu = useAppSelector(selectMenu);
   const order = useAppSelector(selectOrder);
@@ -60,6 +63,10 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [showStartPicker, setShowStartPicker] = React.useState(false);
   const [showEndPicker, setShowEndPicker] = React.useState(false);
   const [reservationChecked, setReservationChecked] = React.useState(false);
+  const [floor, setfloor] = React.useState(false);
+
+
+
 
   React.useEffect(() => {
     if (!reservationChecked) {
@@ -68,6 +75,17 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       setStartTimeLocal(now);
     }
   }, [reservationChecked]);
+
+
+  React.useEffect(() => {
+    if (deliveryMethod == "direct"){
+      setfloor(true)
+    }
+    else {
+      setfloor(false)
+    }
+    
+  }, [])
 
   // 위치를 확정하는 버튼을 누르면 작동하는 함수
   const handleSave = async () => {
@@ -141,11 +159,32 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       style={styles.bottomSheet}
     >
       <View style={styles.sheetContent}>
-        <Text style={styles.label}>배달 상세 주소</Text>
-        <TextInput
-          style={[styles.input, styles.inputCompact]}
-          value={address}
-        />
+
+
+      {floor && (
+        <>
+          <Text style={styles.label}>배달 상세 주소</Text>
+          <TextInput
+            style={[styles.input, styles.inputCompact]}
+            value={address}
+          />
+        </>
+      )}
+
+      {!floor && (
+              <>
+                <Text style={styles.label}>층을 선택해주세요</Text>
+                <TextInput
+                  style={[styles.input, styles.inputCompact]}
+                  value={address}
+                />
+              </>
+            )}
+
+       
+
+
+
 
         <Text style={styles.label}>배달 요청 시간</Text>
         <View style={styles.timeInputContainer}>
