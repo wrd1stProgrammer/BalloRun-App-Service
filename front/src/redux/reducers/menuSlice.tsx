@@ -86,9 +86,14 @@ export const menuSlice = createSlice({
         state.quantitiy = totalQuantity;
       }
     },
+    clearMenu: (state) => {
+      state.items = [];
+      state.price = 0;
+      state.quantitiy = 0;
+    },
   },
 });
 
-export const { setMenu, updateQuantity, removeItem } = menuSlice.actions;
+export const { setMenu, updateQuantity, removeItem, clearMenu  } = menuSlice.actions;
 export const selectMenu = (state: RootState) => state.menu;
 export default menuSlice.reducer;

@@ -1,6 +1,9 @@
 import { appAxios } from '../config/apiConfig';
 import {persistor} from '../config/store';
 import { resetAndNavigate } from '../../navigation/NavigationUtils';
+import { useAppDispatch } from '../config/reduxHook';
+import { clearMenu } from '../reducers/menuSlice';
+
 
 
 // 지금 배달 Action
@@ -30,6 +33,9 @@ export const orderNowHandler = (
       riderRequest
 
     });
+
+        // 주문 성공 시 상태 초기화
+    dispatch(clearMenu());
 
     return res.data;
   } catch (error) {
@@ -63,6 +69,9 @@ export const orderNowHandler = (
         deliveryFee,
         riderRequest
       });
+
+              // 주문 성공 시 상태 초기화
+    dispatch(clearMenu());
   
       return res.data;
     } catch (error: any) {
