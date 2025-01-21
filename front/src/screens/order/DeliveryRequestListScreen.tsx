@@ -30,6 +30,7 @@ interface OrderItem {
   createdAt: number;
   riderRequest: string;
   endTime: string
+  selectedFloor: null | string
 }
 
 const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
@@ -38,6 +39,7 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const user = useAppSelector(selectUser);
+
 
   const fetchOrders = async () => {
     try {
@@ -85,7 +87,8 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
           <Text style={styles.moreButton}>...</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.address}>{`${item.lat}, ${item.lng}`}</Text>
+      {item.deliveryType === "direct" ? <Text style={styles.address}>{`${item.lat}, ${item.lng}`}</Text> : <Text style={styles.address}>{item.selectedFloor}</Text>}
+      
       <Text
         style={
           item.status === "pending"
