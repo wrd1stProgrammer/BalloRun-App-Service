@@ -40,8 +40,7 @@ const orderLaterDirectCreate = async (req, res) => {
           startTime,
           endTime,
           riderRequest,// 배달원 요청사항
-          selectedFloor
-          // 층수
+          selectedFloor // 층수
         });
   
         const savedOrder = await order.save();
