@@ -20,6 +20,7 @@ import {
   setDeliveryFee,
   setDeliveyRequest,
   selectOrder,
+  setFloor,
 } from "../../../redux/reducers/orderSlice";
 import { useAppSelector } from "../../../redux/config/reduxHook";
 import { selectMenu } from "../../../redux/reducers/menuSlice";
@@ -78,7 +79,9 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [reservationChecked, setReservationChecked] = React.useState(false);
   const [floor, setfloor] = React.useState(false);
   const [selectedFloor, setSelectedFloor] = React.useState<string | null>(null);
+  // CustomMapView에서 선택한 층이이  여기가 선택한층인듯?
 
+  console.log(selectedFloor)
   React.useEffect(() => {
     if (!reservationChecked) {
       // 체크박스 해제 시 startTime을 다시 설정
@@ -108,6 +111,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       dispatch(setEndTime(endTime.getTime()));
       dispatch(setDeliveryFee(Number(deliveryFee)));
       dispatch(setDeliveyRequest(deliveryRequest));
+      dispatch(setFloor(selectedFloor));  // 선택한 층을 보내야 함함
+
 
       if (!Array.isArray(menu.items)) {
         console.error("menu.items is not an array");
@@ -115,7 +120,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       }
 
       const isMatch = false;
-      if (!reservationChecked) {
+      if (reservationChecked) {
         console.log("지금배달 액션");
         await dispatch(
           orderLaterHandler(
@@ -127,7 +132,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             isMatch,
             deliveryMethod,
             Number(deliveryFee),
-            deliveryRequest
+            deliveryRequest,
+            selectedFloor //선택한 층을 보내야 함함
           )
         );
       } else {
@@ -142,7 +148,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             isMatch,
             deliveryMethod,
             Number(deliveryFee),
-            deliveryRequest
+            deliveryRequest,
+            selectedFloor //선택한 층을 보내야 함함
           )
         );
       }

@@ -37,6 +37,7 @@ const OrderSchema = new mongoose.Schema(
     createdAt: { type: Date, default: Date.now }, // 생성 시간
     floor: {type:Number ,default: false}, // 컵홀더 선택시 층 선택 
     riderRequest: {type:String},
+    selectedFloor: {type:String}
   },
   {
     timestamps: true, // createdAt, updatedAt 자동 생성

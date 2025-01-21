@@ -17,8 +17,8 @@ export const orderNowHandler = (
   isMatch: boolean,
   deliveryType: 'direct' | 'cupHolder',
   deliveryFee: Number,
-  riderRequest: string
-
+  riderRequest: string,
+  selectedFloor: string | null
 ) => async (dispatch: any) => {
   try {
     const res = await appAxios.post(`/order/orderNow`, {
@@ -30,8 +30,8 @@ export const orderNowHandler = (
       isMatch,
       deliveryType,
       deliveryFee,
-      riderRequest
-
+      riderRequest,
+      selectedFloor //선택한 층을 받아야 함함
     });
 
         // 주문 성공 시 상태 초기화
@@ -55,7 +55,9 @@ export const orderNowHandler = (
     isMatch: boolean,
     deliveryType: 'direct' | 'cupHolder' ,
     deliveryFee: Number,
-    riderRequest: string
+    riderRequest: string,
+    selectedFloor: string | null
+
   ) => async (dispatch: any) => {
     try {
       const res = await appAxios.post(`/order/orderLater`, {
@@ -67,7 +69,8 @@ export const orderNowHandler = (
         startTime,    //시작
         endTime,     //끝나느시간간
         deliveryFee,
-        riderRequest
+        riderRequest,
+        selectedFloor      //선택한 층을 받아야 함함
       });
 
               // 주문 성공 시 상태 초기화
