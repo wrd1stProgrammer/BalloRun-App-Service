@@ -33,7 +33,7 @@ const HomeScreen: React.FC = () => {
       {/* 메인 콘텐츠: 2개의 카드 */}
       <View style={styles.cardList}>
         {/* 배달하기 카드 */}
-        <TouchableOpacity style={[styles.card, styles.deliveryCard]} >
+        <TouchableOpacity style={[styles.card, styles.deliveryCard]} onPress = {() => navigate('SelectDelivery')} >
           <Ionicons name="bicycle" size={28} color="#fff" />
           <Text style={styles.cardTextWhite}>배달하기</Text>
         </TouchableOpacity>
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 50,
   },
   greetingContainer: {
     flex: 1,
@@ -91,9 +91,10 @@ const styles = StyleSheet.create({
   cardList: {
     // 배치(간격 등) 조절
 
+
   },
   card: {
-    height: 200,
+    height: 250,
     borderRadius: 12,
     marginBottom: 16,
     padding: 16,
