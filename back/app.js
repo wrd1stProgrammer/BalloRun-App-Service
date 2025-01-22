@@ -6,6 +6,7 @@ const http = require("http"); // HTTP 서버 모듈 추가
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const configureSocket = require("./loaders/socket"); // Socket.IO 설정 로더
+const { consumeMessages } = require("./controllers/rabbitMQ/consumer");
 
 dotenv.config();
 
@@ -28,7 +29,13 @@ async function startServer() {
   app.set("emitSocketTest", emitSocketTest);
   app.set("emitMatchTest", emitMatchTest);
 
-
+  /*
+  // rabbitMQ 소비자 코드 (docker 쓸 때 주석 뺌)
+    setTimeout(() => {
+      console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
+      consumeMessages();
+    }, 10000); // 10초 (10000 밀리초)
+ */
 
   // server,app -> loaders
   await require(".")(app, server);
@@ -51,7 +58,7 @@ async function startServer() {
 
   // 서버 리스닝 시작
   server
-    .listen(3000, () => {
+    .listen(5000, () => {
       console.log(`
       ################################################
       🛡️  서버 온 : ${app.get("port")} 🛡️

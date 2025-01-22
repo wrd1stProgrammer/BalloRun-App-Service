@@ -3,7 +3,7 @@ import { Socket, io } from "socket.io-client";
 import { resetAndNavigate } from "../navigation/NavigationUtils";
 import { useAppDispatch } from "../redux/config/reduxHook";
 import { token_storage } from "../redux/config/storage";
-import { IPV4 } from "@env";
+import { IPV4,PORT } from "@env";
 import { refresh_tokens } from "../redux/config/apiConfig";
 import { jwtDecode } from "jwt-decode";
 
@@ -56,7 +56,7 @@ const WebSocketContainer = ({ children }: Props) => {
 
   useEffect(() => {
     if (access_token) {
-      const socket = io(`http://${IPV4}:3000`, {
+      const socket = io(`http://${IPV4}:${PORT}`, {
         transports: ["websocket"],
         auth: { token: access_token },
       });

@@ -40,7 +40,7 @@ const SplashScreen: FC = () => {
 
       if (decodedAccessToken?.exp < currentTime) {
         try {
-          refresh_tokens();
+          await refresh_tokens(); // 토큰 가져와야지지
           dispatch(refetchUser());
         } catch (error) {
           console.log(error);

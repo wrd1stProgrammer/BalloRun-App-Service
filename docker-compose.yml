@@ -1,15 +1,15 @@
 version: '3.8'
 services:
-  front:
-    build:
-      context: ./front
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8081"  # Metro Bundler 포트
-    volumes:
-      - ./front:/app
-      #- /app/node_modules
-    command: npm start -- --reset-cache
+  #front:
+#    build:
+#      context: ./front
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8081:8081"  # Metro Bundler 포트
+#    volumes:
+#      - ./front:/app
+#      #- /app/node_modules
+#    command: npm start -- --reset-cache
 
   back:
     build:
@@ -26,21 +26,26 @@ services:
       - REDIS_PORT=14438
       - REDIS_USERNAME=default
       - REDIS_PASSWORD=AoWvAXv3JTPRBrgwxRX58G9AVxFhQzpj
+      #- RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - rabbitmq # RabbitMQ 컨테이너가 먼저 실행되도록 설정
     command: node app.js
+    networks:
+      - app_network
 
-  mongo:
-    image: mongo:6.0
-    container_name: mongo
+  rabbitmq: # RabbitMQ 서비스
+    image: rabbitmq:3-management # RabbitMQ 관리 UI 포함 이미지
+    container_name: rabbitmq
     ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
+      - "5672:5672" # RabbitMQ AMQP 포트
+      - "15672:15672" # RabbitMQ 관리 UI 포트
+    environment:
+      RABBITMQ_DEFAULT_USER: guest # RabbitMQ 기본 사용자 이름
+      RABBITMQ_DEFAULT_PASS: guest # RabbitMQ 기본 비밀번호
+    networks:
+      - app_network
 
-  redis:
-    image: redis:7.0
-    container_name: redis
-    ports:
-      - "6379:6379"
 
-volumes:
-  mongo-data:
+networks:
+  app_network:
+    driver: bridge
