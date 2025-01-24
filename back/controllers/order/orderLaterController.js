@@ -1,18 +1,22 @@
 const Order = require("../../models/Order");
 const User = require("../../models/User");
 const amqp = require("amqplib");
+const {consumeMessages}= require("../rabbitMQ/consumer");
 
 
 const orderLaterDirectCreate = async (req, res) => {
   const { items, lat, lng, isMatch, deliveryFee, deliveryType, startTime, endTime, riderRequest, selectedFloor } = req.body;
 
   const userId = req.user.userId;
+  
 
   try {
+      consumeMessages();
       // RabbitMQ 연결
       const connection = await amqp.connect("amqp://rabbitmq:5672");
       const channel = await connection.createChannel();
-      console.log('채널? : ', channel);
+      
+      
       const queue = "order_queue";
 
       await channel.assertQueue(queue, { durable: true });

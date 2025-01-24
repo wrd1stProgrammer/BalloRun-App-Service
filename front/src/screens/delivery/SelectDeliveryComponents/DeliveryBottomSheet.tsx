@@ -1,65 +1,70 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { getOrderData } from '../../../redux/actions/riderAction';
+import { useAppDispatch } from '../../../redux/config/reduxHook';
 
 type DeliveryItem = {
-  id: string;
-  title: string;
-  subtitle: string;
-  type: string;
-  time: string;
-  price: string;
+  _id: string;
+  items: any[]; // 아이템 배열
+  lat: string;
+  lng: string;
+  deliveryType: string;
+  startTime: string;
+  deliveryFee: number;
 };
 
 function DeliveryBottomSheet(): JSX.Element {
-  // Dummy data for the delivery items
-  const deliveryItems: DeliveryItem[] = [
-    {
-      id: '1',
-      title: '전남대학교 공과대학 7호관 3층 301호',
-      subtitle: '공대 7호관 · 1잔',
-      type: '직접 배달',
-      time: '25분 전',
-      price: '1,000원',
-    },
-    {
-      id: '2',
-      title: '전남대학교 AI융합대학 2층 205호',
-      subtitle: '공대 7호관 · 1잔',
-      type: '음료보관대',
-      time: '25분 전',
-      price: '500원',
-    },
-  ];
+  const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    // 주문 데이터 가져오기
+    const fetchOrders = async () => {
+      setLoading(true);
+      const orders = await dispatch(getOrderData()); // 서버에서 데이터 가져오기
+      setDeliveryItems(orders);
+      setLoading(false);
+    };
+
+    fetchOrders();
+  }, []);
 
   // BottomSheet snap points
-  const snapPoints = useMemo(() => ['25%', '50%', '90%'], []);
+  const snapPoints = ['25%', '50%', '90%'];
 
   const renderItem = ({ item }: { item: DeliveryItem }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.subtitle}>{item.subtitle}</Text>
+        <Text style={styles.title}>{item.items[0]?.menuName || '주문 아이템'} - {item.items.length}건</Text>
+        <Text style={styles.subtitle}>{item.items[0]?.cafeName || '카페 이름'}</Text>
       </View>
       <View style={styles.cardBody}>
-        <Text style={styles.type}>{item.type}</Text>
-        <Text style={styles.time}>{item.time}</Text>
+        <Text style={styles.type}>{item.deliveryType}</Text>
+        <Text style={styles.time}>
+          {new Date(item.startTime).toLocaleTimeString()} 주문
+        </Text>
       </View>
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>수락하기</Text>
       </TouchableOpacity>
-      <Text style={styles.price}>{item.price}</Text>
+      <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
     </View>
   );
 
   return (
     <BottomSheet snapPoints={snapPoints}>
       <View style={styles.container}>
-        <FlatList
-          data={deliveryItems}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color="#6610f2" />
+        ) : (
+          <FlatList
+            data={deliveryItems}
+            renderItem={renderItem}
+            keyExtractor={(item) => item._id}
+          />
+        )}
       </View>
     </BottomSheet>
   );
