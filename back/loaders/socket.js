@@ -57,6 +57,9 @@ module.exports = (io) => {
     io.emit("matchTest", message);
   }
   
+  const showOrderData = (orderData) => {
+    io.emit('showOrderData', orderData);
+  }
 
-  return { emitSocketTest,emitMatchTest };
+  return { emitSocketTest,emitMatchTest,showOrderData};
 };

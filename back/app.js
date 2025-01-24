@@ -25,17 +25,17 @@ async function startServer() {
   });
 
   // Socket.IO 설정 및 emit 함수 등록 -> 여기서 emit 할 거 여러가지 등록
-  const { emitSocketTest,emitMatchTest } = configureSocket(io);
+  const { emitSocketTest,emitMatchTest,showOrderData } = configureSocket(io);
   app.set("emitSocketTest", emitSocketTest);
   app.set("emitMatchTest", emitMatchTest);
+  app.set("showOrderData",showOrderData);
 
-  /*
-  // rabbitMQ 소비자 코드 (docker 쓸 때 주석 뺌)
-    setTimeout(() => {
-      console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
-      consumeMessages();
-    }, 10000); // 10초 (10000 밀리초)
- */
+  // RabbitMQ 소비자 실행 (7초 딜레이)
+  setTimeout(() => {
+    console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
+    consumeMessages(redisClient, showOrderData);
+  }, 10000);
+
 
   // server,app -> loaders
   await require(".")(app, server);

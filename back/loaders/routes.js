@@ -4,6 +4,7 @@ const authRouter = require("../routes/auth");
 const userRouter = require("../routes/user");
 const cafeRouter = require("../routes/cafe");
 const orderRouter = require("../routes/order");
+const riderRouter = require("../routes/rider");
 // const userRouter = require("../routes/user"); 예시
 
 module.exports = async (app) => {
@@ -14,19 +15,12 @@ module.exports = async (app) => {
         res.send('Hello, World!');
     });
 
-    // 로그인 경로 -- 이하는 예시 코드
-    // router.post('/login', authController.login);
-
-    // // 회원가입 경로
-    // router.post('/register', authController.register);
-    
-    // app.use("/file", authMiddleware,fileRouter);
-    // app.use("/feed", authMiddleware, feedRouter);
     app.use("/auth",authRouter);
     app.use("/user",authMiddleware,userRouter);
     app.use("/cafe",authMiddleware,cafeRouter);
     app.use("/order",authMiddleware,orderRouter);
+    app.use("/rider",authMiddleware,riderRouter);
 
 
-    console.log('라우트 OK');
+    console.log('라우트 설정 OK');
 };
