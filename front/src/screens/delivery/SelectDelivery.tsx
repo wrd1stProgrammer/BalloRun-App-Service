@@ -13,12 +13,14 @@ type DeliveryItem = {
   deliveryFee: number; // 배달비
   cafeLogo: string; // 카페 로고 URL
   createdAt: string
+  endTime: string
 };
 
 function SelectDelivery() {
   const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const dispatch = useAppDispatch();
+  console.log(deliveryItems)
 
   useEffect(() => {
     const fetchOrders = async () => {

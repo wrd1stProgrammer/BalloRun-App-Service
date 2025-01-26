@@ -11,6 +11,7 @@ type DeliveryItem = {
   deliveryFee: number; // 배달비
   cafeLogo: string; // 카페 로고 URL
   createdAt: string
+  endTime: string
 };
 
 type DeliveryBottomSheetProps = {
@@ -36,6 +37,7 @@ function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProp
                 <Text style={styles.address}>{item.address || '배달 주소'}</Text>
                 <View style={styles.cardBody}>
                   <Text style={styles.deliveryType}>{item.deliveryType || '배달 유형'}</Text>
+                  <Text style={styles.time}>{new Date(item.endTime).toLocaleTimeString()} 만료 해야야 시간</Text>
                   <Text style={styles.time}>{new Date(item.createdAt).toLocaleTimeString('ko-KR', {
     timeZone: 'Asia/Seoul'})} 주문</Text>
                 </View>
