@@ -11,7 +11,6 @@ const orderLaterDirectCreate = async (req, res) => {
   
 
   try {
-      consumeMessages();
       // RabbitMQ 연결
       const connection = await amqp.connect("amqp://localhost:5672");
       const channel = await connection.createChannel();
@@ -53,6 +52,8 @@ const orderLaterDirectCreate = async (req, res) => {
       console.error("Error in orderLaterDirectCreate:", error);
       res.status(500).json({ message: "Failed to process the order." });
   }
+  consumeMessages();
+
 };
 
 

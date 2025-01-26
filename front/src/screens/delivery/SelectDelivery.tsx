@@ -14,6 +14,8 @@ type DeliveryItem = {
   cafeLogo: string; // 카페 로고 URL
   createdAt: string
   endTime: string
+  lat: string
+  lng: string
 };
 
 function SelectDelivery() {
@@ -35,7 +37,7 @@ function SelectDelivery() {
 
   return (
     <>
-      <DeliveryCustomMap />
+      <DeliveryCustomMap deliveryItems={deliveryItems} loading={loading}/>
       <DeliveryBottomSheet deliveryItems={deliveryItems} loading={loading} />
     </>
   );
