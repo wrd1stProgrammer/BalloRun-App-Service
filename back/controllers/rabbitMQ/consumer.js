@@ -6,7 +6,7 @@ const cron = require("node-cron");
 const consumeMessages = async (redisClient, showOrderData) => {
   try {
     // RabbitMQ 연결
-    const connection = await amqp.connect("amqp://rabbitmq:5672");
+    const connection = await amqp.connect("amqp://localhost:5672");
     const channel = await connection.createChannel();
     // redis 연결
    //onst redisClient = req.app.get("redisClient");

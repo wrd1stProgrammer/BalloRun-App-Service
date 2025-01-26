@@ -40,7 +40,6 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   const socket = useContext(WebSocketContext);
   const user = useAppSelector(selectUser);
 
-
   const fetchOrders = async () => {
     try {
       const completedOrdersResponse = await dispatch(getCompletedOrdersHandler());
