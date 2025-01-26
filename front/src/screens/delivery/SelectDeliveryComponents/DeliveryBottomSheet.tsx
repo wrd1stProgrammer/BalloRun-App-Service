@@ -5,13 +5,13 @@ import BottomSheet from '@gorhom/bottom-sheet';
 type DeliveryItem = {
   _id: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
-  address: string; // 배달 주소
-  deliveryType: string; // 배달 유형
-  startTime: string; // 주문 시작 시간
-  deliveryFee: number; // 배달비
-  cafeLogo: string; // 카페 로고 URL
-  createdAt: string
-  endTime: string
+  address: string;
+  deliveryType: string;
+  startTime: string;
+  deliveryFee: number;
+  cafeLogo: string;
+  createdAt: string;
+  endTime: string;
 };
 
 type DeliveryBottomSheetProps = {
@@ -37,9 +37,7 @@ function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProp
                 <Text style={styles.address}>{item.address || '배달 주소'}</Text>
                 <View style={styles.cardBody}>
                   <Text style={styles.deliveryType}>{item.deliveryType || '배달 유형'}</Text>
-                  <Text style={styles.time}>{new Date(item.endTime).toLocaleTimeString()} 만료 해야야 시간</Text>
-                  <Text style={styles.time}>{new Date(item.createdAt).toLocaleTimeString('ko-KR', {
-    timeZone: 'Asia/Seoul'})} 주문</Text>
+                  <Text style={styles.time}>{new Date(item.endTime).toLocaleTimeString()} 만료 시간</Text>
                 </View>
                 <View style={styles.footer}>
                   <TouchableOpacity style={styles.button}>
