@@ -11,12 +11,17 @@ services:
       - /app/node_modules
     environment:
       - MONGO_PW=PAD0MzMGKxsDGwsR
-      - REDIS_HOST=redis-14438.c281.us-east-1-2.ec2.redns.redis-cloud.com
-      - REDIS_PORT=14438
+      #- REDIS_HOST=redis-14438.c281.us-east-1-2.ec2.redns.redis-cloud.com
+      #- REDIS_PORT=14438
+      #- REDIS_USERNAME=default
+      #- REDIS_PASSWORD=AoWvAXv3JTPRBrgwxRX58G9AVxFhQzpj
+      - REDIS_HOST=redis  # Redis Docker 서비스 이름으로 연결
+      - REDIS_PORT=6379   # Redis 기본 포트
       - REDIS_USERNAME=default
-      - REDIS_PASSWORD=AoWvAXv3JTPRBrgwxRX58G9AVxFhQzpj
+      - REDIS_PASSWORD=yourpassword  # Redis 비밀번호
       #- RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
+      - redis  # Redis 컨테이너가 먼저 실행되도록 설정
       - rabbitmq # RabbitMQ 컨테이너가 먼저 실행되도록 설정
     command: node app.js
     networks:
@@ -31,6 +36,15 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest # RabbitMQ 기본 사용자 이름
       RABBITMQ_DEFAULT_PASS: guest # RabbitMQ 기본 비밀번호
+    networks:
+      - app_network
+
+  redis: # Redis 서비스
+    image: redis:7.4.2
+    container_name: redis
+    ports:
+      - "6379:6379"  # Redis 기본 포트
+    command: ["redis-server", "--requirepass", "yourpassword", "--notify-keyspace-events", "KEA"]
     networks:
       - app_network
 

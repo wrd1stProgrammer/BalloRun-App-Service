@@ -99,8 +99,8 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       >
         {item.status === "pending"
           ? "수락 대기 중"
-          : item.status === "inProgress"
-          ? "수락 완료"
+          : item.status === "matchFailed"
+          ? "배달 요청 실패!"
           : "완료"}
       </Text>
       <View style={styles.rowFooter}>
