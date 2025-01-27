@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { LatLng } from 'react-native-maps';
 
 import {
@@ -65,24 +65,22 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
   const dispatch = useAppDispatch();
   const menu = useAppSelector(selectMenu);
-  const order = useAppSelector(selectOrder);
-  const socket = useContext(WebSocketContext);
+ 
 
-  const [startTime, setStartTimeLocal] = React.useState(toKST(new Date()));
-  const [endTime, setEndTimeLocal] = React.useState(
+  const [startTime, setStartTimeLocal] = useState(toKST(new Date()));
+  const [endTime, setEndTimeLocal] = useState(
     toKST(new Date(new Date().getTime() + 60 * 60 * 1000))
   );
-  const [deliveryFee, setDeliveryFeeLocal] = React.useState("500");
-  const [deliveryRequest, setDeliberyRequest] = React.useState("없음");
-  const [showStartPicker, setShowStartPicker] = React.useState(false);
-  const [showEndPicker, setShowEndPicker] = React.useState(false);
-  const [reservationChecked, setReservationChecked] = React.useState(false);
-  const [floor, setfloor] = React.useState(false);
-  const [selectedFloor, setSelectedFloor] = React.useState<string | null>(null);
+  const [deliveryFee, setDeliveryFeeLocal] = useState("500");
+  const [deliveryRequest, setDeliberyRequest] = useState("없음");
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [reservationChecked, setReservationChecked] = useState(false);
+  const [floor, setfloor] = useState(false);
+  const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   // CustomMapView에서 선택한 층이이  여기가 선택한층인듯?
 
-  console.log(selectedFloor)
-  React.useEffect(() => {
+  useEffect(() => {
     if (!reservationChecked) {
       // 체크박스 해제 시 startTime을 다시 설정
       const now = toKST(new Date());
@@ -90,7 +88,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
     }
   }, [reservationChecked]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (deliveryMethod === "direct") {
       setfloor(true);
     } else {

@@ -9,6 +9,7 @@ interface CustomMarkerProps {
 }
 
 const CustomMarker: React.FC<CustomMarkerProps> = React.memo(({ marker }) => (
+  
   <View style={styles.customMarker}>
     <View style={styles.markerContainer}>
       <Image source={marker.image} style={styles.markerImage} />

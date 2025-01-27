@@ -12,6 +12,7 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({
   markers,
   onMarkerPress,
 }) => {
+
   const [floor, setFloor] = React.useState(false);
 
   React.useEffect(() => {
