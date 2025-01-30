@@ -2,7 +2,7 @@ const amqp = require("amqplib");
 const Order = require("../../models/Order"); // 데이터베이스 모델
 const {storeOrderInRedis} = require("../rabbitMQ/storeOrderInRedis");
 
-const consumeMessages = async ( showOrderData,redisSubClient,redisCli) => {
+const consumeMessages = async ( showOrderData,redisCli) => {
   try {
     // RabbitMQ 연결
     const connection = await amqp.connect("amqp://rabbitmq:5672");
@@ -54,35 +54,6 @@ const consumeMessages = async ( showOrderData,redisSubClient,redisCli) => {
       },
       { noAck: false } // 메시지가 처리된 경우에만 삭제
     );
-
-    // Redis Keyspace Notifications 구독
-    redisSubClient.subscribe("__keyevent@0__:expired", (err) => {
-      if (err) {
-        console.error("Redis Keyspace Notifications 구독 실패:", err);
-      } else {
-        console.log("Redis Keyspace Notifications 구독 성공!");
-      }
-    });
-
-    // 만료된 Redis 키 처리
-    redisSubClient.on("message", async (channel, key) => {
-      if (channel === "__keyevent@0__:expired" && key.startsWith("order:")) {
-        console.log(`Expired order key detected: ${key}`);
-
-        try {
-          // 만료된 키에서 orderId 추출
-          const orderId = key.split(":")[1];
-          const dbOrder = await Order.findById(orderId);
-          if (dbOrder && dbOrder.status === "pending") {
-            dbOrder.status = "matchFailed";
-            await dbOrder.save();
-            console.log(`Order ${dbOrder._id} 매치 실패로 상태 업데이트.`);
-          }
-        } catch (err) {
-          console.error("Expired order 처리 중 오류:", err);
-        }
-      }
-    });
 
   } catch (error) {
     console.error("Error in RabbitMQ consumer:", error);

@@ -33,7 +33,7 @@ async function startServer() {
   // RabbitMQ 소비자 실행 (7초 딜레이)
   setTimeout(() => {
     console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
-    consumeMessages( showOrderData,redisSubClient,redisCli);
+    consumeMessages( showOrderData,redisCli);
   }, 10000);
 
 
@@ -56,16 +56,6 @@ async function startServer() {
   const redisCli = redisClient.v4; // 기본 redisClient 객체는 콜백기반인데 v4버젼은 프로미스 기반이라 사용
   // loaders 에 분리해도 됨.
 
-  // Redis 연결: Pub/Sub 전용 클라이언트
-  const redisSubClient = redis.createClient({
-    url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
-    legacyMode: true,
-  });
-
-  redisSubClient.on("connect", () => console.info("Redis connected (Pub/Sub)"));
-  redisSubClient.on("error", (err) => console.error("Redis Client Error (Pub/Sub)", err));
-  await redisSubClient.connect().then();
-  app.set("redisSubClient", redisSubClient);
 
 
   // 서버 리스닝 시작

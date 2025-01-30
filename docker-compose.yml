@@ -1,6 +1,7 @@
-version: '3.8'
+
 services:
   back:
+    image: eighteen-back:latest  # 수동으로 빌드한 이미지 사용
     build:
       context: ./back
       dockerfile: Dockerfile
