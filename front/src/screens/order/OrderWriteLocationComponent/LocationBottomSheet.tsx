@@ -65,7 +65,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
   const dispatch = useAppDispatch();
   const menu = useAppSelector(selectMenu);
- 
+
 
   const [startTime, setStartTimeLocal] = useState(toKST(new Date()));
   const [endTime, setEndTimeLocal] = useState(
@@ -79,6 +79,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [floor, setfloor] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   // CustomMapView에서 선택한 층이이  여기가 선택한층인듯?
+  console.log(selectedFloor)
 
   useEffect(() => {
     if (!reservationChecked) {
@@ -90,9 +91,9 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
 
   useEffect(() => {
     if (deliveryMethod === "direct") {
-      setfloor(true);
-    } else {
       setfloor(false);
+    } else {
+      setfloor(true);
     }
   }, [deliveryMethod]);
 
@@ -168,7 +169,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       style={styles.bottomSheet}
     >
       <View style={styles.sheetContent}>
-        {floor && (
+        {!floor && (
           <>
             <Text style={styles.label}>배달 상세 주소</Text>
             <TextInput
@@ -178,7 +179,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           </>
         )}
 
-        {!floor && selectedMarker && (
+        {floor && selectedMarker && (
           <>
             <Text style={styles.label}>층을 선택해주세요</Text>
             <View style={styles.pickerContainer}>
@@ -186,6 +187,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
                 selectedValue={selectedFloor}
                 onValueChange={(itemValue) => setSelectedFloor(itemValue)}
               >
+                <Picker.Item label="층을 선택해주세요" value="" />
                 {selectedMarker.floors.map((floor) => (
                   <Picker.Item key={floor} label={floor} value={floor} />
                 ))}
@@ -212,9 +214,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
                 !reservationChecked && styles.disabledTimeText,
               ]}
             >
-              {`${startTime.getFullYear()}년 ${
-                startTime.getMonth() + 1
-              }월 ${startTime.getDate()}일`}
+              {`${startTime.getFullYear()}년 ${startTime.getMonth() + 1
+                }월 ${startTime.getDate()}일`}
             </Text>
             <Text
               style={[
@@ -232,9 +233,8 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             }}
           >
             <Text style={styles.timeText_1}>
-              {`${endTime.getFullYear()}년 ${
-                endTime.getMonth() + 1
-              }월 ${endTime.getDate()}일`}
+              {`${endTime.getFullYear()}년 ${endTime.getMonth() + 1
+                }월 ${endTime.getDate()}일`}
             </Text>
 
             <Text style={[styles.timeText]}>
@@ -322,8 +322,14 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
           onChangeText={(text) => setDeliberyRequest(text)}
         />
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>SAVE LOCATION</Text>
+        <TouchableOpacity style={styles.saveButton} onPress={() => {
+          if (selectedFloor == null && floor==true) {
+            alert("층을 선택해주세요!"); // 혹은 다른 처리
+          } else {
+            handleSave();
+          }
+        }}>
+          <Text style={styles.saveButtonText}>결제하기</Text>
         </TouchableOpacity>
       </View>
     </BottomSheet>
@@ -335,7 +341,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    
+
   },
   sheetContent: {
     flex: 1,
