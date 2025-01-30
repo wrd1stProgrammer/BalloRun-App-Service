@@ -5,7 +5,7 @@ const {storeOrderInRedis} = require("../rabbitMQ/storeOrderInRedis");
 const consumeMessages = async ( showOrderData,redisSubClient,redisCli) => {
   try {
     // RabbitMQ 연결
-    const connection = await amqp.connect("amqp://localhost:5672");
+    const connection = await amqp.connect("amqp://rabbitmq:5672");
     const channel = await connection.createChannel();
     const cacheKey = `activeOrders`;
     const queue = "order_queue";

@@ -5,7 +5,7 @@ services:
       context: ./back
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"  # Express 서버 포트
+      - "5001:5001"  # Express 서버 포트
     volumes:
       - ./back:/app
       - /app/node_modules
