@@ -1,6 +1,8 @@
 import React from "react";
 import MapView, { Marker } from "react-native-maps";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { goBack } from "../../../navigation/NavigationUtils";
 
 type DeliveryItem = {
   _id: string;
@@ -30,6 +32,10 @@ function DeliveryCustomMap({ deliveryItems, loading, onMarkerSelect, onFilter }:
 
   return (
     <View style={{ flex: 1 }}>
+      
+      <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
       <MapView
         style={{ flex: 1 }}
         initialRegion={{
@@ -75,6 +81,16 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
     alignItems: "flex-end",
+  },
+ 
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 20,
+    padding: 8,
+    zIndex: 10,
   },
   button: {
     backgroundColor: "#ffffff",
