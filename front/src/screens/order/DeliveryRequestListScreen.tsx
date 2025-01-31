@@ -29,17 +29,20 @@ interface OrderItem {
   deliveryFee: number;
   createdAt: number;
   riderRequest: string;
-  endTime: string
-  selectedFloor: null | string
+  endTime: string;
+  selectedFloor: null | string;
+
 }
 
 const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   const [loading, setLoading] = useState(route.params?.loading ?? true);
   const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [Allorders, setAllorders] = useState<OrderItem[]>([]);
+
+  
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const user = useAppSelector(selectUser);
-
   const fetchOrders = async () => {
     try {
       const completedOrdersResponse = await dispatch(getCompletedOrdersHandler());
@@ -55,6 +58,7 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       });
 
       setOrders(allOrders);
+      setAllorders(allOrders)
     } catch (error) {
       console.error("주문 데이터 가져오기 실패:", error);
       setOrders([]);
@@ -62,6 +66,9 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       setLoading(false);
     }
   };
+
+
+
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
@@ -77,6 +84,9 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       socket?.off("emitMatchTest");
     };
   }, [navigation, socket]);
+
+
+
 
   const renderOrder = ({ item }: { item: OrderItem }) => (
     <View style={styles.card}>
@@ -129,6 +139,22 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
     </View>
   );
 
+
+
+  const handleFilter = (type: string | null) => {
+    if (type) {
+      // 특정 필터 적용
+      setOrders(Allorders.filter((item) => item.status === type));
+    } else {
+      // 필터 해제 (전체 보기)
+      setOrders(Allorders);
+    }
+  };
+
+
+
+
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -142,6 +168,21 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       <View style={styles.header}>
         <Text style={styles.title}>{user?.username}님의 배달 요청 목록</Text>
       </View>
+      
+      <View style={styles.buttonContainer}>
+      <TouchableOpacity style={styles.button} onPress={() => handleFilter("pending")}>
+        <Text style={styles.buttonText}>수락 대기 중</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => handleFilter("delivered")}>
+        <Text style={styles.buttonText}>배달중</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
+        <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
+      </TouchableOpacity>
+    </View>
+
 
       <FlatList
         data={orders}
@@ -153,7 +194,26 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   );
 };
 
+
+
 const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop:12,
+    marginHorizontal:10
+  },
+  button: {
+    backgroundColor: '#8A67F8',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   container: {
     flex: 1,
     backgroundColor: "#f9f9f9",
