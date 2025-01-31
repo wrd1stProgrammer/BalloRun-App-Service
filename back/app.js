@@ -6,7 +6,8 @@ const http = require("http"); // HTTP 서버 모듈 추가
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const configureSocket = require("./loaders/socket"); // Socket.IO 설정 로더
-const { consumeMessages } = require("./controllers/rabbitMQ/consumer");
+const { consumeMessages } = require("./controllers/rabbitmqController/consumer");
+const { consumeOrderAcceptQueue } = require("./controllers/rabbitmqController/orderConsumer");
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ async function startServer() {
   setTimeout(() => {
     console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
     consumeMessages( showOrderData,redisCli);
+    consumeOrderAcceptQueue(redisCli);
   }, 10000);
 
 

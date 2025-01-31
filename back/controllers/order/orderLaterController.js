@@ -1,7 +1,7 @@
 const Order = require("../../models/Order");
 const User = require("../../models/User");
 const amqp = require("amqplib");
-const {consumeMessages}= require("../rabbitMQ/consumer");
+const {consumeMessages}= require("../rabbitmqController/consumer");
 
 
 const orderLaterDirectCreate = async (req, res) => {

@@ -1,12 +1,12 @@
 const amqp = require("amqplib");
 const Order = require("../../models/Order"); // 데이터베이스 모델
-const {storeOrderInRedis} = require("../rabbitMQ/storeOrderInRedis");
+const {storeOrderInRedis} = require("./storeOrderInRedis");
+const {connectRabbitMQ} = require("../../config/rabbitMQ");
 
 const consumeMessages = async ( showOrderData,redisCli) => {
   try {
     // RabbitMQ 연결
-    const connection = await amqp.connect("amqp://rabbitmq:5672");
-    const channel = await connection.createChannel();
+    const { channel } = await connectRabbitMQ();
     const cacheKey = `activeOrders`;
     const queue = "order_queue";
 

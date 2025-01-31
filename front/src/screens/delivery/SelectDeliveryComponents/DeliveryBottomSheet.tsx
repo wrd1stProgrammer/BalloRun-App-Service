@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView,Alert } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { useAppDispatch } from '../../../redux/config/reduxHook';
+import { acceptActionHandler } from '../../../redux/actions/riderAction';
 
 type DeliveryItem = {
   _id: string;
@@ -19,8 +21,19 @@ type DeliveryBottomSheetProps = {
   loading: boolean;
 };
 
+
+
 function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProps): JSX.Element {
   const snapPoints = ['25%', '50%', '90%'];
+  const dispatch = useAppDispatch();
+
+  //주문 수락시 
+const acceptHandler = async(orderId:string) => {
+  console.log(orderId,'id logging');
+  const dummyRes = await dispatch(acceptActionHandler(orderId));
+  console.log(dummyRes);
+
+}
 
   return (
     <BottomSheet snapPoints={snapPoints}>
@@ -40,7 +53,7 @@ function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProp
                   <Text style={styles.time}>{new Date(item.endTime).toLocaleTimeString()} 만료 시간</Text>
                 </View>
                 <View style={styles.footer}>
-                  <TouchableOpacity style={styles.button}>
+                  <TouchableOpacity onPress={()=> acceptHandler(item._id)} style={styles.button}>
                     <Text style={styles.buttonText}>수락하기</Text>
                   </TouchableOpacity>
                   <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
