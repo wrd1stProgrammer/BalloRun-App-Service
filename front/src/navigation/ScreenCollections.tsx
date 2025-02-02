@@ -14,6 +14,7 @@ import DeliveryRequestListScreen from "../screens/order/DeliveryRequestListScree
 import CafeMenuOption from "../screens/order/CafeMenuOption";
 import SelectDelivery from "../screens/delivery/SelectDelivery";
 import Chatting from "../screens/dash/ChattingScreen";
+import LiveMap from "../screens/order/DeliveryRequestListScreenComponents.tsx/LiveMap";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -69,11 +70,11 @@ export const orderStack = [
     component: OrderWriteLoacation,
   },
   {
-    name:"DeliveryRequestListScreen",
+    name: "DeliveryRequestListScreen",
     component: DeliveryRequestListScreen,
   },
   {
-    name:"CafeMenuOption",
+    name: "CafeMenuOption",
     component: CafeMenuOption,
   },
 ];
@@ -81,8 +82,13 @@ export const orderStack = [
 export const deliveryStack = [
   {
     name: "SelectDelivery",
-    component: SelectDelivery},
-    
+    component: SelectDelivery
+  },
+  {
+    name: "LiveMap",
+    component: LiveMap
+  }
+
 ];
 
 export const mergedStacks = [...dashboardStack, ...authStack, ...orderStack, ...deliveryStack];

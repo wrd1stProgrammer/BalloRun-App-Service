@@ -17,6 +17,8 @@ import {
 } from "../../redux/actions/orderAction";
 import { WebSocketContext } from "../../utils/Socket";
 import { selectUser } from "../../redux/reducers/userSlice";
+import { Button } from "react-native-paper";
+import { navigate } from "../../navigation/NavigationUtils";
 
 interface OrderItem {
   _id: string;
@@ -113,6 +115,13 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
           ? "배달 요청 실패!"
           : "완료"}
       </Text>
+      
+      {/* 일단 임시로  pending일때로 가보자자 */}
+      {item.status === "pending" && <TouchableOpacity style={styles.button} onPress={() => navigate("LiveMap")
+      }>
+        <Text style={styles.buttonText}>배달 위치 확인하기</Text>
+      </TouchableOpacity>}
+
       <View style={styles.rowFooter}>
         <Text style={styles.deliveryType}>
           {item.deliveryType === "direct" ? "직접 배달" : "음료 보관함"}

@@ -31,16 +31,54 @@ async function startServer() {
 
 
 
+
+  // 실시간 지도 임시로 작업중!!!!!!!!!!!
+  const locationIo = io.of("/location");
+
+  const userLocations = {}; // 사용자 위치를 저장하는 객체
+
+  locationIo.on("connection", (socket) => {
+    console.log(`✅ 사용자 연결됨: ${socket.id}`);
+
+    //  클라이언트가 위치를 업데이트하면 실행
+    socket.on("updateLocation", (data) => {
+      console.log("📍 위치 업데이트 수신:", data);
+
+      //  사용자 위치 저장 (메모리 또는 Redis)
+      userLocations[data.userId] = {
+        latitude: data.latitude,
+        longitude: data.longitude,
+        socketId: socket.id,
+      };
+
+      //  본인을 제외한 다른 클라이언트에게 전송
+      socket.broadcast.emit("locationUpdate", data);
+    });
+
+    //  사용자 연결 종료 시 삭제
+    socket.on("disconnect", () => {
+      console.log(`❌ 사용자 연결 종료: ${socket.id}`);
+
+      //  해당 소켓 ID를 가진 사용자 찾기
+
+    });
+  });
+  // 실시간 지도 임시로 작업중!!!!!!!!!!!
+
+
+
+
+
   // Socket.IO 설정 및 emit 함수 등록 -> 여기서 emit 할 거 여러가지 등록
-  const { emitSocketTest,emitMatchTest,showOrderData } = configureSocket(io);
+  const { emitSocketTest, emitMatchTest, showOrderData } = configureSocket(io);
   app.set("emitSocketTest", emitSocketTest);
   app.set("emitMatchTest", emitMatchTest);
-  app.set("showOrderData",showOrderData);
+  app.set("showOrderData", showOrderData);
 
   // RabbitMQ 소비자 실행 (7초 딜레이)
   setTimeout(() => {
     console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
-    consumeMessages( showOrderData,redisCli);
+    consumeMessages(showOrderData, redisCli);
     consumeOrderAcceptQueue(redisCli);
   }, 10000);
 
