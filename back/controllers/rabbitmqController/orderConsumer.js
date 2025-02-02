@@ -43,6 +43,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           if (!chatRoom) {
             // 4️ 채팅방 생성 (새 주문이므로 1:1 채팅방 필요)
             chatRoom = new ChatRoom({
+              title: "더미 채팅 제목",
               users: [userId, riderId],
               orderId,
             });
@@ -50,9 +51,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
             await chatRoom.save();
             console.log(` 새로운 1:1 채팅방 생성! 채팅방 ID: ${chatRoom._id}`);
 
-            // 5️ Redis에 채팅방 캐싱 (향후 빠른 조회)
-            await redisCli.hset("chatRooms", orderId, JSON.stringify(chatRoom));
-
+           
             // 6️ 클라이언트에게 채팅방 생성 알림 -> fcm push 쓸깎?
             
 

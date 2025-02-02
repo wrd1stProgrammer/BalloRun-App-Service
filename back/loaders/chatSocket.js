@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const ChatRoom = require("../models/ChatRoom");
 const ChatMessage = require("../models/ChatMessage");
@@ -37,11 +38,18 @@ module.exports = (chatIo) => {
 
     socket.on("room-list", async ({ token }) => {
       try {
+        console.log("room-list server log");
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         const userId = decodedToken.userId;
 
-        // MongoDB에서 사용자의 채팅방 목록 조회
-        const chatRooms = await ChatRoom.find({ participants: userId });
+        // MongoDB에서 사용자의 채팅방 목록 조회 --> 이것이 문제일 수 있다
+        const chatRooms = await ChatRoom.find({
+          $or: [
+            { participants: new mongoose.Types.ObjectId(userId) }, // ✅ 올바른 변환 방식
+            { users: new mongoose.Types.ObjectId(userId) } // ✅ 올바른 변환 방식
+          ]
+        });
+        
 
         const chatRoomList = chatRooms.map((room) => ({
           id: room._id.toString(),

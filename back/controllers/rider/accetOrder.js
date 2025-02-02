@@ -40,7 +40,7 @@ const acceptOrder = async (req, res) => {
 
     // 4. RabbitMQ로 메시지 전송 (비동기 처리) -> 컨슈머에서 푸시알림,소켓클라업뎃,정산,채팅방웹소켓개설 등 추가 코딩 진행.
     const {channel,connection} = await connectRabbitMQ();
-    await channel.assertQueue(queue, { durable: true });
+    
     const queue = "order_accept_queue";
 
     await channel.assertQueue(queue, { durable: true });

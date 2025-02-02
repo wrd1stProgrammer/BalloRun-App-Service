@@ -1,7 +1,6 @@
 const Order = require("../../models/Order");
 const User = require("../../models/User");
 const amqp = require("amqplib");
-const {consumeMessages}= require("../rabbitmqController/consumer");
 const {connectRabbitMQ} = require("../../config/rabbitMQ");
 
 
@@ -14,8 +13,6 @@ const orderLaterDirectCreate = async (req, res) => {
   try {
       // RabbitMQ 연결
       const {channel,connection} = await connectRabbitMQ();
-      await channel.assertQueue(queue, { durable: true });
-      
       
       const queue = "order_queue";
 
@@ -47,7 +44,6 @@ const orderLaterDirectCreate = async (req, res) => {
       // 연결 종료
       setTimeout(() => {
           channel.close();
-          connection.close();
       }, 1000);
   } catch (error) {
       console.error("Error in orderLaterDirectCreate:", error);

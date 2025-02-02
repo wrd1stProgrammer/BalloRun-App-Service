@@ -6,6 +6,7 @@ const http = require("http"); // HTTP 서버 모듈 추가
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const configureSocket = require("./loaders/socket"); // Socket.IO 설정 로더
+const configureChatSocket = require("./loaders/chatSocket");
 const { consumeMessages } = require("./controllers/rabbitmqController/consumer");
 const { consumeOrderAcceptQueue } = require("./controllers/rabbitmqController/orderConsumer");
 

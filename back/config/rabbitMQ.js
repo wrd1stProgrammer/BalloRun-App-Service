@@ -1,14 +1,15 @@
 const amqp = require("amqplib");
 
 let connection;
-let channel;
 
 const connectRabbitMQ = async () => {
   if (!connection) {
     connection = await amqp.connect("amqp://rabbitmq:5672");
-    channel = await connection.createChannel();
-    console.log("RabbitMQ 연결 성공!");
+    console.log("✅ RabbitMQ 연결 성공!");
   }
+
+  // 🚀 주문 요청마다 새로운 채널을 생성
+  const channel = await connection.createChannel();
   return { connection, channel };
 };
 

@@ -29,6 +29,7 @@ const Chatting:React.FC= () => {
   const overlay = useOverlay();
 
   useEffect(() => {
+    console.log('채팅방 유스이ㅂㅔㄱ트');
     if (!socket) return;
     // 채팅방 목록 가져오기
     const handleGetChatList = () => {
