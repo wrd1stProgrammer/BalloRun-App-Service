@@ -14,7 +14,11 @@ import DeliveryRequestListScreen from "../screens/order/DeliveryRequestListScree
 import CafeMenuOption from "../screens/order/CafeMenuOption";
 import SelectDelivery from "../screens/delivery/SelectDelivery";
 import Chatting from "../screens/dash/ChattingScreen";
+<<<<<<< Updated upstream
 import LiveMap from "../screens/order/DeliveryRequestListScreenComponents.tsx/LiveMap";
+=======
+import ChatRoom from "../componenets/chatting/ChatRoom";
+>>>>>>> Stashed changes
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -53,6 +57,10 @@ export const dashboardStack = [
   {
     name: "Chatting",
     component: Chatting,
+  },
+  {
+    name: "ChatRoom",
+    component: ChatRoom,
   },
 ];
 

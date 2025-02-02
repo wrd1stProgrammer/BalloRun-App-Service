@@ -73,17 +73,31 @@ module.exports = (chatIo) => {
           const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
           const userId = decodedToken.userId;
   
-          // 해당 채팅방의 메시지 조회
           const chatMessages = await ChatMessage.find({ chatRoomId }).sort("createdAt");
+
+          // 날짜별로 그룹화
+          const groupedMessages = chatMessages.reduce((acc, msg) => {
+            const date = new Date(msg.createdAt).toDateString(); // 날짜 키 생성 (예: "Sat Jul 06 2024")
+            
+            if (!acc[date]) {
+              acc[date] = [];
+            }
+            
+            acc[date].push({
+              id: msg._id.toString(),
+              content: msg.content,
+              timestamp: msg.createdAt,
+              isMe: msg.sender.toString() === userId,
+            });
+            
+            return acc;
+          }, {}); // 초기값은 빈 객체
   
-          const formattedMessages = chatMessages.map((msg) => ({
-            id: msg._id.toString(),
-            content: msg.content,
-            timestamp: msg.createdAt,
-            isMe: msg.sender.toString() === userId,
-          }));
-  
-          socket.emit("chat-list", { data: { chatList: formattedMessages } });
+          socket.emit("chat-list", { 
+            data: { 
+              chatList: groupedMessages // 그룹화된 객체 전송
+            } 
+          });      
         } catch (error) {
           console.error("[ChatSocket] chat-list 조회 실패:", error);
           socket.emit("error", { message: "채팅 내역을 가져오는 중 오류 발생" });

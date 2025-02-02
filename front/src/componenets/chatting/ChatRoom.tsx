@@ -35,8 +35,11 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
   const scrollViewRef = useRef<ScrollView | null>(null);
 
   const scrollToBottom = () => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100); // 약간의 딜레이 추가
   };
+  
 
   useEffect(() => {
     scrollToBottom();
@@ -51,31 +54,40 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
       socket.on("chat-list", (data) => {
         setChatData(data.data.chatList);
       });
+
+      console.log(chatData,"chatdata");
   
       //  새로운 메시지를 받을 때 UI 업데이트
-      socket.on("chatMessage", (newMessage) => {
-        setChatData((prevChatData) => {
-          const updatedChatData = { ...prevChatData };
-  
-          // 메시지의 날짜별로 정리
-          const messageDate = new Date(newMessage.createdAt).toDateString();
-  
-          if (!updatedChatData[messageDate]) {
-            updatedChatData[messageDate] = [];
-          }
-  
-          updatedChatData[messageDate].push({
-            id: newMessage.id,
-            content: newMessage.content,
-            timestamp: newMessage.createdAt,
-            isMe: newMessage.sender === access_token, // 내가 보낸 메시지인지 확인
-          });
-  
-          return updatedChatData;
-        });
-  
-        scrollToBottom(); // 새로운 메시지가 오면 자동 스크롤
-      });
+// ChatRoom.tsx
+
+socket.on("chatMessage", (newMessage) => {
+  setChatData((prevChatData) => {
+    // 임시 ID로 추가된 메시지를 실제 ID로 교체
+    const updatedChatData = { ...prevChatData };
+    const messageDate = new Date(newMessage.createdAt).toDateString();
+
+    // 임시 메시지 찾아 제거
+    const existingTempIndex = updatedChatData[messageDate]?.findIndex(
+      msg => msg.id === "임시_ID" // onPostMessageHandler에서 사용한 임시 ID와 일치해야 함
+    );
+
+    if (existingTempIndex !== -1 && existingTempIndex !== undefined) {
+      updatedChatData[messageDate].splice(existingTempIndex, 1);
+    }
+
+    // 서버에서 받은 실제 메시지 추가
+    updatedChatData[messageDate].push({
+      id: newMessage.id,
+      content: newMessage.content,
+      timestamp: newMessage.createdAt,
+      isMe: newMessage.sender === access_token,
+    });
+
+    return updatedChatData;
+  });
+
+  scrollToBottom();
+});
     };
   
     handleGetChatMessages();
@@ -100,7 +112,7 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
       }
   
       const tempMessage = {
-        id: Date.now().toString(), // 임시 ID (서버에서 업데이트될 예정)
+        id: `temp_${Date.now()}`, // 임시 ID 형식 변경
         content: message,
         timestamp: new Date().toISOString(),
         isMe: true, // 내가 보낸 메시지

@@ -14,6 +14,10 @@ const Input: React.FC<InputProps> = ({ chatRoomId, onPostMessageHandler }) => {
   // 메시지 전송 함수 (WebSocket 활용)
   const handleSend = () => {
     if (message.trim().length > 0 && socket) {
+
+
+      onPostMessageHandler(message); 
+
       socket.emit("sendMessage", {
         chatRoomId,
         message,

@@ -18,7 +18,7 @@ const HomeScreen: React.FC = () => {
       <View style={styles.headerContainer}>
         <View style={styles.greetingContainer}>
           <Text style={styles.userName}>
-            {user?.username}님, 안녕하세요
+            {user?.username}님, 안녕하세요!!!
           </Text>
           <Text>
           캠퍼스 커피에서 편함을 주문해보세요.
