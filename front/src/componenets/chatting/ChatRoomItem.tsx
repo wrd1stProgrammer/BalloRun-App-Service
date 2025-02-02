@@ -7,6 +7,7 @@ import Pin24 from './etc/Pin24';
 import FillPin24 from './etc/FillPin24';
 import Bell16 from './etc/Bell16';
 import PinIndicator from './etc/PinIndicator';
+import { navigate } from '../../navigation/NavigationUtils';
 
 interface Props {
   roomId: string;
@@ -76,6 +77,7 @@ const ChatRoomItem = ({
       renderRightActions={renderRightActions}
       friction={1.5}
     >
+      <Pressable onPress={() => navigate('ChatRoom',{roomId})}>
       <View
         style={{
           backgroundColor: Color.white,
@@ -131,6 +133,7 @@ const ChatRoomItem = ({
           </View>
         </View>
       </View>
+      </Pressable>
     </Swipeable>
   );
 };

@@ -1,17 +1,24 @@
-import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import React, { useState, useContext } from "react";
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { ChatSocketContext } from "../../utils/ChatSocket";
 
 interface InputProps {
+  chatRoomId: string;
   onPostMessageHandler: (message: string) => void;
 }
 
-const Input: React.FC<InputProps> = ({ onPostMessageHandler }) => {
+const Input: React.FC<InputProps> = ({ chatRoomId, onPostMessageHandler }) => {
   const [message, setMessage] = useState("");
-  
-  //api 작성
+  const socket = useContext(ChatSocketContext);
+
+  // 메시지 전송 함수 (WebSocket 활용)
   const handleSend = () => {
-    if (message.trim().length > 0) {
-      onPostMessageHandler(message);
+    if (message.trim().length > 0 && socket) {
+      socket.emit("sendMessage", {
+        chatRoomId,
+        message,
+      });
+
       setMessage(""); // 입력 필드 초기화
     }
   };
@@ -24,7 +31,9 @@ const Input: React.FC<InputProps> = ({ onPostMessageHandler }) => {
         value={message}
         onChangeText={setMessage}
       />
-      <Button title="전송" onPress={handleSend} />
+      <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+        <Text style={styles.sendText}>전송</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -33,16 +42,27 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
+    padding: 10,
     backgroundColor: "#F5F5F5",
   },
   input: {
     flex: 1,
-    padding: 8,
+    padding: 10,
     borderWidth: 1,
     borderColor: "#CCCCCC",
     borderRadius: 8,
-    marginRight: 8,
+    marginRight: 10,
+    backgroundColor: "#fff",
+  },
+  sendButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+  },
+  sendText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
 
