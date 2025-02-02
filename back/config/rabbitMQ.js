@@ -5,7 +5,7 @@ let channel;
 
 const connectRabbitMQ = async () => {
   if (!connection) {
-    connection = await amqp.connect("amqp://localhost:5672");
+    connection = await amqp.connect("amqp://rabbitmq:5672");
     channel = await connection.createChannel();
     console.log("RabbitMQ 연결 성공!");
   }

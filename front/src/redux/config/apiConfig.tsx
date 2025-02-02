@@ -53,7 +53,7 @@ export const refresh_tokens = async () => { //여기 수정필요
     token_storage.set('refresh_token', new_refresh_token);
     return new_access_token;
   } catch (error) {
-    console.log('REFRESH TOKEN ERROR');
+    console.log('REFRESH TOKEN ERROR',error);
     token_storage.clearAll();
     resetAndNavigate('LoginScreen');
   }

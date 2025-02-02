@@ -1,6 +1,7 @@
 const Order = require("../../models/Order");
 const User = require("../../models/User");
 const amqp = require("amqplib");
+const {connectRabbitMQ} = require("../../config/rabbitMQ");
 
 const acceptOrder = async (req, res) => {
   const redisClient = req.app.get("redisClient");
@@ -38,8 +39,8 @@ const acceptOrder = async (req, res) => {
     console.log(`Order ${orderId} removed from Redis`);
 
     // 4. RabbitMQ로 메시지 전송 (비동기 처리) -> 컨슈머에서 푸시알림,소켓클라업뎃,정산,채팅방웹소켓개설 등 추가 코딩 진행.
-    const connection = await amqp.connect("amqp://localhost:5672");
-    const channel = await connection.createChannel();
+    const {channel,connection} = await connectRabbitMQ();
+    await channel.assertQueue(queue, { durable: true });
     const queue = "order_accept_queue";
 
     await channel.assertQueue(queue, { durable: true });
