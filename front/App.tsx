@@ -8,6 +8,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import Navigation from "./src/navigation/Navigation";
 import WebSocketContainer from "./src/utils/Socket";
 import './reanimatedConfig';
+import ChatSocketContainer from "./src/utils/ChatSocket";
 
 const App: React.FC = () => {
   return (
@@ -18,9 +19,11 @@ const App: React.FC = () => {
       />
       <Provider store={store}>
         <WebSocketContainer>
+          <ChatSocketContainer>
           <PersistGate loading={null} persistor={persistor}>
             <Navigation />
           </PersistGate>
+          </ChatSocketContainer>
         </WebSocketContainer>
       </Provider>
     </GestureHandlerRootView>

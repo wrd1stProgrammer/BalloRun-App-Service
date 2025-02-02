@@ -13,6 +13,7 @@ import OrderWriteLoacation from "../screens/order/OrderWriteLoacation";
 import DeliveryRequestListScreen from "../screens/order/DeliveryRequestListScreen";
 import CafeMenuOption from "../screens/order/CafeMenuOption";
 import SelectDelivery from "../screens/delivery/SelectDelivery";
+import Chatting from "../screens/dash/ChattingScreen";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -47,6 +48,10 @@ export const dashboardStack = [
   {
     name: "ProfileScreen",
     component: ProfileScreen,
+  },
+  {
+    name: "Chatting",
+    component: Chatting,
   },
 ];
 

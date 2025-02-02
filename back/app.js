@@ -25,6 +25,11 @@ async function startServer() {
     },
   });
 
+  const chatIo = io.of("/chat"); // 👉 `/chat` 네임스페이스 추가
+  configureChatSocket(chatIo);
+
+
+
   // Socket.IO 설정 및 emit 함수 등록 -> 여기서 emit 할 거 여러가지 등록
   const { emitSocketTest,emitMatchTest,showOrderData } = configureSocket(io);
   app.set("emitSocketTest", emitSocketTest);

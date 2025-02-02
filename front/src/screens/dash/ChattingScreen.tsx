@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
-import TYPOS from '../../componenets/\bchatting/etc/TYPOS';
-import ChatRoomItem from '../../componenets/chatting/ChatRoomItem';
+import TYPOS from '../../componenets/chatting/etc/TYPOS';
+import ChatRoomItem from '../../componenets/chatting/ChatRoomItem';
 import Color from '../../constants/Colors';
-import EmptyList from '../../componenets/\bchatting/EmptyList';
-import { WebSocketContext } from '../../utils/Socket';
+import EmptyList from '../../componenets/chatting/EmptyList';
+import { ChatSocketContext } from '../../utils/ChatSocket';
 import { useAppDispatch,useAppSelector } from '../../redux/config/reduxHook';
 import { setUser } from '../../redux/reducers/userSlice';
 import axios from 'axios';
-import useOverlay from '../../componenets/\bchatting/etc/useOverlay';
-import Dialog from '../../componenets/\bchatting/etc/Dialog';
+import useOverlay from '../../componenets/chatting/etc/useOverlay';
+import Dialog from '../../componenets/chatting/etc/Dialog';
 import { token_storage } from '../../redux/config/storage';
 
 // 전부 필수 데이터
@@ -24,7 +24,7 @@ interface RoomData {
 
 const Chatting:React.FC= () => {
   const [rooms, setRooms] = useState<RoomData[]>([]);
-  const socket = useContext(WebSocketContext);
+  const socket = useContext(ChatSocketContext);
   const access_token = token_storage.getString('access_token');
   const overlay = useOverlay();
 
@@ -80,7 +80,7 @@ const Chatting:React.FC= () => {
       </Dialog>
     );
   };
-// 채팅방 알람 끄기 설정
+// 채팅방 알람 끄기 설정 -> api 제작 해야함
   const onToggleNotificationHandler = async (id: string) => {
     try {
       const {

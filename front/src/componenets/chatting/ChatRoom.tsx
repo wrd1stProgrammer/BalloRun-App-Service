@@ -6,7 +6,7 @@ import { View, ScrollView } from 'react-native';
 import DateDisplay from './etc/DateDisplay';
 import ChatBubble from './ChatBubble';
 import Input from './Input';
-import { WebSocketContext } from '../../utils/Socket';
+import { ChatSocketContext } from '../../utils/ChatSocket';
 import { token_storage } from '../../redux/config/storage';
 
 export type ChatRoomScreenProps = StackScreenProps<
@@ -27,7 +27,7 @@ type ChatData = {
 };
 
 const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
-  const socket = useContext(WebSocketContext);
+  const socket = useContext(ChatSocketContext);
   const access_token = token_storage.getString('access_token');
   const { roomId } = route.params;
   const [chatData, setChatData] = useState<ChatData>({});
