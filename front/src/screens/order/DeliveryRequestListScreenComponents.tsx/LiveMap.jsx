@@ -1,21 +1,47 @@
-import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { StyleSheet, TouchableOpacity, View, Button } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocationTracker } from "../../../utils/LocationTracker"; // utils에서 가져옴
 import { goBack } from "../../../navigation/NavigationUtils";
+import { MapSocketContext } from "../../../utils/MapSocket";
+import { useRoute } from "@react-navigation/native"; // 추가
 
 function LiveMap() {
-    const { userLocations } = useLocationTracker("user123"); // 사용자 ID 전달
-    console.log(userLocations)
+    const socket = useContext(MapSocketContext);
+    const route = useRoute();
+    const { orderId } = route.params || {}; // 전달된 orderId 가져오기
+    const [deliveryLocation, setDeliveryLocation] = useState(null);
+    const [tracking, setTracking] = useState(false);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on("receiveLocation", ({ latitude, longitude }) => {
+            setDeliveryLocation({ latitude, longitude });
+        });
+
+        return () => {
+            socket.off("receiveLocation");
+        };
+    }, [socket]);
+
+    // '실시간 위치 확인' 버튼 클릭 시 서버에 위치 요청
+    const requestLocationUpdate = () => {
+        if (!orderId) {
+            console.warn("⚠️ 주문 ID가 없습니다.");
+            return;
+        }
+        
+        setTracking(true);
+        socket.emit("requestLocation", { orderId }); // 서버에 현재 주문의 위치 요청
+    };
+
     return (
         <View style={{ flex: 1 }}>
-            {/*  뒤로 가기 버튼 */}
             <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
                 <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
 
-            {/*  Google Maps */}
             <MapView
                 style={{ flex: 1 }}
                 initialRegion={{
@@ -25,20 +51,12 @@ function LiveMap() {
                     longitudeDelta: 0.01,
                 }}
             >
-                {/*  사용자 위치 마커 표시 */}
-                {Object.values(userLocations).map((user) => (
-                    
-                    <Marker
-                        key={user.userId}
-                        coordinate={{
-                            latitude: user.latitude,
-                            longitude: user.longitude,
-                        }}
-                        title={`User ${user.userId}`}
-                        description="실시간 위치"
-                    />
-                ))}
+                {deliveryLocation && (
+                    <Marker coordinate={deliveryLocation} title="배달원 위치" />
+                )}
             </MapView>
+
+            <Button title="실시간 위치 확인" onPress={requestLocationUpdate} />
         </View>
     );
 }

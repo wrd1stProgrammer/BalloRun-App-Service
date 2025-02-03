@@ -41,7 +41,7 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [Allorders, setAllorders] = useState<OrderItem[]>([]);
 
-  
+  console.log(orders)
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const user = useAppSelector(selectUser);
@@ -117,10 +117,14 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       </Text>
       
       {/* 일단 임시로  pending일때로 가보자자 */}
-      {item.status === "pending" && <TouchableOpacity style={styles.button} onPress={() => navigate("LiveMap")
-      }>
-        <Text style={styles.buttonText}>배달 위치 확인하기</Text>
-      </TouchableOpacity>}
+      {item.status !== "pending" && (
+  <TouchableOpacity
+    style={styles.button}
+    onPress={() => navigate("LiveMap", { orderId: item._id })} // 주문 ID 전달
+  >
+    <Text style={styles.buttonText}>배달 위치 확인하기</Text>
+  </TouchableOpacity>
+)}
 
       <View style={styles.rowFooter}>
         <Text style={styles.deliveryType}>
