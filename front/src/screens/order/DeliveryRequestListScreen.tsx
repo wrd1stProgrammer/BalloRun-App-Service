@@ -15,7 +15,7 @@ import {
   getCompletedOrdersHandler,
   getOngoingOrdersHandler,
 } from "../../redux/actions/orderAction";
-import { WebSocketContext } from "../../utils/Socket";
+import { WebSocketContext } from "../../utils/sockets/Socket";
 import { selectUser } from "../../redux/reducers/userSlice";
 import { Button } from "react-native-paper";
 import { navigate } from "../../navigation/NavigationUtils";

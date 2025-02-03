@@ -7,6 +7,7 @@ import { navigate,resetAndNavigate } from "../../navigation/NavigationUtils";
 import { refresh_tokens } from "../../redux/config/apiConfig";
 import { refetchUser } from "../../redux/actions/userAction";
 import Logo from "../../assets/images/eighteenSplash.png";
+import { requestUserPermission } from "../../utils/fcm/fcmToken";
 
 
 interface DecodedToken {
@@ -58,6 +59,7 @@ const SplashScreen: FC = () => {
   useEffect(() => {
     console.log("시작");
     tokenCheck();
+    requestUserPermission(); // await 안 달아도되나
     
   }, []);
 

@@ -6,7 +6,7 @@ import { View, ScrollView } from 'react-native';
 import DateDisplay from './etc/DateDisplay';
 import ChatBubble from './ChatBubble';
 import Input from './Input';
-import { ChatSocketContext } from '../../utils/ChatSocket';
+import { ChatSocketContext } from '../../utils/sockets/ChatSocket';
 import { token_storage } from '../../redux/config/storage';
 
 export type ChatRoomScreenProps = StackScreenProps<

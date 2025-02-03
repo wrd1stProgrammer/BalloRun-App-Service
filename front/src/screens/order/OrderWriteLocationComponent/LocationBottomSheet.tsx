@@ -29,7 +29,7 @@ import {
   orderLaterHandler,
 } from "../../../redux/actions/orderAction";
 import { useContext } from "react";
-import { WebSocketContext } from "../../../utils/Socket";
+import { WebSocketContext } from "../../../utils/sockets/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
 
 

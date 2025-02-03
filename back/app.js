@@ -8,9 +8,9 @@ const User = require("./models/User");
 const configureSocket = require("./loaders/socket"); // Socket.IO 설정 로더
 const configureChatSocket = require("./loaders/chatSocket");
 const configureMapSocket = require("./loaders/mapSocket");
-
 const { consumeMessages } = require("./controllers/rabbitmqController/consumer");
 const { consumeOrderAcceptQueue } = require("./controllers/rabbitmqController/orderConsumer");
+const {fcmConnect } = require("./config/fcm");
 
 dotenv.config();
 
@@ -52,6 +52,11 @@ async function startServer() {
   app.set("emitSocketTest", emitSocketTest);
   app.set("emitMatchTest", emitMatchTest);
   app.set("showOrderData", showOrderData);
+
+
+  // fcm server startt
+  await fcmConnect(); // await 맞나
+
 
   // RabbitMQ 소비자 실행 (7초 딜레이)
   setTimeout(() => {

@@ -6,9 +6,10 @@ import { Provider } from "react-redux";
 import { persistor, store } from "./src/redux/config/store";
 import { PersistGate } from "redux-persist/integration/react";
 import Navigation from "./src/navigation/Navigation";
-import WebSocketContainer from "./src/utils/Socket";
+import WebSocketContainer from "./src/utils/sockets/Socket";
 import './reanimatedConfig';
-import ChatSocketContainer from "./src/utils/ChatSocket";
+import ChatSocketContainer from "./src/utils/sockets/ChatSocket";
+import MapSocketContainer from "./src/utils/MapSocket";
 
 const App: React.FC = () => {
   return (
@@ -19,11 +20,13 @@ const App: React.FC = () => {
       />
       <Provider store={store}>
         <WebSocketContainer>
+          <MapSocketContainer>
           <ChatSocketContainer>
           <PersistGate loading={null} persistor={persistor}>
             <Navigation />
           </PersistGate>
           </ChatSocketContainer>
+          </MapSocketContainer>
         </WebSocketContainer>
       </Provider>
     </GestureHandlerRootView>

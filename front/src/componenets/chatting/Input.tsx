@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
-import { ChatSocketContext } from "../../utils/ChatSocket";
+import { ChatSocketContext } from "../../utils/sockets/ChatSocket";
 
 interface InputProps {
   chatRoomId: string;

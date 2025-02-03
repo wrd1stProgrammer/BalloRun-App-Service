@@ -15,7 +15,7 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
 import { getCafeMenusBycafeName } from "../../redux/actions/menuAction";
 import { selectMenu, setMenu } from "../../redux/reducers/menuSlice";
-import { WebSocketContext } from "../../utils/Socket";
+import { WebSocketContext } from "../../utils/sockets/Socket";
 
 interface CafeMenuListScreenParams {
   cafeName: string; // CafeListScreen에서 넘어오는 카페 이름

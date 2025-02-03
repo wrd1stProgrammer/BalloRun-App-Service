@@ -4,7 +4,7 @@ import TYPOS from '../../componenets/chatting/etc/TYPOS';
 import ChatRoomItem from '../../componenets/chatting/ChatRoomItem';
 import Color from '../../constants/Colors';
 import EmptyList from '../../componenets/chatting/EmptyList';
-import { ChatSocketContext } from '../../utils/ChatSocket';
+import { ChatSocketContext } from '../../utils/sockets/ChatSocket';
 import { useAppDispatch,useAppSelector } from '../../redux/config/reduxHook';
 import { setUser } from '../../redux/reducers/userSlice';
 import axios from 'axios';
