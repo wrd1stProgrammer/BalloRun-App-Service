@@ -7,7 +7,7 @@ const {
   NotFoundError,
 } = require("../../errors");
 const jwt = require("jsonwebtoken");
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 
 const register = async (req, res) => {
   const { email, userId, password, username } = req.body;
@@ -32,7 +32,7 @@ const register = async (req, res) => {
         }
 
     // 비밀번호 해싱 -> 보안 ISSUE 확인 !!
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcryptjs.hash(password, 10);
 
     // 새로운 사용자 생성
     const newUser = new User({
@@ -71,7 +71,7 @@ const login = async (req, res) => {
     }
 
     // 비밀번호 확인
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
       console.error('로그인 실패: 비밀번호 불일치');
       return res.status(401).json({ message: '아이디 또는 비밀번호가 잘못되었습니다.' });
@@ -150,7 +150,7 @@ const refreshToken = async (req, res) => {
       }
   
       // 새로운 비밀번호 해시화
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcryptjs.hash(password, 10);
   
       // 비밀번호 업데이트
       user.password = hashedPassword;
@@ -162,10 +162,27 @@ const refreshToken = async (req, res) => {
       res.status(500).json({ ok: false, message: '비밀번호 변경에 실패하였습니다.' });
     }
   };
+ // fcmToken 1차 저장 로직 User model 에 토큰 저장
+  const saveFcmToken = async(req,res) =>{
+    const { userId, fcmToken } = req.body;
+
+  if (!userId || !fcmToken) {
+    return res.status(400).json({ error: 'userId와 fcmToken이 필요합니다.' });
+  }
+
+  try {
+    await User.findByIdAndUpdate(userId, { fcmToken }); // 주의.
+    res.json({ success: true, message: 'FCM 토큰이 업데이트되었습니다.' });
+  } catch (error) {
+    res.status(500).json({ error: 'FCM 토큰 저장 실패', details: error.message });
+  }
+
+  } 
 
   module.exports = {
     register,
     login,
     refreshToken,
     resetPassword,
+    saveFcmToken,
   };

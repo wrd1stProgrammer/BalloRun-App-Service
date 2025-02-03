@@ -3,6 +3,7 @@ const Order = require("../../models/Order");
 const User = require("../../models/User");
 const ChatRoom = require("../../models/ChatRoom"); // 채팅방 모델 추가
 const { connectRabbitMQ } = require("../../config/rabbitMQ");
+const {sendPushNotification} = require("../../utils/sendPushNotification");
 
 const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
   try {
@@ -35,6 +36,9 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           // 2️ 주문 요청자 ID 조회
           const userId = order.userId;
 
+          const orderUser = await User.findById(userId);
+          const riderUser = await User.findById(riderId); // 알람 일단 보려고 임시
+
           // 3️ 기존 1:1 채팅방 존재 여부 확인
           let chatRoom = await ChatRoom.findOne({
             users: { $all: [userId, riderId] },
@@ -51,14 +55,24 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
             await chatRoom.save();
             console.log(` 새로운 1:1 채팅방 생성! 채팅방 ID: ${chatRoom._id}`);
 
-           
-            // 6️ 클라이언트에게 채팅방 생성 알림 -> fcm push 쓸깎?
-            
-
             console.log(` 주문 ${orderId} -> 사용자 ${userId} 와 라이더 ${riderId} 채팅방 생성`);
           } else {
             console.log(` 기존 채팅방 사용 (${chatRoom._id})`);
           }
+
+          // 푸쉬 알림 -> 배달매칭ㅇㅋ, 채팅 ㅇㅋ 
+          const notipayload ={
+            title: `${order.username} 님 배달요청이 수락되었습니다.`,
+            body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
+            data: {type:"order_aceepted", orderId:orderId},
+          }
+          if (orderUser?.fcmToken) {
+            //orderUser.fcmToken 로 변경해야함 잘 작동하면
+            await sendPushNotification(riderUser.fcmToken, notipayload);
+          } else {
+            console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+          }
+
 
           // 7️ Redis에서 해당 주문 제거 (배달이 수락됨)
           const cacheKey = "activeOrders";

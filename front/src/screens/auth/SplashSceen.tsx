@@ -59,7 +59,6 @@ const SplashScreen: FC = () => {
   useEffect(() => {
     console.log("시작");
     tokenCheck();
-    requestUserPermission(); // await 안 달아도되나
     
   }, []);
 

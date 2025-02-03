@@ -6,6 +6,7 @@ import { resetAndNavigate } from '../../navigation/NavigationUtils';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import { Alert } from 'react-native';
+import { requestUserPermission } from '../../utils/fcm/fcmToken';
 
 const handleSignInSuccess = async (res: any, dispatch: any) => {
   token_storage.set('access_token', res.data.tokens.access_token);
@@ -35,6 +36,7 @@ export const login = (userId: string, password: string) => async (dispatch: any)
 
     // 로그인 성공 시 처리
     await handleSignInSuccess(res, dispatch);
+    await requestUserPermission(userId);
   } catch (error: any) {
     // 서버 에러 메시지 처리
     if (error.response) {

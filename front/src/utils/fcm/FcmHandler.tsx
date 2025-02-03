@@ -1,46 +1,56 @@
-// src/utils/FcmHandler.tsx
-import React, { useEffect } from 'react';
 import messaging from '@react-native-firebase/messaging';
-import { useNavigation } from '@react-navigation/native';
+import { Alert } from 'react-native';
+import { navigate } from '../../navigation/NavigationUtils';
 
-
-// 여기부터 다시.. -> 백,포 그라운드 설정 클라에서 어떻게 하더라 서버는 기억나는데 토큰도 보내는 것 구현 ㄱ
-const FcmHandler = () => {
-  const navigation = useNavigation();
-
-  //  포그라운드 알림 핸들러
-  useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('포그라운드 알림:', remoteMessage);
-      // 토스트 표시 또는 상태 업데이트
-    });
-
-    return unsubscribe;
-  }, []);
-
-  // 백그라운드/포그라운드 전환 알림 핸들러
-  useEffect(() => {
-    const unsubscribe = messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('백그라운드 알림 클릭:', remoteMessage);
-      handleDeepLink(remoteMessage.data);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  // 앱 완전 종료 상태에서 알림 클릭 핸들러
-  useEffect(() => {
-    messaging().getInitialNotification().then(remoteMessage => {
-      if (remoteMessage) {
-        console.log('앱 종료 상태 알림 클릭:', remoteMessage);
-        
-      }
-    });
-  }, []);
-
-
-
-  return null; // 
+//  포그라운드 알림 핸들러
+export const setupForegroundNotifications = () => {
+  return messaging().onMessage(async remoteMessage => {
+    showCustomNotification(
+      remoteMessage.notification?.title || '알림',
+      remoteMessage.notification?.body || '',
+      remoteMessage.data,
+    );
+  });
 };
 
-export default FcmHandler;
+//  백그라운드 알림 핸들러
+export const setupBackgroundNotifications = () => {
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    handleNotificationAction(remoteMessage.data);
+  });
+};
+
+//  앱이 종료된 상태에서 알림 클릭 시
+export const onNotificationOpenedApp = () => {
+  // 앱이 백그라운드에서 실행 중일 때 알림 클릭 처리
+  messaging().onNotificationOpenedApp(remoteMessage => {
+    handleNotificationAction(remoteMessage.data);
+  });
+
+  // 앱이 완전히 종료된 상태에서 실행될 때 알림 클릭 처리
+  messaging()
+    .getInitialNotification()
+    .then(remoteMessage => {
+      if (remoteMessage) {
+        handleNotificationAction(remoteMessage.data);
+      }
+    });
+};
+
+//  딥링크 핸들러 --> 알림 터치시 로직 data type 에 따라 다른 로직 설정
+const handleNotificationAction = (data: any) => {
+  if (data?.type === 'chat') {
+    navigate('ChatRoom', { roomId: data.roomId });
+  }
+};
+
+//  커스텀 알림 UI --> alert OR toast 쓰되 알림 형태 일정하게 코딩해야 됨.
+const showCustomNotification = (title: string, body: string, data: any) => {
+  Alert.alert(title, body, [
+    { text: '취소', style: 'cancel' },
+    {
+      text: '확인',
+      onPress: () => handleNotificationAction(data),
+    },
+  ]);
+};

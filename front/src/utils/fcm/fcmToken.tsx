@@ -1,9 +1,11 @@
 import messaging from '@react-native-firebase/messaging';
 import { Alert } from 'react-native';
 import axios from 'axios';
+import { appAxios } from '../../redux/config/apiConfig';
 
-// FCM 토큰 가져오기 (사용자가 알림 허용하면 실행) -> 이 함수 스플래시나 로그인 useEffect 에 추가.?
-export const requestUserPermission = async () => {
+// FCM 토큰 가져오기 
+// !! 1. fcm 업뎃 코드 추가 2. fcmToken 수명주기 관리.
+export const requestUserPermission = async (userId: string) => {
   const authStatus = await messaging().requestPermission();
   const enabled =
     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
@@ -12,9 +14,16 @@ export const requestUserPermission = async () => {
   if (enabled) {
     const fcmToken = await messaging().getToken();
     console.log('FCM Token:', fcmToken);
-    
-    // 서버에 토큰 저장 API 만들자 User 모델에 추가 ㄱ , 수명주기 재고민 ㄱ
 
+    try {
+      const res = appAxios.post(`/auth/saveFcmToken`,{
+        userId,
+        fcmToken,
+      })
+    } catch (error) {
+      console.log('save token api error : ', error);
+    }
+    
   } else {
     console.log(' FCM 권한 거부됨');
   }
