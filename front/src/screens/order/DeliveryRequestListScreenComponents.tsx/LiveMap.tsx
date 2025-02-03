@@ -3,8 +3,8 @@ import { StyleSheet, TouchableOpacity, View, Button } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack } from "../../../navigation/NavigationUtils";
-import { MapSocketContext } from "../../../utils/MapSocket";
 import { useRoute } from "@react-navigation/native"; // 추가
+import { MapSocketContext } from "../../../utils/sockets/MapSocket";
 
 function LiveMap() {
     const socket = useContext(MapSocketContext);
@@ -33,7 +33,7 @@ function LiveMap() {
         }
         
         setTracking(true);
-        socket.emit("requestLocation", { orderId }); // 서버에 현재 주문의 위치 요청
+        socket?.emit("requestLocation", { orderId }); // 서버에 현재 주문의 위치 요청
     };
 
     return (

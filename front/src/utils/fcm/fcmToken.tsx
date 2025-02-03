@@ -6,6 +6,7 @@ import { appAxios } from '../../redux/config/apiConfig';
 // FCM 토큰 가져오기 
 // !! 1. fcm 업뎃 코드 추가 2. fcmToken 수명주기 관리.
 export const requestUserPermission = async (userId: string) => {
+
   const authStatus = await messaging().requestPermission();
   const enabled =
     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||

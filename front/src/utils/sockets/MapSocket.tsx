@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { token_storage } from "../redux/config/storage";
 import { IPV4, PORT } from "@env";
+import { token_storage } from "../../redux/config/storage";
 
 interface Props {
   children?: React.ReactNode;

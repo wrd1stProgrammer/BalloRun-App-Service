@@ -15,6 +15,9 @@ prepare_react_native_project!
 
 target 'makemilliondollor' do
   use_expo_modules!
+  # pod 'GoogleUtilities', :modular_headers => true
+ use_frameworks! :linkage => :static 
+
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
