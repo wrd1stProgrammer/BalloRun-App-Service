@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyCEUgSs8xcEnNhwycHDK_jZ0VBFbQNMVEk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>391413944888</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.name.makemilliondollor</string>
+	<key>PROJECT_ID</key>
+	<string>campuscoffee-83cbf</string>
+	<key>STORAGE_BUCKET</key>
+	<string>campuscoffee-83cbf.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:391413944888:ios:3428128c718bd8c24e0ccd</string>
+</dict>
+</plist>

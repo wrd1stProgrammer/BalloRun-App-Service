@@ -11,11 +11,14 @@ import './reanimatedConfig';
 import ChatSocketContainer from "./src/utils/sockets/ChatSocket";
 import MapSocketContainer from "./src/utils/sockets/MapSocket";
 import { setupBackgroundNotifications,setupForegroundNotifications,onNotificationOpenedApp } from "./src/utils/fcm/FcmHandler";
-import firebase from '@react-native-firebase/app';
+import { startFcm } from "./src/utils/fcm/fcmInitailizeApp";
 
 const App: React.FC = () => {
   //fcm client 포/백 그라운드 설정.
   useEffect(() => {
+
+    startFcm();
+
     const foregroundListener = setupForegroundNotifications();
     setupBackgroundNotifications();
     onNotificationOpenedApp();
