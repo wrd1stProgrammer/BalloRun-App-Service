@@ -129,6 +129,8 @@ const refreshToken = async (req, res) => {
   
       const newAccessToken = user.createAccessToken();
       const newRefreshToken = user.createRefreshToken();
+
+      console.log('리프레시에서 뉴 토큰', newAccessToken,newRefreshToken);
   
       res.status(StatusCodes.OK).json({
         tokens: { access_token: newAccessToken, refresh_token: newRefreshToken },
