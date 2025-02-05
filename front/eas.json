@@ -5,7 +5,7 @@
     "build": {
       "development": {
         "developmentClient": true,
-        "distribution": "internal" // 내부 테스트용 빌드 , 개발용 배포시 수정!
+        "distribution": "internal"
       }, 
       "preview": {
         "distribution": "internal"
@@ -13,7 +13,7 @@
       "production": {}
     },
     "submit": {
-      "production": {} //앱을 스토어에 제출하기 위한 설정
+      "production": {} 
     }
   }
   

@@ -62,7 +62,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
 
           // 푸쉬 알림 -> 배달매칭ㅇㅋ, 채팅 ㅇㅋ 
           const notipayload ={
-            title: `${order.username} 님 배달요청이 수락되었습니다.`,
+            title: `배달요청이 수락되었습니다.`,
             body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
             data: {type:"order_aceepted", orderId:orderId},
           }

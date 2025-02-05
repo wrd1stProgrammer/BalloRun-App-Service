@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const ChatRoom = require("../models/ChatRoom");
 const ChatMessage = require("../models/ChatMessage");
+const {sendPushNotification} = require("../utils/sendPushNotification");
 
 
 module.exports = (chatIo) => {
@@ -35,6 +36,7 @@ module.exports = (chatIo) => {
   // 채팅 연결 및 이벤트 설정
   chatIo.on("connection", (socket) => {
     console.log(`[ChatSocket] User ${socket.user.userId} connected`);
+    
 
     socket.on("room-list", async ({ token }) => {
       try {
@@ -108,6 +110,9 @@ module.exports = (chatIo) => {
     socket.on("sendMessage", async ({ chatRoomId, message }) => {
         try {
           const userId = socket.user.userId;
+          
+          const user = await User.findById(userId);
+          console.log('socket',user);
   
           // 1. 채팅 메시지 저장
           const newMessage = new ChatMessage({
@@ -131,6 +136,18 @@ module.exports = (chatIo) => {
             content: message,
             createdAt: newMessage.createdAt,
           });
+
+            // 푸쉬 알림 -> 배달매칭ㅇㅋ, 채팅 ㅇㅋ 
+            const notipayload ={
+              title: `메세지가 도착하였습니다.`,
+              body: `${message}`,
+              data: {type:"chat", orderId:chatRoomId},
+            }
+            if (user.fcmToken) {
+              await sendPushNotification(user.fcmToken, notipayload); //임시로 나애게 보내
+            } else {
+              console.log(`사용자의 FCM 토큰이 없습니다.`);
+            }
   
           console.log(`[ChatSocket] Message sent in Room ${chatRoomId}: ${message}`);
         } catch (error) {

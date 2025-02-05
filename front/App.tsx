@@ -17,7 +17,7 @@ const App: React.FC = () => {
   //fcm client 포/백 그라운드 설정.
   useEffect(() => {
 
-    // startFcm();
+    // startFcm(); -> AppDelegate.mm 에서 시작해 주석 처리
 
     const foregroundListener = setupForegroundNotifications();
     setupBackgroundNotifications();

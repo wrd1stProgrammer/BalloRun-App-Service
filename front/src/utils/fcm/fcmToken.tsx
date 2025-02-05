@@ -17,7 +17,7 @@ export const requestUserPermission = async (userId: string) => {
     console.log('FCM Token:', fcmToken);
 
     try {
-      const res = appAxios.post(`/auth/saveFcmToken`,{
+      const res = await appAxios.post(`/auth/saveFcmToken`,{
         userId,
         fcmToken,
       })

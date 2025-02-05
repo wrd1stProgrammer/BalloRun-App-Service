@@ -49,8 +49,9 @@ export const refresh_tokens = async () => { //여기 수정필요
     });
     const new_access_token = response.data.access_token;
     const new_refresh_token = response.data.refresh_token;
-    token_storage.set('access_token', new_access_token);
-    token_storage.set('refresh_token', new_refresh_token);
+    console.log(new_access_token);
+    token_storage.set('access_token', String(new_access_token));
+    token_storage.set('refresh_token', String(new_refresh_token));
     return new_access_token;
   } catch (error) {
     console.log('REFRESH TOKEN ERROR',error);

@@ -165,21 +165,39 @@ const refreshToken = async (req, res) => {
     }
   };
  // fcmToken 1차 저장 로직 User model 에 토큰 저장
-  const saveFcmToken = async(req,res) =>{
+  const saveFcmToken = async (req, res) => {
     const { userId, fcmToken } = req.body;
 
-  if (!userId || !fcmToken) {
-    return res.status(400).json({ error: 'userId와 fcmToken이 필요합니다.' });
-  }
-
-  try {
-    await User.findByIdAndUpdate(userId, { fcmToken }); // 주의.
-    res.json({ success: true, message: 'FCM 토큰이 업데이트되었습니다.' });
-  } catch (error) {
-    res.status(500).json({ error: 'FCM 토큰 저장 실패', details: error.message });
-  }
-
-  } 
+    console.log('savefcm에서 체크',userId,fcmToken); //로깅
+  
+    if (!userId || !fcmToken) {
+      return res.status(400).json({ error: 'userId와 fcmToken이 필요합니다.' });
+    }
+  
+    try {
+      // userId로 사용자 조회
+      const user = await User.findById(userId);
+      console.log(user,'user정보'); //로깅
+  
+      if (!user) {
+        return res.status(404).json({ error: '해당 userId에 해당하는 사용자를 찾을 수 없습니다.' });
+      }
+  
+      // 사용자가 이미 fcmToken을 가지고 있는지 확인
+      if (user.fcmToken) {
+        // 이미 fcmToken이 있는 경우, 업데이트
+        await User.findByIdAndUpdate(userId, { fcmToken });
+        res.json({ success: true, message: 'FCM 토큰이 업데이트되었습니다.' });
+      } else {
+        // fcmToken이 없는 경우, 저장
+        user.fcmToken = fcmToken;
+        await user.save();
+        res.json({ success: true, message: 'FCM 토큰이 저장되었습니다.' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'FCM 토큰 저장 또는 업데이트 실패', error});
+    }
+  };
 
   module.exports = {
     register,

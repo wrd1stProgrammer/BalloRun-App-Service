@@ -8,9 +8,10 @@ import Toast from 'react-native-toast-message';
 import { Alert } from 'react-native';
 import { requestUserPermission } from '../../utils/fcm/fcmToken';
 
-const handleSignInSuccess = async (res: any, dispatch: any) => {
+const handleSignInSuccess = async (res: any, dispatch: any,userId:string) => {
   token_storage.set('access_token', res.data.tokens.access_token);
   token_storage.set('refresh_token', res.data.tokens.refresh_token);
+  await requestUserPermission(res.data.user._id);
   await dispatch(setUser(res.data.user));
   resetAndNavigate('BottomTab');
 };
@@ -34,9 +35,11 @@ export const login = (userId: string, password: string) => async (dispatch: any)
       password: password,
     });
 
+    console.log(userId,'userId');
+
     // 로그인 성공 시 처리
-    await handleSignInSuccess(res, dispatch);
-    await requestUserPermission(userId);
+    await handleSignInSuccess(res, dispatch,userId);
+    
   } catch (error: any) {
     // 서버 에러 메시지 처리
     if (error.response) {
