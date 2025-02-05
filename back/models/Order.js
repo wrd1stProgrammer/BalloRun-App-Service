@@ -36,7 +36,11 @@ const OrderSchema = new mongoose.Schema(
     riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더
     createdAt: { type: Date, default: Date.now }, // 생성 시간
     riderRequest: {type:String},
-    selectedFloor: {type:String}
+    selectedFloor: {type:String},
+    isReservation: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     timestamps: true, // createdAt, updatedAt 자동 생성

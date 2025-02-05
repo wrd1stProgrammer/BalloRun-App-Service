@@ -1,17 +1,28 @@
 const Order = require("../../models/Order");
 const User = require("../../models/User");
-// const io = require("socket.io")(server); // 또는 app.get('io')를 사용할 수도 있음
+const amqp = require("amqplib");
+const {connectRabbitMQ} = require("../../config/rabbitMQ");
+
 
 const orderNowDirectCreate = async (req, res) => {
   //요청사항 추가
   const { items, lat, lng, isMatch, deliveryFee, deliveryType,startTime,endTime,riderRequest,selectedFloor } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
+
   
   try {
     // 배달 타입이 'direct'인지 확인
     if (deliveryType === "direct") {
-      const order = new Order({
+
+       // RabbitMQ 연결
+       const {channel,connection} = await connectRabbitMQ();
+      
+       const queue = "order_queue";
+ 
+       await channel.assertQueue(queue, { durable: true });
+
+      const message = JSON.stringify({
         userId: userId, // authMiddleware로 사용자 확인
         items,
         lat,
@@ -24,13 +35,32 @@ const orderNowDirectCreate = async (req, res) => {
         riderRequest, // 배달원 요청사항
         selectedFloor
       });
+// 메시지 큐에 전송
+channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
-      const savedOrder = await order.save();
+console.log("큐에 전달-지금직접배달:", message);
+
+// 클라이언트에 즉시 응답
+res.status(201).json({ message: "Order received and being processed." });
 
 
-      return res.status(201).json(savedOrder);
+
+// 연결 종료
+setTimeout(() => {
+    channel.close();
+}, 1000); 
+
     } else if (deliveryType === "cupHolder") {
-      const order = new Order({
+
+      // RabbitMQ 연결
+       const {channel,connection} = await connectRabbitMQ();
+      
+       const queue = "order_queue";
+ 
+       await channel.assertQueue(queue, { durable: true });
+
+
+      const message = JSON.stringify({
         userId: userId, // authMiddleware로 사용자 확인
         items,
         lat,
@@ -44,9 +74,20 @@ const orderNowDirectCreate = async (req, res) => {
         selectedFloor
       });
 
-      const savedOrder = await order.save();
+      // 메시지 큐에 전송
+channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
-      return res.status(201).json(savedOrder);
+console.log("큐에 전달-지금직접배달:", message);
+
+
+// 클라이언트에 즉시 응답
+res.status(201).json({ message: "Order received and being processed." });
+
+// 연결 종료
+setTimeout(() => {
+    channel.close();
+}, 1000); 
+
 
     } else {
       return res.status(400).json({ message: "잘못된 배달 타입입니다." });

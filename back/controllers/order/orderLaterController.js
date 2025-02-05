@@ -8,6 +8,7 @@ const orderLaterDirectCreate = async (req, res) => {
   const { items, lat, lng, isMatch, deliveryFee, deliveryType, startTime, endTime, riderRequest, selectedFloor } = req.body;
 
   const userId = req.user.userId;
+  const user = await User.findById(userId);
   
 
   try {
@@ -37,9 +38,18 @@ const orderLaterDirectCreate = async (req, res) => {
       channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
       console.log("큐에 전달달:", message);
+  
 
       // 클라이언트에 즉시 응답
       res.status(201).json({ message: "Order received and being processed." });
+            // 사용자 예약 상태 업데이트
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.isReservation = true;  // 예약 상태 변경
+    await user.save();  // 변경 사항 저장
+
 
       // 연결 종료
       setTimeout(() => {

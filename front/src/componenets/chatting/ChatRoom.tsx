@@ -60,30 +60,41 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
       //  새로운 메시지를 받을 때 UI 업데이트
 // ChatRoom.tsx
 
+// 수정된 chatMessage 핸들러
 socket.on("chatMessage", (newMessage) => {
   setChatData((prevChatData) => {
-    // 임시 ID로 추가된 메시지를 실제 ID로 교체
-    const updatedChatData = { ...prevChatData };
     const messageDate = new Date(newMessage.createdAt).toDateString();
+    const tempIdPrefix = 'temp_'; // 임시 ID 식별용 접두사
 
-    // 임시 메시지 찾아 제거
-    const existingTempIndex = updatedChatData[messageDate]?.findIndex(
-      msg => msg.id === "임시_ID" // onPostMessageHandler에서 사용한 임시 ID와 일치해야 함
+    // 불변성 유지를 위한 복제
+    const updatedChatData = { ...prevChatData };
+
+    // 해당 날짜의 메시지 배열 복제 (없으면 생성)
+    const currentMessages = updatedChatData[messageDate] ? [...updatedChatData[messageDate]] : [];
+
+    // 임시 메시지 찾기 (접두사로 검색)
+    const tempMessageIndex = currentMessages.findIndex(
+      msg => msg.id.startsWith(tempIdPrefix)
     );
 
-    if (existingTempIndex !== -1 && existingTempIndex !== undefined) {
-      updatedChatData[messageDate].splice(existingTempIndex, 1);
+    // 임시 메시지가 있으면 제거
+    if (tempMessageIndex !== -1) {
+      currentMessages.splice(tempMessageIndex, 1);
     }
 
-    // 서버에서 받은 실제 메시지 추가
-    updatedChatData[messageDate].push({
+    // 실제 메시지 추가
+    currentMessages.push({
       id: newMessage.id,
       content: newMessage.content,
-      timestamp: newMessage.createdAt,
+      timestamp: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isMe: newMessage.sender === access_token,
     });
 
-    return updatedChatData;
+    // 업데이트된 객체 반환
+    return {
+      ...updatedChatData,
+      [messageDate]: currentMessages
+    };
   });
 
   scrollToBottom();
@@ -99,33 +110,34 @@ socket.on("chatMessage", (newMessage) => {
   }, [socket,roomId]);
   
 
-  const onPostMessageHandler = (message: string) => {
-    if (!socket || !message) return;
-  
-    // 1. 클라이언트에서 먼저 UI 업데이트 (즉시 반영)
-    setChatData((prevChatData) => {
-      const updatedChatData = { ...prevChatData };
-      const currentDate = new Date().toDateString();
-  
-      if (!updatedChatData[currentDate]) {
-        updatedChatData[currentDate] = [];
-      }
-  
-      const tempMessage = {
-        id: `temp_${Date.now()}`, // 임시 ID 형식 변경
-        content: message,
-        timestamp: new Date().toISOString(),
-        isMe: true, // 내가 보낸 메시지
-      };
-  
-      updatedChatData[currentDate].push(tempMessage);
-      return updatedChatData;
-    });
-  
-    scrollToBottom(); // 바로 스크롤 이동
+// 수정된 onPostMessageHandler
+const onPostMessageHandler = (message: string) => {
+  if (!socket || !message) return;
 
-    
-  };
+  // 임시 ID 생성 (접두사 추가)
+  const tempId = `temp_${Date.now()}`;
+
+  setChatData((prevChatData) => {
+    const currentDate = new Date().toDateString();
+    const currentMessages = prevChatData[currentDate] ? [...prevChatData[currentDate]] : [];
+
+    currentMessages.push({
+      id: tempId,
+      content: message,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isMe: true,
+    });
+
+    return {
+      ...prevChatData,
+      [currentDate]: currentMessages
+    };
+  });
+
+  scrollToBottom();
+  
+
+};
   
 
   return (
