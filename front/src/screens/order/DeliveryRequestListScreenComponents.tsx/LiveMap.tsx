@@ -1,76 +1,72 @@
-import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, View, Button } from "react-native";
+import React, { useEffect, useState, useContext } from "react";
+import { View, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { Ionicons } from "@expo/vector-icons";
-import { goBack } from "../../../navigation/NavigationUtils";
-import { useRoute } from "@react-navigation/native"; // 추가
 import { MapSocketContext } from "../../../utils/sockets/MapSocket";
 
-function LiveMap() {
-    const socket = useContext(MapSocketContext);
-    const route = useRoute();
-    const { orderId } = route.params || {}; // 전달된 orderId 가져오기
-    const [deliveryLocation, setDeliveryLocation] = useState(null);
-    const [tracking, setTracking] = useState(false);
+type LiveMapProps = {
+  orderId: string;
+};
 
-    useEffect(() => {
-        if (!socket) return;
+const LiveMap = ({ orderId }: LiveMapProps) => {
+  const socket = useContext(MapSocketContext);
+  const [deliveryLocation, setDeliveryLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
-        socket.on("receiveLocation", ({ latitude, longitude }) => {
-            setDeliveryLocation({ latitude, longitude });
-        });
+  useEffect(() => {
+    if (!socket) return;
 
-        return () => {
-            socket.off("receiveLocation");
-        };
-    }, [socket]);
+    // 주문자의 위치 요청 (배달원의 최신 위치를 받기 위해)
+    socket.emit("request_location", { orderId });
 
-    // '실시간 위치 확인' 버튼 클릭 시 서버에 위치 요청
-    const requestLocationUpdate = () => {
-        if (!orderId) {
-            console.warn("⚠️ 주문 ID가 없습니다.");
-            return;
-        }
-        
-        setTracking(true);
-        socket?.emit("requestLocation", { orderId }); // 서버에 현재 주문의 위치 요청
+    // 배달원 위치 업데이트 이벤트 리스너 등록
+    const handleLocationUpdate = (data: { orderId: string; latitude: number; longitude: number }) => {
+      if (data.orderId === orderId) {
+        setDeliveryLocation({ latitude: data.latitude, longitude: data.longitude });
+      }
     };
 
-    return (
-        <View style={{ flex: 1 }}>
-            <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
-                <Ionicons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
+    socket.on("update_location", handleLocationUpdate);
 
-            <MapView
-                style={{ flex: 1 }}
-                initialRegion={{
-                    latitude: 35.1767,
-                    longitude: 126.9085,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                }}
-            >
-                {deliveryLocation && (
-                    <Marker coordinate={deliveryLocation} title="배달원 위치" />
-                )}
-            </MapView>
+    // 정리 함수: 컴포넌트가 언마운트될 때 이벤트 리스너 제거
+    return () => {
+      socket.off("update_location", handleLocationUpdate);
+    };
+  }, [orderId, socket]);
 
-            <Button title="실시간 위치 확인" onPress={requestLocationUpdate} />
-        </View>
-    );
-}
+  return (
+    <View style={styles.container}>
+<MapView
+  style={styles.map}
+  region={
+    deliveryLocation
+      ? {
+          latitude: deliveryLocation.latitude,
+          longitude: deliveryLocation.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        }
+      : {
+          latitude: 37.7749, // 기본값
+          longitude: -122.4194,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        }
+  }
+>
+        {deliveryLocation && (
+          <Marker coordinate={deliveryLocation} title="배달원 위치" />
+        )}
+      </MapView>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    backButton: {
-        position: "absolute",
-        top: 16,
-        left: 16,
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
-        borderRadius: 20,
-        padding: 8,
-        zIndex: 10,
-    },
+  container: {
+    flex: 1,
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
 });
 
 export default LiveMap;
