@@ -40,5 +40,6 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
+        //aven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' } // 추가
     }
 }
