@@ -8,6 +8,7 @@ import { appAxios } from '../../redux/config/apiConfig';
 export const requestUserPermission = async (userId: string) => {
 
   const authStatus = await messaging().requestPermission();
+  // await messaging().registerDeviceForRemoteMessages()
   const enabled =
     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
     authStatus === messaging.AuthorizationStatus.PROVISIONAL;

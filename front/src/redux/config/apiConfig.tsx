@@ -47,9 +47,11 @@ export const refresh_tokens = async () => { //여기 수정필요
     const response = await axios.post(REFRESH_TOKEN, {
       refresh_token,
     });
-    const new_access_token = response.data.access_token;
-    const new_refresh_token = response.data.refresh_token;
-    console.log(new_access_token);
+    const new_access_token = response.data.tokens.access_token; 
+    const new_refresh_token = response.data.tokens.refresh_token;
+    
+    console.log(new_access_token, '1');
+    
     token_storage.set('access_token', String(new_access_token));
     token_storage.set('refresh_token', String(new_refresh_token));
     return new_access_token;

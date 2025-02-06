@@ -2,14 +2,25 @@
 
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons'; 
 import { navigate } from '../../navigation/NavigationUtils';
 import { selectUser } from '../../redux/reducers/userSlice';
-
+import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "../.././../src/utils/fcm/FcmHandler";
 
 const HomeScreen: React.FC = () => {
   const user = useAppSelector(selectUser);
+
+    useEffect(() => {
+      const foregroundListener = setupForegroundNotifications();
+      setupBackgroundNotifications();
+      onNotificationOpenedApp();
+      return () => {
+        foregroundListener(); // 리스너 정리
+      };
+    }, []);
+  
 
 
   return (
@@ -18,7 +29,7 @@ const HomeScreen: React.FC = () => {
       <View style={styles.headerContainer}>
         <View style={styles.greetingContainer}>
           <Text style={styles.userName}>
-            {user?.username}님, 안녕하세요!!!
+            {user?.username}님, 안녕하세요!!!!
           </Text>
           <Text>
           캠퍼스 커피에서 편함을 주문해보세요.

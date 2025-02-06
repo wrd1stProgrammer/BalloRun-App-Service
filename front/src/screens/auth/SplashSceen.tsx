@@ -27,7 +27,8 @@ const SplashScreen: FC = () => {
 
     console.log(access_token,refresh_token,'토큰');
 
-    if (access_token) {
+    if (access_token != "undefined") {
+
       const decodedAccessToken = jwtDecode<DecodedToken>(access_token);
       const decodedRefreshToken = jwtDecode<DecodedToken>(refresh_token);
 
@@ -52,7 +53,7 @@ const SplashScreen: FC = () => {
       resetAndNavigate('BottomTab'); // token access 시 Main 화면
       return true;
     }
-    resetAndNavigate('LoginScreen'); // token deny 시 LoginScreen 
+    navigate('LoginScreen'); // token deny 시 LoginScreen 
 
   };
 

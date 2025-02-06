@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { MapSocketContext } from "../utils/MapSocket";
+import { MapSocketContext } from "./sockets/MapSocket";
 import * as Location from "expo-location";
 
 function LocationTracker() {

@@ -16,6 +16,7 @@ type DeliveryItem = {
   endTime: string;
   lat: string;
   lng: string;
+  isReservation: boolean;
 };
 
 function SelectDelivery() {
@@ -42,7 +43,10 @@ function SelectDelivery() {
   };
 
   const handleFilter = (type: string | null) => {
-    if (type) {
+    if (type === "reservation") {
+      // 예약 주문 필터링
+      setFilteredItems(deliveryItems.filter((item) => item.isReservation));
+    } else if (type) {
       // 특정 필터 적용
       setFilteredItems(deliveryItems.filter((item) => item.deliveryType === type));
     } else {

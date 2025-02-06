@@ -16,6 +16,7 @@ type DeliveryItem = {
   endTime: string;
   lat: string;
   lng: string;
+  isReservation:boolean;
 };
 
 type DeliveryCustomMapProps = {
@@ -69,6 +70,9 @@ function DeliveryCustomMap({ deliveryItems, loading, onMarkerSelect, onFilter }:
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => onFilter("direct")}>
           <Text style={styles.buttonText}>직접 주문만</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => onFilter("reservation")}>
+          <Text style={styles.buttonText}>예약 주문만</Text>
         </TouchableOpacity>
       </View>
     </View>
