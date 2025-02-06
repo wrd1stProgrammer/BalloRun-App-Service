@@ -16,6 +16,7 @@ import SelectDelivery from "../screens/delivery/SelectDelivery";
 import Chatting from "../screens/dash/ChattingScreen";
 import LiveMap from "../screens/order/DeliveryRequestListScreenComponents.tsx/LiveMap";
 import ChatRoom from "../componenets/chatting/ChatRoom";
+import KakaoSample from "../screens/dash/KakaoSample";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -58,6 +59,10 @@ export const dashboardStack = [
   {
     name: "ChatRoom",
     component: ChatRoom,
+  },
+  {
+    name: "KakaoSample",
+    component: KakaoSample,
   },
 ];
 

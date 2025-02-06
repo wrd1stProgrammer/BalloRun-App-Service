@@ -36,7 +36,7 @@ const HomeScreen: React.FC = () => {
           </Text>
         </View>
         {/* 프로필 아이콘 (예: 실제 이미지 대체) */}
-        <TouchableOpacity style={styles.profileIconWrapper} >
+        <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper} >
           <Ionicons name="person-circle" size={36} color="#999" />
         </TouchableOpacity>
       </View>

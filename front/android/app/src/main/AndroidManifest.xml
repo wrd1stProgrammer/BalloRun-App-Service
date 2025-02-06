@@ -28,6 +28,19 @@
     android:name="com.google.android.geo.API_KEY" 
     android:value="AIzaSyBxGkcR9TFrCBVAwzTWacT8oIb4mn2CSXU"
 />
+ <activity
+    android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <!-- Redirect URI: "kakao{NATIVE_APP_KEY}://oauth“ -->
+        <data android:host="oauth"
+            android:scheme="kakaoea648111b964cded4b08fdbaf9616a8d" />
+      </intent-filter>
+    </activity>
 
     <activity android:name=".MainActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.App.SplashScreen" android:exported="true">
       <intent-filter>
