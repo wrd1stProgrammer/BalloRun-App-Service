@@ -1,0 +1,71 @@
+> Task :gradle-plugin:settings-plugin:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle-plugin:shared:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle-plugin:shared:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:shared:compileJava NO-SOURCE
+> Task :gradle-plugin:shared:processResources NO-SOURCE
+> Task :gradle-plugin:shared:classes UP-TO-DATE
+> Task :gradle-plugin:shared:jar UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:settings-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:jar UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle-plugin:react-native-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:react-native-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:jar UP-TO-DATE
+
+> Configure project :expo
+
+Using expo modules
+  - [32mexpo-asset[0m (11.0.1)
+  - [32mexpo-constants[0m (17.0.3)
+  - [32mexpo-file-system[0m (18.0.5)
+  - [32mexpo-font[0m (13.0.1)
+  - [32mexpo-keep-awake[0m (14.0.1)
+  - [32mexpo-location[0m (18.0.4)
+  - [32mexpo-modules-core[0m (2.1.1)
+
+
+> Configure project :react-native-firebase_app
+:react-native-firebase_app package.json found at /Users/sikgates/Downloads/eighteen/front/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_app:firebase.bom using default value: 33.7.0
+:react-native-firebase_app:play.play-services-auth using default value: 21.2.0
+:react-native-firebase_app package.json found at /Users/sikgates/Downloads/eighteen/front/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_app:version set from package.json: 21.7.1 (21,7,1 - 21007001)
+:react-native-firebase_app:android.compileSdk using custom value: 35
+:react-native-firebase_app:android.targetSdk using custom value: 34
+:react-native-firebase_app:android.minSdk using custom value: 24
+:react-native-firebase_app:reactNativeAndroidDir /Users/sikgates/Downloads/eighteen/front/node_modules/react-native/android
+
+> Configure project :react-native-firebase_messaging
+:react-native-firebase_messaging package.json found at /Users/sikgates/Downloads/eighteen/front/node_modules/@react-native-firebase/messaging/package.json
+:react-native-firebase_app package.json found at /Users/sikgates/Downloads/eighteen/front/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_messaging:firebase.bom using default value: 33.7.0
+:react-native-firebase_messaging package.json found at /Users/sikgates/Downloads/eighteen/front/node_modules/@react-native-firebase/messaging/package.json
+:react-native-firebase_messaging:version set from package.json: 21.7.1 (21,7,1 - 21007001)
+:react-native-firebase_messaging:android.compileSdk using custom value: 35
+:react-native-firebase_messaging:android.targetSdk using custom value: 34
+:react-native-firebase_messaging:android.minSdk using custom value: 24
+:react-native-firebase_messaging:reactNativeAndroidDir /Users/sikgates/Downloads/eighteen/front/node_modules/react-native/android
+
+> Configure project :react-native-reanimated
+Android gradle plugin: 8.6.0
+Gradle: 8.10.2
+
+> Task :dependencies
+
+------------------------------------------------------------
+Root project 'makemilliondollor'
+------------------------------------------------------------
+
+No configurations
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 3s
+14 actionable tasks: 4 executed, 10 up-to-date

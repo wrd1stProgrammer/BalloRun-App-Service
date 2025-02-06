@@ -2,9 +2,6 @@
   "expo": {
     "name": "makemilliondollor",
     "slug": "makemilliondollor",
-    "version": "1.0.0",
-    "android": {
-      "package": "com.anonymous.makemilliondollor"
-    }
+    "version": "1.0.0"
   }
 }
