@@ -1,8 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView,Alert } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, Alert } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { acceptActionHandler } from '../../../redux/actions/riderAction';
+import { MapSocketContext } from "../../../utils/sockets/MapSocket";
+import Geolocation from 'react-native-geolocation-service';
+import { token_storage } from '../../../redux/config/storage';
 
 type DeliveryItem = {
   _id: string;
@@ -21,22 +24,58 @@ type DeliveryBottomSheetProps = {
   loading: boolean;
 };
 
-
-
 function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProps): JSX.Element {
-  const snapPoints = ['25%', '50%', '90%'];
+  const socket = useContext(MapSocketContext);
+  const [tracking, setTracking] = useState(false);
   const dispatch = useAppDispatch();
 
-  //주문 수락시 
-const acceptHandler = async(orderId:string) => {
-  console.log(orderId,'id logging');
-  const dummyRes = await dispatch(acceptActionHandler(orderId));
-  console.log(dummyRes);
+  // 위치 추적 ID 저장 (해제할 때 필요)
+  const [watchId, setWatchId] = useState<number | null>(null);
 
-}
+  // 배달 수락 함수
+  const acceptHandler = async (orderId: string) => {
+    try {
+      const access_token = token_storage.getString('access_token');
+      console.log(orderId, 'id logging');
+
+      // 주문 수락 요청
+      const dummyRes = await dispatch(acceptActionHandler(orderId));
+      console.log(dummyRes);
+
+      setTracking(true);
+      
+      // 서버에 트래킹 시작 요청 (배달원 ID 없이 orderId만 보냄)
+      socket?.emit('start_tracking', { orderId });
+
+      // 위치 추적 시작
+      const id = Geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          socket?.emit('update_location', { orderId, latitude, longitude });
+        },
+        (error) => {
+          Alert.alert('위치 추적 오류', error.message);
+        },
+        { enableHighAccuracy: true, distanceFilter: 10, interval: 5000 } // 10m 이상 이동 시 or 5초마다 업데이트
+      );
+
+      setWatchId(id);
+    } catch (error) {
+      console.error("Error accepting order:", error);
+    }
+  };
+
+  // 위치 추적 정지 (필요한 경우)
+  const stopTracking = () => {
+    if (watchId !== null) {
+      Geolocation.clearWatch(watchId);
+      setWatchId(null);
+      setTracking(false);
+    }
+  };
 
   return (
-    <BottomSheet snapPoints={snapPoints}>
+    <BottomSheet snapPoints={['25%', '50%', '90%']}>
       <View style={styles.container}>
         {loading ? (
           <ActivityIndicator size="large" color="#6610f2" />
@@ -53,8 +92,12 @@ const acceptHandler = async(orderId:string) => {
                   <Text style={styles.time}>{new Date(item.endTime).toLocaleTimeString()} 만료 시간</Text>
                 </View>
                 <View style={styles.footer}>
-                  <TouchableOpacity onPress={()=> acceptHandler(item._id)} style={styles.button}>
-                    <Text style={styles.buttonText}>수락하기</Text>
+                  <TouchableOpacity 
+                    onPress={() => acceptHandler(item._id)} 
+                    style={[styles.button, tracking && styles.disabledButton]}
+                    disabled={tracking}
+                  >
+                    <Text style={styles.buttonText}>{tracking ? "배달 중..." : "수락하기"}</Text>
                   </TouchableOpacity>
                   <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
                 </View>
@@ -120,6 +163,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
+  },
+  disabledButton: {
+    backgroundColor: '#bbb',
   },
   buttonText: {
     color: '#fff',

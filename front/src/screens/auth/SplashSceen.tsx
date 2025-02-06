@@ -27,7 +27,7 @@ const SplashScreen: FC = () => {
 
     console.log(access_token,refresh_token,'토큰');
 
-    if (access_token != "undefined") {
+    if (access_token) {
 
       const decodedAccessToken = jwtDecode<DecodedToken>(access_token);
       const decodedRefreshToken = jwtDecode<DecodedToken>(refresh_token);
