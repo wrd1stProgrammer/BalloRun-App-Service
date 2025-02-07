@@ -16,19 +16,8 @@ const handleSignInSuccess = async (res: any, dispatch: any,userId:string) => {
   resetAndNavigate('BottomTab');
 };
 
-/*
-const handleSignInError = (error: any, data: RegisterData) => {
-  console.log(error);
-  if (error.response.status == 401) {
-    navigate('RegisterScreen', {
-      ...data,
-    });
-    return;
-  }
-  Alert.alert('We are facing issues, try again later');
-};
-*/
-export const login = (userId: string, password: string) => async (dispatch: any) => {
+
+export const userlogin = (userId: string, password: string) => async (dispatch: any) => {
   try {
     const res = await appAxios.post('/auth/login', {
       userId: userId,
@@ -51,6 +40,30 @@ export const login = (userId: string, password: string) => async (dispatch: any)
     }
   }
 };
+
+export const kakaoLogin = (email:string) => async (dispatch: any) => {
+  try {
+    const res:any = await appAxios.post('/auth/kakaologin', {
+      email,
+      loginProvider:"kakao",
+    });
+    // 로그인 성공 시 처리
+    await handleSignInSuccess(res, dispatch,res);
+    
+    return res.data;
+    
+  } catch (error: any) {
+    // 서버 에러 메시지 처리
+    if (error.response) {
+      console.error('kakao 로그인 실패:', error.response.data.message || error.response.data);
+      Alert.alert('kakao 로그인 실패', error.response.data.message || '로그인에 실패했습니다.');
+    } else {
+      console.error('네트워크 에러:', error.message);
+      Alert.alert('네트워크 오류', '서버와 연결되지 않았습니다. 나중에 다시 시도해주세요.');
+    }
+  }
+};
+
 
 
 export const register = (email:string, userId:string, password:string, username:string) => async (dispatch: any) => {

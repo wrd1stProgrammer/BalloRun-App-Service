@@ -36,9 +36,9 @@
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
 
-        <!-- Redirect URI: "kakao{NATIVE_APP_KEY}://oauth“ -->
+        <!-- Redirect URI: "kakao{ea648111b964cded4b08fdbaf9616a8d}://oauth“ -->
         <data android:host="oauth"
-            android:scheme="kakaoea648111b964cded4b08fdbaf9616a8d" />
+            android:scheme="kakaoea648111b964cded4b08fdbaf9616a8d"/>
       </intent-filter>
     </activity>
 

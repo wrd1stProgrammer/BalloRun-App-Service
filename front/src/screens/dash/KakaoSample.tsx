@@ -15,6 +15,7 @@ const KakaoSample = () => {
     try {
       const token = await login();
       setResult(JSON.stringify(token));
+      console.log('kakao token: ' , token); // a,r 토큰 가져오네
     } catch (err) {
       console.error("login err", err);
     }
@@ -33,6 +34,7 @@ const KakaoSample = () => {
   const getProfile = async (): Promise<void> => {
     try {
       const profile = await getKakaoProfile();
+      console.log('profile:', profile.email);
 
       setResult(JSON.stringify(profile));
     } catch (err) {

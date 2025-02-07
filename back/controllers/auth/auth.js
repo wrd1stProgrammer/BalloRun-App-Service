@@ -40,6 +40,7 @@ const register = async (req, res) => {
       userId,
       password: hashedPassword,
       username,
+      loginProvider: "user",
     });
 
     await newUser.save();
@@ -107,6 +108,109 @@ const login = async (req, res) => {
   } catch (err) {
     console.error('서버 에러 발생:', err.message);
     res.status(500).json({ message: '서버에서 문제가 발생했습니다. 잠시 후 다시 시도해주세요.' });
+  }
+};
+
+const kakaologin = async (req, res) => {
+  const { email,loginProvider } = req.body;
+
+  try {
+    // 1. 이메일로 기존 사용자 조회
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // 2. 존재하지 않는 경우 신규 사용자 생성
+      let userId = email.split('@')[0];
+      let username = userId;
+      
+      // 2-1. userId 중복 방지 처리 -> 확인 해보자
+      let existingUser = await User.findOne({ userId });
+      while (existingUser) {
+        const randomSuffix = Math.random().toString(36).substring(2, 6);
+        userId = `${userId}_${randomSuffix}`;
+        existingUser = await User.findOne({ userId });
+      }
+
+      // 2-2. 랜덤 패스워드 생성
+      const randomPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcryptjs.hash(randomPassword, 10);
+
+      // 2-3. 사용자 생성
+      user = new User({
+        email,
+        userId,
+        username,
+        password: hashedPassword,
+      });
+      await user.save();
+    }else if (loginProvider == "kakao") { // Kakao 로그인인데 기존 이메일이 있음
+      if (user.loginProvider != "kakao") {
+        // 2. 기존 이메일로 가입이 되어 있지만 카카오 로그인은 처음인 경우, 새로운 계정 생성
+        let baseUserId = email.split('@')[0];
+        let userId = baseUserId;
+        let username = baseUserId;
+        let modifiedEmail = email;
+    
+        // 2-1. userId 중복 방지 처리 (랜덤한 숫자 2개 추가)
+        let existingUser = await User.findOne({ userId });
+        while (existingUser) {
+          const randomSuffix = Math.floor(1000 + Math.random() * 9000); // 1000~9999 랜덤 숫자
+          userId = `${baseUserId}_${randomSuffix}`;
+          username = `${baseUserId}_${randomSuffix}`;
+          modifiedEmail = `${baseUserId}_${randomSuffix}@${email.split('@')[1]}`;
+          existingUser = await User.findOne({ userId });
+        }
+    
+        // 2-2. 랜덤 패스워드 생성
+        const randomPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcryptjs.hash(randomPassword, 10);
+    
+        // 2-3. 새로운 사용자 생성
+        user = new User({
+          email: modifiedEmail, // 수정된 이메일
+          userId,
+          username,
+          password: hashedPassword,
+          loginProvider: "kakao",
+        });
+        
+        await user.save();
+      }
+    }
+    
+
+    // 3. 토큰 생성 -> 카카오 말고 그냥 우리가 생성하자
+    const newAccessToken = user.createAccessToken();
+    const newRefreshToken = user.createRefreshToken();
+
+    // 4. 리프레시 토큰 저장
+    await Token.findOneAndUpdate(
+      { email: user.email },
+      { token: newRefreshToken },
+      { upsert: true }
+    );
+
+    // 5. 응답 반환
+    res.status(200).json({
+      tokens: {
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken,
+      },
+      user: {
+        _id: user._id,
+        username: user.username,
+        userId: user.userId,
+        userImage: user?.userImage,
+        email: user.email,
+        point: user.point,
+      },
+    });
+
+  } catch (error) {
+    console.error('카카오 로그인 에러:', error);
+    res.status(500).json({ 
+      message: error.message || '카카오 로그인 중 문제가 발생했습니다.' 
+    });
   }
 };
 
@@ -205,4 +309,5 @@ const refreshToken = async (req, res) => {
     refreshToken,
     resetPassword,
     saveFcmToken,
+    kakaologin,
   };

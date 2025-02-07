@@ -22,14 +22,14 @@ const UserSchema = new mongoose.Schema(
       type: String,
       maxlength: 50,
       minlength: 5,
-      unique: true,
+      unique: true, // kakao 면 이메일 앞을 따서 저장하자
     },
     password: {
        type: String,
-       required: true,
+       required: false, // kakao 에선 password가 없으니
     },
     userImage: {
-      type: String,
+      type: String, // 나중에 추가,
     },
     point:{
       type: Number,
@@ -37,8 +37,13 @@ const UserSchema = new mongoose.Schema(
     },
     fcmToken:{
       type:String,
-      required: true,
+      required: false, 
+    },
+    loginProvider:{
+      type:String,
+      required: false,
     }
+
   },
   { timestamps: true }
 );

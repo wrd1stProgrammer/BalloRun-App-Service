@@ -11,18 +11,51 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Pressable,
 } from 'react-native';
 import { navigate } from '../../navigation/NavigationUtils';
 import bgImage from "../../assets/images/bg.png";
 import { useAppDispatch } from '../../redux/config/reduxHook';
-import { login } from '../../redux/actions/userAction';
+import { userlogin } from '../../redux/actions/userAction';
+import {
+  login,
+  logout,
+  getProfile as getKakaoProfile,
+  shippingAddresses as getKakaoShippingAddresses,
+  unlink,
+} from "@react-native-seoul/kakao-login";
+import { kakaoLogin } from '../../redux/actions/userAction';
+import { token_storage } from '../../redux/config/storage';
+import { requestUserPermission } from '../../utils/fcm/fcmToken';
+import { setUser } from '../../redux/reducers/userSlice';
+import { resetAndNavigate } from '../../navigation/NavigationUtils';
 /**
  * [설명]
  * 1) "로그인" 버튼을 처음 누르면 아이디/비밀번호 입력 영역이 애니메이션으로 펼쳐지고,
  * 2) 입력 시 키보드가 올라와도 화면이 자동으로 위로 밀려서 입력 필드가 가려지지 않도록 처리.
  */
 const LoginScreen: React.FC = () => {
+  const dispatch = useAppDispatch();
+
   const [showLoginInputs, setShowLoginInputs] = useState(false);
+  const [result, setResult] = useState<string>("");
+
+  const checkKakaoUser = async (email:string) =>{
+    await dispatch(kakaoLogin(email)); // res.data받음
+  }
+
+  const signInWithKakao = async (): Promise<void> => {
+    try {
+      const token = await login();
+      const profile = await getKakaoProfile();
+      const email = profile.email;
+      await checkKakaoUser(email);
+      //setResult(JSON.stringify(token));
+      //console.log('kakao token: ' , token); // a,r 토큰 가져오네
+    } catch (err) {
+      console.error("login err", err);
+    }
+  };
 
   // 높이 애니메이션용
   const animatedHeight = useRef(new Animated.Value(0)).current;
@@ -30,8 +63,6 @@ const LoginScreen: React.FC = () => {
   // 입력받을 ID/PW
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
-
-  const dispatch = useAppDispatch();
 
   // "로그인" 버튼 누를 때 호출
   const handlePressLogin = async() => {
@@ -48,7 +79,7 @@ const LoginScreen: React.FC = () => {
       // 이미 펼쳐진 상태
 
       // navigate('BottomTab'); -> 홈 수정 때문에.
-      await dispatch(login(userId, password)); // 로그인 Action 
+      await dispatch(userlogin(userId, password)); // 로그인 Action 
     }
   };
 
@@ -86,6 +117,15 @@ const LoginScreen: React.FC = () => {
 
         {/* 하단 영역 */}
         <View style={styles.bottomContainer}>
+        <Pressable
+          style={styles.button}
+          onPress={() => {
+            signInWithKakao();
+          }}
+        >
+          <Text style={styles.text}>카카오 로그인</Text>
+        </Pressable>
+
 
           {/* 로그인 버튼 (열기 or 실제 로그인) */}
           <TouchableOpacity style={styles.loginButton} onPress={handlePressLogin}>
@@ -201,5 +241,18 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  button: {
+    backgroundColor: "#FEE500",
+    borderRadius: 40,
+    borderWidth: 1,
+    width: 250,
+    height: 40,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginTop: 10,
+  },
+  text: {
+    textAlign: "center",
   },
 });
