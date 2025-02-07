@@ -1,36 +1,62 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, Platform } from "react-native";
-import React, { useEffect } from "react";
+import { StyleSheet, View, Platform, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
 import { persistor, store } from "./src/redux/config/store";
 import { PersistGate } from "redux-persist/integration/react";
 import Navigation from "./src/navigation/Navigation";
 import WebSocketContainer from "./src/utils/sockets/Socket";
-import './reanimatedConfig';
+import "./reanimatedConfig";
 import ChatSocketContainer from "./src/utils/sockets/ChatSocket";
 import MapSocketContainer from "./src/utils/sockets/MapSocket";
-import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "./src/utils/fcm/FcmHandler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getStatusBarHeight } from "react-native-status-bar-height"; // 상태 바 높이 가져오기
+import { getStatusBarHeight } from "react-native-status-bar-height";
+import { PERMISSIONS, request, check, RESULTS } from "react-native-permissions";
+import Geolocation from "react-native-geolocation-service";
 
 const App: React.FC = () => {
-  // useEffect(() => {
-  //   const foregroundListener = setupForegroundNotifications();
-  //   setupBackgroundNotifications();
-  //   onNotificationOpenedApp();
-  //   return () => {
-  //     foregroundListener(); // 리스너 정리
-  //   };
-  // }, []);
+  const [hasLocationPermission, setHasLocationPermission] = useState<boolean | null>(null);
+
+  // ✅ 위치 권한 요청 함수
+  const requestLocationPermission = async () => {
+    let permission =
+      Platform.OS === "ios"
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+
+    // 현재 권한 상태 확인
+    const result = await check(permission);
+    if (result === RESULTS.GRANTED) {
+      console.log("✅ 위치 권한이 이미 부여됨");
+      setHasLocationPermission(true);
+      return;
+    }
+
+    // 권한이 없으면 요청
+    if (result === RESULTS.DENIED || result === RESULTS.LIMITED) {
+      const requestResult = await request(permission);
+      if (requestResult === RESULTS.GRANTED) {
+        console.log("✅ 위치 권한이 허용됨");
+        setHasLocationPermission(true);
+      } else {
+        console.log("❌ 위치 권한이 거부됨");
+        setHasLocationPermission(false);
+        Alert.alert("위치 권한 필요", "앱을 사용하려면 위치 권한을 허용해야 합니다.");
+      }
+    }
+  };
+
+  // ✅ 앱 시작 시 권한 요청
+  useEffect(() => {
+    requestLocationPermission();
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* SafeAreaView에서 상단만 보호 */}
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edges={["top"]}>
         <StatusBar translucent backgroundColor="transparent" />
         
-        {/* 기기별 상태 바 높이에 맞춰 자동 조정 */}
         <View style={{ flex: 1, paddingTop: Platform.OS === "ios" ? getStatusBarHeight(true) : 0 }}>
           <Provider store={store}>
             <WebSocketContainer>
@@ -44,7 +70,6 @@ const App: React.FC = () => {
             </WebSocketContainer>
           </Provider>
         </View>
-        
       </SafeAreaView>
     </GestureHandlerRootView>
   );
