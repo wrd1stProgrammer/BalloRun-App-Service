@@ -52,13 +52,16 @@ function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProp
         (position) => {
           const { latitude, longitude } = position.coords;
           socket?.emit('update_location', { orderId, latitude, longitude });
+          console.log("gps로 위치를 받아서 백으로 보냄")
+          console.log(latitude)
+          console.log(longitude)
         },
         (error) => {
           Alert.alert('위치 추적 오류', error.message);
         },
         { enableHighAccuracy: true, distanceFilter: 10, interval: 5000 } // 10m 이상 이동 시 or 5초마다 업데이트
       );
-
+      console.log(id)
       setWatchId(id);
     } catch (error) {
       console.error("Error accepting order:", error);
