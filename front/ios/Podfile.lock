@@ -1687,6 +1687,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNPermissions (5.2.5):
+    - React-Core
   - RNReanimated (3.16.7):
     - DoubleConversion
     - glog
@@ -1884,6 +1886,7 @@ DEPENDENCIES:
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -2071,6 +2074,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/messaging"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -2177,6 +2182,7 @@ SPEC CHECKSUMS:
   RNFBApp: 67229e8085ab427c935defad2a6c3fc57c7f656d
   RNFBMessaging: e485940b19e3cff5eeb0f7f095d480576cbab505
   RNGestureHandler: f6a6630e6bde1a49d1e3fec73b6711f718813538
+  RNPermissions: f500290831d891c5d156e042c229675d747bda3b
   RNReanimated: ba079c678c27818176985f1c35400d4b923bbff3
   RNScreens: 1d383f9ba1866fe58836ac3a8d138918e1f0ffbd
   RNSVG: 3271d86d99e0ff3bc1c6cb74f894bab06a261969
