@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, Platform } from "react-native";
 import { ChatSocketContext } from "../../utils/sockets/ChatSocket";
 
 interface InputProps {
@@ -11,19 +11,14 @@ const Input: React.FC<InputProps> = ({ chatRoomId, onPostMessageHandler }) => {
   const [message, setMessage] = useState("");
   const socket = useContext(ChatSocketContext);
 
-  // 메시지 전송 함수 (WebSocket 활용)
   const handleSend = () => {
     if (message.trim().length > 0 && socket) {
-
-
-      onPostMessageHandler(message); 
-
+      onPostMessageHandler(message);
       socket.emit("sendMessage", {
         chatRoomId,
         message,
       });
-
-      setMessage(""); // 입력 필드 초기화
+      setMessage("");
     }
   };
 
@@ -32,8 +27,10 @@ const Input: React.FC<InputProps> = ({ chatRoomId, onPostMessageHandler }) => {
       <TextInput
         style={styles.input}
         placeholder="메시지를 입력하세요..."
+        placeholderTextColor="#999"
         value={message}
         onChangeText={setMessage}
+        multiline
       />
       <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
         <Text style={styles.sendText}>전송</Text>
@@ -47,22 +44,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
   },
   input: {
     flex: 1,
     padding: 10,
     borderWidth: 1,
-    borderColor: "#CCCCCC",
-    borderRadius: 8,
+    borderColor: "#e0e0e0",
+    borderRadius: 20,
     marginRight: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#f5f5f5",
+    maxHeight: 100,
   },
   sendButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#3797EF",
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 8,
+    borderRadius: 20,
   },
   sendText: {
     color: "#fff",

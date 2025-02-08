@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import TYPOS from './etc/TYPOS';
 import Color from '../../constants/Colors';
+
 interface ChatBubbleProps {
   message: string;
   isSentByMe: boolean;
@@ -54,16 +55,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   sentBubble: {
-    backgroundColor: Color.neutral3,
+    backgroundColor: '#3797EF',
+    borderBottomRightRadius: 4,
   },
   receivedBubble: {
-    backgroundColor: Color.neutral2,
+    backgroundColor: '#EFEFEF',
+    borderBottomLeftRadius: 4,
   },
   sentText: {
-    color: Color.white,
+    color: '#fff',
   },
   receivedText: {
-    color: Color.neutral1,
+    color: '#000',
   },
 });
 
