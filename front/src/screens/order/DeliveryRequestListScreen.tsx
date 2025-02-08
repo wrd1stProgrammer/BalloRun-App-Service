@@ -187,7 +187,7 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
           ]}
           onPress={() => setActiveTab("orders")}
         >
-          <Text style={styles.buttonText}>주문 목록</Text>
+          <Text style={styles.buttonText}>나의 주문 목록</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -196,7 +196,7 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
           ]}
           onPress={() => setActiveTab("deliveries")}
         >
-          <Text style={styles.buttonText}>배달 목록</Text>
+          <Text style={styles.buttonText}>나의 배달 목록</Text>
         </TouchableOpacity>
       </View>
   
