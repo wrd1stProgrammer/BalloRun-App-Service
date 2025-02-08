@@ -36,7 +36,17 @@ module.exports = (chatIo) => {
   // 채팅 연결 및 이벤트 설정
   chatIo.on("connection", (socket) => {
     console.log(`[ChatSocket] User ${socket.user.userId} connected`);
-    
+
+  // Add room management handlers
+  socket.on("joinRoom", ({ roomId }) => {
+    socket.join(roomId);
+    console.log(`[ChatSocket] User ${socket.user.userId} joined room ${roomId}`);
+  });
+
+  socket.on("leaveRoom", ({ roomId }) => {
+    socket.leave(roomId);
+    console.log(`[ChatSocket] User ${socket.user.userId} left room ${roomId}`);
+  });
 
     socket.on("room-list", async ({ token }) => {
       try {
@@ -130,6 +140,7 @@ module.exports = (chatIo) => {
           });
   
           //  3. 해당 채팅방의 모든 사용자에게 메시지 전송
+          // 1.실시간 x 
           chatIo.to(chatRoomId).emit("chatMessage", {
             id: newMessage._id.toString(),
             sender: userId,
@@ -144,7 +155,8 @@ module.exports = (chatIo) => {
               data: {type:"chat", orderId:chatRoomId},
             }
             if (user.fcmToken) {
-              await sendPushNotification(user.fcmToken, notipayload); //임시로 나애게 보내
+              //await sendPushNotification(user.fcmToken, notipayload); //임시로 나애게 보내
+              console.log('ios APNs 설정 안되서 일단 주석');
             } else {
               console.log(`사용자의 FCM 토큰이 없습니다.`);
             }
