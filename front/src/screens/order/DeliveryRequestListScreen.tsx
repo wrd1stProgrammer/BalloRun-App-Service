@@ -41,7 +41,8 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [Allorders, setAllorders] = useState<OrderItem[]>([]);
 
-  console.log(orders)
+  const [activeTab, setActiveTab] = useState<"orders" | "deliveries">("orders");
+
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const user = useAppSelector(selectUser);
@@ -175,34 +176,59 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
       </SafeAreaView>
     );
   }
-
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{user?.username}님의 배달 요청 목록</Text>
-      </View>
-      
+      {/* 주문 목록 & 배달 목록 버튼 */}
       <View style={styles.buttonContainer}>
-      <TouchableOpacity style={styles.button} onPress={() => handleFilter("pending")}>
-        <Text style={styles.buttonText}>수락 대기 중</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button} onPress={() => handleFilter("delivered")}>
-        <Text style={styles.buttonText}>배달중</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
-        <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
-      </TouchableOpacity>
-    </View>
-
-
-      <FlatList
-        data={orders}
-        keyExtractor={(item) => item._id}
-        renderItem={renderOrder}
-        contentContainerStyle={styles.listContent}
-      />
+        <TouchableOpacity
+          style={[
+            styles.button,
+            activeTab === "orders" && styles.activeButton,
+          ]}
+          onPress={() => setActiveTab("orders")}
+        >
+          <Text style={styles.buttonText}>주문 목록</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            activeTab === "deliveries" && styles.activeButton,
+          ]}
+          onPress={() => setActiveTab("deliveries")}
+        >
+          <Text style={styles.buttonText}>배달 목록</Text>
+        </TouchableOpacity>
+      </View>
+  
+      {/* 주문 목록 화면 */}
+      {activeTab === "orders" ? (
+        <>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => handleFilter("pending")}>
+              <Text style={styles.buttonText}>수락 대기 중</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => handleFilter("delivered")}>
+              <Text style={styles.buttonText}>배달중</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
+              <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
+            </TouchableOpacity>
+          </View>
+  
+          <FlatList
+            data={orders}
+            keyExtractor={(item) => item._id}
+            renderItem={renderOrder}
+            contentContainerStyle={styles.listContent}
+          />
+        </>
+      ) : (
+        // 배달 목록 화면
+        <View style={styles.deliveryContainer}>
+          <Text style={styles.deliveryText}>배달 목록 화면입니다.</Text>
+          {/* 배달 목록을 위한 UI 추가 */}
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -210,6 +236,19 @@ const DeliveryRequestListScreen: React.FC = ({ route, navigation }: any) => {
 
 
 const styles = StyleSheet.create({
+  activeButton: {
+    backgroundColor: "#6200ee",
+  },
+  deliveryContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deliveryText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
