@@ -63,9 +63,9 @@ const LiveMap = () => {
         }
   }
 >
-        {deliveryLocation && (
-          <Marker coordinate={deliveryLocation} title="배달원 위치" />
-        )}
+{deliveryLocation !== null && deliveryLocation !== undefined && (
+  <Marker coordinate={deliveryLocation} title="배달원 위치" />
+)}
       </MapView>
     </View>
   );
