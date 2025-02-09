@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Text, View ,SafeAreaView} from 'react-native';
 import TYPOS from '../../componenets/chatting/etc/TYPOS';
 import ChatRoomItem from '../../componenets/chatting/ChatRoomItem';
 import Color from '../../constants/Colors';
@@ -94,7 +94,7 @@ const Chatting:React.FC= () => {
   };
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Color.white }}>
       <View
         style={{
           paddingHorizontal: 24,
@@ -130,7 +130,7 @@ const Chatting:React.FC= () => {
         )}
         ListEmptyComponent={<EmptyList />}
       />
-    </>
+    </SafeAreaView>
   );
 };
 
