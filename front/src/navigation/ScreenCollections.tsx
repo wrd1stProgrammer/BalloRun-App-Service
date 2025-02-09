@@ -14,7 +14,7 @@ import DeliveryRequestListScreen from "../screens/order/DeliveryRequestListScree
 import CafeMenuOption from "../screens/order/CafeMenuOption";
 import SelectDelivery from "../screens/delivery/SelectDelivery";
 import Chatting from "../screens/dash/ChattingScreen";
-import LiveMap from "../screens/order/DeliveryRequestListScreenComponents.tsx/LiveMap";
+import LiveMap from "../screens/order/DeliveryRequestListScreenComponents/LiveMap";
 import ChatRoom from "../componenets/chatting/ChatRoom";
 import KakaoSample from "../screens/dash/KakaoSample";
 // ++ Screen Type ??
