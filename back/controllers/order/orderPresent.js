@@ -74,7 +74,7 @@ const getDeliveryList = async (req, res) => {
   const userId = req.user.userId;
   const redisClient = req.app.get("redisClient");
   const redisCli = redisClient.v4; // Redis v4 클라이언트 사용
-  const cacheKey = `completedOrders:${userId}`;
+  const cacheKey = `completedOrders:delivery:${userId}`;
 
   try {
     // 1. Redis 캐시에서 데이터 확인
@@ -86,8 +86,8 @@ const getDeliveryList = async (req, res) => {
 
     // 2. Redis에 데이터가 없으면 MongoDB에서 조회
     const completedOrders = await Order.find({
-      userId,
-      status: { $in: ["delivered", "cancelled","pending", "matched", "inProgress","accepted"] },
+      riderId: userId,
+//      status: { $ne: "canceled" }, // 취소된 주문은 제외
     }).lean();
 
     // if (!completedOrders || completedOrders.length === 0) {

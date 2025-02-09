@@ -114,15 +114,6 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
           : "완료"}
       </Text>
 
-      {item.status !== "pending" && (
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigate("LiveMap", { orderId: item._id })}
-        >
-          <Text style={styles.buttonText}>배달 위치 확인하기</Text>
-        </TouchableOpacity>
-      )}
-
       <View style={styles.rowFooter}>
         <Text style={styles.deliveryType}>
           {item.deliveryType === "direct" ? "직접 배달" : "음료 보관함"}
@@ -163,11 +154,11 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       </View>
 
       <FlatList
-        data={orders}
-        keyExtractor={(item) => item._id}
-        renderItem={renderOrder}
-        contentContainerStyle={styles.listContent}
-      />
+  data={orders}
+  keyExtractor={(item, index) => item._id ? item._id : `key-${index}`} // ✅ _id가 없으면 index 사용
+  renderItem={renderOrder}
+  contentContainerStyle={styles.listContent}
+/>
     </>
   );
 };
