@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { SafeAreaView, View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import OrderList from "./DeliveryRequestListScreenComponents/OrderList"; // ✅ 경로 수정
+import DeliveryList from "./DeliveryRequestListScreenComponents/DeliveryList";
 
 const DeliveryRequestListScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"orders" | "deliveries">("orders");
@@ -24,9 +25,8 @@ const DeliveryRequestListScreen: React.FC = () => {
       {activeTab === "orders" ? (
         <OrderList activeTab={activeTab}/>
       ) : (
-        <View style={styles.deliveryContainer}>
-          <Text style={styles.deliveryText}>배달 목록 화면입니다.</Text>
-        </View>
+        <DeliveryList activeTab={activeTab}/>
+
       )}
     </SafeAreaView>
   );

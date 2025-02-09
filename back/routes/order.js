@@ -11,6 +11,7 @@ const {
 const {
   getCompletedOrders,
   getOngoingOrders,
+  getDeliveryList
 } = require("../controllers/order/orderPresent");
 
 const router = express.Router();
@@ -20,6 +21,8 @@ router.post('/orderLater',orderLaterDirectCreate);
 // 
 router.get('/getCompletedOrders',getCompletedOrders);
 router.get('/getOngoingOrders',getOngoingOrders);
+router.get('/getDeliveryList',getDeliveryList);
+
 
 
 module.exports = router;
