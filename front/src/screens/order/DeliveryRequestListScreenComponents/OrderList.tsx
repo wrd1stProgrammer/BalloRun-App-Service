@@ -73,12 +73,13 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
   useEffect(() => {
     if (activeTab == "orders"){
         socket?.on("emitMatchTest", fetchOrders);
-        const unsubscribe = navigation.addListener("focus", () => {
-            fetchOrders();
-          });
+        fetchOrders();
+
+            
+         
     
         return () => {
-          unsubscribe();
+          fetchOrders();
           socket?.off("emitMatchTest");
         };
     }
