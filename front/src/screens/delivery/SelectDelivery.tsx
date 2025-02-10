@@ -3,8 +3,9 @@ import DeliveryCustomMap from './SelectDeliveryComponents/DeliveryCustomMap';
 import DeliveryBottomSheet from './SelectDeliveryComponents/DeliveryBottomSheet';
 import { getOrderData } from '../../redux/actions/riderAction';
 import { useAppDispatch } from '../../redux/config/reduxHook';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DeliveryCustomList from './SelectDeliveryComponents/DeliveryCustomList';
+import Geolocation from 'react-native-geolocation-service';
 
 type DeliveryItem = {
   _id: string;
@@ -28,6 +29,10 @@ function SelectDelivery() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
 
+
+  const [userLat, setUserLat] = useState<number>(0);
+  const [userLng, setUserLng] = useState<number>(0);
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -41,6 +46,26 @@ function SelectDelivery() {
 
     fetchOrders();
   }, [dispatch]);
+
+
+  useEffect(() => {
+    //  현재 위치 추적 시작
+    const watchId = Geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLat(latitude);
+        setUserLng(longitude);
+      },
+      (error) => {
+        Alert.alert('위치 추적 오류', error.message);
+      },
+      { enableHighAccuracy: true, interval: 5000, distanceFilter: 10 } // 5초마다 또는 10m 이동 시 업데이트
+    );
+  
+    // 메모리 누수 방지를 위해 언마운트 시 위치 추적 해제
+    return () => Geolocation.clearWatch(watchId);
+  }, []);
+
 
   const handleMarkerSelect = (item: DeliveryItem | null) => {
     setSelectedDeliveryItem(item); // 선택된 주문 설정
@@ -59,6 +84,8 @@ function SelectDelivery() {
     }
     setSelectedDeliveryItem(null); // 선택된 주문 초기화
   };
+
+
 
   return (
     <>
@@ -94,8 +121,8 @@ function SelectDelivery() {
       {isListView ? (
         <DeliveryCustomList
         deliveryItems={deliveryItems}
-        userLat={0}  //임시로 
-        userLng={0}  //임시로 
+        userLat={userLat}  //임시로 
+        userLng={userLng}  //임시로 
         />
       ) : (
         <>
