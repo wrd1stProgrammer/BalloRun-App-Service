@@ -17,6 +17,7 @@ import Chatting from "../screens/dash/ChattingScreen";
 import LiveMap from "../screens/order/DeliveryRequestListScreenComponents/LiveMap";
 import ChatRoom from "../componenets/chatting/ChatRoom";
 import KakaoSample from "../screens/dash/KakaoSample";
+import DeliveryImage from "../screens/order/DeliveryRequestListScreenComponents/DeliveryImage";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -97,6 +98,10 @@ export const deliveryStack = [
   {
     name: "LiveMap",
     component: LiveMap
+  },
+  {
+    name: "DeliveryImage",
+    component: DeliveryImage
   }
 
 ];

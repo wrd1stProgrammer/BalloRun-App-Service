@@ -1,0 +1,161 @@
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Alert
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+
+const DeliveryImage = () => {
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const navigation = useNavigation();
+
+  // 파일 선택 (input을 사용하여 구현)
+  const handleFilePick = async () => {
+    try {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = (event: Event) => {
+        const target = event.target as HTMLInputElement;
+        if (target.files && target.files.length > 0) {
+          const file = target.files[0];
+          const fileReader = new FileReader();
+          
+          fileReader.onload = () => {
+            setImageUri(fileReader.result as string);
+          };
+
+          fileReader.readAsDataURL(file);
+        }
+      };
+      input.click();
+    } catch (error) {
+      console.error("파일 선택 오류:", error);
+      Alert.alert("파일 선택 오류", "파일을 선택하는 중 문제가 발생했습니다.");
+    }
+  };
+
+  // 업로드 버튼 클릭 시 실행
+  const handleSubmit = () => {
+    if (!imageUri) {
+      Alert.alert("사진 업로드 필요", "배달 완료 사진을 업로드해주세요!");
+      return;
+    }
+
+    // 여기에 서버로 이미지 업로드하는 API 호출 추가 가능
+    Alert.alert("업로드 완료", "배달 완료 사진이 업로드되었습니다.");
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* 뒤로가기 버튼 */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="black" />
+      </TouchableOpacity>
+
+      <Text style={styles.title}>배달 완료 사진 업로드</Text>
+
+      <TouchableOpacity style={styles.uploadButton} onPress={handleFilePick}>
+        <Text style={styles.uploadButtonText}>
+          {imageUri ? "사진 변경하기" : "사진 업로드하기"}
+        </Text>
+      </TouchableOpacity>
+
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.preview} />}
+
+      <View style={styles.instructions}>
+        <Text style={styles.instructionTitle}>📌 사진 업로드 주의사항</Text>
+        <Text style={styles.instructionText}>✔️ 상품이 잘 보이도록 촬영해주세요.</Text>
+        <Text style={styles.instructionText}>✔️ 흐릿하거나 잘린 사진은 인정되지 않습니다.</Text>
+        <Text style={styles.instructionText}>✔️ 주문자의 요청 사항을 준수해주세요.</Text>
+      </View>
+
+      <TouchableOpacity
+        style={[styles.submitButton, !imageUri && { backgroundColor: "#ccc" }]}
+        onPress={handleSubmit}
+        disabled={!imageUri}
+      >
+        <Text style={styles.submitButtonText}>사진 제출하기</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+  },
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 20,
+    padding: 8,
+    zIndex: 10,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "#333",
+  },
+  uploadButton: {
+    backgroundColor: "#8A67F8",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  uploadButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  preview: {
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  instructions: {
+    marginTop: 20,
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 8,
+    width: "100%",
+  },
+  instructionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
+  instructionText: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 5,
+  },
+  submitButton: {
+    backgroundColor: "#6200ee",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  submitButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});
+
+export default DeliveryImage;

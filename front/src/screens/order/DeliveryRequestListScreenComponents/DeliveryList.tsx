@@ -119,7 +119,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
             {item.status !== "pending" && (
               <TouchableOpacity
                 style={styles.button}
-//                onPress={() => navigate("LiveMap", { orderId: item._id })}
+                onPress={() => navigate("DeliveryImage")}
               >
                 <Text style={styles.buttonText}>배달 완료 사진 업로드하기</Text>
               </TouchableOpacity>
