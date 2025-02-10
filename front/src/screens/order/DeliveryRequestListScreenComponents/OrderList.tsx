@@ -120,9 +120,9 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
       >
         {item.status === "pending"
           ? "수락 대기 중"
-          : item.status === "matchFailed"
-          ? "배달 요청 실패!"
-          : "완료"}
+          : item.status === "accepted"
+          ? "배달중"
+          : "배달완료"}
       </Text>
 
       {item.status !== "pending" && (
@@ -165,10 +165,10 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
         <TouchableOpacity style={styles.button} onPress={() => handleFilter("pending")}>
           <Text style={styles.buttonText}>수락 대기 중</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("delivered")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
           <Text style={styles.buttonText}>배달중</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter("a")}>
           <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
         </TouchableOpacity>
       </View>

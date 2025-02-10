@@ -31,6 +31,7 @@ interface OrderItem {
   riderRequest: string;
   endTime: string;
   selectedFloor: null | string;
+  updatedAt: string
 }
 
 interface OrderListProps {
@@ -44,13 +45,15 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const navigation = useNavigation(); // ✅ useNavigation 사용
-
+  console.log(orders)
   const fetchOrders = async () => {
     try {
       const completedOrdersResponse = await dispatch(getDeliveryListHandler());
-
-      setOrders(completedOrdersResponse);
-      setAllOrders(completedOrdersResponse);
+      const sortedOrders = completedOrdersResponse.sort(
+        (a: OrderItem, b: OrderItem) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+      setOrders(sortedOrders);
+      setAllOrders(sortedOrders);
     } catch (error) {
       console.error("주문 데이터 가져오기 실패:", error);
       setOrders([]);
@@ -109,20 +112,32 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       >
         {item.status === "pending"
           ? "수락 대기 중"
-          : item.status === "matchFailed"
-          ? "배달 요청 실패!"
-          : "완료"}
+          : item.status === "accepted"
+          ? "배달중"
+          : "배달완료"}
       </Text>
-
+            {item.status !== "pending" && (
+              <TouchableOpacity
+                style={styles.button}
+//                onPress={() => navigate("LiveMap", { orderId: item._id })}
+              >
+                <Text style={styles.buttonText}>배달 완료 사진 업로드하기</Text>
+              </TouchableOpacity>
+            )}
       <View style={styles.rowFooter}>
         <Text style={styles.deliveryType}>
           {item.deliveryType === "direct" ? "직접 배달" : "음료 보관함"}
         </Text>
         <Text style={styles.timeInfo}>{`${format(new Date(item.startTime), "HH:mm")}`}</Text>
         <Text style={styles.timeInfo}>{`${format(new Date(item.endTime), "HH:mm")}`}</Text>
+
       </View>
       <View style={styles.rowFooter}>
+
         <Text style={styles.deliveryFee}>{`${item.deliveryFee}원`}</Text>
+        <Text style={styles.timeInfo}>주문수락시간:{`${formatDistanceToNow(new Date(item.updatedAt), { addSuffix: true, locale: ko })}`}
+        </Text>
+
         <Text style={styles.timeInfo}>{item.riderRequest}</Text>
         <Text style={styles.timeAgo}>
           {`${formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: ko })}`}
@@ -142,13 +157,10 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
   return (
     <>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("pending")}>
-          <Text style={styles.buttonText}>수락 대기 중</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("delivered")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
           <Text style={styles.buttonText}>배달중</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter("완료상태")}>
           <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
         </TouchableOpacity>
       </View>
