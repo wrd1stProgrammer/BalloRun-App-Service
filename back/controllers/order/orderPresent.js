@@ -87,14 +87,9 @@ const getDeliveryList = async (req, res) => {
     // 2. Redis에 데이터가 없으면 MongoDB에서 조회
     const completedOrders = await Order.find({
       riderId: userId,
-//      status: { $ne: "canceled" }, // 취소된 주문은 제외
     }).lean();
 
-    // if (!completedOrders || completedOrders.length === 0) {
-    //   return res.status(404).json({ message: "완료된 주문 내역이 없습니다." });
-    // }
 
-    // 3. Redis에 저장 (TTL: 몇초로 할까? 일단 300sec)
     await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 300 });
     console.log("Redis에 완료된 주문 데이터를 캐싱");
 

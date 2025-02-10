@@ -3,6 +3,8 @@ import DeliveryCustomMap from './SelectDeliveryComponents/DeliveryCustomMap';
 import DeliveryBottomSheet from './SelectDeliveryComponents/DeliveryBottomSheet';
 import { getOrderData } from '../../redux/actions/riderAction';
 import { useAppDispatch } from '../../redux/config/reduxHook';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import DeliveryCustomList from './SelectDeliveryComponents/DeliveryCustomList';
 
 type DeliveryItem = {
   _id: string;
@@ -24,6 +26,9 @@ function SelectDelivery() {
   const [filteredItems, setFilteredItems] = useState<DeliveryItem[]>([]); // 필터링된 주문 데이터
   const [selectedDeliveryItem, setSelectedDeliveryItem] = useState<DeliveryItem | null>(null); // 선택된 주문
   const [loading, setLoading] = useState<boolean>(true);
+  const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
+  
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -58,12 +63,46 @@ function SelectDelivery() {
 
   return (
     <>
-      <DeliveryCustomMap
+      <View style={styles.toggleButtons}>
+        <TouchableOpacity
+          style={[
+            styles.toggleButton,
+            isListView ? styles.activeButton : styles.inactiveButton,
+          ]}
+          onPress={() => setIsListView(true)}
+        >
+          <Text
+            style={isListView ? styles.activeButtonText : styles.inactiveButtonText}
+          >
+            리스트로 보기
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.toggleButton,
+            !isListView ? styles.activeButton : styles.inactiveButton,
+          ]}
+          onPress={() => setIsListView(false)}
+        >
+          <Text
+            style={!isListView ? styles.activeButtonText : styles.inactiveButtonText}
+          >
+            지도로 보기
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {isListView ? (
+        <DeliveryCustomList/>
+      ) : (
+        <DeliveryCustomMap
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
         loading={loading}
         onMarkerSelect={handleMarkerSelect}
         onFilter={handleFilter} // 필터 핸들러 전달
       />
+      )}
+
       <DeliveryBottomSheet
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
         loading={loading}
@@ -71,5 +110,32 @@ function SelectDelivery() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  toggleButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 16,
+  },
+  toggleButton: {
+    flex: 1,
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 8,
+  },
+  activeButton: {
+    backgroundColor: "#6C63FF",
+  },
+  inactiveButton: {
+    backgroundColor: "#E5E7EB",
+  },
+  activeButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  inactiveButtonText: {
+    color: "#6B7280",
+  },
+});
 
 export default SelectDelivery;

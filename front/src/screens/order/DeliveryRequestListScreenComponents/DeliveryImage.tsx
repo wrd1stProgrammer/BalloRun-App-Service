@@ -14,30 +14,7 @@ const DeliveryImage = () => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const navigation = useNavigation();
 
-  // 파일 선택 (input을 사용하여 구현)
   const handleFilePick = async () => {
-    try {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.onchange = (event: Event) => {
-        const target = event.target as HTMLInputElement;
-        if (target.files && target.files.length > 0) {
-          const file = target.files[0];
-          const fileReader = new FileReader();
-          
-          fileReader.onload = () => {
-            setImageUri(fileReader.result as string);
-          };
-
-          fileReader.readAsDataURL(file);
-        }
-      };
-      input.click();
-    } catch (error) {
-      console.error("파일 선택 오류:", error);
-      Alert.alert("파일 선택 오류", "파일을 선택하는 중 문제가 발생했습니다.");
-    }
   };
 
   // 업로드 버튼 클릭 시 실행
