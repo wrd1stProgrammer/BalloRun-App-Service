@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList, Alert } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { acceptActionHandler } from '../../../redux/actions/riderAction';
@@ -44,7 +44,7 @@ function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProp
 
       setTracking(true);
       
-      // 서버에 트래킹 시작 요청 (배달원 ID 없이 orderId만 보냄)
+      // 서버에 트래킹 시작 요청
       socket?.emit('start_tracking', { orderId });
 
       // 위치 추적 시작
@@ -77,36 +77,42 @@ function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProp
     }
   };
 
+  // 배달 아이템 렌더링 함수
+  const renderItem = ({ item }: { item: DeliveryItem }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.cafeName}>{item.items[0]?.cafeName || '카페 이름'}</Text>
+      </View>
+      <Text style={styles.address}>{item.address || '배달 주소'}</Text>
+      <View style={styles.cardBody}>
+        <Text style={styles.deliveryType}>{item.deliveryType || '배달 유형'}</Text>
+        <Text style={styles.time}>{new Date(item.endTime).toLocaleTimeString()} 만료 시간</Text>
+      </View>
+      <View style={styles.footer}>
+        <TouchableOpacity 
+          onPress={() => acceptHandler(item._id)} 
+          style={[styles.button, tracking && styles.disabledButton]}
+          disabled={tracking}
+        >
+          <Text style={styles.buttonText}>{tracking ? "배달 중..." : "수락하기"}</Text>
+        </TouchableOpacity>
+        <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
+      </View>
+    </View>
+  );
+
   return (
     <BottomSheet snapPoints={['25%', '50%', '90%']}>
       <View style={styles.container}>
         {loading ? (
           <ActivityIndicator size="large" color="#6610f2" />
         ) : (
-          <ScrollView>
-            {deliveryItems.map((item) => (
-              <View key={item._id} style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <Text style={styles.cafeName}>{item.items[0]?.cafeName || '카페 이름'}</Text>
-                </View>
-                <Text style={styles.address}>{item.address || '배달 주소'}</Text>
-                <View style={styles.cardBody}>
-                  <Text style={styles.deliveryType}>{item.deliveryType || '배달 유형'}</Text>
-                  <Text style={styles.time}>{new Date(item.endTime).toLocaleTimeString()} 만료 시간</Text>
-                </View>
-                <View style={styles.footer}>
-                  <TouchableOpacity 
-                    onPress={() => acceptHandler(item._id)} 
-                    style={[styles.button, tracking && styles.disabledButton]}
-                    disabled={tracking}
-                  >
-                    <Text style={styles.buttonText}>{tracking ? "배달 중..." : "수락하기"}</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
+          <FlatList
+            data={deliveryItems}
+            renderItem={renderItem}
+            keyExtractor={(item) => item._id}
+            showsVerticalScrollIndicator={false}
+          />
         )}
       </View>
     </BottomSheet>

@@ -27,7 +27,6 @@ function SelectDelivery() {
   const [selectedDeliveryItem, setSelectedDeliveryItem] = useState<DeliveryItem | null>(null); // 선택된 주문
   const [loading, setLoading] = useState<boolean>(true);
   const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
-  
 
   const dispatch = useAppDispatch();
 
@@ -93,20 +92,26 @@ function SelectDelivery() {
       </View>
 
       {isListView ? (
-        <DeliveryCustomList/>
+        <DeliveryCustomList
+        deliveryItems={deliveryItems}
+        userLat={0}  //임시로 
+        userLng={0}  //임시로 
+        />
       ) : (
+        <>
         <DeliveryCustomMap
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
         loading={loading}
         onMarkerSelect={handleMarkerSelect}
         onFilter={handleFilter} // 필터 핸들러 전달
       />
-      )}
-
       <DeliveryBottomSheet
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
         loading={loading}
       />
+      </>
+      )}
+
     </>
   );
 }
