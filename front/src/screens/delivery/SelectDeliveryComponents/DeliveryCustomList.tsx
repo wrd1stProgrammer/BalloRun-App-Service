@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  Image,
   TextInput,
   StyleSheet,
 } from "react-native";
@@ -13,7 +12,7 @@ type DeliveryItem = {
   _id: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
   address: string;
-  deliveryType: string; // 주문 유형
+  deliveryType: "direct" | "cupholder" | any; // 🔥 배달 유형 추가
   startTime: string;
   deliveryFee: number;
   cafeLogo: string;
@@ -48,6 +47,7 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
   const [sortedItems, setSortedItems] = useState<DeliveryItem[]>([]);
   const [sortCriteria, setSortCriteria] = useState<"distance" | "price">("distance");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDeliveryType, setSelectedDeliveryType] = useState<"all" | "direct" | "cupholder">("all");
 
   useEffect(() => {
     let filteredItems = [...deliveryItems];
@@ -59,7 +59,12 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
       );
     }
 
-    // 2️⃣ 정렬 적용 (거리순 또는 가격순)
+    // 2️⃣ 배달 유형 필터링 (direct / cupholder / all)
+    if (selectedDeliveryType !== "all") {
+      filteredItems = filteredItems.filter((item) => item.deliveryType === selectedDeliveryType);
+    }
+
+    // 3️⃣ 정렬 적용 (거리순 또는 가격순)
     if (sortCriteria === "distance") {
       filteredItems.sort((a, b) => {
         const distanceA = getDistance(userLat, userLng, parseFloat(a.lat), parseFloat(a.lng));
@@ -67,11 +72,11 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
         return distanceA - distanceB;
       });
     } else if (sortCriteria === "price") {
-      filteredItems.sort((a, b) => a.deliveryFee - b.deliveryFee);
+      filteredItems.sort((a, b) => b.deliveryFee - a.deliveryFee);
     }
 
     setSortedItems(filteredItems);
-  }, [sortCriteria, searchQuery, deliveryItems, userLat, userLng]);
+  }, [sortCriteria, searchQuery, selectedDeliveryType, deliveryItems, userLat, userLng]);
 
   const renderItem = ({ item }: { item: DeliveryItem }) => {
     const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
@@ -81,7 +86,7 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
         <View style={styles.itemDetails}>
           <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
           <Text style={styles.menu}>{item.items.map(i => `${i.menuName} x${i.quantity}`).join(", ")}</Text>
-          <Text style={styles.info}>배달 유형: {item.deliveryType}</Text>
+          <Text style={styles.info}>배달 유형: {item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
           <Text style={styles.info}>거리: {distance} km</Text>
           <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>
         </View>
@@ -99,23 +104,45 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
         onChangeText={(text) => setSearchQuery(text)}
       />
 
-      {/* 2️⃣ 정렬 옵션 버튼 */}
+      {/* 2️⃣ 배달 유형 필터 */}
+      <View style={styles.deliveryTypeOptions}>
+        <TouchableOpacity
+          style={[styles.deliveryTypeButton, selectedDeliveryType === "all" && styles.activeButton]}
+          onPress={() => setSelectedDeliveryType("all")}
+        >
+          <Text style={styles.buttonText}>전체</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.deliveryTypeButton, selectedDeliveryType === "direct" && styles.activeButton]}
+          onPress={() => setSelectedDeliveryType("direct")}
+        >
+          <Text style={styles.buttonText}>직접 배달</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.deliveryTypeButton, selectedDeliveryType === "cupholder" && styles.activeButton]}
+          onPress={() => setSelectedDeliveryType("cupholder")}
+        >
+          <Text style={styles.buttonText}>컵홀더 배달</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 3️⃣ 정렬 옵션 버튼 */}
       <View style={styles.sortOptions}>
         <TouchableOpacity
           style={[styles.sortButton, sortCriteria === "distance" && styles.activeButton]}
           onPress={() => setSortCriteria("distance")}
         >
-          <Text style={styles.sortText}>거리순</Text>
+          <Text style={styles.buttonText}>거리순</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.sortButton, sortCriteria === "price" && styles.activeButton]}
           onPress={() => setSortCriteria("price")}
         >
-          <Text style={styles.sortText}>가격순</Text>
+          <Text style={styles.buttonText}>가격순</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 3️⃣ 리스트 출력 */}
+      {/* 4️⃣ 리스트 출력 */}
       <FlatList
         data={sortedItems}
         renderItem={renderItem}
@@ -141,6 +168,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginVertical: 10,
   },
+  deliveryTypeOptions: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+  deliveryTypeButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: "#e5e7eb",
+  },
   sortOptions: {
     flexDirection: "row",
     justifyContent: "center",
@@ -155,6 +194,10 @@ const styles = StyleSheet.create({
   },
   activeButton: {
     backgroundColor: "#6C63FF",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
   sortText: {
     color: "#fff",
