@@ -16,8 +16,9 @@ import SelectDelivery from "../screens/delivery/SelectDelivery";
 import Chatting from "../screens/dash/ChattingScreen";
 import LiveMap from "../screens/order/DeliveryRequestListScreenComponents/LiveMap";
 import ChatRoom from "../componenets/chatting/ChatRoom";
-import KakaoSample from "../screens/dash/KakaoSample";
+import KakaoSample from "../screens/dash/KakaoPayApiTest/KakaoSample";
 import DeliveryImage from "../screens/order/DeliveryRequestListScreenComponents/DeliveryImage";
+import PayResult from "../screens/dash/KakaoPayApiTest/PayResult";
 // ++ Screen Type ??
 
 // ++ New Screen Stack
@@ -65,6 +66,10 @@ export const dashboardStack = [
     name: "KakaoSample",
     component: KakaoSample,
   },
+  {
+    name: "PayResult",
+    component: PayResult,
+  }
 ];
 
 export const orderStack = [
