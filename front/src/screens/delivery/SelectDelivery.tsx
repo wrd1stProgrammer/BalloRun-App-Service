@@ -121,8 +121,8 @@ function SelectDelivery() {
       {isListView ? (
         <DeliveryCustomList
         deliveryItems={deliveryItems}
-        userLat={userLat}  //임시로 
-        userLng={userLng}  //임시로 
+        userLat={userLat}  
+        userLng={userLng}  
         />
       ) : (
         <>
@@ -131,6 +131,7 @@ function SelectDelivery() {
         loading={loading}
         onMarkerSelect={handleMarkerSelect}
         onFilter={handleFilter} // 필터 핸들러 전달
+
       />
       <DeliveryBottomSheet
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}

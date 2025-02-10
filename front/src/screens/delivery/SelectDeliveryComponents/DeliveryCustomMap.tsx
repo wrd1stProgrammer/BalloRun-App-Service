@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MapView, { Marker } from "react-native-maps";
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Text, StyleSheet, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack } from "../../../navigation/NavigationUtils";
+import Geolocation from "react-native-geolocation-service";
 
 type DeliveryItem = {
   _id: string;
@@ -16,7 +17,7 @@ type DeliveryItem = {
   endTime: string;
   lat: string;
   lng: string;
-  isReservation:boolean;
+  isReservation: boolean;
 };
 
 type DeliveryCustomMapProps = {
@@ -27,25 +28,66 @@ type DeliveryCustomMapProps = {
 };
 
 function DeliveryCustomMap({ deliveryItems, loading, onMarkerSelect, onFilter }: DeliveryCustomMapProps) {
+  // 현재 위치 상태 관리
+  const [userLat, setUserLat] = useState<number | null>(null);
+  const [userLng, setUserLng] = useState<number | null>(null);
+
+  useEffect(() => {
+    // 사용자의 현재 위치 가져오기
+    Geolocation.getCurrentPosition(
+      (position) => {
+        setUserLat(position.coords.latitude);
+        setUserLng(position.coords.longitude);
+      },
+      (error) => {
+        Alert.alert("위치 가져오기 실패", error.message);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  }, []);
+
   const handleMarkerPress = (item: DeliveryItem) => {
     onMarkerSelect(item); // 선택된 주문 전달
   };
 
   return (
     <View style={{ flex: 1 }}>
-      
+      {/* 뒤로 가기 버튼 */}
       <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
+        <Ionicons name="arrow-back" size={24} color="black" />
+      </TouchableOpacity>
+
+      {/* 지도 화면 */}
       <MapView
         style={{ flex: 1 }}
-        initialRegion={{
-          latitude: 35.1767,
-          longitude: 126.9085,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
+        region={
+          userLat && userLng
+            ? {
+                latitude: userLat,
+                longitude: userLng,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }
+            : {
+                latitude: 35.1767, // 기본 위치 (사용자 위치가 없을 경우)
+                longitude: 126.9085,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }
+        }
       >
+        {userLat && userLng && (
+          <Marker
+            coordinate={{
+              latitude: userLat,
+              longitude: userLng,
+            }}
+            title="내 위치"
+            description="현재 위치입니다."
+            pinColor="blue" 
+          />
+        )}
+
         {deliveryItems.map((item) => (
           <Marker
             key={item._id}
@@ -86,12 +128,11 @@ const styles = StyleSheet.create({
     right: 20,
     alignItems: "flex-end",
   },
- 
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 16,
     left: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
     borderRadius: 20,
     padding: 8,
     zIndex: 10,
