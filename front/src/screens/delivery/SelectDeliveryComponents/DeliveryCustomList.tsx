@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,13 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  Alert,
 } from "react-native";
+import { token_storage } from "../../../redux/config/storage";
+import { MapSocketContext } from "../../../utils/sockets/MapSocket";
+import { useAppDispatch } from "../../../redux/config/reduxHook";
+import { acceptActionHandler } from "../../../redux/actions/riderAction";
+import Geolocation from 'react-native-geolocation-service';
 
 type DeliveryItem = {
   _id: string;
@@ -43,11 +49,76 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * c; // 거리 (km)
 }
 
+
+
+
+
+
+
+
 function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomListProps) {
   const [sortedItems, setSortedItems] = useState<DeliveryItem[]>([]);
   const [sortCriteria, setSortCriteria] = useState<"distance" | "price">("distance");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDeliveryType, setSelectedDeliveryType] = useState<"all" | "direct" | "cupholder">("all");
+
+
+
+//여기서부터 수락 눌렀을때
+const socket = useContext(MapSocketContext);
+const [tracking, setTracking] = useState(false);
+const dispatch = useAppDispatch();
+
+// 위치 추적 ID 저장 (해제할 때 필요)
+const [watchId, setWatchId] = useState<number | null>(null);
+
+const acceptHandler = async (orderId: string) => {
+    try {
+      const access_token = token_storage.getString('access_token');
+      console.log(orderId, 'id logging');
+
+      // 주문 수락 요청
+      const dummyRes = await dispatch(acceptActionHandler(orderId));
+      console.log(dummyRes);
+
+      setTracking(true);
+      
+      // 서버에 트래킹 시작 요청
+      socket?.emit('start_tracking', { orderId });
+
+      // 위치 추적 시작
+      const id = Geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          socket?.emit('update_location', { orderId, latitude, longitude });
+          console.log("gps로 위치를 받아서 백으로 보냄")
+          console.log(latitude)
+          console.log(longitude)
+        },
+        (error) => {
+          Alert.alert('위치 추적 오류', error.message);
+        },
+        { enableHighAccuracy: true, interval: 1000 } // 10m 이상 이동 시 or 5초마다 업데이트
+      );
+      console.log(id)
+      setWatchId(id);
+    } catch (error) {
+      console.error("Error accepting order:", error);
+    }
+  };
+
+  // 위치 추적 정지 (필요한 경우)
+  const stopTracking = () => {
+    if (watchId !== null) {
+      Geolocation.clearWatch(watchId);
+      setWatchId(null);
+      setTracking(false);
+    }
+  };
+
+
+
+
 
   useEffect(() => {
     let filteredItems = [...deliveryItems];
@@ -90,6 +161,15 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
           <Text style={styles.info}>거리: {distance} km</Text>
           <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>
         </View>
+        <View style={styles.footer}>
+                <TouchableOpacity 
+                  onPress={() => acceptHandler(item._id)} 
+                  style={[styles.button, tracking && styles.disabledButton]}
+                  disabled={tracking}
+                >
+                  <Text style={styles.buttonText}>{tracking ? "배달 중..." : "수락하기"}</Text>
+                </TouchableOpacity>
+              </View>
       </View>
     );
   };
@@ -237,5 +317,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 4,
     color: "#6C63FF",
+  },
+  button: {
+    backgroundColor: '#6610f2',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#bbb',
   },
 });
