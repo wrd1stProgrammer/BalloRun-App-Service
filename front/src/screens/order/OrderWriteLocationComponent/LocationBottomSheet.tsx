@@ -79,7 +79,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
   const [floor, setfloor] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   // CustomMapView에서 선택한 층이이  여기가 선택한층인듯?
-  console.log(selectedFloor)
+
 
   useEffect(() => {
     if (!reservationChecked) {
@@ -119,6 +119,7 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
       }
 
       const isMatch = false;
+      console.log(menu.items)
       if (reservationChecked) {
         console.log("지금배달 액션");
         await dispatch(
@@ -132,7 +133,10 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             deliveryMethod,
             Number(deliveryFee),
             deliveryRequest,
-            selectedFloor //선택한 층을 보내야 함함
+            selectedFloor, //선택한 층을 보내야 함함
+
+            menu.price,
+            menu.quantitiy
           )
         );
       } else {
@@ -148,7 +152,10 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
             deliveryMethod,
             Number(deliveryFee),
             deliveryRequest,
-            selectedFloor //선택한 층을 보내야 함함
+            selectedFloor, //선택한 층을 보내야 함함
+
+            menu.price,
+            menu.quantitiy
           )
         );
       }

@@ -18,7 +18,9 @@ export const orderNowHandler = (
   deliveryType: 'direct' | 'cupHolder',
   deliveryFee: Number,
   riderRequest: string,
-  selectedFloor: string | null
+  selectedFloor: string | null,
+  price: number | null,
+  quantity: number | null
 ) => async (dispatch: any) => {
   try {
     const res = await appAxios.post(`/order/orderNow`, {
@@ -31,7 +33,9 @@ export const orderNowHandler = (
       deliveryType,
       deliveryFee,
       riderRequest,
-      selectedFloor //선택한 층을 받아야 함함
+      selectedFloor, //선택한 층을 받아야 함함
+      price,
+      quantity
     });
 
         // 주문 성공 시 상태 초기화
@@ -56,7 +60,9 @@ export const orderNowHandler = (
     deliveryType: 'direct' | 'cupHolder' ,
     deliveryFee: Number,
     riderRequest: string,
-    selectedFloor: string | null
+    selectedFloor: string | null,
+    price: number | null,
+    quantity: number | null
 
   ) => async (dispatch: any) => {
     try {
@@ -70,7 +76,9 @@ export const orderNowHandler = (
         endTime,     //끝나느시간간
         deliveryFee,
         riderRequest,
-        selectedFloor      //선택한 층을 받아야 함함
+        selectedFloor,      //선택한 층을 받아야 함함
+        price,
+        quantity
       });
 
               // 주문 성공 시 상태 초기화

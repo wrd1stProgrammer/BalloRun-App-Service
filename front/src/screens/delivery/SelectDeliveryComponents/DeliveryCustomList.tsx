@@ -21,6 +21,7 @@ type DeliveryItem = {
   deliveryType: "direct" | "cupholder" | any; // 🔥 배달 유형 추가
   startTime: string;
   deliveryFee: number;
+  price: number;
   cafeLogo: string;
   createdAt: string;
   endTime: string;
@@ -160,6 +161,7 @@ const acceptHandler = async (orderId: string) => {
           <Text style={styles.info}>배달 유형: {item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
           <Text style={styles.info}>거리: {distance} km</Text>
           <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>
+          <Text style={styles.price}>음료가격: {item.price}원</Text>
         </View>
         <View style={styles.footer}>
                 <TouchableOpacity 

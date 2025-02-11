@@ -13,6 +13,7 @@ const OrderSchema = new mongoose.Schema(
           imageUrl: { type: String }, // Cloudinary URL
           RequiredOption: { type: String, required: true }, // 필수 옵션
           AdditionalOptions: { type: [String], required: false }, // 추가 옵션
+          quantity: {type: Number}
         },
       ],
       required: true,
@@ -40,7 +41,9 @@ const OrderSchema = new mongoose.Schema(
     isReservation: {
       type: Boolean,
       default: false,
-    }
+    },
+    price:{type:Number},
+    quantity:{type:Number},
   },
   {
     timestamps: true, // createdAt, updatedAt 자동 생성

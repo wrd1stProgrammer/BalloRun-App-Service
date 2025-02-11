@@ -33,7 +33,9 @@ const orderNowDirectCreate = async (req, res) => {
         startTime,
         endTime, 
         riderRequest, // 배달원 요청사항
-        selectedFloor
+        selectedFloor,
+        price,
+        quantity 
       });
 // 메시지 큐에 전송
 channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
