@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { MapSocketContext } from "../../../utils/sockets/MapSocket";
 import { useRoute } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { goBack } from "../../../navigation/NavigationUtils";
 
 
 
@@ -45,6 +47,9 @@ const LiveMap = () => {
 
   return (
     <View style={styles.container}>
+            <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
+        <Ionicons name="arrow-back" size={24} color="black" />
+      </TouchableOpacity>
 <MapView
   style={styles.map}
   region={
@@ -77,6 +82,15 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  backButton: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 20,
+    padding: 8,
+    zIndex: 10,
   },
 });
 
