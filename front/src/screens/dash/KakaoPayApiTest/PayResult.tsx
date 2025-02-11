@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
-// 네비게이션 타입 정의
 type RootStackParamList = {
   PayResult: { pgToken: string };
   PaymentComplete: { data: KakaoPaymentApprovalResponse };
@@ -20,7 +19,6 @@ interface PayResultProps {
   navigation: PayResultNavigationProp;
 }
 
-// 카카오 결제 승인 응답 타입
 interface KakaoPaymentApprovalResponse {
   aid: string;
   tid: string;
@@ -42,7 +40,7 @@ const PayResult: React.FC<PayResultProps> = ({ route, navigation }) => {
           throw new Error('TID not found');
         }
 
-        const response: AxiosResponse<KakaoPaymentApprovalResponse> = await axios.post(
+        const response = await axios.post<KakaoPaymentApprovalResponse>(
           'https://open-api.kakaopay.com/online/v1/payment/approve',
           {
             cid: 'TC0ONETIME',
@@ -53,21 +51,25 @@ const PayResult: React.FC<PayResultProps> = ({ route, navigation }) => {
           },
           {
             headers: {
-                Authorization: 'SECRET_KEY DEV207E038DDC08485749249AE59767ACB3A6CF7', // admin
-              'Content-Type': 'application/json', // ?
+              Authorization: 'SECRET_KEY DEV207E038DDC08485749249AE59767ACB3A6CF7',
+              'Content-Type': 'application/json',
             },
           }
         );
 
-        // navigation.replace('PaymentComplete', { data: response.data });
+        navigation.replace('PaymentComplete', { data: response.data });
+
+        // 결제 완료 후 tid 삭제
+        await AsyncStorage.removeItem('tid');
+        
       } catch (error) {
         console.error('결제 승인 오류:', error);
-        // navigation.replace('PaymentError');
+        navigation.replace('PaymentError');
       }
     };
 
     completePayment();
-  }, []);
+  }, [pgToken, navigation]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>
