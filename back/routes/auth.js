@@ -21,7 +21,7 @@ router.post("/saveFcmToken",saveFcmToken);
 router.post("/kakaologin",kakaologin);
 
 //mail router 
-router.post("/verifyEamil",sendEmail);
+router.post("/verifyEmail",sendEmail);
 module.exports = router;
 
 

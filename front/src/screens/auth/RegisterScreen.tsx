@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity, Text as RNText } from 'react-native';
 import { Text, TextInput, Button, Checkbox, useTheme, IconButton } from 'react-native-paper';
 import { useAppDispatch } from '../../redux/config/reduxHook';
 import { register, verifyEmail } from '../../redux/actions/userAction';
 import { useNavigation } from '@react-navigation/native';
 import { resetAndNavigate } from '../../navigation/NavigationUtils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const RegisterScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -17,21 +19,61 @@ const RegisterScreen: React.FC = () => {
   const [isTermsChecked, setIsTermsChecked] = useState(false);
   const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(0); // 5분 타이머 (초 단위)
+  const [serverVerificationCode, setServerVerificationCode] = useState(''); // 서버에서 받은 인증 코드 저장
 
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const loadStoredData = async () => {
+      try {
+        const storedCode = await AsyncStorage.getItem('verificationCode');
+        const storedTimer = await AsyncStorage.getItem('verificationTimer');
+        if (storedCode) setServerVerificationCode(storedCode);
+        if (storedTimer) setTimer(parseInt(storedTimer, 10));
+      } catch (error) {
+        console.error('Failed to load stored data:', error);
+      }
+    };
+    loadStoredData();
+  }, []);
+
+
+  // 타이머 효과
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prev) => {
+          const newTime = prev - 1;
+          AsyncStorage.setItem('verificationTimer', newTime.toString());
+          return newTime;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    } else {
+      AsyncStorage.removeItem('verificationCode');
+      AsyncStorage.removeItem('verificationTimer');
+    }
+  }, [timer]);
 
   const handleEmailVerification = async () => {
     if (!email) {
       Alert.alert('오류', '이메일을 입력해주세요.');
       return;
     }
-
     try {
-      const code = await dispatch(verifyEmail(email));
-      Alert.alert('인증 코드 발송', '이메일로 인증 코드가 발송되었습니다.');
-      setVerificationCode(code);
+      const response = await dispatch(verifyEmail(email));
+      if (response.message === "이미 존재하는 이메일입니다.") {
+        Alert.alert('오류', '이미 존재하는 이메일입니다.');
+        return;
+      }
+      setServerVerificationCode(response.verificationCode);
+      setTimer(300);
+      await AsyncStorage.setItem('verificationCode', response.verificationCode);
+      await AsyncStorage.setItem('verificationTimer', '300');
+      Alert.alert('인증 코드 발송', '이메일로 인증 코드가 발송되었습니다. 5분 내에 입력해주세요.');
     } catch (error) {
       Alert.alert('오류', '이메일 인증 코드 발송에 실패했습니다.');
     }
@@ -42,15 +84,16 @@ const RegisterScreen: React.FC = () => {
       Alert.alert('오류', '인증 코드를 입력해주세요.');
       return;
     }
-
-    if (verificationCode === verificationCode) {
+    if (verificationCode === serverVerificationCode) {
       setIsEmailVerifyReady(true);
+      setTimer(0);
       Alert.alert('성공', '이메일 인증이 완료되었습니다.');
     } else {
       Alert.alert('오류', '인증 코드가 일치하지 않습니다.');
     }
   };
 
+  // 비밀번호 확인
   const handlePasswordConfirmation = () => {
     if (password.trim() === '') {
       Alert.alert('오류', '비밀번호를 입력해주세요.');
@@ -61,6 +104,7 @@ const RegisterScreen: React.FC = () => {
     setIsPasswordConfirmed(true);
   };
 
+  // 회원가입 처리
   const handleRegister = async () => {
     if (!isEmailVerifyReady) {
       Alert.alert('이메일 인증', '이메일 인증을 완료해주세요.');
@@ -105,8 +149,8 @@ const RegisterScreen: React.FC = () => {
         style={styles.input}
         placeholder="email@example.com"
       />
-      <Button mode="contained" onPress={handleEmailVerification} style={styles.button}>
-        이메일 인증 요청
+      <Button mode="contained" onPress={handleEmailVerification} style={styles.button} disabled={timer > 0}>
+        {timer > 0 ? `재전송 가능 (${Math.floor(timer / 60)}:${timer % 60 < 10 ? `0${timer % 60}` : timer % 60})` : '이메일 인증 요청'}
       </Button>
 
       {/* 인증 코드 입력 */}
@@ -119,7 +163,7 @@ const RegisterScreen: React.FC = () => {
         style={styles.input}
         placeholder="이메일로 받은 인증 코드를 입력해주세요"
       />
-      <Button mode="contained" onPress={handleVerificationCodeCheck} style={styles.button}>
+      <Button mode="contained" onPress={handleVerificationCodeCheck} style={styles.button} disabled={timer === 0}>
         인증 코드 확인
       </Button>
 

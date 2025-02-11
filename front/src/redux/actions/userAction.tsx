@@ -86,10 +86,11 @@ export const verifyEmail = (email:string) => async (dispatch: any) => {
     const res = await appAxios.post('/auth/verifyEmail',{
       email:email, 
     });
-    return res.data; // 6자리 난수 리턴. 이걸로 검증
+    console.log(res);
+    return res.data.verificationCode; // 6자리 난수 리턴. 이걸로 검증
     
   } catch (error: any) {
-    console.log('PROFILE ->', error);
+    console.log('verify error ->', error);
   }
 };
 

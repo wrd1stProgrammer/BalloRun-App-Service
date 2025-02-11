@@ -24,7 +24,7 @@ const sendEmail = async (req, res) => {
         // 📌이메일 중복 체크
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: "이미 존재하는 이메일입니다." });
+            return res.status(200).json({ message: "이미 존재하는 이메일입니다." });
         }
 
         //  6자리 인증 코드 생성
