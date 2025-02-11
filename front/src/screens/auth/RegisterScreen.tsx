@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity, Text as RNText } from 'react-native';
 import { Text, TextInput, Button, Checkbox, useTheme, IconButton } from 'react-native-paper';
 import { useAppDispatch } from '../../redux/config/reduxHook';
-import { register } from '../../redux/actions/userAction';
+import { register, verifyEmail } from '../../redux/actions/userAction';
 import { useNavigation } from '@react-navigation/native';
 import { resetAndNavigate } from '../../navigation/NavigationUtils';
 
 const RegisterScreen: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [isEmailVerifyReady, setIsEmailVerifyReady] = useState(false);
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,6 +22,35 @@ const RegisterScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation();
 
+  const handleEmailVerification = async () => {
+    if (!email) {
+      Alert.alert('오류', '이메일을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const code = await dispatch(verifyEmail(email));
+      Alert.alert('인증 코드 발송', '이메일로 인증 코드가 발송되었습니다.');
+      setVerificationCode(code);
+    } catch (error) {
+      Alert.alert('오류', '이메일 인증 코드 발송에 실패했습니다.');
+    }
+  };
+
+  const handleVerificationCodeCheck = () => {
+    if (verificationCode.trim() === '') {
+      Alert.alert('오류', '인증 코드를 입력해주세요.');
+      return;
+    }
+
+    if (verificationCode === verificationCode) {
+      setIsEmailVerifyReady(true);
+      Alert.alert('성공', '이메일 인증이 완료되었습니다.');
+    } else {
+      Alert.alert('오류', '인증 코드가 일치하지 않습니다.');
+    }
+  };
+
   const handlePasswordConfirmation = () => {
     if (password.trim() === '') {
       Alert.alert('오류', '비밀번호를 입력해주세요.');
@@ -31,6 +62,11 @@ const RegisterScreen: React.FC = () => {
   };
 
   const handleRegister = async () => {
+    if (!isEmailVerifyReady) {
+      Alert.alert('이메일 인증', '이메일 인증을 완료해주세요.');
+      return;
+    }
+
     if (!isTermsChecked) {
       Alert.alert('약관 동의', '회원가입을 진행하려면 약관에 동의해주세요.');
       return;
@@ -46,7 +82,7 @@ const RegisterScreen: React.FC = () => {
     try {
       await dispatch(register(email, userId, password, username));
       Alert.alert('회원가입 성공', '회원가입이 완료되었습니다!');
-      resetAndNavigate('LoginScreen');4
+      resetAndNavigate('LoginScreen');
     } catch (error) {
       Alert.alert('오류', '회원가입에 실패했습니다.');
     } finally {
@@ -69,6 +105,23 @@ const RegisterScreen: React.FC = () => {
         style={styles.input}
         placeholder="email@example.com"
       />
+      <Button mode="contained" onPress={handleEmailVerification} style={styles.button}>
+        이메일 인증 요청
+      </Button>
+
+      {/* 인증 코드 입력 */}
+      <TextInput
+        label="인증 코드"
+        mode="flat"
+        value={verificationCode}
+        onChangeText={setVerificationCode}
+        keyboardType="numeric"
+        style={styles.input}
+        placeholder="이메일로 받은 인증 코드를 입력해주세요"
+      />
+      <Button mode="contained" onPress={handleVerificationCodeCheck} style={styles.button}>
+        인증 코드 확인
+      </Button>
 
       {/* 아이디 입력 */}
       <TextInput
@@ -147,8 +200,8 @@ const RegisterScreen: React.FC = () => {
         mode="contained"
         onPress={handleRegister}
         loading={loading}
-        disabled={!isTermsChecked || loading}
-        style={[styles.button, !isTermsChecked && styles.disabledButton]}
+        disabled={!isTermsChecked || !isEmailVerifyReady || loading}
+        style={[styles.button, (!isTermsChecked || !isEmailVerifyReady) && styles.disabledButton]}
       >
         동의하고 회원가입
       </Button>

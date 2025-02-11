@@ -81,6 +81,18 @@ export const register = (email:string, userId:string, password:string, username:
   }
 };
 
+export const verifyEmail = (email:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/auth/verifyEmail',{
+      email:email, 
+    });
+    return res.data; // 6자리 난수 리턴. 이걸로 검증
+    
+  } catch (error: any) {
+    console.log('PROFILE ->', error);
+  }
+};
+
 
 export const refetchUser = () => async (dispatch: any) => {
   try {
