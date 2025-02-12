@@ -132,11 +132,14 @@ function SelectDelivery() {
         loading={loading}
         onMarkerSelect={handleMarkerSelect}
         onFilter={handleFilter} // 필터 핸들러 전달
-
+        userLat={userLat}
+        userLng={userLng}
       />
       <DeliveryBottomSheet
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
         loading={loading}
+        userLat={userLat}
+        userLng={userLng}
       />
       </>
       )}

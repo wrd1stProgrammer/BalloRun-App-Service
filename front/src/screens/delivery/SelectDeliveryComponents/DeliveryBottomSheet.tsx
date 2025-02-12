@@ -22,9 +22,11 @@ type DeliveryItem = {
 type DeliveryBottomSheetProps = {
   deliveryItems: DeliveryItem[];
   loading: boolean;
+  userLat: number;
+  userLng: number;
 };
 
-function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProps): JSX.Element {
+function DeliveryBottomSheet({ deliveryItems, loading, userLat, userLng }: DeliveryBottomSheetProps): JSX.Element {
   const socket = useContext(MapSocketContext);
   const [tracking, setTracking] = useState(false);
   const dispatch = useAppDispatch();
@@ -48,21 +50,12 @@ function DeliveryBottomSheet({ deliveryItems, loading }: DeliveryBottomSheetProp
       socket?.emit('start_tracking', { orderId });
 
       // 위치 추적 시작
-      const id = Geolocation.watchPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          socket?.emit('update_location', { orderId, latitude, longitude });
-          console.log("gps로 위치를 받아서 백으로 보냄")
-          console.log(latitude)
-          console.log(longitude)
-        },
-        (error) => {
-          Alert.alert('위치 추적 오류', error.message);
-        },
-        { enableHighAccuracy: true, interval: 1000 } // 10m 이상 이동 시 or 5초마다 업데이트
-      );
-      console.log(id)
-      setWatchId(id);
+
+      socket?.emit('update_location', { orderId, userLat, userLng });
+      console.log("gps로 위치를 받아서 백으로 보냄")
+ 
+ 
+     
     } catch (error) {
       console.error("Error accepting order:", error);
     }
