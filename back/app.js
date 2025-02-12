@@ -8,7 +8,7 @@ const User = require("./models/User");
 const configureSocket = require("./loaders/socket"); // Socket.IO 설정 로더
 const configureChatSocket = require("./loaders/chatSocket");
 const configureMapSocket = require("./loaders/mapSocket");
-const { consumeMessages } = require("./controllers/rabbitmqController/consumer");
+const { consumeMessages,consumeDelayedMessages } = require("./controllers/rabbitmqController/consumer");
 const { consumeOrderAcceptQueue } = require("./controllers/rabbitmqController/orderConsumer");
 const {fcmConnect } = require("./config/fcm");
 
@@ -62,6 +62,7 @@ async function startServer() {
   setTimeout(() => {
     console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
     consumeMessages(showOrderData, redisCli);
+    consumeDelayedMessages(redisCli);
     consumeOrderAcceptQueue(redisCli);
   }, 10000);
 

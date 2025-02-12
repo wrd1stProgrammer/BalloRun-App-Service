@@ -29,7 +29,7 @@ services:
       - app_network
 
   rabbitmq: # RabbitMQ 서비스
-    image: rabbitmq:3-management # RabbitMQ 관리 UI 포함 이미지
+    image: heidiks/rabbitmq-delayed-message-exchange:4.0.2-management
     container_name: rabbitmq
     ports:
       - "5672:5672" # RabbitMQ AMQP 포트

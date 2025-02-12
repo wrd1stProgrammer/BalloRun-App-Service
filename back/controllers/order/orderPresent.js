@@ -27,15 +27,15 @@ const getCompletedOrders = async (req, res) => {
     // 2. Redis에 데이터가 없으면 MongoDB에서 조회
     const completedOrders = await Order.find({
       userId,
-      status: { $in: ["delivered", "cancelled"] },
+      status: { $in: ["delivered"] },
     }).lean();
 
     // if (!completedOrders || completedOrders.length === 0) {
     //   return res.status(404).json({ message: "완료된 주문 내역이 없습니다." });
     // }
 
-    // 3. Redis에 저장 (TTL: 몇초로 할까? 일단 300sec)
-    await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 300 });
+    // 3. Redis에 저장 완료 데이터이기 때문에 캐싱을 좀 오래할 필요가 있음 (사용자가 앱에 있는 시간 고려하자)
+    await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 3000 });
     console.log("Redis에 완료된 주문 데이터를 캐싱");
 
     res.json(completedOrders);
@@ -45,28 +45,46 @@ const getCompletedOrders = async (req, res) => {
   }
 };
 
+
+// 진행 + 주문 조회 
 const getOngoingOrders = async (req, res) => {
+  const redisCli = req.app.get("redisClient").v4;
   const userId = req.user.userId;
-  //const redisClient = req.app.get("redisClient");
-  //const redisCli = redisClient.v4; // Redis v4 클라이언트 사용
-  //const cacheKey = `ongoingOrders:${userId}`;
-  const emitMatchTest = req.app.get("emitMatchTest");
+  const cacheKey = `OnGoingOrders:${userId}`;
 
   try {
-    
+    // 1. 캐시 조회
+    const cachedData = await redisCli.get(cacheKey);
+  
+    // 2. 캐시 검증
+    if (cachedData) {
+      const parsedData = JSON.parse(cachedData);
+      if (Array.isArray(parsedData) && parsedData.length === 0) {
+        console.log("[캐시 무효] 빈 배열 발견");
+      } else {
+        console.log("[캐시 히트] 진행중 주문");
+        return res.json(parsedData);
+      }
+    }
+  
+    // 3. DB 조회
     const ongoingOrders = await Order.find({
       userId,
-      status: { $in: ["pending", "matched", "inProgress","accepted"] },
+      status: { $in: ["pending", "matched", "inProgress", "accepted", "cancelled"] }
     }).lean();
-
-
-    // !! 주문 요청 성공 Socket Test Code
-    emitMatchTest(`주문 요청 성공!?`);
-
+  
+    // 4. 캐시 저장 (데이터 있을 때만)
+    if (ongoingOrders.length > 0) {
+      await redisCli.set(cacheKey, JSON.stringify(ongoingOrders), {
+        EX: 3000,
+        NX: true // 기존 키가 없을 때만 저장
+      });
+    }
+  
     res.json(ongoingOrders);
   } catch (error) {
-    console.error("진행 중인 주문 조회 중 오류 발생:", error);
-    res.status(500).json({ message: "서버 오류" });
+    console.error("[오류]", error);
+    res.status(500).json({ error: "서버 오류 발생" });
   }
 };
 

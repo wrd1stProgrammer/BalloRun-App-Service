@@ -39,7 +39,7 @@ const orderLaterDirectCreate = async (req, res) => {
       // 메시지 큐에 전송
       channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
-      console.log("큐에 전달달:", message);
+      // console.log("큐에 전달달:", message);
   
 
       // 클라이언트에 즉시 응답

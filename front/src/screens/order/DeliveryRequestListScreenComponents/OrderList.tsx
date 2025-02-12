@@ -109,21 +109,29 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
         <Text style={styles.address}>{item.selectedFloor}</Text>
       )}
 
-      <Text
-        style={
-          item.status === "pending"
-            ? styles.pendingStatus
-            : item.status === "inProgress"
-            ? styles.inProgressStatus
-            : styles.completedStatus
-        }
-      >
-        {item.status === "pending"
-          ? "수락 대기 중"
+<Text
+      style={
+        item.status === "pending"
+          ? styles.pendingStatus
           : item.status === "accepted"
-          ? "배달중"
-          : "배달완료"}
-      </Text>
+          ? styles.acceptedStatus
+          : item.status === "inProgress"
+          ? styles.inProgressStatus
+          : item.status === "delivered"
+          ? styles.deliveredStatus
+          : styles.cancelledStatus
+      }
+    >
+      {item.status === "pending"
+        ? "수락 대기 중"
+        : item.status === "accepted"
+        ? "배달 수락 완료"
+        : item.status === "inProgress"
+        ? "배달 중"
+        : item.status === "delivered"
+        ? "배달 완료"
+        : "배달 취소 됨"}
+    </Text>
 
       {item.status !== "pending" && (
         <TouchableOpacity
@@ -295,6 +303,21 @@ const styles =  StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
+  },
+  acceptedStatus: {
+    fontSize: 14,
+    color: "#2196f3",  // 파란색
+    fontWeight: "bold",
+  },
+  deliveredStatus: {
+    fontSize: 14,
+    color: "#4caf50",  // 초록색
+    fontWeight: "bold",
+  },
+  cancelledStatus: {
+    fontSize: 14,
+    color: "#f44336",  // 빨간색
+    fontWeight: "bold",
   },
 });
 

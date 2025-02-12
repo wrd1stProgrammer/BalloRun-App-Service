@@ -9,14 +9,14 @@ const auth = async (req, res, next) => {
   // check header
   const authHeader = req.headers.authorization;
 
-  console.log("Authorization Header:", authHeader); // 추가
+  // console.log("Authorization Header:", authHeader); // 추가
 
   if (!authHeader || !authHeader.startsWith("Bearer")) {
     console.log("No authorization header!");
     throw new UnauthenticatedError("Authentication invalid");
   }
   const token = authHeader.split(" ")[1];
-  console.log("Extracted Token:", token); // 추가
+  // console.log("Extracted Token:", token); // 추가
   //console.log(authHeader);
   //console.log(token);
 
