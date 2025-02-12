@@ -46,7 +46,7 @@ function SelectDelivery() {
     };
 
     fetchOrders();
-  }, [dispatch]);
+  }, [dispatch,isListView]);
 
 
   useEffect(() => {
@@ -64,7 +64,6 @@ function SelectDelivery() {
     );
   
     // 메모리 누수 방지를 위해 언마운트 시 위치 추적 해제
-    return () => Geolocation.clearWatch(watchId);
   }, []);
 
 
