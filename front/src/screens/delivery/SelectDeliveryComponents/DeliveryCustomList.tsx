@@ -72,6 +72,7 @@ const dispatch = useAppDispatch();
 
 // 위치 추적 ID 저장 (해제할 때 필요)
 const [watchId, setWatchId] = useState<number | null>(null);
+const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
 
 const acceptHandler = async (orderId: string) => {
     try {
@@ -82,8 +83,9 @@ const acceptHandler = async (orderId: string) => {
       const dummyRes = await dispatch(acceptActionHandler(orderId));
       console.log(dummyRes);
 
-      setTracking(true);
-      
+      // 해당 주문의 tracking 상태 변경
+      setTrackingOrders(prev => ({ ...prev, [orderId]: true }));
+
       // 서버에 트래킹 시작 요청
       socket?.emit('start_tracking', { orderId });
 
@@ -92,17 +94,15 @@ const acceptHandler = async (orderId: string) => {
         (position) => {
           const { latitude, longitude } = position.coords;
           socket?.emit('update_location', { orderId, latitude, longitude });
-          console.log("gps로 위치를 받아서 백으로 보냄")
-          console.log(latitude)
-          console.log(longitude)
+          console.log("gps로 위치를 받아서 백으로 보냄", latitude, longitude);
         },
         (error) => {
           Alert.alert('위치 추적 오류', error.message);
         },
-        { enableHighAccuracy: true, interval: 1000 } // 10m 이상 이동 시 or 5초마다 업데이트
+        { enableHighAccuracy: true, interval: 1000 }
       );
-      console.log(id)
-      setWatchId(id);
+
+      console.log(id);
     } catch (error) {
       console.error("Error accepting order:", error);
     }
@@ -164,13 +164,15 @@ const acceptHandler = async (orderId: string) => {
           <Text style={styles.price}>음료가격: {item.price}원</Text>
         </View>
         <View style={styles.footer}>
-                <TouchableOpacity 
-                  onPress={() => acceptHandler(item._id)} 
-                  style={[styles.button, tracking && styles.disabledButton]}
-                  disabled={tracking}
-                >
-                  <Text style={styles.buttonText}>{tracking ? "배달 중..." : "수락하기"}</Text>
-                </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => acceptHandler(item._id)}
+            style={[styles.button, trackingOrders[item._id] && styles.disabledButton]}
+            disabled={trackingOrders[item._id]}
+          >
+            <Text style={styles.buttonText}>
+              {trackingOrders[item._id] ? "배달 중..." : "수락하기"}
+            </Text>
+          </TouchableOpacity>
               </View>
       </View>
     );
