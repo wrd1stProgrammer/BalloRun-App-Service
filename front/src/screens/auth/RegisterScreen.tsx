@@ -8,6 +8,7 @@ import { resetAndNavigate } from '../../navigation/NavigationUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
+
 const RegisterScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState('');

@@ -58,6 +58,7 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
 
       // 새로운 메시지를 받을 때 UI 업데이트
       socket.on("chatMessage", (newMessage) => {
+        console.log('새로운 메세지',newMessage.sender,user)
         setChatData((prevChatData) => {
           const messageDate = new Date(newMessage.createdAt).toDateString();
           const tempIdPrefix = 'temp_'; // 임시 ID 식별용 접두사

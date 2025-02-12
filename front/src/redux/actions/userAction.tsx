@@ -8,7 +8,7 @@ import Toast from 'react-native-toast-message';
 import { Alert } from 'react-native';
 import { requestUserPermission } from '../../utils/fcm/fcmToken';
 
-const handleSignInSuccess = async (res: any, dispatch: any,userId:string) => {
+const handleSignInSuccess = async (res: any, dispatch: any) => {
   token_storage.set('access_token', res.data.tokens.access_token);
   token_storage.set('refresh_token', res.data.tokens.refresh_token);
   await requestUserPermission(res.data.user._id);
@@ -27,7 +27,7 @@ export const userlogin = (userId: string, password: string) => async (dispatch: 
     console.log(userId,'userId');
 
     // 로그인 성공 시 처리
-    await handleSignInSuccess(res, dispatch,userId);
+    await handleSignInSuccess(res, dispatch);
     
   } catch (error: any) {
     // 서버 에러 메시지 처리
@@ -48,7 +48,7 @@ export const kakaoLogin = (email:string) => async (dispatch: any) => {
       loginProvider:"kakao",
     });
     // 로그인 성공 시 처리
-    await handleSignInSuccess(res, dispatch,res);
+    await handleSignInSuccess(res, dispatch);
     
     return res.data;
     
