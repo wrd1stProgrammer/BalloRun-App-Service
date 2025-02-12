@@ -11,7 +11,7 @@ import { navigate } from '../../navigation/NavigationUtils';
 
 interface Props {
   roomId: string;
-  image: string;
+  userImage: string;
   roomName: string;
   timeStamp: string;
   content: string;
@@ -22,7 +22,7 @@ interface Props {
 
 const ChatRoomItem = ({
   roomId,
-  image,
+  userImage,
   roomName,
   timeStamp,
   content,
@@ -97,7 +97,7 @@ const ChatRoomItem = ({
             },
           ]}
           source={{
-            uri: image,
+            uri: userImage,
           }}
         />
         <View style={{ flex: 1 }}>

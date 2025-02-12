@@ -19,7 +19,7 @@ interface RoomData {
   lastChat: string;
   lastChatAt: string;
   isAlarm: boolean;
-  image: string;
+  userImage: string;
 }
 
 const Chatting:React.FC= () => {
@@ -115,7 +115,7 @@ const Chatting:React.FC= () => {
         renderItem={({ item }) => (
           <ChatRoomItem
             roomId={item.id}
-            image={item.image}
+            userImage={item.userImage}
             roomName={item.title}
             timeStamp={item.lastChatAt}
             content={item.lastChat}
