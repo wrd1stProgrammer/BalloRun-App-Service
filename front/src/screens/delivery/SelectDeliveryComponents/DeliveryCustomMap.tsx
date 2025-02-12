@@ -32,19 +32,7 @@ function DeliveryCustomMap({ deliveryItems, loading, onMarkerSelect, onFilter }:
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
 
-  useEffect(() => {
-    // 사용자의 현재 위치 가져오기
-    Geolocation.getCurrentPosition(
-      (position) => {
-        setUserLat(position.coords.latitude);
-        setUserLng(position.coords.longitude);
-      },
-      (error) => {
-        Alert.alert("위치 가져오기 실패", error.message);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    );
-  }, []);
+
 
   const handleMarkerPress = (item: DeliveryItem) => {
     onMarkerSelect(item); // 선택된 주문 전달

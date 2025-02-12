@@ -11,9 +11,10 @@ type DeliveryItem = {
   _id: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
   address: string;
-  deliveryType: string; // 주문 유형 ('컵홀더' 또는 '직접')
+  deliveryType: "direct" | "cupholder" | any; // 🔥 배달 유형 추가
   startTime: string;
   deliveryFee: number;
+  price: number;
   cafeLogo: string;
   createdAt: string;
   endTime: string;
@@ -67,7 +68,7 @@ function SelectDelivery() {
   }, []);
 
 
-  const handleMarkerSelect = (item: DeliveryItem | null) => {
+  const handleMarkerSelect = (item: DeliveryItem | any) => {
     setSelectedDeliveryItem(item); // 선택된 주문 설정
   };
 
