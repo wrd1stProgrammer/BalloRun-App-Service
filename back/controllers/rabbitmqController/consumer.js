@@ -1,8 +1,11 @@
 const amqp = require("amqplib");
 const Order = require("../../models/Order");
+const User = require("../../models/User");
 const {storeOrderInRedis, removeOrderFromRedis} = require("./storeOrderInRedis");
 const {connectRabbitMQ} = require("../../config/rabbitMQ");
 const {invalidateOnGoingOrdersCache} = require("../../utils/deleteRedisCache");
+const {sendPushNotification} = require("../../utils/sendPushNotification");
+
 
 
 // 기본 주문 컨슈머
@@ -98,6 +101,7 @@ const consumeDelayedMessages = async (redisCli) => {
           try {
             const { orderId } = JSON.parse(msg.content.toString());
             const order = await Order.findById(orderId);
+            const orderUser = await User.findById(order.userId);
 
             if (order && order.status === "pending") {
               // 30분 후 상태 업데이트
@@ -105,6 +109,18 @@ const consumeDelayedMessages = async (redisCli) => {
               await order.save();
               // 진행 주문 레디스 캐시 삭제 -> 레디스 없으니 자동으로 db에서 조회해서 상태 변화!
               await invalidateOnGoingOrdersCache(order.userId,redisCli);
+
+              const notipayload ={
+                title: `배달요청이 취소 되었습니다.`,
+                body: `취소된 배달을 확인하세요`,
+                data: {type:"order_cancelled", orderId:orderId},
+              }
+              if (orderUser.fcmToken) {
+                //orderUser.fcmToken 로 변경해야함 잘 작동하면
+                await sendPushNotification(orderUser.fcmToken, notipayload);
+              } else {
+                console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+              }
 
               //주문취소 알림 추가
               console.log(order.status, "매치 변화 상태 ");
