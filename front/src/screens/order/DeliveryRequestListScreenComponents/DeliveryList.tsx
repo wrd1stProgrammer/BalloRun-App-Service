@@ -116,7 +116,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
           ? "배달중"
           : "배달완료"}
       </Text>
-            {item.status !== "pending" && (
+            {item.status == "accepted" && (
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigate("DeliveryImage",{item})}
