@@ -107,7 +107,7 @@ const HomeScreen: React.FC = () => {
         socket?.emit('stop_tracking', {});
       }
     };
-  }, [dispatch, socket]);
+  }, []);
 
   return (
     <View style={styles.container}>
