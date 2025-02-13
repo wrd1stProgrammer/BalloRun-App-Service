@@ -8,21 +8,51 @@ import {
   Alert
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { useAppDispatch } from "../../../redux/config/reduxHook";
+import { completeActionHandler } from "../../../redux/actions/riderAction";
+
+interface OrderItem {
+  _id: string;
+  items: { cafeName: string; menuName: string }[];
+  lat: string;
+  lng: string;
+  deliveryType: string;
+  status: string;
+  startTime: string;
+  deliveryFee: number;
+  createdAt: number;
+  riderRequest: string;
+  endTime: string;
+  selectedFloor: null | string;
+  updatedAt: string
+}
+type DeliveryImageRouteParams = {
+  item: OrderItem;
+};
 
 const DeliveryImage = () => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const navigation = useNavigation();
+  const route = useRoute<RouteProp<{ DeliveryImage: DeliveryImageRouteParams }, 'DeliveryImage'>>();
+  const orderId = route.params.item._id // 데이터 받기
+  
+  const dispatch = useAppDispatch();
 
   const handleFilePick = async () => {
   };
 
   // 업로드 버튼 클릭 시 실행
-  const handleSubmit = () => {
-    if (!imageUri) {
-      Alert.alert("사진 업로드 필요", "배달 완료 사진을 업로드해주세요!");
-      return;
-    }
+  const handleSubmit = async() => {
+    // if (!imageUri) {
+    //   Alert.alert("사진 업로드 필요", "배달 완료 사진을 업로드해주세요!");
+    //   return;
+    // }
+
+    const dummyRes = await dispatch(completeActionHandler(orderId));
+    console.log(dummyRes)
+
+
 
     // 여기에 서버로 이미지 업로드하는 API 호출 추가 가능
     Alert.alert("업로드 완료", "배달 완료 사진이 업로드되었습니다.");
@@ -53,9 +83,8 @@ const DeliveryImage = () => {
       </View>
 
       <TouchableOpacity
-        style={[styles.submitButton, !imageUri && { backgroundColor: "#ccc" }]}
+        style={[styles.submitButton, imageUri && { backgroundColor: "#ccc" }]}
         onPress={handleSubmit}
-        disabled={!imageUri}
       >
         <Text style={styles.submitButtonText}>사진 제출하기</Text>
       </TouchableOpacity>

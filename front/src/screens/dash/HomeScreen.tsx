@@ -77,7 +77,7 @@ const HomeScreen: React.FC = () => {
             (error) => {
               Alert.alert("위치 추적 오류", error.message);
             },
-            { enableHighAccuracy: true, interval: 1000, distanceFilter: 10 }
+            { enableHighAccuracy: true, interval: 5000, distanceFilter: 20 }
           );
           setWatchId(id);
         }

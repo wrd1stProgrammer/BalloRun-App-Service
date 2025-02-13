@@ -64,6 +64,33 @@ const acceptOrder = async (req, res) => {
   }
 };
 
+const completeOrder = async (req, res) => {
+  const { orderId } = req.body; // 아이디 받아오기
+  const riderId = req.user.userId; //라이더 아이디
+
+
+  try {
+
+    // 2. MongoDB에서 주문 상태 변경 (`pending` → `accepted`)
+    const order = await Order.findOneAndUpdate(
+      { _id: orderId, status: "accepted" }, //_id 유의!
+      { $set: { status: "complete", riderId } },
+      { new: true }
+    );
+
+
+
+    res.status(200).json({ message: "Order accepted successfully"});
+
+  } catch (error) {
+    console.error("Error accepting order:", error);
+
+    // ❌ 오류 발생 시 락 해제 (예외 처리)
+
+    res.status(500).json({ message: "Failed to accept order" });
+  }
+};
+
 module.exports = {
-  acceptOrder,
+  acceptOrder,completeOrder
 };

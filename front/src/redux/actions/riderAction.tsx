@@ -53,3 +53,16 @@ export const getOrderData = () => async (dispatch: any) => {
       return [];
     }
   };
+
+  export const completeActionHandler = (orderId:string)=> async (dispatch: any) => {
+    try {
+      const res = await appAxios.post('/rider/completeOrder',{
+        orderId,
+      }); // 서버
+      return res;
+      
+    } catch (error: any) {
+      console.error('주문 요청 실패:', error);
+      return [];
+    }
+  };

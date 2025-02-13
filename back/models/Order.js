@@ -31,7 +31,7 @@ const OrderSchema = new mongoose.Schema(
     deliveryFee: { type: Number, required: false, default: 0 }, // 배달 수수료
     status: {
       type: String,
-      enum: ['pending', 'matched', 'accepted', 'inProgress', 'delivered', 'cancelled','matchFailed'], // 주문 상태
+      enum: ['pending', 'matched', 'accepted', 'inProgress', 'delivered', 'cancelled','matchFailed','complete'], // 주문 상태
       default: 'pending',
     },
     riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더

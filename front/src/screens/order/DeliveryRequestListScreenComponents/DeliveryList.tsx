@@ -9,7 +9,7 @@ import {
   StyleSheet
 } from "react-native";
 import { formatDistanceToNow, format } from "date-fns";
-import { ko } from "date-fns/locale";
+import { id, ko } from "date-fns/locale";
 import { useNavigation } from "@react-navigation/native"; // useNavigation 사용
 import { useAppDispatch, useAppSelector } from "../../../redux/config/reduxHook";
 import {
@@ -119,7 +119,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
             {item.status !== "pending" && (
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigate("DeliveryImage")}
+                onPress={() => navigate("DeliveryImage",{item})}
               >
                 <Text style={styles.buttonText}>배달 완료 사진 업로드하기</Text>
               </TouchableOpacity>
@@ -160,7 +160,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
         <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
           <Text style={styles.buttonText}>배달중</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("완료상태")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter("complete")}>
           <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
         </TouchableOpacity>
       </View>
