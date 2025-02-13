@@ -120,3 +120,13 @@ export const orderNowHandler = (
       throw error;
     }
   }
+
+  export const ReStartLocationGetDeliveryListHandler =() => async(dispatch:any) => {
+    try {
+      const res = await appAxios.get(`/order/ReStartLocationGetDeliveryList`);
+      return res.data
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }
