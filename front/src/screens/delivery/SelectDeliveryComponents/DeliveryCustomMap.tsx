@@ -28,11 +28,20 @@ type DeliveryCustomMapProps = {
   onFilter: (type: string | null) => void; // 필터 핸들러
   userLat: any,
   userLng: any,
+  watchId: number | null
 };
 
-function DeliveryCustomMap({ mapRef,userLat, userLng , deliveryItems, loading, onMarkerSelect, onFilter }: DeliveryCustomMapProps) {
+function DeliveryCustomMap({ watchId, mapRef,userLat, userLng , deliveryItems, loading, onMarkerSelect, onFilter }: DeliveryCustomMapProps) {
   // 현재 위치 상태 관리
-
+  useEffect(() => {
+    return () => {
+      // 🔥 화면을 나갈 때 위치 추적 중지
+      if (watchId !== null) {
+        Geolocation.clearWatch(watchId);
+        console.log("위치 추적 중지됨:", watchId);
+      }
+    };
+  }, [watchId]);
   console.log(userLat, userLng)
 
 

@@ -13,6 +13,7 @@ import { MapSocketContext } from "../../../utils/sockets/MapSocket";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
 import { acceptActionHandler } from "../../../redux/actions/riderAction";
 import Geolocation from 'react-native-geolocation-service';
+import { navigate } from "../../../navigation/NavigationUtils";
 
 type DeliveryItem = {
   _id: string;
@@ -101,9 +102,17 @@ const acceptHandler = async (orderId: string) => {
         },
         { enableHighAccuracy: true, interval: 1000 }
       );
-
+      setWatchId(id)
       console.log(id);
-    } catch (error) {
+
+      setTimeout(() => {
+        console.log("Navigating to BottomTab..."); // 실행 여부 확인
+        navigate("BottomTab", {
+          screen: "DeliveryRequestListScreen",
+        });
+      }, 1500);
+          }
+     catch (error) {
       console.error("Error accepting order:", error);
     }
   };

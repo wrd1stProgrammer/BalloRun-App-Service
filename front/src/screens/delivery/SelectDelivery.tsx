@@ -37,6 +37,8 @@ function SelectDelivery() {
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
 
+  const [watchId, setWatchId] = useState<number | null>(null);
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -65,7 +67,13 @@ function SelectDelivery() {
       },
       { enableHighAccuracy: true, interval: 5000, distanceFilter: 10 } // 5초마다 또는 10m 이동 시 업데이트
     );
-  
+    setWatchId(watchId);
+    return () => {
+      if (watchId !== null) {
+        Geolocation.clearWatch(watchId);
+        console.log("위치 추적 중지됨:", watchId);
+      }
+    };
     // 메모리 누수 방지를 위해 언마운트 시 위치 추적 해제
   }, []);
 
@@ -137,6 +145,7 @@ function SelectDelivery() {
         onFilter={handleFilter} // 필터 핸들러 전달
         userLat={userLat}
         userLng={userLng}
+        watchId={watchId}
       />
       <DeliveryBottomSheet
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
