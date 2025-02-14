@@ -114,7 +114,7 @@ const matchRider = async (req, res) => {
     if (!order)
       return res.status(404).json({ message: "주문을 찾을 수 없습니다." });
 
-    order.status = "matched"; // 매칭상태 업데이트
+    order.status = "accepted"; // 매칭상태 업데이트
     // + 매칭 됐다고 orderId, riderId 에 socket 처리..?
     // 
     order.riderId = riderId; // 라이더ID 지정.

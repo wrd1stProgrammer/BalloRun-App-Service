@@ -4,6 +4,8 @@ const User = require("../../models/User");
 const ChatRoom = require("../../models/ChatRoom"); // 채팅방 모델 추가
 const { connectRabbitMQ } = require("../../config/rabbitMQ");
 const {sendPushNotification} = require("../../utils/sendPushNotification");
+const {invalidateOnGoingOrdersCache} = require("../../utils/deleteRedisCache");
+
 
 const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
   try {
@@ -68,7 +70,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           }
           if (orderUser?.fcmToken) {
             //orderUser.fcmToken 로 변경해야함 잘 작동하면
-            await sendPushNotification(riderUser.fcmToken, notipayload);
+            //await sendPushNotification(riderUser.fcmToken, notipayload);
           } else {
             console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
           }
@@ -79,6 +81,9 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           let redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
           redisOrders = redisOrders.filter((order) => order._id.toString() !== orderId);
           await redisCli.set(cacheKey, JSON.stringify(redisOrders));
+
+          await invalidateOnGoingOrdersCache(userId,redisCli);
+
 
           console.log(`🚀 Order ${orderId} removed from Redis`);
 

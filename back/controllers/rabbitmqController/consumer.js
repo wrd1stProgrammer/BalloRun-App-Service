@@ -43,7 +43,7 @@ const consumeMessages = async (showOrderData, redisCli) => {
             await storeOrderInRedis(redisCli, orderData);
             const redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
             redisOrders.push(order);
-            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 60 }); // 3분 1분 테스트
+            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 120 }); // 3분 1분 테스트
 
             await invalidateOnGoingOrdersCache(order.userId,redisCli);
 
@@ -54,7 +54,7 @@ const consumeMessages = async (showOrderData, redisCli) => {
               delayedExchange,
               "delayed_route", // 바인딩 시 사용한 라우팅 키
               Buffer.from(JSON.stringify({ orderId: order._id })),
-              { headers: { "x-delay": 60000 }, persistent: true } // 3분(180초 = 180,000ms) 1분 테스트
+              { headers: { "x-delay": 120000 }, persistent: true } // 3분(180초 = 180,000ms) 1분 테스트
             );
 
             channel.ack(msg);
@@ -102,6 +102,7 @@ const consumeDelayedMessages = async (redisCli) => {
             const { orderId } = JSON.parse(msg.content.toString());
             const order = await Order.findById(orderId);
             const orderUser = await User.findById(order.userId);
+            console.log(order,orderUser, "두개");
 
             if (order && order.status === "pending") {
               // 30분 후 상태 업데이트

@@ -160,9 +160,12 @@ const LocationBottomSheet: React.FC<LocationBottomSheetProps> = ({
         );
       }
 
-      navigate("BottomTab", {
-        screen: "DeliveryRequestListScreen",
-      });
+      // 1.5초 뒤에 navigate 실행
+      setTimeout(() => {
+        navigate("BottomTab", {
+          screen: "DeliveryRequestListScreen",
+        });
+      }, 1500); // 1500ms = 1.5초
     } catch (error) {
       console.error("Error during order request:", error);
     }
