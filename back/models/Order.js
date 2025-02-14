@@ -31,9 +31,11 @@ const OrderSchema = new mongoose.Schema(
     deliveryFee: { type: Number, required: false, default: 0 }, // 배달 수수료
     status: {
       type: String,
-      enum: ['pending', 'matched', 'accepted', 'inProgress', 'delivered', 'cancelled','matchFailed','complete'], // 주문 상태
+      enum: ['pending', 'matched','accepted', 'inProgress', 'delivered', 'cancelled','matchFailed','complete','goToCafe','makingMenu','goToClient'], // 주문 상태
       default: 'pending',
     },
+    // goToCafe : 카페가는중, makingMenu:제조중 , goToClient: 고객에게 가는중
+
     riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더
     createdAt: { type: Date, default: Date.now }, // 생성 시간
     riderRequest: {type:String},

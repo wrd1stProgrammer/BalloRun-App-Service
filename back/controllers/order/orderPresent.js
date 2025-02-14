@@ -29,11 +29,7 @@ const getCompletedOrders = async (req, res) => {
       userId,
       status: { $in: ["delivered"] },
     }).lean();
-
-    // if (!completedOrders || completedOrders.length === 0) {
-    //   return res.status(404).json({ message: "완료된 주문 내역이 없습니다." });
-    // }
-
+    
     // 3. Redis에 저장 완료 데이터이기 때문에 캐싱을 좀 오래할 필요가 있음 (사용자가 앱에 있는 시간 고려하자)
     await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 3000 });
     console.log("Redis에 완료된 주문 데이터를 캐싱");
@@ -70,9 +66,10 @@ const getOngoingOrders = async (req, res) => {
     // 3. DB 조회
     const ongoingOrders = await Order.find({
       userId,
-      status: { $in: ["pending", "matched", "inProgress", "accepted", "cancelled"] }
+      status: { $in: ["pending", "matched", "inProgress", "accepted", "cancelled","goToCafe","makingMenu","goToClient"] }
     }).lean();
-  
+  // goToCafe : 카페가는중, makingMenu:제조중 , goToClient: 고객에게 가는중
+
     // 4. 캐시 저장 (데이터 있을 때만)
     if (ongoingOrders.length > 0) {
       await redisCli.set(cacheKey, JSON.stringify(ongoingOrders), {
