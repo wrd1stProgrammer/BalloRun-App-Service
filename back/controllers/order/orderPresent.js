@@ -70,7 +70,7 @@ const getOngoingOrders = async (req, res) => {
     // 3. DB 조회
     const ongoingOrders = await Order.find({
       userId,
-      status: { $in: ["pending", "matched", "inProgress", "accepted", "cancelled"] }
+      status: { $in: ["pending", "matched", "inProgress", "accepted", "cancelled","complete"] }
     }).lean();
   
     // 4. 캐시 저장 (데이터 있을 때만)
