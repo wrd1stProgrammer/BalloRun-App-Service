@@ -8,6 +8,17 @@ import Geolocation from 'react-native-geolocation-service';
 import { token_storage } from '../../../redux/config/storage';
 import { Ionicons } from "@expo/vector-icons";
 import MapView from 'react-native-maps';
+import { Dimensions } from 'react-native';
+
+
+
+const screenHeight = Dimensions.get('window').height; // 현재 디바이스 화면 높이
+
+const snapPoints = ['10%', '25%', '50%'].map(percent => {
+  return (parseFloat(percent) / 100) * screenHeight;
+});
+
+
 
 type DeliveryItem = {
   _id: string;
@@ -102,9 +113,9 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
 
   // 바텀시트 이동 시 GPS 버튼을 반대로 움직이도록 설정
   const handleSheetChange = (index: number) => {
-    const positions = [600, 400, 200, 80]; // 기존 위치값을 반대로 조정
-    const adjustedTop = positions[index] + 150; // 바텀시트보다 약간 위에서 유지
-
+    const positions = snapPoints.map(point => screenHeight - point); // 바텀시트 높이와 반대 값 설정
+    const adjustedTop = positions[index] + screenHeight * -0.10; // 바텀시트보다 약간 위에서 유지 (5% 여유)
+  
     Animated.timing(animatedTop, {
       toValue: adjustedTop,
       duration: 300,
@@ -146,7 +157,7 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
       </Animated.View>
 
       {/* 바텀시트 */}
-      <BottomSheet snapPoints={['10%', '25%', '50%', '90%']} onChange={handleSheetChange}>
+      <BottomSheet snapPoints={snapPoints} onChange={handleSheetChange}>
         <View style={styles.container}>
           {loading ? (
             <ActivityIndicator size="large" color="#6610f2" />
