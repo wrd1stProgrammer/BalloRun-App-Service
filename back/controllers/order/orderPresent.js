@@ -17,23 +17,34 @@ const getCompletedOrders = async (req, res) => {
   const cacheKey = `completedOrders:${userId}`;
 
   try {
-    // 1. Redis 캐시에서 데이터 확인
+    // 1. 캐시 조회
     const cachedData = await redisCli.get(cacheKey);
+  
+    // 2. 캐시 검증
     if (cachedData) {
-      console.log("Redis에서 완료된 주문 데이터를 가져옴");
-      return res.json(JSON.parse(cachedData));
+      const parsedData = JSON.parse(cachedData);
+      if (Array.isArray(parsedData) && parsedData.length === 0) {
+        console.log("[캐시 무효] 빈 배열 발견");
+      } else {
+        console.log("[캐시 히트] 진행중 주문");
+        return res.json(parsedData);
+      }
     }
-
-    // 2. Redis에 데이터가 없으면 MongoDB에서 조회
+  
+    // 3. DB 조회
     const completedOrders = await Order.find({
       userId,
-      status: { $in: ["delivered"] },
+      status: { $in: ["delivered"] }
     }).lean();
 
-    // 3. Redis에 저장 완료 데이터이기 때문에 캐싱을 좀 오래할 필요가 있음 (사용자가 앱에 있는 시간 고려하자)
-    await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 3000 });
-    console.log("Redis에 완료된 주문 데이터를 캐싱");
-
+    // 4. 캐시 저장 (데이터 있을 때만)
+    if (completedOrders.length > 0) {
+      await redisCli.set(cacheKey, JSON.stringify(completedOrders), {
+        EX: 30000,
+        NX: true // 기존 키가 없을 때만 저장
+      });
+    }
+  
     res.json(completedOrders);
   } catch (error) {
     console.error("완료된 주문 조회 중 오류 발생:", error);
@@ -93,11 +104,15 @@ const getDeliveryList = async (req, res) => {
 
   try {
     // 1. Redis 캐시에서 데이터 확인
+    
+    /*
     const cachedData = await redisCli.get(cacheKey);
+    
     if (cachedData) {
       console.log("Redis에서 완료된 주문 데이터를 가져옴");
       return res.json(JSON.parse(cachedData));
     }
+    */
 
     // 2. Redis에 데이터가 없으면 MongoDB에서 조회
     const completedOrders = await Order.find({
@@ -105,7 +120,7 @@ const getDeliveryList = async (req, res) => {
     }).lean();
 
 
-    await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 300 });
+    // await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 300 });
     console.log("Redis에 완료된 주문 데이터를 캐싱");
 
     res.json(completedOrders);

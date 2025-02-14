@@ -6,7 +6,8 @@ import {
   ActivityIndicator,
   SafeAreaView,
   TouchableOpacity,
-  StyleSheet
+  StyleSheet,
+  Alert
 } from "react-native";
 import { formatDistanceToNow, format } from "date-fns";
 import { id, ko } from "date-fns/locale";
@@ -17,6 +18,9 @@ import {
 } from "../../../redux/actions/orderAction";
 import { WebSocketContext } from "../../../utils/sockets/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
+import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions, Asset} from 'react-native-image-picker';
+
+
 
 interface OrderItem {
   _id: string;
@@ -87,6 +91,51 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
     }
   };
 
+  const handleTakePhoto = (item: OrderItem) => {
+    // 사진 촬영 옵션 설정
+    const options:CameraOptions= {
+      mediaType: 'photo' as const, // 사진만 촬영
+      cameraType : 'back',
+      videoQuality : "high",
+      saveToPhotos: true, // 갤러리에 저장
+    };
+  
+    // 사진 촬영 실행
+    launchCamera(options, (response:ImagePickerResponse) => {
+      if (response.didCancel) {
+        Alert.alert("사진 촬영이 취소되었습니다.");
+      } else if (response.errorMessage) {
+        Alert.alert("사진 촬영 중 오류가 발생했습니다.", response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri; // 촬영한 사진의 URI
+        if (uri) {
+          // 사진 URI와 item을 DeliveryImage로 전달
+          navigate("DeliveryImage", { item, photoUri: uri });
+        }
+      }
+    });
+  };
+
+    //사진앱을 실행하는 기능 화살표 함수
+    const showPhoto = async (item:OrderItem)=> {
+      const option: ImageLibraryOptions = {
+          mediaType : "photo",
+          selectionLimit : 1,
+      }
+
+      const response = await launchImageLibrary(option) //함수에 async가 붙어 있어야 함
+
+      if(response.didCancel) Alert.alert('취소')
+      else if(response.errorMessage) Alert.alert('Error : '+ response.errorMessage)
+      else {
+        const selectedPhoto = response.assets?.[0]; // 첫 번째 선택한 사진
+
+        navigate("DeliveryImage", { item, photoUri: selectedPhoto?.uri });
+
+      }
+  }
+
+
   const renderOrder = ({ item }: { item: OrderItem }) => (
     <View style={styles.card}>
       <View style={styles.rowHeader}>
@@ -116,13 +165,13 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
           ? "배달중"
           : "배달완료"}
       </Text>
-            {item.status == "accepted" && (
+      {item.status == "accepted" && (
               <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigate("DeliveryImage",{item})}
-              >
-                <Text style={styles.buttonText}>배달 완료 사진 업로드하기</Text>
-              </TouchableOpacity>
+              style={styles.button}
+              onPress={() => navigate("DeliveryImage",{item})}
+            >
+              <Text style={styles.buttonText}>배달 완료 사진 업로드하기</Text>
+            </TouchableOpacity>
             )}
       <View style={styles.rowFooter}>
         <Text style={styles.deliveryType}>

@@ -1,6 +1,7 @@
 const express = require("express");
 const {
-  getOrderDataWithRedis
+  getOrderDataWithRedis,
+  getroomId,
 } = require("../controllers/rider/getOrderDataToRider");
 const {
   acceptOrder,
@@ -11,5 +12,6 @@ const router = express.Router();
 router.get('/getOrderData',getOrderDataWithRedis);
 router.post(`/acceptOrder`,acceptOrder);
 router.post(`/completeOrder`,completeOrder);
+router.post(`/getroomId`,getroomId);
 
 module.exports = router;

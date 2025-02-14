@@ -5,12 +5,17 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Alert
+  Alert,
+  ActivityIndicator // 로딩 스피너 추가
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
 import { completeActionHandler } from "../../../redux/actions/riderAction";
+import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions, Asset} from 'react-native-image-picker';
+import { navigate, resetAndNavigate } from "../../../navigation/NavigationUtils";
+import { uploadFile } from "../../../redux/actions/fileAction";
+import { getChatRoomIdAndUploadImage } from "../../../redux/actions/orderAction";
 
 interface OrderItem {
   _id: string;
@@ -29,64 +34,137 @@ interface OrderItem {
 }
 type DeliveryImageRouteParams = {
   item: OrderItem;
+  photoUri:String;
 };
 
 const DeliveryImage = () => {
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{ 
+    uri: string; 
+    type: string;
+    fileName?: string;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+
   const navigation = useNavigation();
   const route = useRoute<RouteProp<{ DeliveryImage: DeliveryImageRouteParams }, 'DeliveryImage'>>();
+  const { item, photoUri } = route.params; // item과 photoUri 추출
   const orderId = route.params.item._id // 데이터 받기
   
   const dispatch = useAppDispatch();
 
-  const handleFilePick = async () => {
+  const handleTakePhoto = (item: OrderItem) => {
+    const options:CameraOptions= {
+      mediaType: 'photo' as const,
+      cameraType : 'back',
+      videoQuality : "high",
+      saveToPhotos: true,
+    };
+  
+    launchCamera(options, (response:ImagePickerResponse) => {
+      if (response.didCancel) {
+        Alert.alert("사진 촬영이 취소되었습니다.");
+      } else if (response.errorMessage) {
+        Alert.alert("사진 촬영 중 오류가 발생했습니다.", response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const { uri, type, fileName } = response.assets[0];
+        setSelectedImage({ uri: uri!, type: type!, fileName });
+      }
+    });
+  };
+  
+  const showPhoto = async (item:OrderItem)=> {
+    const option: ImageLibraryOptions = {
+        mediaType : "photo",
+        selectionLimit : 1,
+        includeBase64:true,
+    }
+
+    const response:ImagePickerResponse = await launchImageLibrary(option)
+
+    if(response.didCancel) Alert.alert('취소')
+    else if(response.errorMessage) Alert.alert('Error : '+ response.errorMessage)
+    else {
+      const { uri, type, fileName } = response.assets[0];
+      setSelectedImage({ uri: uri!, type: type!, fileName });
+    }
+  }
+
+  const handleSubmit = async() => {
+    if (!selectedImage?.uri) {
+      Alert.alert("사진을 선택해주세요.");
+      return;
+    }
+
+    setIsLoading(true); // 로딩 시작
+
+    try {
+      const imageResponse = await dispatch(uploadFile(selectedImage.uri, "order_image"));
+      console.log("받은 이미지리스폰스",imageResponse);
+    } catch (error) {
+      console.error("업로드 실패:", error);
+      Alert.alert("업로드 실패", "사진 업로드 중 오류가 발생했습니다.");
+    } finally {
+      const roomId = await dispatch(getChatRoomIdAndUploadImage(orderId));
+      resetAndNavigate("ChatRoom",{roomId});
+      setIsLoading(false); // 로딩 종료
+    }
   };
 
-  // 업로드 버튼 클릭 시 실행
-  const handleSubmit = async() => {
-    // if (!imageUri) {
-    //   Alert.alert("사진 업로드 필요", "배달 완료 사진을 업로드해주세요!");
-    //   return;
-    // }
-
-    const dummyRes = await dispatch(completeActionHandler(orderId));
-    console.log(dummyRes)
-
-
-
-    // 여기에 서버로 이미지 업로드하는 API 호출 추가 가능
-    Alert.alert("업로드 완료", "배달 완료 사진이 업로드되었습니다.");
+  const handleUploadPress = () => {
+    Alert.alert(
+      "사진 업로드",
+      "사진을 어떻게 업로드하시겠습니까?",
+      [
+        {
+          text: "카메라 촬영",
+          onPress: () => handleTakePhoto(item),
+        },
+        {
+          text: "갤러리에서 선택",
+          onPress: () => showPhoto(item),
+        },
+        {
+          text: "취소",
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
     <View style={styles.container}>
-      {/* 뒤로가기 버튼 */}
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
 
       <Text style={styles.title}>배달 완료 사진 업로드</Text>
 
-      <TouchableOpacity style={styles.uploadButton} onPress={handleFilePick}>
+      <TouchableOpacity style={styles.uploadButton} onPress={handleUploadPress}>
         <Text style={styles.uploadButtonText}>
-          {imageUri ? "사진 변경하기" : "사진 업로드하기"}
+          {selectedImage?.uri ? "사진 변경하기" : "사진 업로드하기"}
         </Text>
       </TouchableOpacity>
 
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.preview} />}
+      {selectedImage?.uri && <Image source={{ uri: selectedImage?.uri }} style={styles.preview} />}
 
       <View style={styles.instructions}>
-        <Text style={styles.instructionTitle}>📌 사진 업로드 주의사항</Text>
+        <Text style={styles.instructionTitle}>📌 사진 업로드 주의사항 </Text>
         <Text style={styles.instructionText}>✔️ 상품이 잘 보이도록 촬영해주세요.</Text>
         <Text style={styles.instructionText}>✔️ 흐릿하거나 잘린 사진은 인정되지 않습니다.</Text>
         <Text style={styles.instructionText}>✔️ 주문자의 요청 사항을 준수해주세요.</Text>
       </View>
 
       <TouchableOpacity
-        style={[styles.submitButton, imageUri && { backgroundColor: "#ccc" }]}
+        style={[styles.submitButton, selectedImage?.uri && { backgroundColor: "#ccc" }]}
         onPress={handleSubmit}
+        disabled={isLoading} // 로딩 중 버튼 비활성화
       >
-        <Text style={styles.submitButtonText}>사진 제출하기</Text>
+        {isLoading ? (
+          <ActivityIndicator color="#fff" /> // 로딩 스피너 표시
+        ) : (
+          <Text style={styles.submitButtonText}>사진 제출하기</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -156,6 +234,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     marginTop: 20,
+    justifyContent: "center", // 로딩 스피너 중앙 정렬
+    alignItems: "center", // 로딩 스피너 중앙 정렬
   },
   submitButtonText: {
     color: "#fff",

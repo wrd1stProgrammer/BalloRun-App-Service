@@ -1,6 +1,8 @@
 const Order = require("../../models/Order");
 const User = require("../../models/User");
+const ChatRoom = require("../../models/ChatRoom");
 const amqp = require("amqplib");
+const {invalidateCompletedOrdersCache} = require("../../utils/deleteRedisCache");
 
 const getOrderDataWithRedis = async (req, res) => {
     try {
@@ -36,7 +38,42 @@ const getOrderDataWithRedis = async (req, res) => {
       });
     }
   };
+
+  const getroomId = async (req, res) => {
+    const redisClient = req.app.get("redisClient");
+    const redisCli = redisClient.v4; // Redis v4 
+    const { orderId } = req.body;
+
+    try {
+        const order = await Order.findById(orderId).exec();
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        order.status = "delivered";
+        order.save();
+
+        await invalidateCompletedOrdersCache(order.userId,redisCli);
+
+        const { userId, riderId } = order;
+
+        const chatRoom = await ChatRoom.findOne({
+          users: { $all: [userId, riderId] },
+      }).lean();
+
+        if (!chatRoom) {
+            return res.status(404).json({ message: "Chat room not found" });
+        }
+
+        res.status(200).json({ roomId: chatRoom._id });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
   
   module.exports = {
     getOrderDataWithRedis,
+    getroomId,
   };

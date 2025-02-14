@@ -130,3 +130,17 @@ export const orderNowHandler = (
       throw error;
     }
   }
+
+  export const getChatRoomIdAndUploadImage =(orderId:string) => async(dispatch:any) => {
+    try {
+      const res = await appAxios.post(`/rider/getroomId`,{
+        orderId
+      });
+      console.log(res);
+
+      return res.data.roomId;
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }

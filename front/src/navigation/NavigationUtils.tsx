@@ -13,13 +13,13 @@ import {
     }
   }
   
-  export async function resetAndNavigate(routeName: string) {
+  export async function resetAndNavigate(routeName: string, params?: object) {
     await navigationRef.isReady();
     if (navigationRef.isReady()) {
       navigationRef.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: routeName }],
+          routes: [{ name: routeName, params }],
         })
       );
     }

@@ -69,6 +69,10 @@ export const dashboardStack = [
   {
     name: "PayResult",
     component: PayResult,
+  },
+  {
+    name:"ChattingScreen",
+    component: ChattingSceen,
   }
 ];
 
