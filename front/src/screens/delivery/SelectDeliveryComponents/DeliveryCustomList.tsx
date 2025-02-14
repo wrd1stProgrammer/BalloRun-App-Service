@@ -75,57 +75,72 @@ const dispatch = useAppDispatch();
 const [watchId, setWatchId] = useState<number | null>(null);
 const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
 
+
+
+const getCurrentLocation = (orderId): Promise<{ latitude: number; longitude: number }> => {
+  return new Promise((resolve, reject) => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        console.log("현재 위치 받아옴:", latitude, longitude);
+        resolve({ latitude, longitude });
+        socket?.emit("update_location", { orderId, latitude, longitude });
+
+      },
+      (error) => {
+        console.error("위치 가져오기 실패:", error);
+        reject(error);
+      },
+      { enableHighAccuracy: true }
+    );
+  });
+};
+
 const acceptHandler = async (orderId: string) => {
-    try {
-      const access_token = token_storage.getString('access_token');
-      console.log(orderId, 'id logging');
+  try {
+    console.log(orderId, "id logging");
 
-      // 주문 수락 요청
-      const dummyRes = await dispatch(acceptActionHandler(orderId));
-      console.log(dummyRes);
 
-      // 해당 주문의 tracking 상태 변경
-      setTrackingOrders(prev => ({ ...prev, [orderId]: true }));
 
-      // 서버에 트래킹 시작 요청
-      socket?.emit('start_tracking', { orderId });
 
-      // 위치 추적 시작
-      const id = Geolocation.watchPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          socket?.emit('update_location', { orderId, latitude, longitude });
-          console.log("gps로 위치를 받아서 백으로 보냄", latitude, longitude);
-        },
-        (error) => {
-          Alert.alert('위치 추적 오류', error.message);
-        },
-        { enableHighAccuracy: true, interval: 1000 }
-      );
-      setWatchId(id)
-      console.log(id);
+    // 주문 수락 요청
+    const dummyRes = await dispatch(acceptActionHandler(orderId));
+    console.log(dummyRes);
 
-      setTimeout(() => {
-        console.log("Navigating to BottomTab..."); // 실행 여부 확인
-        navigate("BottomTab", {
-          screen: "DeliveryRequestListScreen",
-        });
-      }, 1500);
-          }
-     catch (error) {
-      console.error("Error accepting order:", error);
-    }
-  };
+    setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
 
-  // 위치 추적 정지 (필요한 경우)
-  const stopTracking = () => {
-    if (watchId !== null) {
-      Geolocation.clearWatch(watchId);
-      setWatchId(null);
-      setTracking(false);
-    }
-  };
+    // 서버에 트래킹 시작 요청
+    socket?.emit("start_tracking", { orderId });
+    const location = await getCurrentLocation(orderId);
 
+    // 위치 추적 시작
+    console.log("Geolocation.watchPosition 실행...");
+    const id = Geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        socket?.emit("update_location", { orderId, latitude, longitude });
+        console.log("위치 업데이트:", latitude, longitude);
+      },
+      (error) => {
+        console.log("위치 추적 오류:", error);
+        Alert.alert("위치 추적 오류", error.message);
+      },
+      { enableHighAccuracy: true, interval: 1000 }
+    );
+
+    setWatchId(id);
+    console.log("위치 추적 시작, watchId:", id);
+
+    setTimeout(() => {
+      console.log("Navigating to BottomTab...");
+      navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen",
+      });
+    }, 1500);
+  } catch (error) {
+    console.error("Error accepting order:", error);
+  }
+};
 
 
 
