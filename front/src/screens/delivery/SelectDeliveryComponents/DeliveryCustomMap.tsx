@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MapView, { Marker } from "react-native-maps";
 import { View, TouchableOpacity, Text, StyleSheet, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,6 +21,7 @@ type DeliveryItem = {
 };
 
 type DeliveryCustomMapProps = {
+  mapRef: React.RefObject<MapView>;
   deliveryItems: DeliveryItem[];
   loading: boolean;
   onMarkerSelect: (item: DeliveryItem | null) => void;
@@ -29,7 +30,7 @@ type DeliveryCustomMapProps = {
   userLng: any,
 };
 
-function DeliveryCustomMap({ userLat, userLng , deliveryItems, loading, onMarkerSelect, onFilter }: DeliveryCustomMapProps) {
+function DeliveryCustomMap({ mapRef,userLat, userLng , deliveryItems, loading, onMarkerSelect, onFilter }: DeliveryCustomMapProps) {
   // 현재 위치 상태 관리
 
   console.log(userLat, userLng)
@@ -48,6 +49,7 @@ function DeliveryCustomMap({ userLat, userLng , deliveryItems, loading, onMarker
 
       {/* 지도 화면 */}
       <MapView
+        ref={mapRef}
         style={{ flex: 1 }}
         region={
           userLat && userLng

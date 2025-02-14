@@ -7,6 +7,7 @@ import { MapSocketContext } from "../../../utils/sockets/MapSocket";
 import Geolocation from 'react-native-geolocation-service';
 import { token_storage } from '../../../redux/config/storage';
 import { Ionicons } from "@expo/vector-icons";
+import MapView from 'react-native-maps';
 
 type DeliveryItem = {
   _id: string;
@@ -27,9 +28,10 @@ type DeliveryBottomSheetProps = {
   userLng: any;
   setUserLat: (lat: number) => void;
   setUserLng: (lng: number) => void;
+  mapRef: React.RefObject<MapView>
 };
 
-function DeliveryBottomSheet({ deliveryItems, loading, userLat, userLng, setUserLat, setUserLng }: DeliveryBottomSheetProps): JSX.Element {
+function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, setUserLat, setUserLng }: DeliveryBottomSheetProps): JSX.Element {
   const socket = useContext(MapSocketContext);
   const [tracking, setTracking] = useState<boolean>(false);
   const dispatch = useAppDispatch();
@@ -70,6 +72,17 @@ function DeliveryBottomSheet({ deliveryItems, loading, userLat, userLng, setUser
         const { latitude, longitude } = position.coords;
         setUserLat(latitude);
         setUserLng(longitude);
+
+        if (mapRef.current) {
+          mapRef.current.animateToRegion({
+            latitude,
+            longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }, 1000);
+        }
+
+
       },
       (error) => {
         Alert.alert("위치 갱신 오류", error.message);

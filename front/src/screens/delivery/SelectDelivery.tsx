@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DeliveryCustomMap from './SelectDeliveryComponents/DeliveryCustomMap';
 import DeliveryBottomSheet from './SelectDeliveryComponents/DeliveryBottomSheet';
 import { getOrderData } from '../../redux/actions/riderAction';
@@ -6,6 +6,7 @@ import { useAppDispatch } from '../../redux/config/reduxHook';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DeliveryCustomList from './SelectDeliveryComponents/DeliveryCustomList';
 import Geolocation from 'react-native-geolocation-service';
+import MapView from 'react-native-maps';
 
 type DeliveryItem = {
   _id: string;
@@ -30,6 +31,8 @@ function SelectDelivery() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
 
+
+  const mapRef = useRef<MapView | null>(null);
 
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
@@ -127,6 +130,7 @@ function SelectDelivery() {
       ) : (
         <>
         <DeliveryCustomMap
+        mapRef={mapRef}
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
         loading={loading}
         onMarkerSelect={handleMarkerSelect}
@@ -141,6 +145,7 @@ function SelectDelivery() {
         userLng={userLng}
         setUserLat={setUserLat}  // 추가
         setUserLng={setUserLng} 
+        mapRef={mapRef}
       />
       </>
       )}
