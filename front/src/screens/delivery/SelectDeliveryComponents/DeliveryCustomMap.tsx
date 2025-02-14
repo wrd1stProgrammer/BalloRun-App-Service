@@ -25,8 +25,8 @@ type DeliveryCustomMapProps = {
   loading: boolean;
   onMarkerSelect: (item: DeliveryItem | null) => void;
   onFilter: (type: string | null) => void; // 필터 핸들러
-  userLat: number,
-  userLng: number,
+  userLat: any,
+  userLng: any,
 };
 
 function DeliveryCustomMap({ userLat, userLng , deliveryItems, loading, onMarkerSelect, onFilter }: DeliveryCustomMapProps) {

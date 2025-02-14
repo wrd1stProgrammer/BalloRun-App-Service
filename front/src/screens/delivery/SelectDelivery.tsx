@@ -31,8 +31,8 @@ function SelectDelivery() {
   const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
 
 
-  const [userLat, setUserLat] = useState<number>(0);
-  const [userLng, setUserLng] = useState<number>(0);
+  const [userLat, setUserLat] = useState<number | null>(null);
+  const [userLng, setUserLng] = useState<number | null>(null);
 
   const dispatch = useAppDispatch();
 
@@ -139,6 +139,8 @@ function SelectDelivery() {
         loading={loading}
         userLat={userLat}
         userLng={userLng}
+        setUserLat={setUserLat}  // 추가
+        setUserLng={setUserLng} 
       />
       </>
       )}

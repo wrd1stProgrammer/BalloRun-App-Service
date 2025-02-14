@@ -32,8 +32,8 @@ type DeliveryItem = {
 
 type DeliveryCustomListProps = {
   deliveryItems: DeliveryItem[];
-  userLat: number;
-  userLng: number;
+  userLat: any;
+  userLng: any;
 };
 
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
