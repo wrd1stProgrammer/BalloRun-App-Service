@@ -19,6 +19,8 @@ type Message = {
   timestamp?: string;
   timeOfDay?: string;
   isMe?: boolean;
+  imageUrl?: string; // 이미지 URL 추가
+  isLoading:boolean;
 };
 
 type ChatData = {
@@ -55,10 +57,10 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
       socket.on("chat-list", (data) => {
         setChatData(data.data.chatList);
       });
+      console.log('cache test');
 
       // 새로운 메시지를 받을 때 UI 업데이트
       socket.on("chatMessage", (newMessage) => {
-        console.log('새로운 메세지',newMessage.sender,user)
         setChatData((prevChatData) => {
           const messageDate = new Date(newMessage.createdAt).toDateString();
           const tempIdPrefix = 'temp_'; // 임시 ID 식별용 접두사
@@ -83,8 +85,10 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
           currentMessages.push({
             id: newMessage.id,
             content: newMessage.content,
+            imageUrl: newMessage.imageUrl, // 이미지 URL 추가
             timestamp: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             isMe: newMessage.sender === user?._id,
+            isLoading: false, // 서버 응답이 왔으므로 로딩 종료
           });
 
           // 업데이트된 객체 반환
@@ -107,22 +111,35 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
     };
   }, [socket, roomId]);
 
-  const onPostMessageHandler = (message: string) => {
-    if (!socket || !message) return;
+  const onPostMessageHandler = (message: string, imageUrl?: string, isLoading: boolean = false, tempId?: string) => {
+    if (!socket || (!message && !imageUrl)) return;
 
     // 임시 ID 생성 (접두사 추가)
-    const tempId = `temp_${Date.now()}`;
+    const newTempId = tempId || `temp_${Date.now()}`;
 
     setChatData((prevChatData) => {
       const currentDate = new Date().toDateString();
       const currentMessages = prevChatData[currentDate] ? [...prevChatData[currentDate]] : [];
 
-      currentMessages.push({
-        id: tempId,
-        content: message,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isMe: true,
-      });
+      // 임시 메시지가 이미 있는 경우 업데이트
+      const existingMessageIndex = currentMessages.findIndex(msg => msg.id === newTempId);
+      if (existingMessageIndex !== -1) {
+        currentMessages[existingMessageIndex] = {
+          ...currentMessages[existingMessageIndex],
+          imageUrl: imageUrl || currentMessages[existingMessageIndex].imageUrl,
+          isLoading: isLoading,
+        };
+      } else {
+        // 새로운 메시지 추가
+        currentMessages.push({
+          id: newTempId,
+          content: message,
+          imageUrl: imageUrl || undefined, // 이미지가 있으면 추가
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isMe: true,
+          isLoading: isLoading, // 로딩 상태 추가
+        });
+      }
 
       return {
         ...prevChatData,
@@ -153,7 +170,9 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
                 <ChatBubble
                   key={messageChild.id}
                   message={messageChild.content}
+                  imageUrl={messageChild.imageUrl} // 이미지 URL 전달
                   isSentByMe={!!messageChild.isMe}
+                  isLoading={messageChild.isLoading} // 로딩 상태 전달
                   {...(!!messageChild.timeOfDay &&
                     !!messageChild.timestamp && {
                       timeStamp: `${messageChild.timeOfDay} ${messageChild.timestamp}`,

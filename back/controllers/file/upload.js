@@ -17,7 +17,10 @@ const uploadMedia = async (req, res) => {
       folder = "order_images";
     } else if (mediaType === "profile_image") {
       folder = "profile_image";
-    }  else {
+    } else if (mediaType === "chat_image"){
+      folder = "chat_iamge";
+    } 
+     else {
       throw new BadRequestError("이상한 타입.");
     }
 

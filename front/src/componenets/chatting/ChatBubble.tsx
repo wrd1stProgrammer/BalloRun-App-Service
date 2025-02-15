@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import TYPOS from './etc/TYPOS';
 import Color from '../../constants/Colors';
 
@@ -7,20 +7,13 @@ interface ChatBubbleProps {
   message: string;
   isSentByMe: boolean;
   timeStamp?: string;
+  imageUrl?: string; // 이미지 URL 추가
+  isLoading?: boolean; // 로딩 상태 추가
 }
 
-const ChatBubble = ({ message, isSentByMe, timeStamp }: ChatBubbleProps) => {
+const ChatBubble = ({ message, isSentByMe, timeStamp, imageUrl, isLoading }: ChatBubbleProps) => {
   const bubbleStyles = isSentByMe ? styles.sentBubble : styles.receivedBubble;
   const textStyles = isSentByMe ? styles.sentText : styles.receivedText;
-
-  const processMessage = (text: string) => {
-    const lines = text.split('\n');
-    return lines.map((line, index) => (
-      <Text key={index} style={[textStyles, TYPOS.body2]}>
-        {line}
-      </Text>
-    ));
-  };
 
   return (
     <View
@@ -36,7 +29,16 @@ const ChatBubble = ({ message, isSentByMe, timeStamp }: ChatBubbleProps) => {
         </Text>
       )}
       <View style={[styles.bubbleContainer, bubbleStyles]}>
-        {processMessage(message)}
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+            <ActivityIndicator size="small" color="#0000ff" style={styles.loadingSpinner} />
+          </View>
+        ) : imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+        ) : (
+          message.trim().length > 0 && <Text style={textStyles}>{message}</Text> // 빈 메시지 방지
+        )}
       </View>
       {!isSentByMe && (
         <Text style={[TYPOS.body3, { color: Color.neutral3, marginLeft: 4 }]}>
@@ -67,6 +69,20 @@ const styles = StyleSheet.create({
   },
   receivedText: {
     color: '#000',
+  },
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+  },
+  loadingContainer: {
+    position: 'relative',
+  },
+  loadingSpinner: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -10 }, { translateY: -10 }], // 중앙 정렬
   },
 });
 

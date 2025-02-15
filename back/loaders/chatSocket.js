@@ -99,6 +99,7 @@ module.exports = (chatIo) => {
               id: msg._id.toString(),
               content: msg.content,
               timestamp: msg.createdAt,
+              imageUrl: msg.imageUrl, // 이미지 URL 추가
               isMe: msg.sender.toString() === userId,
             });
             
@@ -165,6 +166,58 @@ module.exports = (chatIo) => {
         } catch (error) {
           console.error("[ChatSocket] sendMessage Error:", error);
         }
+    });
+
+    socket.on("sendImageMessage", async ({ chatRoomId, imageUrl }) => {
+      try {
+        const userId = socket.user.userId;
+    
+        // 1. 사용자 정보 조회
+        const user = await User.findById(userId);
+        console.log('socket', user);
+    
+        // 2. 채팅 메시지 저장 (이미지 URL 포함)
+        const newMessage = new ChatMessage({
+          chatRoomId,
+          sender: userId,
+          imageUrl, // 이미지 URL 저장
+          content: "", // 텍스트 메시지는 없음
+        });
+    
+        await newMessage.save();
+    
+        // 3. 채팅방의 마지막 메시지 업데이트 (이미지 메시지임을 표시)
+        await ChatRoom.findByIdAndUpdate(chatRoomId, {
+          lastMessage: "사진을 보냈습니다.", // 마지막 메시지 내용
+          lastMessageAt: new Date(),
+        });
+    
+        // 4. 해당 채팅방의 모든 사용자에게 이미지 메시지 전송
+        chatIo.to(chatRoomId).emit("chatMessage", {
+          id: newMessage._id.toString(),
+          sender: userId,
+          imageUrl, // 이미지 URL 전송
+          createdAt: newMessage.createdAt,
+        });
+    
+        // 5. 푸시 알림 (이미지 메시지임을 표시)
+        const notipayload = {
+          title: `사진이 도착하였습니다.`,
+          body: `사진을 보냈습니다.`,
+          data: { type: "chat", orderId: chatRoomId },
+        };
+    
+        if (user.fcmToken) {
+          // await sendPushNotification(user.fcmToken, notipayload); // 임시로 나에게 보내
+          console.log('ios APNs 설정 안되서 일단 주석');
+        } else {
+          console.log(`사용자의 FCM 토큰이 없습니다.`);
+        }
+    
+        console.log(`[ChatSocket] Image Message sent in Room ${chatRoomId}: ${imageUrl}`);
+      } catch (error) {
+        console.error("[ChatSocket] sendImageMessage Error:", error);
+      }
     });
   
 
