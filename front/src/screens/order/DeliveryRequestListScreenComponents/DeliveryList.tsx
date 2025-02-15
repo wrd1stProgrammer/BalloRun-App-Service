@@ -7,7 +7,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
   StyleSheet,
-  Alert
+  Alert,
+  Modal
 } from "react-native";
 import { formatDistanceToNow, format } from "date-fns";
 import { id, ko } from "date-fns/locale";
@@ -19,6 +20,7 @@ import {
 import { WebSocketContext } from "../../../utils/sockets/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
 import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions, Asset} from 'react-native-image-picker';
+import ChangeStatusPicker from "./DeliveryListComponents.tsx/ChangeStatusPicker";
 
 
 
@@ -46,6 +48,8 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [allOrders, setAllOrders] = useState<OrderItem[]>([]);
+  const [statusChange, setStatusChange] = useState(false)
+
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const navigation = useNavigation(); // ✅ useNavigation 사용
@@ -165,14 +169,35 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
           ? "배달중"
           : "배달완료"}
       </Text>
+
+
+          
+
+
+
+
       {item.status == "accepted" && (
+        <>
+             <TouchableOpacity
+             style={styles.button}
+             onPress={() => setStatusChange(true)}
+           >
+     <Text
+       style={
+           styles.pendingStatus
+       }
+     >
+       배달 상태 변경하기
+     </Text>
+     </TouchableOpacity> 
               <TouchableOpacity
               style={styles.button}
-              onPress={() => navigate("DeliveryImage",{item})}
+              onPress={
+                () => navigate("DeliveryImage",{item})}
             >
               <Text style={styles.buttonText}>배달 완료 사진 업로드하기</Text>
             </TouchableOpacity>
-            )}
+            </>)}
       <View style={styles.rowFooter}>
         <Text style={styles.deliveryType}>
           {item.deliveryType === "direct" ? "직접 배달" : "음료 보관함"}
@@ -193,6 +218,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
         </Text>
       </View>
     </View>
+    
   );
 
   if (loading) {
@@ -213,6 +239,27 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
           <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
         </TouchableOpacity>
       </View>
+
+
+      <Modal
+  visible={statusChange}
+  transparent={true}
+  animationType="slide"
+  onRequestClose={() => setStatusChange(false)} // Close modal on back press
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <ChangeStatusPicker 
+        onClose={() => setStatusChange(false)} 
+        onConfirm={(selectedStatus) => {
+          console.log("Selected Status:", selectedStatus);
+          // TODO: Add logic to update the delivery status in the backend or Redux store
+          setStatusChange(false);
+        }} 
+      />
+    </View>
+  </View>
+</Modal>
 
       <FlatList
   data={orders}
@@ -336,6 +383,31 @@ const styles =  StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  closeButton: {
+    marginTop: 10,
+    backgroundColor: "#8A67F8",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
 
