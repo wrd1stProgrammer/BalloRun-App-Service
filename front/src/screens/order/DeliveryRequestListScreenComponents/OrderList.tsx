@@ -143,7 +143,7 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
           :"수정"}
     </Text>
 
-      {(item.status !== "pending" && item.status !=="complete" )&& (
+      {(item.status !== "pending" && item.status !=="complete" && item.status !=="cancelled" )&& (
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigate("LiveMap", { orderId: item._id })}
@@ -186,7 +186,7 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
         <TouchableOpacity style={styles.button} onPress={() => handleFilter(["accepted","delivered","goToCafe","goToClient","makingMenu"])}>
           <Text style={styles.buttonText}>배달중</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter(["complete","canceled"])}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter(["complete","cancelled"])}>
           <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
         </TouchableOpacity>
       </View>
