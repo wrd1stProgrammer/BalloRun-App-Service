@@ -49,7 +49,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [allOrders, setAllOrders] = useState<OrderItem[]>([]);
-  const [statusChange, setStatusChange] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null); //  선택된 주문 저장
 
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
@@ -162,23 +162,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
   const renderOrder = ({ item }: { item: OrderItem }) => (
     <>
-    <Modal
-    visible={statusChange}
-    transparent={true}
-    animationType="slide"
-    onRequestClose={() => setStatusChange(false)} 
-  >
-    <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-        <ChangeStatusPicker
-          onClose={() => setStatusChange(false)}
-          onConfirm={(selectedStatus) => {ClickStatus(selectedStatus,item._id);  setStatusChange(false);
-          }}
-        />
-      </View>
-    </View>
-  </Modal>
-
+  
     <View style={styles.card}>
       <View style={styles.rowHeader}>
         <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
@@ -226,24 +210,18 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
 
 
-      {item.status !== "complete" && (
-        <>
-             <TouchableOpacity
-             style={styles.button}
-             onPress={() => setStatusChange(true)}
-           >
-     <Text
-       style={
-           styles.pendingStatus
-       }
-     >
-       배달 상태 변경하기
-     </Text>
-     </TouchableOpacity> 
-              <TouchableOpacity
+        {item.status !== "complete" && (
+          <>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setSelectedOrder(item)} // ✅ 선택된 주문만 모달 열기
+            >
+              <Text style={styles.pendingStatus}>배달 상태 변경하기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={styles.button}
               onPress={
-                () => navigate("DeliveryImage",{item})}
+                () => navigate("DeliveryImage", { item })}
             >
               <Text style={styles.buttonText}>배달 완료 사진 업로드하기</Text>
             </TouchableOpacity>
@@ -281,6 +259,26 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
   return (
     <>
+      <Modal
+        visible={selectedOrder !== null} // ✅ 특정 주문이 선택되었을 때만 모달 표시
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setSelectedOrder(null)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <ChangeStatusPicker
+              onClose={() => setSelectedOrder(null)}
+              onConfirm={(selectedStatus) => {
+                if (selectedOrder) {
+                  ClickStatus(selectedStatus, selectedOrder._id);
+                  setSelectedOrder(null)
+                }
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={() => handleFilter_1("complete")}>
           <Text style={styles.buttonText}>배달중</Text>
