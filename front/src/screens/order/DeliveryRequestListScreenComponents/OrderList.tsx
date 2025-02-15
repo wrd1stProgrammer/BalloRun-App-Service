@@ -146,7 +146,7 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
       {(item.status !== "pending" && item.status !=="complete" && item.status !=="cancelled" )&& (
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigate("LiveMap", { orderId: item._id })}
+          onPress={() => navigate("LiveMap", { orderId: item._id, status: item.status })}
         >
           <Text style={styles.buttonText}>배달 위치 확인하기</Text>
         </TouchableOpacity>

@@ -50,8 +50,9 @@ const HomeScreen: React.FC = () => {
       setLoading(false);
 
       // 🔥 "accepted" 상태인 주문 목록 필터링
-      const acceptedOrders = orders.filter((order: DeliveryItem) => order.status === "accepted" || "delivered" || "goToCafe" || "goToClient" || "makingMenu");
-
+      const acceptedOrders = orders.filter((order: DeliveryItem) => 
+        ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
+      );
       if (acceptedOrders.length > 0) {
         console.log("배달 중인 주문 발견:", acceptedOrders);
 

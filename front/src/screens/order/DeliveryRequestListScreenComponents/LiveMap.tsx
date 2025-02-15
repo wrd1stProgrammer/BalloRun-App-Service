@@ -6,26 +6,41 @@ import { useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack } from "../../../navigation/NavigationUtils";
 
-
-
 const LiveMap = () => {
-
-  const route = useRoute(); // 🔥 네비게이션에서 전달된 `orderId` 가져오기
-  const { orderId } = route.params as { orderId: string }; // `orderId` 추출
-
-  console.log(orderId)
+  const route = useRoute(); 
+  const { orderId, status } = route.params as { orderId: string, status: string }; 
   const socket = useContext(MapSocketContext);
   const [deliveryLocation, setDeliveryLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+
+  // 🔥 상태에 따른 마커 색상 설정 함수
+  const getMarkerColor = (status: string) => {
+    switch (status) {
+      case "accepted":
+        return "blue"; // 배달 수락됨
+      case "delivered":
+        return "green"; // 배달 완료됨
+      case "goToCafe":
+        return "orange"; // 카페로 이동 중
+      case "goToClient":
+        return "purple"; // 고객에게 이동 중
+      case "makingMenu":
+        return "yellow"; // 제품 픽업 완료
+      case "complete":
+        return "black"; // 배달 완료
+      case "cancelled":
+        return "red"; // 배달 취소
+      default:
+        return "gray"; // 기본값
+    }
+  };
 
   useEffect(() => {
     if (!socket) return;
     socket.emit("join_order", { orderId })
-    // 주문자의 위치 요청 (배달원의 최신 위치를 받기 위해)
     socket.emit("request_location", { orderId });
 
-    // 배달원 위치 업데이트 이벤트 리스너 등록
     const handleLocationUpdate = (data: { orderId: string; latitude: number; longitude: number }) => {
-      console.log("사용자가 배달자의 위치를 받음", data); // 🔥 전체 데이터 확인
+      console.log("사용자가 배달자의 위치를 받음", data); 
     
       if (!data.orderId) {
         console.error("❌ orderId가 포함되지 않음", data);
@@ -39,7 +54,6 @@ const LiveMap = () => {
       }
     };
     socket.on("update_location", handleLocationUpdate);
-    // 정리 함수: 컴포넌트가 언마운트될 때 이벤트 리스너 제거
     return () => {
       socket.off("update_location", handleLocationUpdate);
     };
@@ -47,30 +61,35 @@ const LiveMap = () => {
 
   return (
     <View style={styles.container}>
-            <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
+      <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
-<MapView
-  style={styles.map}
-  region={
-    deliveryLocation
-      ? {
-          latitude: deliveryLocation.latitude,
-          longitude: deliveryLocation.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+      
+      <MapView
+        style={styles.map}
+        region={
+          deliveryLocation
+            ? {
+                latitude: deliveryLocation.latitude,
+                longitude: deliveryLocation.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }
+            : {
+                latitude: 37.7749, // 기본값
+                longitude: -122.4194,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }
         }
-      : {
-          latitude: 37.7749, // 기본값
-          longitude: -122.4194,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }
-  }
->
-{deliveryLocation !== null && deliveryLocation !== undefined && (
-  <Marker coordinate={deliveryLocation} title="배달원 위치" />
-)}
+      >
+        {deliveryLocation !== null && deliveryLocation !== undefined && (
+          <Marker 
+            coordinate={deliveryLocation} 
+            title="배달원 위치"
+            pinColor={getMarkerColor(status)} 
+          />
+        )}
       </MapView>
     </View>
   );
