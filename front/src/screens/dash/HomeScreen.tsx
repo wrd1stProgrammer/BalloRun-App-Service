@@ -8,6 +8,7 @@ import { setupBackgroundNotifications, setupForegroundNotifications, onNotificat
 import { MapSocketContext } from '../../utils/sockets/MapSocket';
 import { getDeliveryListHandler } from '../../redux/actions/orderAction';
 import Geolocation from 'react-native-geolocation-service';
+import { setWatchId } from '../../redux/reducers/locationSlice';
 
 type DeliveryItem = {
   _id: string;
@@ -27,9 +28,10 @@ const HomeScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const socket = useContext(MapSocketContext);
 
+  const watchId = useAppSelector((state) => state.location.watchId);
+
   const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [watchId, setWatchId] = useState<number | null>(null);
 
   // 🔥 FCM 알림 리스너 설정
   useEffect(() => {
@@ -48,67 +50,66 @@ const HomeScreen: React.FC = () => {
       const orders = await dispatch(getDeliveryListHandler());
       setDeliveryItems(orders);
       setLoading(false);
-
-      // 🔥 "accepted" 상태인 주문 목록 필터링
-      const acceptedOrders = orders.filter((order: DeliveryItem) => 
+  
+      const acceptedOrders = orders.filter((order: DeliveryItem) =>
         ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
       );
+  
+      console.log("📢 현재 Redux의 watchId 상태:", watchId);
+  
       if (acceptedOrders.length > 0) {
-        console.log("배달 중인 주문 발견:", acceptedOrders);
-
-        // ✅ 각 주문의 `_id`에 대해 `start_tracking` 이벤트 송신
+        console.log("🚀 배달 중인 주문 발견:", acceptedOrders);
+  
         acceptedOrders.forEach((order) => {
-          socket?.emit('start_tracking', { orderId: order._id });
+          socket?.emit("start_tracking", { orderId: order._id });
           console.log(`Tracking started for order: ${order._id}`);
         });
-
-        // ✅ 위치 추적 시작
+  
         if (!watchId) {
+          console.log("LOG  Geolocation.watchPosition 실행...");
           const id = Geolocation.watchPosition(
             (position) => {
               const { latitude, longitude } = position.coords;
-
-              // 🔥 모든 "배달 중" 주문에 대해 위치 업데이트 이벤트 송신
+  
+              console.log(`LOG  위치 업데이트: ${latitude} ${longitude}`);
+  
               acceptedOrders.forEach((order) => {
-                socket?.emit('update_location', { orderId: order._id, latitude, longitude });
+                socket?.emit("update_location", { orderId: order._id, latitude, longitude });
               });
-
-              console.log("위치 업데이트 송신:", latitude, longitude);
             },
             (error) => {
               Alert.alert("위치 추적 오류", error.message);
             },
             { enableHighAccuracy: true, interval: 5000, distanceFilter: 20 }
           );
-          setWatchId(id);
+  
+          console.log("LOG  위치 추적 시작, watchId:", id);
+          dispatch(setWatchId(id)); // Redux에 저장
         }
       } else {
         console.log("배달 중인 주문 없음");
-
-        // ✅ 배달 중인 주문이 없을 경우 위치 추적 정리
-        if (watchId !== null) {
+  
+        if (watchId !== null && watchId !== undefined) {
+          console.log("🚨 위치 추적 중지 시도 (watchId 존재)", watchId);
           Geolocation.clearWatch(watchId);
-          setWatchId(null);
-          console.log("위치 추적 중지됨");
-
-          // 🔥 서버에 stop_tracking 이벤트 전송
-          socket?.emit('stop_tracking', {});
+          dispatch(setWatchId(null));
+          console.log("✅ 위치 추적 중지 완료");
+          socket?.emit("stop_tracking", {});
         }
       }
     };
-
+  
     fetchOrders();
-
+  
     return () => {
-      // ✅ 화면이 바뀌거나 컴포넌트가 언마운트될 때 위치 추적 정리
-      if (watchId !== null) {
+      console.log("🚨 HomeScreen Unmount 시 Redux watchId 상태:", watchId);
+      if (watchId !== null && watchId !== undefined) {
         Geolocation.clearWatch(watchId);
-        setWatchId(null);
-        console.log("위치 추적 중지됨");
-        socket?.emit('stop_tracking', {});
+        dispatch(setWatchId(null));
+        socket?.emit("stop_tracking", {});
       }
     };
-  }, []);
+  }, []); 
 
   return (
     <View style={styles.container}>

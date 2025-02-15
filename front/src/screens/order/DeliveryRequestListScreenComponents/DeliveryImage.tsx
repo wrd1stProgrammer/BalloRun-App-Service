@@ -10,12 +10,14 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { useAppDispatch } from "../../../redux/config/reduxHook";
+import { useAppDispatch, useAppSelector } from "../../../redux/config/reduxHook";
 import { completeActionHandler } from "../../../redux/actions/riderAction";
 import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions, Asset} from 'react-native-image-picker';
 import { navigate, resetAndNavigate } from "../../../navigation/NavigationUtils";
 import { uploadFile } from "../../../redux/actions/fileAction";
-import { getChatRoomIdAndUploadImage } from "../../../redux/actions/orderAction";
+import { getChatRoomIdAndUploadImage, getDeliveryListHandler } from "../../../redux/actions/orderAction";
+import { setWatchId } from "../../../redux/reducers/locationSlice";
+import Geolocation from 'react-native-geolocation-service';
 
 interface OrderItem {
   _id: string;
@@ -51,6 +53,11 @@ const DeliveryImage = () => {
   const orderId = route.params.item._id // 데이터 받기
   
   const dispatch = useAppDispatch();
+
+
+  const watchId = useAppSelector((state) => state.location.watchId);
+
+
 
   const handleTakePhoto = (item: OrderItem) => {
     const options:CameraOptions= {
@@ -89,26 +96,36 @@ const DeliveryImage = () => {
     }
   }
 
-  const handleSubmit = async() => {
-    if (!selectedImage?.uri) {
-      Alert.alert("사진을 선택해주세요.");
-      return;
-    }
+const handleSubmit = async () => {
+  setIsLoading(true);
 
-    setIsLoading(true); // 로딩 시작
+  try {
+    const imageResponse = await dispatch(uploadFile(selectedImage?.uri, "order_image"));
+    console.log("받은 이미지리스폰스", imageResponse);
 
-    try {
-      const imageResponse = await dispatch(uploadFile(selectedImage.uri, "order_image"));
-      console.log("받은 이미지리스폰스",imageResponse);
-    } catch (error) {
-      console.error("업로드 실패:", error);
-      Alert.alert("업로드 실패", "사진 업로드 중 오류가 발생했습니다.");
-    } finally {
-      const roomId = await dispatch(getChatRoomIdAndUploadImage(orderId));
-      resetAndNavigate("ChatRoom",{roomId});
-      setIsLoading(false); // 로딩 종료
+    const roomId = await dispatch(getChatRoomIdAndUploadImage(orderId));
+    resetAndNavigate("ChatRoom", { roomId });
+
+    const orders = await dispatch(getDeliveryListHandler());
+    const activeOrders = orders.filter((order) =>
+      ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
+    );
+    console.log("DeliveryImages.tsx파일임")
+
+    console.log(watchId)
+    if (activeOrders.length === 0 && watchId !== null) {
+      console.log("🚨 배달 중인 주문 없음 -> 위치 추적 종료", watchId);
+      Geolocation.clearWatch(watchId);
+      dispatch(setWatchId(null)); // Redux에서 watchId 삭제
+      console.log("✅ 위치 추적 중지됨");
     }
-  };
+  } catch (error) {
+    console.error("업로드 실패:", error);
+    Alert.alert("업로드 실패", "사진 업로드 중 오류가 발생했습니다.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleUploadPress = () => {
     Alert.alert(
