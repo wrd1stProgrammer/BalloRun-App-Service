@@ -6,7 +6,7 @@ const cafeRouter = require("../routes/cafe");
 const orderRouter = require("../routes/order");
 const riderRouter = require("../routes/rider");
 const fileRouter = require("../routes/file");
-
+const chatRouter = require("../routes/chat");
 
 module.exports = async (app) => {
     const router = express.Router();
@@ -22,6 +22,7 @@ module.exports = async (app) => {
     app.use("/order",authMiddleware,orderRouter);
     app.use("/rider",authMiddleware,riderRouter);
     app.use("/file",authMiddleware,fileRouter);
+    app.use("/chat",authMiddleware,chatRouter);
 
 
     console.log('라우트 설정 OK');
