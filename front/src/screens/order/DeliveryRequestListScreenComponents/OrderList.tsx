@@ -87,20 +87,14 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
 
   }, [navigation,socket,activeTab]);
 
-  const handleFilter = (type: string | null) => {
-    if (type) {
-      setOrders(allOrders.filter((item) => item.status === type));
+  const handleFilter = (types: string[] | null) => {
+    if (types && types.length > 0) {
+      setOrders(allOrders.filter((item) => types.includes(item.status))); // ✅ 여러 개의 상태값 필터링
     } else {
-      setOrders(allOrders);
+      setOrders(allOrders); // ✅ null이거나 빈 배열이면 전체 데이터 표시
     }
   };
-  const handleFilter_2 = (type1: string | null, type2: string | null) => {
-    if (type1 || type2) {
-      setOrders(allOrders.filter((item) => item.status === type1 || type2));
-    } else {
-      setOrders(allOrders);
-    }
-  };
+
 
 
   const renderOrder = ({ item }: { item: OrderItem }) => (
@@ -131,17 +125,25 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
       }
     >
       {item.status === "pending"
-        ? "수락 대기 중"
-        : item.status === "accepted"
-        ? "배달 수락 완료"
-        : item.status === "inProgress"
-        ? "배달 중"
-        : item.status === "complete"
-        ? "배달 완료"
-        : "배달 취소 됨"}
+          ? "수락 대기 중"
+          : item.status === "accepted"
+          ? "배달중 accepted"
+          : item.status === "delivered" 
+          ? "배달중 delivered"
+          : item.status === "goToCafe" 
+          ? "카페로 이동중"
+          : item.status === "goToClient" 
+          ? "고객에게 이동중"
+          : item.status === "makingMenu" 
+          ? "제품 픽업 완료"
+          : item.status === "complete" 
+          ? "배달완료"
+          : item.status === "cancelled" 
+          ? "배달취소"
+          :"수정"}
     </Text>
 
-      {item.status !== "pending" && (
+      {(item.status !== "pending" && item.status !=="complete" )&& (
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigate("LiveMap", { orderId: item._id })}
@@ -178,13 +180,13 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
   return (
     <>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("pending")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter(["pending"])}>
           <Text style={styles.buttonText}>수락 대기 중</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter(["accepted","delivered","goToCafe","goToClient","makingMenu"])}>
           <Text style={styles.buttonText}>배달중</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter_2("complete","canceled")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter(["complete","canceled"])}>
           <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
         </TouchableOpacity>
       </View>
