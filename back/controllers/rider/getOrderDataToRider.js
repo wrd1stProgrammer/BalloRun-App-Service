@@ -50,7 +50,7 @@ const getOrderDataWithRedis = async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
-        order.status = "delivered";
+        order.status = "complete";
         order.save();
 
         await invalidateCompletedOrdersCache(order.userId,redisCli);

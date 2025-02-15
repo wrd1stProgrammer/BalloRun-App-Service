@@ -20,17 +20,17 @@ const goToCafeHandler = async (req, res) =>{
     
     await invalidateOnGoingOrdersCache(order.userId,redisCli);
 
-    const notipayload ={
-        title: `라이더가 카페로 이동 중입니다.`,
-        body: `실시간 위치를 확인해보세요!`,
-        data: {type:"order_onGoing", orderId:orderId},
-      }
-      if (orderUser.fcmToken) {
-        //orderUser.fcmToken 로 변경해야함 잘 작동하면
-        //await sendPushNotification(orderUser.fcmToken, notipayload);
-      } else {
-        console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
-      }
+    // const notipayload ={
+    //     title: `라이더가 카페로 이동 중입니다.`,
+    //     body: `실시간 위치를 확인해보세요!`,
+    //     data: {type:"order_onGoing", orderId:orderId},
+    //   }
+    //   if (orderUser.fcmToken) {
+    //     //orderUser.fcmToken 로 변경해야함 잘 작동하면
+    //     //await sendPushNotification(orderUser.fcmToken, notipayload);
+    //   } else {
+    //     console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+    //   }
 }
 
 const makingMenuHandler = async (req, res) =>{
@@ -45,17 +45,17 @@ const makingMenuHandler = async (req, res) =>{
     
     await invalidateOnGoingOrdersCache(order.userId,redisCli);
 
-    const notipayload ={
-        title: `음료 제조 중입니다.`,
-        body: `실시간 위치를 확인해보세요!`,
-        data: {type:"order_onGoing", orderId:orderId},
-      }
-      if (orderUser.fcmToken) {
-        //orderUser.fcmToken 로 변경해야함 잘 작동하면
-        //await sendPushNotification(orderUser.fcmToken, notipayload);
-      } else {
-        console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
-      }
+    // const notipayload ={
+    //     title: `음료 제조 중입니다.`,
+    //     body: `실시간 위치를 확인해보세요!`,
+    //     data: {type:"order_onGoing", orderId:orderId},
+    //   }
+    //   if (orderUser.fcmToken) {
+    //     //orderUser.fcmToken 로 변경해야함 잘 작동하면
+    //     //await sendPushNotification(orderUser.fcmToken, notipayload);
+    //   } else {
+    //     console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+    //   }
 
 }
 
@@ -71,16 +71,23 @@ const goToClientHandler = async (req, res) =>{
     
     await invalidateOnGoingOrdersCache(order.userId,redisCli);
 
-    const notipayload ={
-        title: `라이더가 고객에게 이동 중입니다.`,
-        body: `실시간 위치를 확인해보세요!`,
-        data: {type:"order_onGoing", orderId:orderId},
-      }
-      if (orderUser.fcmToken) {
-        //orderUser.fcmToken 로 변경해야함 잘 작동하면
-        //await sendPushNotification(orderUser.fcmToken, notipayload);
-      } else {
-        console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
-      }
+    // const notipayload ={
+    //     title: `라이더가 고객에게 이동 중입니다.`,
+    //     body: `실시간 위치를 확인해보세요!`,
+    //     data: {type:"order_onGoing", orderId:orderId},
+    //   }
+    //   if (orderUser.fcmToken) {
+    //     //orderUser.fcmToken 로 변경해야함 잘 작동하면
+    //     //await sendPushNotification(orderUser.fcmToken, notipayload);
+    //   } else {
+    //     console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+    //   }
 
 }
+
+ 
+module.exports = {
+  goToCafeHandler,
+  makingMenuHandler,
+  goToClientHandler
+};

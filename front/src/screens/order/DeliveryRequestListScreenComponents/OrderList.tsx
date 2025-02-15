@@ -94,6 +94,14 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
       setOrders(allOrders);
     }
   };
+  const handleFilter_2 = (type1: string | null, type2: string | null) => {
+    if (type1 || type2) {
+      setOrders(allOrders.filter((item) => item.status === type1 || type2));
+    } else {
+      setOrders(allOrders);
+    }
+  };
+
 
   const renderOrder = ({ item }: { item: OrderItem }) => (
     <View style={styles.card}>
@@ -128,7 +136,7 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
         ? "배달 수락 완료"
         : item.status === "inProgress"
         ? "배달 중"
-        : item.status === "delivered"
+        : item.status === "complete"
         ? "배달 완료"
         : "배달 취소 됨"}
     </Text>
@@ -176,7 +184,7 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
         <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
           <Text style={styles.buttonText}>배달중</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("a")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter_2("complete","canceled")}>
           <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
         </TouchableOpacity>
       </View>

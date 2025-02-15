@@ -77,7 +77,7 @@ const getOngoingOrders = async (req, res) => {
     // 3. DB 조회
     const ongoingOrders = await Order.find({
       userId,
-      status: { $in: ["pending", "matched", "inProgress", "accepted", "cancelled","goToCafe","makingMenu","goToClient"] }
+      status: { $in: ["pending", "matched", "inProgress", "accepted", "cancelled","goToCafe","makingMenu","goToClient","complete"] }
     }).lean();
   // goToCafe : 카페가는중, makingMenu:제조중 , goToClient: 고객에게 가는중
 

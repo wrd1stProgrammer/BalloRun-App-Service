@@ -21,6 +21,7 @@ import { WebSocketContext } from "../../../utils/sockets/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
 import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions, Asset} from 'react-native-image-picker';
 import ChangeStatusPicker from "./DeliveryListComponents.tsx/ChangeStatusPicker";
+import { goToCafeHandler, goToClientHandler, makingMenuHandler } from "../../../redux/actions/riderAction";
 
 
 
@@ -95,6 +96,14 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
     }
   };
 
+  const handleFilter_1 = (type: string | null) => {
+    if (type) {
+      setOrders(allOrders.filter((item) => item.status !== type));
+    } else {
+      setOrders(allOrders);
+    }
+  };
+
   const handleTakePhoto = (item: OrderItem) => {
     // 사진 촬영 옵션 설정
     const options:CameraOptions= {
@@ -139,8 +148,37 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       }
   }
 
+  const ClickStatus = async (selectedStatus:String,orderId:string) => {
+    console.log("Selected Status:", selectedStatus);
+    if (selectedStatus === "goTocafe") {
+      await dispatch(goToCafeHandler(orderId));
+    } else if (selectedStatus === "goToClient") {
+      await dispatch(goToClientHandler(orderId));
+    } else if (selectedStatus === "makingMenu") {
+      await dispatch(makingMenuHandler(orderId));
+    }
+  }
+
 
   const renderOrder = ({ item }: { item: OrderItem }) => (
+    <>
+    <Modal
+    visible={statusChange}
+    transparent={true}
+    animationType="slide"
+    onRequestClose={() => setStatusChange(false)} 
+  >
+    <View style={styles.modalContainer}>
+      <View style={styles.modalContent}>
+        <ChangeStatusPicker
+          onClose={() => setStatusChange(false)}
+          onConfirm={(selectedStatus) => {ClickStatus(selectedStatus,item._id);  setStatusChange(false);
+          }}
+        />
+      </View>
+    </View>
+  </Modal>
+
     <View style={styles.card}>
       <View style={styles.rowHeader}>
         <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
@@ -166,8 +204,20 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
         {item.status === "pending"
           ? "수락 대기 중"
           : item.status === "accepted"
-          ? "배달중"
-          : "배달완료"}
+          ? "배달중 accepted"
+          : item.status === "delivered" 
+          ? "배달중 delivered"
+          : item.status === "goToCafe" 
+          ? "카페로 이동중"
+          : item.status === "goToClient" 
+          ? "고객에게 이동중"
+          : item.status === "makingMenu" 
+          ? "제품 픽업 완료"
+          : item.status === "complete" 
+          ? "배달완료"
+          : item.status === "cancelled" 
+          ? "배달취소"
+          :"수정"}
       </Text>
 
 
@@ -176,7 +226,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
 
 
-      {item.status == "accepted" && (
+      {item.status !== "complete" && (
         <>
              <TouchableOpacity
              style={styles.button}
@@ -218,7 +268,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
         </Text>
       </View>
     </View>
-    
+    </>
   );
 
   if (loading) {
@@ -232,7 +282,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
   return (
     <>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("accepted")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter_1("complete")}>
           <Text style={styles.buttonText}>배달중</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => handleFilter("complete")}>
@@ -241,32 +291,14 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       </View>
 
 
-      <Modal
-  visible={statusChange}
-  transparent={true}
-  animationType="slide"
-  onRequestClose={() => setStatusChange(false)} // Close modal on back press
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <ChangeStatusPicker 
-        onClose={() => setStatusChange(false)} 
-        onConfirm={(selectedStatus) => {
-          console.log("Selected Status:", selectedStatus);
-          // TODO: Add logic to update the delivery status in the backend or Redux store
-          setStatusChange(false);
-        }} 
-      />
-    </View>
-  </View>
-</Modal>
+
 
       <FlatList
-  data={orders}
-  keyExtractor={(item, index) => item._id ? item._id : `key-${index}`} // ✅ _id가 없으면 index 사용
-  renderItem={renderOrder}
-  contentContainerStyle={styles.listContent}
-/>
+        data={orders}
+        keyExtractor={(item, index) => item._id ? item._id : `key-${index}`} // ✅ _id가 없으면 index 사용
+        renderItem={renderOrder}
+        contentContainerStyle={styles.listContent}
+      />
     </>
   );
 };
