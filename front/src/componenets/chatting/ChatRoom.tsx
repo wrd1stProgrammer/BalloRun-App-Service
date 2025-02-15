@@ -57,7 +57,7 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
       socket.on("chat-list", (data) => {
         setChatData(data.data.chatList);
       });
-      console.log('cache test');
+      console.log('cache test')
 
       // 새로운 메시지를 받을 때 UI 업데이트
       socket.on("chatMessage", (newMessage) => {

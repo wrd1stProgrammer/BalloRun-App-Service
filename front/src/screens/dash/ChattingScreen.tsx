@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Text, View ,SafeAreaView} from 'react-native';
+import { FlatList, Text, View, SafeAreaView, Alert } from 'react-native'; // Alert 추가
 import TYPOS from '../../componenets/chatting/etc/TYPOS';
 import ChatRoomItem from '../../componenets/chatting/ChatRoomItem';
 import Color from '../../constants/Colors';
 import EmptyList from '../../componenets/chatting/EmptyList';
 import { ChatSocketContext } from '../../utils/sockets/ChatSocket';
-import { useAppDispatch,useAppSelector } from '../../redux/config/reduxHook';
+import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import { setUser } from '../../redux/reducers/userSlice';
 import axios from 'axios';
-import useOverlay from '../../componenets/chatting/etc/useOverlay';
-import Dialog from '../../componenets/chatting/etc/Dialog';
 import { token_storage } from '../../redux/config/storage';
+import { chatExitHandler } from '../../redux/actions/chatAction';
+
 
 // 전부 필수 데이터
 interface RoomData {
@@ -22,11 +22,11 @@ interface RoomData {
   userImage: string;
 }
 
-const Chatting:React.FC= () => {
+const Chatting: React.FC = () => {
   const [rooms, setRooms] = useState<RoomData[]>([]);
   const socket = useContext(ChatSocketContext);
   const access_token = token_storage.getString('access_token');
-  const overlay = useOverlay();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     console.log('채팅방 유스이ㅂㅔㄱ트');
@@ -47,41 +47,35 @@ const Chatting:React.FC= () => {
       socket.off('room-list');
     };
   }, [socket]);
- 
 
   const onExitPressHandler = async (id: string) => {
-    overlay.open(
-      <Dialog isOpened={true}>
-        <Dialog.Content content='채팅방을 나가면 대화 내용이 모두 삭제되며 복구할 수 없어요. 채팅방을 나갈까요?' />
-        <Dialog.Buttons
-          buttons={[
-            {
-              label: '취소',
-              onPressHandler: overlay.close,
-            },
-            {
-              label: '나가기',
-              // 나가기 API 작성 예정
-              onPressHandler: async () => {
-                try {
-                  // 액션으로 분리 하자
-                  const {
-                    data: { chatRoomList },
-                  } = await axios.patch(`/chat/leave/${id}`);
-                  setRooms(chatRoomList);
-                } catch (error) {
-                  console.log(error);
-                } finally {
-                  overlay.close();
-                }
-              },
-            },
-          ]}
-        />
-      </Dialog>
+    Alert.alert(
+      '채팅방 나가기', // 제목
+      '채팅방을 나가면 대화 내용이 모두 삭제되며 복구할 수 없어요. 채팅방을 나갈까요?', // 메시지
+      [
+        {
+          text: '취소',
+          style: 'cancel', // 취소 버튼
+        },
+        {
+          text: '나가기',
+          onPress: async () => {
+            const isExit = await dispatch(chatExitHandler(id)); // 채팅방 나가기 액션 실행
+            console.log(isExit,"이게 뭐냐");
+            if (isExit=="true") {
+              // isExit가 true이면 해당 채팅방을 목록에서 제거
+              setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
+            } else {
+              console.log("채팅방 나가기 실패");
+            }
+          },
+        },
+      ],
+      { cancelable: true } // 바깥쪽 터치로 닫기 가능
     );
   };
-// 채팅방 알람 끄기 설정 -> api 제작 해야함
+
+  // 채팅방 알람 끄기 설정 -> api 제작 해야함
   const onToggleNotificationHandler = async (id: string) => {
     try {
       const {
