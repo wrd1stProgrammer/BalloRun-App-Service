@@ -1,10 +1,12 @@
 const amqp = require("amqplib");
 const Order = require("../../models/Order");
+const NewOrder = require("../../models/NewOrder");
 const User = require("../../models/User");
 const {storeOrderInRedis, removeOrderFromRedis} = require("./storeOrderInRedis");
 const {connectRabbitMQ} = require("../../config/rabbitMQ");
 const {invalidateOnGoingOrdersCache} = require("../../utils/deleteRedisCache");
 const {sendPushNotification} = require("../../utils/sendPushNotification");
+const { consumeNewOrderMessages } = require("./consumeNeworder");
 
 
 
@@ -52,8 +54,8 @@ const consumeMessages = async (showOrderData, redisCli) => {
 
             await channel.publish(
               delayedExchange,
-              "delayed_route", // 바인딩 시 사용한 라우팅 키
-              Buffer.from(JSON.stringify({ orderId: order._id })),
+              "delayed_route.order", // 바인딩 시 사용한 라우팅 키
+              Buffer.from(JSON.stringify({ orderId: order._id, type: "order"  })),
               { headers: { "x-delay": 120000 }, persistent: true } // 3분(180초 = 180,000ms) 1분 테스트
             );
 
@@ -88,8 +90,9 @@ const consumeDelayedMessages = async (redisCli) => {
       durable: true,
     });
 
-    // await channel.assertQueue(delayedQueue, { durable: true });
-    await channel.bindQueue(delayedQueue, "delayed_exchange", "delayed_route");
+    // 라우팅 키에 따라 바인딩
+    await channel.bindQueue(delayedQueue, delayedExchange, "delayed_route.order");
+    await channel.bindQueue(delayedQueue, delayedExchange, "delayed_route.neworder");
 
     console.log(`Waiting for delayed messages in ${delayedQueue}`);
 
@@ -99,32 +102,24 @@ const consumeDelayedMessages = async (redisCli) => {
         if (msg) {
           console.log(`[DELAY RECEIVE] Raw 2: ${msg.content.toString()}`); // 🔼 수신 로그
           try {
-            const { orderId } = JSON.parse(msg.content.toString());
-            const order = await Order.findById(orderId);
-            const orderUser = await User.findById(order.userId);
-            console.log(order,orderUser, "두개");
+            const { orderId, type } = JSON.parse(msg.content.toString());
 
-            if (order && order.status === "pending") {
-              // 30분 후 상태 업데이트
-              order.status = "cancelled";
-              await order.save();
-              // 진행 주문 레디스 캐시 삭제 -> 레디스 없으니 자동으로 db에서 조회해서 상태 변화!
-              await invalidateOnGoingOrdersCache(order.userId,redisCli);
-
-              const notipayload ={
-                title: `배달요청이 취소 되었습니다.`,
-                body: `취소된 배달을 확인하세요`,
-                data: {type:"order_cancelled", orderId:orderId},
+            if (type === "order") {
+              const order = await Order.findById(orderId);
+              if (order && order.status === "pending") {
+                order.status = "cancelled";
+                await order.save();
+                await invalidateOnGoingOrdersCache(order.userId, redisCli);
+                console.log(order.status, "매치 변화 상태 ");
               }
-              if (orderUser.fcmToken) {
-                //orderUser.fcmToken 로 변경해야함 잘 작동하면
-                await sendPushNotification(orderUser.fcmToken, notipayload);
-              } else {
-                console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+            } else if (type === "neworder") {
+              const newOrder = await NewOrder.findById(orderId);
+              if (newOrder && newOrder.status === "pending") {
+                newOrder.status = "cancelled";
+                await newOrder.save();
+                await invalidateOnGoingOrdersCache(newOrder.userId, redisCli);
+                console.log(newOrder.status, "매치 변화 상태 ");
               }
-
-              //주문취소 알림 추가
-              console.log(order.status, "매치 변화 상태 ");
             }
 
             channel.ack(msg);
@@ -142,5 +137,6 @@ const consumeDelayedMessages = async (redisCli) => {
 
 module.exports = {
   consumeMessages,
-  consumeDelayedMessages
+  consumeDelayedMessages,
+  consumeNewOrderMessages,
 };

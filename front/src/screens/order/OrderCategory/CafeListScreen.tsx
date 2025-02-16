@@ -6,14 +6,17 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Platform,
+  StatusBar,
+  SafeAreaView // SafeAreaView 추가
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { goBack, navigate } from "../../navigation/NavigationUtils";
-import cafes from "../../componenets/cafe/cafeNameData";
-import { useAppSelector } from "../../redux/config/reduxHook";
-import { selectMenu } from "../../redux/reducers/menuSlice";
-import CafeCustomMapView from "./CafeListScreenComponent/CafeCustomMapView";
+import { goBack, navigate } from "../../../navigation/NavigationUtils";
+import cafes from "../../../componenets/cafe/cafeNameData";
+import { useAppSelector } from "../../../redux/config/reduxHook";
+import { selectMenu } from "../../../redux/reducers/menuSlice";
+import CafeCustomMapView from "../CafeListScreenComponent/CafeCustomMapView";
 
 const CafeListScreen: React.FC = () => {
   const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
@@ -33,7 +36,7 @@ const CafeListScreen: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
@@ -92,27 +95,24 @@ const CafeListScreen: React.FC = () => {
       ) : (
         <CafeCustomMapView cafes={cafes} />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default CafeListScreen;
-
-// 스타일은 기존 코드 유지
-
 
 // 스타일
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: 16,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   backButton: {
     padding: 8,
@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginVertical: 16,
+    paddingHorizontal: 16,
   },
   toggleButton: {
     flex: 1,
@@ -170,6 +171,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: 16,
+    paddingHorizontal: 16,
   },
   cafeItem: {
     flexDirection: "row",

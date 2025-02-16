@@ -104,49 +104,9 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
     }
   };
 
-  const handleTakePhoto = (item: OrderItem) => {
-    // 사진 촬영 옵션 설정
-    const options:CameraOptions= {
-      mediaType: 'photo' as const, // 사진만 촬영
-      cameraType : 'back',
-      videoQuality : "high",
-      saveToPhotos: true, // 갤러리에 저장
-    };
-  
-    // 사진 촬영 실행
-    launchCamera(options, (response:ImagePickerResponse) => {
-      if (response.didCancel) {
-        Alert.alert("사진 촬영이 취소되었습니다.");
-      } else if (response.errorMessage) {
-        Alert.alert("사진 촬영 중 오류가 발생했습니다.", response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const uri = response.assets[0].uri; // 촬영한 사진의 URI
-        if (uri) {
-          // 사진 URI와 item을 DeliveryImage로 전달
-          navigate("DeliveryImage", { item, photoUri: uri });
-        }
-      }
-    });
-  };
 
-    //사진앱을 실행하는 기능 화살표 함수
-    const showPhoto = async (item:OrderItem)=> {
-      const option: ImageLibraryOptions = {
-          mediaType : "photo",
-          selectionLimit : 1,
-      }
 
-      const response = await launchImageLibrary(option) //함수에 async가 붙어 있어야 함
 
-      if(response.didCancel) Alert.alert('취소')
-      else if(response.errorMessage) Alert.alert('Error : '+ response.errorMessage)
-      else {
-        const selectedPhoto = response.assets?.[0]; // 첫 번째 선택한 사진
-
-        navigate("DeliveryImage", { item, photoUri: selectedPhoto?.uri });
-
-      }
-  }
 
   const ClickStatus = async (selectedStatus:String,orderId:string) => {
     console.log("Selected Status:", selectedStatus);
@@ -287,9 +247,6 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
           <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
         </TouchableOpacity>
       </View>
-
-
-
 
       <FlatList
         data={orders}

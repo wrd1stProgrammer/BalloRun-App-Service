@@ -7,7 +7,7 @@ import BasketScreen from "../screens/dash/BasketScreen";
 import ChattingSceen from "../screens/dash/ChattingScreen";
 import ProfileScreen from "../screens/dash/ProfileScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
-import CafeListScreen from "../screens/order/CafeListScreen";
+import CafeListScreen from "../screens/order/OrderCategory/CafeListScreen";
 import CafeMenuListScreen from "../screens/order/CafeMenuListScreen";
 import OrderWriteLoacation from "../screens/order/OrderWriteLoacation";
 import DeliveryRequestListScreen from "../screens/order/DeliveryRequestListScreen";
@@ -20,6 +20,11 @@ import KakaoSample from "../screens/dash/KakaoPayApiTest/KakaoSample";
 import DeliveryImage from "../screens/order/DeliveryRequestListScreenComponents/DeliveryImage";
 import PayResult from "../screens/dash/KakaoPayApiTest/PayResult";
 // ++ Screen Type ??
+import OrderListSceen from "../screens/order/CafeListScreenComponent/OrderListScreen";
+import Component from "react-native-paper/lib/typescript/components/List/ListItem";
+import OrderLocationScreen from "../screens/order/OrderCategory/OrderLocationScreen";
+import OrderFinalScreen from "../screens/order/OrderCategory/OrderFinalScreen";
+import OrderPageScreen from "../screens/order/OrderCategory/OrderPageScreen copy";
 
 // ++ New Screen Stack
 export const authStack = [
@@ -97,6 +102,22 @@ export const orderStack = [
     name: "CafeMenuOption",
     component: CafeMenuOption,
   },
+  {
+    name: "OrderListScreen",
+    component: OrderListSceen,
+  },
+  {
+    name: "OrderPageScreen",
+    component: OrderPageScreen,
+  },
+  {
+    name: "OrderLocationScreen",
+    component: OrderLocationScreen,
+  },
+  {
+    name: "OrderFinalScreen",
+    component: OrderFinalScreen,
+  }
 ];
 
 export const deliveryStack = [

@@ -8,7 +8,7 @@ const User = require("./models/User");
 const configureSocket = require("./loaders/socket"); // Socket.IO 설정 로더
 const configureChatSocket = require("./loaders/chatSocket");
 const configureMapSocket = require("./loaders/mapSocket");
-const { consumeMessages,consumeDelayedMessages } = require("./controllers/rabbitmqController/consumer");
+const { consumeMessages,consumeDelayedMessages,consumeNewOrderMessages } = require("./controllers/rabbitmqController/consumer");
 const { consumeOrderAcceptQueue } = require("./controllers/rabbitmqController/orderConsumer");
 const {fcmConnect } = require("./config/fcm");
 
@@ -64,6 +64,7 @@ async function startServer() {
     consumeMessages(showOrderData, redisCli);
     consumeDelayedMessages(redisCli);
     consumeOrderAcceptQueue(redisCli);
+    consumeNewOrderMessages(redisCli);
   }, 10000);
 
 

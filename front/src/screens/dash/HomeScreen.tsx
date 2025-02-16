@@ -134,7 +134,7 @@ const HomeScreen: React.FC = () => {
         </TouchableOpacity>
 
         {/* 주문하기 카드 */}
-        <TouchableOpacity style={[styles.card, styles.orderCard]} onPress={() => navigate('CafeListScreen')}>
+        <TouchableOpacity style={[styles.card, styles.orderCard]} onPress={() => navigate('OrderListScreen')}>
           <Ionicons name="restaurant" size={28} color="#8A67F8" />
           <Text style={styles.cardTextDark}>주문하기</Text>
         </TouchableOpacity>
