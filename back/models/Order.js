@@ -44,6 +44,10 @@ const OrderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    orderType: {
+      type: String,
+      default: "Order"
+  },
     price:{type:Number},
     quantity:{type:Number},
   },

@@ -111,6 +111,28 @@ export const orderNowHandler = (
     }
   }
 
+  export const getCompletedNewOrdersHandler =() => async(dispatch:any) => {
+    try {
+      const res = await appAxios.get(`/order/getNewCompletedOrderPresent`);
+      return res.data
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }
+
+  export const getOngoingNewOrdersHandler = () => async(dispatch:any) => {
+    try {
+      const res = await appAxios.get(`/order/getNewOrderPresent`);
+      return res.data
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }
+
+  // 
+
   export const getDeliveryListHandler =() => async(dispatch:any) => {
     try {
       const res = await appAxios.get(`/order/getDeliveryList`);

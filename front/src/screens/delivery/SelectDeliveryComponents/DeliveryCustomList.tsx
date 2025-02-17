@@ -29,6 +29,7 @@ type DeliveryItem = {
   lat: string;
   lng: string;
   isReservation: boolean;
+  orderType: "Order" | "NewOrder"
 };
 
 type DeliveryCustomListProps = {
@@ -96,15 +97,12 @@ const getCurrentLocation = (orderId): Promise<{ latitude: number; longitude: num
   });
 };
 
-const acceptHandler = async (orderId: string) => {
+const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") => {
   try {
-    console.log(orderId, "id logging");
-
-
-
+    console.log(orderId,orderType,"id logging");
 
     // 주문 수락 요청
-    const dummyRes = await dispatch(acceptActionHandler(orderId));
+    const dummyRes = await dispatch(acceptActionHandler(orderId,orderType));
     console.log(dummyRes);
 
     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
@@ -182,14 +180,14 @@ const acceptHandler = async (orderId: string) => {
         <View style={styles.itemDetails}>
           <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
           <Text style={styles.menu}>{item.items.map(i => `${i.menuName} x${i.quantity}`).join(", ")}</Text>
-          <Text style={styles.info}>배달 유형: {item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
+          <Text style={styles.info}>{item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
           <Text style={styles.info}>거리: {distance} km</Text>
           <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>
-          <Text style={styles.price}>음료가격: {item.price}원</Text>
+          <Text style={styles.price}>가격: {item.price}원</Text>
         </View>
         <View style={styles.footer}>
           <TouchableOpacity
-            onPress={() => acceptHandler(item._id)}
+            onPress={() => acceptHandler(item._id,item.orderType)}
             style={[styles.button, trackingOrders[item._id] && styles.disabledButton]}
             disabled={trackingOrders[item._id]}
           >

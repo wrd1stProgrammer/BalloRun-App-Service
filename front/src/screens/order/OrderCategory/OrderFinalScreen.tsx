@@ -27,11 +27,11 @@ type RootStackParamList = {
     name: string;
     orderDetails: string;
     priceOffer: string;
-    deliveryTip: string;
-    extraRequests: string;
+    deliveryFee: string;
+    riderRequest: string;
     images: string;
-    latitude?: number;
-    longitude?: number;
+    lat?: number;
+    lng?: number;
   };
 };
 
@@ -43,14 +43,14 @@ const OrderFinalScreen = () => {
     name,
     orderDetails,
     priceOffer,
-    deliveryTip,
-    extraRequests,
+    deliveryFee,
+    riderRequest,
     images,
-    latitude,
-    longitude,
+    lat,
+    lng,
   } = route.params;
 
-  const [deliveryMethod, setDeliveryMethod] = useState<"direct" | "nonContact">("direct");
+  const [deliveryType, setdeliveryType] = useState<"direct" | "nonContact">("direct");
   const [pickupTime, setPickupTime] = useState<"now" | "reservation">("now");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [pickupDate, setPickupDate] = useState(new Date());
@@ -80,13 +80,13 @@ const OrderFinalScreen = () => {
       name,
       orderDetails,
       parseInt(priceOffer.replace("원", "").replace(",", "")), // Converting the priceOffer to a number
-      parseInt(deliveryTip.replace("원", "").replace(",", "")), // Converting the deliveryTip to a number
-      extraRequests,
+      parseInt(deliveryFee.replace("원", "").replace(",", "")), // Converting the deliveryFee to a number
+      riderRequest,
       imageResponse, // orderpagescreen 첨부 이미지
       imageResponse2 || "", // 수령 위치 참고사진 (uri만 전달)
-      latitude?.toString() || "", // latitude as string
-      longitude?.toString() || "", // longitude as string
-      deliveryMethod, // 'direct' or 'nonContact'
+      lat?.toString() || "", // lat as string
+      lng?.toString() || "", // lng as string
+      deliveryType, // 'direct' or 'nonContact'
       pickupTime === "now" ? new Date() : pickupDate, // either current time or reservation time
       deliveryAddress,
       pickupTime === "now" ? formatTime(new Date()) : formatTime(pickupDate) // pickup time display
@@ -157,16 +157,16 @@ const OrderFinalScreen = () => {
             <Text style={styles.sectionTitle}>수령 방법</Text>
             <View style={styles.optionContainer}>
               <TouchableOpacity
-                style={[styles.optionButton, deliveryMethod === "direct" && styles.optionButtonActive]}
-                onPress={() => setDeliveryMethod("direct")}
+                style={[styles.optionButton, deliveryType === "direct" && styles.optionButtonActive]}
+                onPress={() => setdeliveryType("direct")}
               >
-                <Text style={[styles.optionText, deliveryMethod === "direct" && styles.optionTextActive]}>직접 수령</Text>
+                <Text style={[styles.optionText, deliveryType === "direct" && styles.optionTextActive]}>직접 수령</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.optionButton, deliveryMethod === "nonContact" && styles.optionButtonActive]}
-                onPress={() => setDeliveryMethod("nonContact")}
+                style={[styles.optionButton, deliveryType === "nonContact" && styles.optionButtonActive]}
+                onPress={() => setdeliveryType("nonContact")}
               >
-                <Text style={[styles.optionText, deliveryMethod === "nonContact" && styles.optionTextActive]}>비대면 수령</Text>
+                <Text style={[styles.optionText, deliveryType === "nonContact" && styles.optionTextActive]}>비대면 수령</Text>
               </TouchableOpacity>
             </View>
 

@@ -14,6 +14,13 @@ const {
   getDeliveryList
 } = require("../controllers/order/orderPresent");
 
+const {
+  getOnGoingNewOrders,
+  getCompletedNewOrders
+} = require("../controllers/order/newOrderPresent");
+
+
+
 const router = express.Router();
 
 router.post('/orderNow',orderNowDirectCreate);
@@ -23,6 +30,8 @@ router.get('/getCompletedOrders',getCompletedOrders);
 router.get('/getOngoingOrders',getOngoingOrders);
 router.get('/getDeliveryList',getDeliveryList);
 
+router.get('/getNewOrderPresent',getOnGoingNewOrders);
+router.get('/getNewCompletedOrderPresent',getCompletedNewOrders);
 
 
 module.exports = router;

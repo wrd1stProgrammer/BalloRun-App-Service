@@ -8,13 +8,13 @@ export const neworderCompleteHandler = (
     name: string,
     orderDetails: string,
     priceOffer: number,
-    deliveryTip: number,
-    extraRequests: string,
+    deliveryFee: number,
+    riderRequest: string,
     images: string, // 첨부 이미지
     orderImages: any, // 수령 위치 참고사진들
-    latitude: string,
-    longitude: string,
-    deliveryMethod: 'direct' | 'nonContact', // 직접이냐 비대면이냐
+    lat: string,
+    lng: string,
+    deliveryType: 'direct' | 'nonContact', // 직접이냐 비대면이냐
     pickupTime: string | Date,
     deliveryAddress: string,
     pickupTimeDisplay: string
@@ -24,13 +24,13 @@ export const neworderCompleteHandler = (
         name,
         orderDetails,
         priceOffer,
-        deliveryTip,
-        extraRequests,
+        deliveryFee,
+        riderRequest,
         images,
         orderImages,
-        latitude,
-        longitude,
-        deliveryMethod,
+        lat,
+        lng,
+        deliveryType,
         pickupTime,
         deliveryAddress,
         pickupTimeDisplay,

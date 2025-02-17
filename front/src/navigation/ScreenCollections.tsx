@@ -25,6 +25,7 @@ import Component from "react-native-paper/lib/typescript/components/List/ListIte
 import OrderLocationScreen from "../screens/order/OrderCategory/OrderLocationScreen";
 import OrderFinalScreen from "../screens/order/OrderCategory/OrderFinalScreen";
 import OrderPageScreen from "../screens/order/OrderCategory/OrderPageScreen copy";
+import NewOrderList from "../screens/order/NewOrder/NewOrderList";
 
 // ++ New Screen Stack
 export const authStack = [
@@ -117,7 +118,7 @@ export const orderStack = [
   {
     name: "OrderFinalScreen",
     component: OrderFinalScreen,
-  }
+  },
 ];
 
 export const deliveryStack = [

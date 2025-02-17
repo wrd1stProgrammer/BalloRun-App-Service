@@ -11,8 +11,8 @@ type RootStackParamList = {
     name: string;
     orderDetails: string;
     priceOffer: string;
-    deliveryTip: string;
-    extraRequests: string;
+    deliveryFee: string;
+    riderRequest: string;
     images: string;
   };
 };
@@ -46,7 +46,7 @@ const OrderLocationScreen = () => {
 
   const handleConfirmLocation = () => {
     if (!location) return;
-    navigate("OrderFinalScreen", { ...orderData, latitude: location.latitude, longitude: location.longitude });
+    navigate("OrderFinalScreen", { ...orderData, lat: location.latitude, lng: location.longitude });
   };
 
   return (

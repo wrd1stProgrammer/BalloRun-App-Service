@@ -8,7 +8,7 @@ const { sendPushNotification } = require("../../utils/sendPushNotification");
 const consumeNewOrderMessages = async (redisCli) => {
   try {
     const { channel } = await connectRabbitMQ();
-    const cacheKey = `activeNewOrders`;
+    const cacheKey = `activeOrders`;
     const queue = "new_order_queue";
     const delayedExchange = "delayed_exchange";
 
@@ -37,9 +37,30 @@ const consumeNewOrderMessages = async (redisCli) => {
 
             // Redis 저장 (30분 TTL)
             // await storeOrderInRedis(redisCli, orderData);
+            const transformedOrder = {
+                _id: newOrder._id,
+                items: [
+                  {
+                    menuName: newOrder.orderDetails, // orderDetails 값을 menuName으로
+                    cafeName: newOrder.name, // name 값을 cafeName으로
+                  }
+                ],
+                deliveryType: newOrder.deliveryType,
+                startTime: newOrder.createdAt,
+                deliveryFee: newOrder.deliveryFee,
+                price: newOrder.priceOffer,
+                createdAt: newOrder.createdAt,
+                endTime: newOrder.pickupTime,
+                lat: newOrder.lat,
+                lng: newOrder.lng,
+                isReservation: newOrder.isReservation,
+                orderType: newOrder.orderType,
+              };
+              
+
             const redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
-            redisOrders.push(newOrder);
-            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 120 }); // 3분 1분 테스트
+            redisOrders.push(transformedOrder);
+            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 1800 }); // 3분 1분 테스트
 
 
             // 진행 주문 제거 이거 Ongoing에서 맞춰야 함.

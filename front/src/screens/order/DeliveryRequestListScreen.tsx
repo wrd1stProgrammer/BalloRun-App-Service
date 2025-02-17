@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { SafeAreaView, View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import OrderList from "./DeliveryRequestListScreenComponents/OrderList"; // ✅ 경로 수정
 import DeliveryList from "./DeliveryRequestListScreenComponents/DeliveryList";
+import NewOrderList from "./NewOrder/NewOrderList";
+
 
 const DeliveryRequestListScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"orders" | "deliveries">("orders");
@@ -24,7 +26,7 @@ const DeliveryRequestListScreen: React.FC = () => {
 
   
       {activeTab === "orders" ? (
-        <OrderList activeTab={activeTab}/>
+        <NewOrderList activeTab={activeTab}/>
       ) : (
         <DeliveryList activeTab={activeTab}/>
 

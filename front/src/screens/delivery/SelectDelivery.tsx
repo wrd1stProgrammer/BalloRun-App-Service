@@ -22,6 +22,7 @@ type DeliveryItem = {
   lat: string;
   lng: string;
   isReservation: boolean;
+  orderType: "Order" | "NewOrder";
 };
 
 function SelectDelivery() {

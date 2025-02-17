@@ -27,8 +27,8 @@ const OrderPageScreen = () => {
 
   const [orderDetails, setOrderDetails] = useState("");
   const [priceOffer, setPriceOffer] = useState("0원");
-  const [deliveryTip, setDeliveryTip] = useState("0원");
-  const [extraRequests, setExtraRequests] = useState("");
+  const [deliveryFee, setdeliveryFee] = useState("0원");
+  const [riderRequest, setriderRequest] = useState("");
   const [images, setImages] = useState<string | null>(null); // uri만 저장
 
 
@@ -43,8 +43,8 @@ const OrderPageScreen = () => {
       name,
       orderDetails,
       priceOffer,
-      deliveryTip,
-      extraRequests,
+      deliveryFee,
+      riderRequest,
       images: images,
     });
   };
@@ -125,8 +125,8 @@ const OrderPageScreen = () => {
           placeholder="0원"
           placeholderTextColor="#B0B0B0"
           keyboardType="numeric"
-          value={deliveryTip}
-          onChangeText={(text) => handlePriceChange(text, setDeliveryTip)}
+          value={deliveryFee}
+          onChangeText={(text) => handlePriceChange(text, setdeliveryFee)}
         />
 
         <TextInput
@@ -134,8 +134,8 @@ const OrderPageScreen = () => {
           placeholder="주문 요청사항 입력"
           placeholderTextColor="#B0B0B0"
           multiline
-          value={extraRequests}
-          onChangeText={setExtraRequests}
+          value={riderRequest}
+          onChangeText={setriderRequest}
         />
       </View>
 

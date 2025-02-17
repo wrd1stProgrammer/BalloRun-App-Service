@@ -41,19 +41,18 @@ export const getOrderData = () => async (dispatch: any) => {
     }
   };
 
-  export const acceptActionHandler = (orderId:string)=> async (dispatch: any) => {
+  export const acceptActionHandler = (orderId: string, orderType: "Order" | "NewOrder") => async (dispatch: any) => {
     try {
-      const res = await appAxios.post('/rider/acceptOrder',{
+      const endpoint = orderType === "Order" ? '/rider/acceptOrder' : '/rider/acceptNewOrder';
+      const res = await appAxios.post(endpoint, {
         orderId,
-      }); // 서버
+      });
       return res;
-      
     } catch (error: any) {
       console.error('주문 요청 실패:', error);
       return [];
     }
   };
-
   export const completeActionHandler = (orderId:string)=> async (dispatch: any) => {
     try {
       const res = await appAxios.post('/rider/completeOrder',{

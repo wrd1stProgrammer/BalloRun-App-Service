@@ -44,7 +44,7 @@ const acceptOrder = async (req, res) => {
 
     await channel.assertQueue(queue, { durable: true });
 
-    const message = JSON.stringify({ orderId, riderId, status: "accepted" });
+    const message = JSON.stringify({ orderId, riderId, status: "accepted",orderType:"Order" });
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
     console.log(`Order ${orderId} sent to RabbitMQ`);
