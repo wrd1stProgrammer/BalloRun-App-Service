@@ -10,7 +10,7 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
-  ActivityIndicator, // 로딩 화면을 위해 추가
+  ActivityIndicator,
 } from "react-native";
 import { useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -55,12 +55,11 @@ const OrderFinalScreen = () => {
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [pickupDate, setPickupDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null); // uri만 저장
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useAppDispatch();
 
-  // 현재 시간을 "오후/오전 몇시 몇분" 형식으로 반환
   const formatTime = (date: Date) => {
     const hours = date.getHours();
     const minutes = date.getMinutes();
@@ -70,31 +69,29 @@ const OrderFinalScreen = () => {
   };
 
   const handleNextPress = async () => {
-    setIsLoading(true); // 로딩 시작
+    setIsLoading(true);
 
-    // 업로드 먼저 하고 클라우디나리 url을 NewOrder에 저장함 동시에 할까..?
-    const imageResponse = await dispatch(uploadFile(images, "neworderInfo_image"));
-    const imageResponse2 = await dispatch(uploadFile(images, "neworderPickup_image"));
+    const imageResponse = images ? await dispatch(uploadFile(images, "neworderInfo_image")) : null;
+    const imageResponse2 = selectedImageUri ? await dispatch(uploadFile(selectedImageUri, "neworderPickup_image")) : null;
 
     const res = await dispatch(neworderCompleteHandler(
       name,
       orderDetails,
-      parseInt(priceOffer.replace("원", "").replace(",", "")), // Converting the priceOffer to a number
-      parseInt(deliveryFee.replace("원", "").replace(",", "")), // Converting the deliveryFee to a number
+      parseInt(priceOffer.replace("원", "").replace(",", "")),
+      parseInt(deliveryFee.replace("원", "").replace(",", "")),
       riderRequest,
-      imageResponse, // orderpagescreen 첨부 이미지
-      imageResponse2 || "", // 수령 위치 참고사진 (uri만 전달)
-      lat?.toString() || "", // lat as string
-      lng?.toString() || "", // lng as string
-      deliveryType, // 'direct' or 'nonContact'
-      pickupTime === "now" ? new Date() : pickupDate, // either current time or reservation time
+      imageResponse || "",
+      imageResponse2 || "",
+      lat?.toString() || "",
+      lng?.toString() || "",
+      deliveryType,
+      pickupTime === "now" ? new Date() : pickupDate,
       deliveryAddress,
-      pickupTime === "now" ? formatTime(new Date()) : formatTime(pickupDate) // pickup time display
+      pickupTime === "now" ? formatTime(new Date()) : formatTime(pickupDate)
     ));
 
-    // 위 비동기 작업 3개 끝나면 1초 후에 화면 전환! db 저장 성공 
     setTimeout(() => {
-      setIsLoading(false); // 로딩 종료
+      setIsLoading(false);
       navigate("BottomTab", {
         screen: "DeliveryRequestListScreen",
       });
@@ -126,13 +123,21 @@ const OrderFinalScreen = () => {
     else if (response.errorMessage) Alert.alert('Error: ' + response.errorMessage);
     else if (response.assets && response.assets.length > 0) {
       const uri = response.assets[0].uri;
-      setSelectedImageUri(uri || null); // uri만 저장
+      setSelectedImageUri(uri || null);
     }
   };
 
   const handleRemoveImage = () => {
-    setSelectedImageUri(null); // 이미지 uri 상태를 null로 설정하여 제거
+    setSelectedImageUri(null);
   };
+
+  const handleKakaoPay = () => {
+    Alert.alert("카카오페이 결제", "카카오페이 결제가 진행됩니다.");
+    // 여기에 카카오페이 결제 로직을 추가하세요.
+  };
+
+  // 총 금액 계산
+  const totalAmount = parseInt(priceOffer.replace("원", "").replace(",", "")) + parseInt(deliveryFee.replace("원", "").replace(",", ""));
 
   return (
     <SafeAreaView style={styles.container}>
@@ -196,7 +201,7 @@ const OrderFinalScreen = () => {
                 {showDatePicker && (
                   <DateTimePicker
                     value={pickupDate}
-                    mode="time" // 시간만 선택할 수 있도록 mode를 "time"으로 설정
+                    mode="time"
                     display="default"
                     onChange={handleDateChange}
                   />
@@ -224,18 +229,48 @@ const OrderFinalScreen = () => {
                 color={selectedImageUri ? "red" : "black"}
               />
             </TouchableOpacity>
-          </ScrollView>
 
+            {/* 결제 금액 섹션 */}
+            <Text style={styles.sectionTitle}>결제금액을 확인해주세요</Text>
+            <View style={styles.paymentContainer}>
+              <View style={styles.paymentRow}>
+                <Text style={styles.paymentLabel}>상품 가격</Text>
+                <Text style={styles.paymentValue}>{priceOffer}</Text>
+              </View>
+              <View style={styles.paymentRow}>
+                <Text style={styles.paymentLabel}>배달팁</Text>
+                <Text style={styles.paymentValue}>{deliveryFee}</Text>
+              </View>
+              <View style={styles.divider} />
+              <View style={styles.paymentRow}>
+                <Text style={styles.paymentLabel}>총 결제예정금액</Text>
+                <Text style={styles.paymentTotal}>{totalAmount.toLocaleString()}원</Text>
+              </View>
+
+              
+            </View>
+
+            {/* 카카오페이 결제 버튼 */}
+
+
+            <View style={styles.paymentRow}>
+                <Text style={styles.paymentLabel}>개인정보 제3자 제공 동의 -</Text>
+              </View>
+              
+          </ScrollView>
+          
           <TouchableOpacity
-            style={[styles.button, deliveryAddress ? styles.buttonActive : styles.buttonInactive]}
-            disabled={!deliveryAddress}
-            onPress={handleNextPress}
-          >
-            <Text style={styles.buttonText}>다음</Text>
-          </TouchableOpacity>
+              style={styles.kakaoPayButton}
+              onPress={handleKakaoPay}
+            >
+              <Text style={styles.kakaoPayButtonText}>카카오페이로 결제하기</Text>
+            </TouchableOpacity>
+
         </>
+        
       )}
     </SafeAreaView>
+    
   );
 };
 
@@ -351,6 +386,44 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: "#000",
+  },
+  paymentContainer: {
+    marginBottom: 20,
+  },
+  paymentRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  paymentLabel: {
+    fontSize: 14,
+    color: "#555",
+  },
+  paymentValue: {
+    fontSize: 14,
+    color: "#000",
+  },
+  paymentTotal: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#E0E0E0",
+    marginVertical: 10,
+  },
+  kakaoPayButton: {
+    backgroundColor: "#FFE812",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  kakaoPayButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#3A1D1D",
   },
 });
 

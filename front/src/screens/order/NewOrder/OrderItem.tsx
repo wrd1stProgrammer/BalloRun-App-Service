@@ -1,14 +1,17 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
+import { navigate } from '../../../navigation/NavigationUtils';
 
 interface OrderItemProps {
+  orderId:string;
   name: string;
   status: 'pending' | 'goToCafe' | 'makingMenu' | 'goToClient' | 'delivered' | 'cancelled';
   createdAt: string;
   orderDetails: string;
   priceOffer: number;
   deliveryFee: number;
+  orderType:string;
   imageUrl: any; // 로컬 이미지 경로를 받기 위해 any 타입 사용
 }
 
@@ -54,15 +57,84 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const OrderItem: React.FC<OrderItemProps> = ({ name, status, createdAt, orderDetails, priceOffer, deliveryFee, imageUrl }) => {
+const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt, orderDetails, priceOffer, deliveryFee,orderType, imageUrl }) => {
   const statusColor = getStatusColor(status); // 상태에 따른 색상 가져오기
+
+  //주문상세
+  const showOrderDetails = () => {
+    console.log('d');
+    navigate("OrderDetailScreen",{orderId,orderType});
+    // 상세페이지 이동 타입에 맞게 조회!
+    // navigate 파람스에 orderId, orderType 전달
+    // 주문상세 페이지에서 파람스를 가지고 액션 실행 -> 데이터 받아서 조회
+
+
+  }
+ 
+
+  // 더미 함수들
+  const handleChatPress = () => {
+    //생성된 채팅방 or 여기서 생성할까?
+    console.log('채팅 문의 버튼 클릭');
+  };
+
+  const handleLocationPress = () => {
+    //배달자의 위치 띄우기
+    console.log('위치 보기 버튼 클릭');
+    console.log(orderId);
+  };
+
+  const handleOrderConfirmPress = () => {
+
+    console.log('주문 확인 버튼 클릭');
+  };
+
+  const handleReviewPress = () => {
+    
+  };
+
+  const handleReorderPress = () => {
+    //주문 페이지로 이동
+    navigate('OrderListScreen');
+    console.log('재주문 버튼 클릭');
+  };
+
+  // 상태에 따라 버튼을 결정
+  const renderActionButton = () => {
+    switch (status) {
+      case 'pending':
+        return (
+          <Button mode="outlined" style={styles.button} onPress={handleOrderConfirmPress}>
+            주문 확인
+          </Button>
+        );
+      case 'delivered':
+        return (
+          <Button mode="outlined" style={styles.button} onPress={handleReviewPress}>
+            리뷰 작성
+          </Button>
+        );
+      case 'cancelled':
+        return (
+          <Button mode="outlined" style={styles.button} onPress={handleReorderPress}>
+            재주문
+          </Button>
+        );
+      default:
+        return (
+          <Button mode="outlined" style={styles.button} onPress={handleLocationPress}>
+            위치 보기
+          </Button>
+        );
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={[styles.status, { color: statusColor }]}>{getStatusMessage(status, createdAt)}</Text>
         <TouchableOpacity>
-          <Text style={styles.detailButton}>주문상세</Text>
+          <Text style={styles.detailButton} onPress={showOrderDetails}>주문상세</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.content}>
@@ -76,8 +148,10 @@ const OrderItem: React.FC<OrderItemProps> = ({ name, status, createdAt, orderDet
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <Button mode="outlined" style={styles.button}>채팅 문의</Button>
-        <Button mode="outlined" style={styles.button}>위치 보기</Button>
+        <Button mode="outlined" style={styles.button} onPress={handleChatPress}>
+          채팅 문의
+        </Button>
+        {renderActionButton()}
       </View>
     </View>
   );

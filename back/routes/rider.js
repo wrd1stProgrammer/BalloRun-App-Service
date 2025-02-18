@@ -7,12 +7,15 @@ const {
   acceptOrder,
   completeOrder
 } = require("../controllers/rider/acceptOrder");
+const {
+  acceptNewOrder
+} = require("../controllers/rider/acceptNewOrder");
 const { goToCafeHandler, makingMenuHandler, goToClientHandler } = require("../controllers/rider/orderStatusChange");
 const router = express.Router();
 
 router.get('/getOrderData',getOrderDataWithRedis);
 router.post(`/acceptOrder`,acceptOrder);
-router.post(`/acceptNewOrder`,);
+router.post(`/acceptNewOrder`,acceptNewOrder);
 router.post(`/completeOrder`,completeOrder);
 router.post(`/getroomId`,getroomId);
 

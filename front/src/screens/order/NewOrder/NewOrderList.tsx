@@ -7,12 +7,14 @@ import { getOngoingNewOrdersHandler,getCompletedNewOrdersHandler } from '../../.
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 
 interface OrderItemProps {
+    _id: string;
     name: string;
     status: 'pending' | 'goToCafe' | 'makingMenu' | 'goToClient' | 'delivered';
     createdAt: string;
     orderDetails: string;
     priceOffer: number;
     deliveryFee: number;
+    orderType: string;
     imageUrl: any; // 로컬 이미지 경로를 받기 위해 any 타입 사용
   }
 
@@ -38,7 +40,6 @@ const NewOrderList:React.FC<OrderListProps> = ({activeTab}) => {
       const completedOrders = await dispatch(getCompletedNewOrdersHandler());  
       // 두 배열 합
       const combinedOrders = [...ongoingOrders, ...completedOrders];
-  
       // 최신순으로 정렬 (createdAt 기준)
       combinedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());  
       // 상태 업데이트
@@ -56,6 +57,7 @@ const NewOrderList:React.FC<OrderListProps> = ({activeTab}) => {
         keyExtractor={(item:any) => item._id}
         renderItem={({ item }) => (
           <OrderItem
+            orderId={item._id}
             name={item.name}
             status={item.status}
             createdAt={item.createdAt}
@@ -63,6 +65,7 @@ const NewOrderList:React.FC<OrderListProps> = ({activeTab}) => {
             priceOffer={item.priceOffer}
             deliveryFee={item.deliveryFee}
             imageUrl={localImage} // 로컬 이미지 사용
+            orderType={item.orderType}
           />
         )}
       />

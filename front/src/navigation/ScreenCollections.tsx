@@ -26,6 +26,7 @@ import OrderLocationScreen from "../screens/order/OrderCategory/OrderLocationScr
 import OrderFinalScreen from "../screens/order/OrderCategory/OrderFinalScreen";
 import OrderPageScreen from "../screens/order/OrderCategory/OrderPageScreen copy";
 import NewOrderList from "../screens/order/NewOrder/NewOrderList";
+import OrderDetailScreen from "../screens/order/NewOrder/OrderDetailScreen";
 
 // ++ New Screen Stack
 export const authStack = [
@@ -119,6 +120,10 @@ export const orderStack = [
     name: "OrderFinalScreen",
     component: OrderFinalScreen,
   },
+  {
+    name:"OrderDetailScreen",
+    component:OrderDetailScreen,
+  }
 ];
 
 export const deliveryStack = [

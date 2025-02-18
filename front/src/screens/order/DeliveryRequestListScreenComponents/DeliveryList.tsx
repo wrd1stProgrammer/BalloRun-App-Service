@@ -240,7 +240,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
         </View>
       </Modal>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter_1("complete")}>
+        <TouchableOpacity style={styles.button} onPress={() => handleFilter_1("delivered")}>
           <Text style={styles.buttonText}>배달중</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => handleFilter("complete")}>
@@ -399,3 +399,4 @@ const styles =  StyleSheet.create({
 });
 
 export default DeliveryList;
+

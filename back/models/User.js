@@ -42,6 +42,10 @@ const UserSchema = new mongoose.Schema(
     loginProvider:{
       type:String,
       required: false,
+    },
+    isDelivering:{
+      type: Boolean,
+      default:false,
     }
 
   },

@@ -103,7 +103,8 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
 
     // 주문 수락 요청
     const dummyRes = await dispatch(acceptActionHandler(orderId,orderType));
-    console.log(dummyRes);
+    //console.log(dummyRes);
+    
 
     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
 

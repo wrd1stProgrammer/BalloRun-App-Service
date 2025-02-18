@@ -1,4 +1,6 @@
 const Order = require("../../models/Order");
+const NewOrder = require("../../models/NewOrder");
+
 const User = require("../../models/User");
 
 
@@ -96,6 +98,8 @@ const getOngoingOrders = async (req, res) => {
   }
 };
 
+
+// 진행 중인 배달 따로하자 이건 배달완료,취소 주문만
 const getDeliveryList = async (req, res) => {
   const userId = req.user.userId;
   const redisClient = req.app.get("redisClient");
@@ -103,38 +107,89 @@ const getDeliveryList = async (req, res) => {
   const cacheKey = `completedOrders:delivery:${userId}`;
 
   try {
-    // 1. Redis 캐시에서 데이터 확인
-    
-    /*
-    const cachedData = await redisCli.get(cacheKey);
-    
-    if (cachedData) {
-      console.log("Redis에서 완료된 주문 데이터를 가져옴");
-      return res.json(JSON.parse(cachedData));
-    }
-    */
 
-    // 2. Redis에 데이터가 없으면 MongoDB에서 조회
-    const completedOrders = await Order.find({
-      riderId: userId,
-    }).lean();
+    const orders = await Order.find({ riderId: userId }).lean();
+    const newOrder = await NewOrder.find({ riderId: userId }).lean();
+
+    const transformedNewOrders = newOrder.map(newOrder => ({
+      _id: newOrder._id,
+      items: [
+        {
+          menuName: newOrder.orderDetails, // orderDetails 값을 menuName으로
+          cafeName: newOrder.name, // name 값을 cafeName으로
+        }
+      ],
+      status: newOrder.status,
+      deliveryType: newOrder.deliveryType,
+      startTime: newOrder.createdAt,
+      deliveryFee: newOrder.deliveryFee,
+      createdAt: newOrder.createdAt,
+      updatedAt: newOrder.updatedAt,
+      riderRequest: newOrder.riderRequest,
+      endTime: newOrder.pickupTime,
+      lat: newOrder.lat,
+      lng: newOrder.lng,
+      orderType: newOrder.orderType,
+    }));
 
 
-    // await redisCli.set(cacheKey, JSON.stringify(completedOrders), { EX: 300 });
-    console.log("Redis에 완료된 주문 데이터를 캐싱");
+    const combinedOrders = [...orders, ...transformedNewOrders];
 
-    res.json(completedOrders);
+    res.json(combinedOrders);
   } catch (error) {
     console.error("완료된 주문 조회 중 오류 발생:", error);
     res.status(500).json({ message: "서버 오류" });
   }
 };
 
+const getDeliveryOngoingList = async (req, res) => {
+  const userId = req.user.userId;
+  const redisClient = req.app.get("redisClient");
+  const redisCli = redisClient.v4; // Redis v4 클라이언트 사용
+  const cacheKey = `completedOrders:delivery:${userId}`;
+
+  try {
+
+    const orders = await Order.find({ riderId: userId, status: { $nin: ['cancelled', 'complete','delivered'] } }).lean();
+    const newOrder = await NewOrder.find({ riderId: userId, status: { $nin: ['cancelled', 'complete','delivered'] } }).lean();
+
+    const transformedNewOrders = newOrder.map(newOrder => ({
+      _id: newOrder._id,
+      items: [
+        {
+          menuName: newOrder.orderDetails, // orderDetails 값을 menuName으로
+          cafeName: newOrder.name, // name 값을 cafeName으로
+        }
+      ],
+      status: newOrder.status,
+      deliveryType: newOrder.deliveryType,
+      startTime: newOrder.createdAt,
+      deliveryFee: newOrder.deliveryFee,
+      createdAt: newOrder.createdAt,
+      riderRequest: newOrder.riderRequest,
+      endTime: newOrder.pickupTime,
+      lat: newOrder.lat,
+      lng: newOrder.lng,
+      orderType: newOrder.orderType,
+    }));
+
+    const combinedOrders = [...orders, ...transformedNewOrders];
+
+
+    res.json(combinedOrders);
+  } catch (error) {
+    console.error("진행 주문 조회 중 오류 발생:", error);
+    res.status(500).json({ message: "서버 오류" });
+  }
+};
+
+
 
 module.exports = {
   getCompletedOrders,
   getOngoingOrders,
-  getDeliveryList
+  getDeliveryList,
+  getDeliveryOngoingList,
 };
 
 

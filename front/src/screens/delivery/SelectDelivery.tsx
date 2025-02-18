@@ -14,15 +14,18 @@ type DeliveryItem = {
   address: string;
   deliveryType: "direct" | "cupholder" | any; // 🔥 배달 유형 추가
   startTime: string;
-  deliveryFee: number;
-  price: number;
+  deliveryFee: number; //배달팁
+  price: number; //상품 가격
   cafeLogo: string;
-  createdAt: string;
-  endTime: string;
+  createdAt: string; // 주문생성시간
+  endTime: string; //희망픽업시간
   lat: string;
   lng: string;
   isReservation: boolean;
-  orderType: "Order" | "NewOrder";
+  orderType: "Order" | "NewOrder"; 
+  orderDetails: string; // 주문 상세내용
+  images: string; // 주문상품관련설명사진
+  orderImages:string; // 픽업할 위치 상세사진
 };
 
 function SelectDelivery() {

@@ -33,6 +33,15 @@ const HomeScreen: React.FC = () => {
   const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const CheckIsDelivering = () => {
+    //배달 중이면
+    if(user?.isDelivering) {
+      // 경고창 띄워서 이미 배달 중입니다 뭐 띄우기 못 들어가게.
+    }else{
+      navigate("SelectDelivery");
+    }
+  }
+
   // 🔥 FCM 알림 리스너 설정
   useEffect(() => {
     const foregroundListener = setupForegroundNotifications();
@@ -128,7 +137,7 @@ const HomeScreen: React.FC = () => {
       {/* 메인 콘텐츠: 2개의 카드 */}
       <View style={styles.cardList}>
         {/* 배달하기 카드 */}
-        <TouchableOpacity style={[styles.card, styles.deliveryCard]} onPress={() => navigate('SelectDelivery')}>
+        <TouchableOpacity style={[styles.card, styles.deliveryCard]} onPress={CheckIsDelivering}>
           <Ionicons name="bicycle" size={28} color="#fff" />
           <Text style={styles.cardTextWhite}>배달하기</Text>
         </TouchableOpacity>

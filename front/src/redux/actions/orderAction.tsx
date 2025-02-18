@@ -136,6 +136,7 @@ export const orderNowHandler = (
   export const getDeliveryListHandler =() => async(dispatch:any) => {
     try {
       const res = await appAxios.get(`/order/getDeliveryList`);
+      console.log(res);
       return res.data
     } catch (error) {
       console.error(':', error);
@@ -166,3 +167,17 @@ export const orderNowHandler = (
       throw error;
     }
   }
+
+
+  export const showOrderDetails = (orderId: string, orderType: string) => async (dispatch: any) => {
+    try {
+      const res = await appAxios.post('/order/showOrderDetails', {
+        orderId,
+        orderType
+      });
+      return res.data;
+    } catch (error: any) {
+      console.error('주문 상세조회 요청 실패:', error);
+      return [];
+    }
+  };

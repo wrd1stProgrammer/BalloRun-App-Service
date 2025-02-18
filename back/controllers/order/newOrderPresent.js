@@ -101,6 +101,7 @@ const getOnGoingNewOrders = async (req, res) => {
       orderDetails: order.riderRequest,
       priceOffer: order.items[0].price, // 첫 번째 아이템의 price 사용
       deliveryFee: order.deliveryFee,
+      orderType:order.orderType,
     }));
 
     const transformedNewOrders = newOrders.map(newOrder => ({
@@ -111,6 +112,7 @@ const getOnGoingNewOrders = async (req, res) => {
       orderDetails: newOrder.orderDetails,
       priceOffer: newOrder.priceOffer,
       deliveryFee: newOrder.deliveryFee,
+      orderType:newOrder.orderType,
     }));
 
     const combinedOrders = [...transformedOrders, ...transformedNewOrders];
@@ -126,4 +128,27 @@ const getOnGoingNewOrders = async (req, res) => {
   }
 };
 
-module.exports = { getOnGoingNewOrders , getCompletedNewOrders };
+const fetchOrderDetails = async (req, res) => {
+    const { orderId, orderType } = req.body; // 바디에서 orderId와 orderType 추출
+  
+    if (!orderId) {
+      return res.status(400).json({ message: 'orderId is required' });
+    }
+  
+    try {
+      const order = await NewOrder.findById(orderId);
+  
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+  
+      // 조회된 NewOrder 데이터 반환
+      res.status(200).json(order);
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+
+module.exports = { getOnGoingNewOrders , getCompletedNewOrders ,fetchOrderDetails};

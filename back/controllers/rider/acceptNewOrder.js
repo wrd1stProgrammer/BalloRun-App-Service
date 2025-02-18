@@ -3,7 +3,7 @@ const User = require("../../models/User");
 const amqp = require("amqplib");
 const {connectRabbitMQ} = require("../../config/rabbitMQ");
 
-const acceptOrder = async (req, res) => {
+const acceptNewOrder = async (req, res) => {
   const redisClient = req.app.get("redisClient");
   const redisCli = redisClient.v4; // Redis v4 
   const { orderId } = req.body; // 아이디 받아오기
@@ -12,7 +12,10 @@ const acceptOrder = async (req, res) => {
   const lockKey = `lock:order:${orderId}`; // 주문별 락 키
 
   try {
-    //1. Redis 락 설정 (동시 수락 방지)
+
+
+    //1. Redis 락 설정 
+    // (동시 수락 방지)
     const lockAcquired = await redisCli.set(lockKey, riderId, { NX: true, EX: 10 });
 
 
@@ -92,5 +95,5 @@ const completeOrder = async (req, res) => {
 };
 
 module.exports = {
-  acceptOrder,completeOrder
+  acceptNewOrder,completeOrder
 };

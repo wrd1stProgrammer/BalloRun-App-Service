@@ -11,12 +11,14 @@ const {
 const {
   getCompletedOrders,
   getOngoingOrders,
-  getDeliveryList
+  getDeliveryList,
+  getDeliveryOngoingList,
 } = require("../controllers/order/orderPresent");
 
 const {
   getOnGoingNewOrders,
-  getCompletedNewOrders
+  getCompletedNewOrders,
+  fetchOrderDetails
 } = require("../controllers/order/newOrderPresent");
 
 
@@ -28,10 +30,12 @@ router.post('/orderLater',orderLaterDirectCreate);
 // 
 router.get('/getCompletedOrders',getCompletedOrders);
 router.get('/getOngoingOrders',getOngoingOrders);
-router.get('/getDeliveryList',getDeliveryList);
+router.get('/getDeliveryList',getDeliveryList); // 완료주문
+router.get('/getDeliveryOngoingList',getDeliveryOngoingList); //진행주문
 
 router.get('/getNewOrderPresent',getOnGoingNewOrders);
 router.get('/getNewCompletedOrderPresent',getCompletedNewOrders);
 
+router.post('/showOrderDetails',fetchOrderDetails);
 
 module.exports = router;

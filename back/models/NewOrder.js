@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const NewOrderSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // 주문한 사용자
-    name: { type: String, required: true }, // 방식이름임
+    name: { type: String, required: true }, // 편의점 약국 마트 이런 배달 대분류 이름
     orderDetails: { type: String, required: true }, // 주문 상세 내용
-    priceOffer: { type: Number, required: true }, // 제안 가격
+    priceOffer: { type: Number, required: true }, // 상품 가격
     deliveryFee: { type: Number, required: true }, // 배달 팁
     riderRequest: { type: String, required: false }, // 추가 요청사항
-    images: { type: String }, // 첨부 이미지
-    orderImages: { type: String }, // 수령 위치 참고사진들
+    images: { type: String }, // 주문한 상품에 관한 설명 사진
+    orderImages: { type: String }, // 픽업할 위치 상세 사진
     lat: { type: String, required: true }, // 위도
     lng: { type: String, required: true }, // 경도
     deliveryType: {

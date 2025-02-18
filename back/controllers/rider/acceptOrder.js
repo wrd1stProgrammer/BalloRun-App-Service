@@ -12,6 +12,7 @@ const acceptOrder = async (req, res) => {
   const lockKey = `lock:order:${orderId}`; // 주문별 락 키
 
   try {
+
     //1. Redis 락 설정 (동시 수락 방지)
     const lockAcquired = await redisCli.set(lockKey, riderId, { NX: true, EX: 10 });
 
