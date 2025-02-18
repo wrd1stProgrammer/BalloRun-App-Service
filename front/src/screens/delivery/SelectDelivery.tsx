@@ -152,6 +152,7 @@ function SelectDelivery() {
         watchId={watchId}
         selectedLat={selectedDeliveryItem?.lat}
         selectedLng={selectedDeliveryItem?.lng}
+        watchId={watchId}
       />
       {selectedDeliveryItem &&
       <DeliveryBottomSheet
