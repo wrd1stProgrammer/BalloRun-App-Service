@@ -6,7 +6,7 @@ import { navigate } from '../../../navigation/NavigationUtils';
 interface OrderItemProps {
   orderId:string;
   name: string;
-  status: 'pending' | 'goToCafe' | 'makingMenu' | 'goToClient' | 'delivered' | 'cancelled';
+  status: 'pending' | 'goToCafe' | 'makingMenu' | 'goToClient' | 'delivered' | 'cancelled' | 'complete';
   createdAt: string;
   orderDetails: string;
   priceOffer: number;
@@ -24,16 +24,20 @@ const getStatusMessage = (status: string, createdAt: string) => {
       return '주문 접수 완료';
     case 'accepted':
       return '배달 접수 완료';
+    case "goToCafe": 
+      return "카페로 이동중"
+    case 'delivered':
+      return '배달중 delive'
     case 'makingMenu':
       return '가게로 이동 중';
     case 'goToClient':
       return '고객에게 이동 중';
-    case 'delivered':
+    case 'complete':
       return `배달완료 (${formattedDate})`;
     case 'cancelled':
       return `주문 취소 (${formattedDate})`;
     default:
-      return '';
+      return '수정';
   }
 };
 
@@ -80,8 +84,8 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
 
   const handleLocationPress = () => {
     //배달자의 위치 띄우기
-    console.log('위치 보기 버튼 클릭');
-    console.log(orderId);
+    navigate("LiveMap", { orderId, status })
+    
   };
 
   const handleOrderConfirmPress = () => {
@@ -108,7 +112,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
             주문 확인
           </Button>
         );
-      case 'delivered':
+      case 'complete':
         return (
           <Button mode="outlined" style={styles.button} onPress={handleReviewPress}>
             리뷰 작성

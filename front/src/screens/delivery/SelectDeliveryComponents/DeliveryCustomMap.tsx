@@ -28,10 +28,12 @@ type DeliveryCustomMapProps = {
   onFilter: (type: string | null) => void; // 필터 핸들러
   userLat: any,
   userLng: any,
-  watchId: number | null
+  watchId: number | null,
+  selectedLat: string | undefined,
+  selectedLng: string | undefined
 };
 
-function DeliveryCustomMap({ watchId, mapRef,userLat, userLng , deliveryItems, loading, onMarkerSelect, onFilter }: DeliveryCustomMapProps) {
+function DeliveryCustomMap({ watchId, mapRef,userLat, userLng , deliveryItems, loading, onMarkerSelect, onFilter,selectedLat,selectedLng }: DeliveryCustomMapProps) {
   // 현재 위치 상태 관리
   useEffect(() => {
     return () => {
@@ -45,7 +47,7 @@ function DeliveryCustomMap({ watchId, mapRef,userLat, userLng , deliveryItems, l
   console.log(userLat, userLng)
 
 
-  const handleMarkerPress = (item: DeliveryItem) => {
+  const handleMarkerPress = (item: DeliveryItem | null) => {
     onMarkerSelect(item); // 선택된 주문 전달
   };
 
@@ -61,20 +63,25 @@ function DeliveryCustomMap({ watchId, mapRef,userLat, userLng , deliveryItems, l
         ref={mapRef}
         style={{ flex: 1 }}
         region={
-          userLat && userLng
+          selectedLat !==undefined && selectedLng!==undefined
             ? {
-                latitude: userLat,
-                longitude: userLng,
+              latitude: selectedLat, 
+              longitude: selectedLng,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }
             : {
-                latitude: 35.1767, // 기본 위치 (사용자 위치가 없을 경우)
-                longitude: 126.9085,
+                latitude: 35.175570, // 기본 위치 (사용자 위치가 없을 경우)
+                longitude: 126.907074,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }
         }
+        onPress={() => {
+          if (selectedLat && selectedLng) {
+            handleMarkerPress(null); // 마커가 선택된 상태에서만 실행
+          }
+        }}
       >
         {userLat && userLng && (
           <Marker

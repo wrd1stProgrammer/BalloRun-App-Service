@@ -9,12 +9,13 @@ import { token_storage } from '../../../redux/config/storage';
 import { Ionicons } from "@expo/vector-icons";
 import MapView from 'react-native-maps';
 import { Dimensions } from 'react-native';
+import { navigate } from "../../../navigation/NavigationUtils";
 
 
 
 const screenHeight = Dimensions.get('window').height; // 현재 디바이스 화면 높이
 
-const snapPoints = ['10%', '25%', '50%'].map(percent => {
+const snapPoints = ['25%', '30%', '35%'].map(percent => {
   return (parseFloat(percent) / 100) * screenHeight;
 });
 
@@ -30,6 +31,7 @@ type DeliveryItem = {
   cafeLogo: string;
   createdAt: string;
   endTime: string;
+  orderType: "Order" | "NewOrder"
 };
 
 type DeliveryBottomSheetProps = {
@@ -46,6 +48,8 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
   const socket = useContext(MapSocketContext);
   const [tracking, setTracking] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+  const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
+  
 
   // 위치 추적 ID 저장 (해제할 때 필요)
   const [watchId, setWatchId] = useState<number | null>(null);
@@ -54,27 +58,71 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
   const animatedTop = useRef(new Animated.Value(80)).current;
 
   // 배달 수락 함수
-  const acceptHandler = async (orderId: string) => {
-    try {
-      const access_token = token_storage.getString('access_token');
-      console.log(orderId, 'id logging');
 
-      // 주문 수락 요청
-      const dummyRes = await dispatch(acceptActionHandler(orderId));
-      console.log(dummyRes);
 
-      setTracking(true);
-      
-      // 서버에 트래킹 시작 요청
-      socket?.emit('start_tracking', { orderId });
+const getCurrentLocation = (orderId): Promise<{ latitude: number; longitude: number }> => {
+  return new Promise((resolve, reject) => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        console.log("현재 위치 받아옴:", latitude, longitude);
+        resolve({ latitude, longitude });
+        socket?.emit("update_location", { orderId, latitude, longitude });
 
-      // 위치 추적 시작
-      socket?.emit('update_location', { orderId, userLat, userLng });
-      console.log("gps로 위치를 받아서 백으로 보냄");
-    } catch (error) {
-      console.error("Error accepting order:", error);
-    }
-  };
+      },
+      (error) => {
+        console.error("위치 가져오기 실패:", error);
+        reject(error);
+      },
+      { enableHighAccuracy: true }
+    );
+  });
+};
+
+
+const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") => {
+  try {
+    console.log(orderId,orderType,"id logging");
+
+    // 주문 수락 요청
+    const dummyRes = await dispatch(acceptActionHandler(orderId,orderType));
+    //console.log(dummyRes);
+    
+
+    setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
+
+    // 서버에 트래킹 시작 요청
+    socket?.emit("start_tracking", { orderId });
+    const location = await getCurrentLocation(orderId);
+
+    // 위치 추적 시작
+    console.log("Geolocation.watchPosition 실행...");
+    const id = Geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        socket?.emit("update_location", { orderId, latitude, longitude });
+        console.log("위치 업데이트:", latitude, longitude);
+      },
+      (error) => {
+        console.log("위치 추적 오류:", error);
+        Alert.alert("위치 추적 오류", error.message);
+      },
+      { enableHighAccuracy: true, interval: 1000 }
+    );
+
+    setWatchId(id);
+    console.log("위치 추적 시작, watchId:", id);
+
+    setTimeout(() => {
+      console.log("Navigating to BottomTab...");
+      navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen",
+      });
+    }, 1500);
+  } catch (error) {
+    console.error("Error accepting order:", error);
+  }
+};
 
   // 현재 위치 업데이트
   const updateUserLocation = () => {
@@ -136,7 +184,7 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
       </View>
       <View style={styles.footer}>
         <TouchableOpacity 
-          onPress={() => acceptHandler(item._id)} 
+          onPress={() => acceptHandler(item._id, item.orderType )} 
           style={[styles.button, tracking && styles.disabledButton]}
           disabled={tracking}
         >

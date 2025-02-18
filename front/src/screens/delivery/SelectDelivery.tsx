@@ -150,7 +150,10 @@ function SelectDelivery() {
         userLat={userLat}
         userLng={userLng}
         watchId={watchId}
+        selectedLat={selectedDeliveryItem?.lat}
+        selectedLng={selectedDeliveryItem?.lng}
       />
+      {selectedDeliveryItem &&
       <DeliveryBottomSheet
         deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
         loading={loading}
@@ -160,6 +163,7 @@ function SelectDelivery() {
         setUserLng={setUserLng} 
         mapRef={mapRef}
       />
+    }
       </>
       )}
 

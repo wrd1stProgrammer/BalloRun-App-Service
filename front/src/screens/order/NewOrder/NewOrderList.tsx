@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import OrderItem from './OrderItem'; // OrderItem 컴포넌트 경로
 import localImage from '../../../assets/cafeData/menuImage/image-2.png'; // 로컬 이미지 경로
 import { getOngoingNewOrdersHandler,getCompletedNewOrdersHandler } from '../../../redux/actions/orderAction';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
+import { WebSocketContext } from '../../../utils/sockets/Socket';
 
 interface OrderItemProps {
     _id: string;
@@ -24,12 +25,20 @@ interface OrderListProps {
 
 const NewOrderList:React.FC<OrderListProps> = ({activeTab}) => {
   const dispatch = useAppDispatch();
+  const socket = useContext(WebSocketContext);
+  
   const [orders, setOrders] = useState<OrderItemProps[]>([]);
 
   useEffect(() => {
     if(activeTab === "orders"){
+        socket?.on("emitMatchTest", fetchOrders);
         fetchOrders();
     }
+
+    return () => {
+      fetchOrders();
+      socket?.off("emitMatchTest");
+    };
   },[activeTab]);
 
   const fetchOrders = async () => {
