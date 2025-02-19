@@ -28,7 +28,14 @@ import OrderPageScreen from "../screens/order/OrderCategory/OrderPageScreen copy
 import NewOrderList from "../screens/order/NewOrder/NewOrderList";
 import OrderDetailScreen from "../screens/order/NewOrder/OrderDetailScreen";
 import RiderManual from "../screens/auth/RiderRegister/RiderManual";
+import Step1 from "../screens/auth/RiderRegister/Steps/Step1";
+import Step2 from "../screens/auth/RiderRegister/Steps/Step2";
+import Step3 from "../screens/auth/RiderRegister/Steps/Step3";
+import Step4 from "../screens/auth/RiderRegister/Steps/Step4";
+import Step5 from "../screens/auth/RiderRegister/Steps/Step5";
+import Step6 from "../screens/auth/RiderRegister/Steps/Step6";
 // ++ New Screen Stack
+
 export const authStack = [
   {
     name: "SplashScreen",
@@ -42,7 +49,6 @@ export const authStack = [
     name: "RegisterScreen",
     component: RegisterScreen,
   },
-
 ];
 
 export const dashboardStack = [
@@ -79,13 +85,37 @@ export const dashboardStack = [
     component: PayResult,
   },
   {
-    name:"ChattingScreen",
+    name: "ChattingScreen",
     component: ChattingSceen,
   },
   {
-    name:"RiderManual",
-    component: RiderManual
-  }
+    name: "RiderManual",
+    component: RiderManual,
+  },
+  {
+    name: "Step1",
+    component: Step1,
+  },
+  {
+    name: "Step2",
+    component: Step2,
+  },
+  {
+    name: "Step3",
+    component: Step3,
+  },
+  {
+    name: "Step4",
+    component: Step4,
+  },
+  {
+    name: "Step5",
+    component: Step5,
+  },
+  {
+    name: "Step6",
+    component: Step6,
+  },
 ];
 
 export const orderStack = [
@@ -126,25 +156,24 @@ export const orderStack = [
     component: OrderFinalScreen,
   },
   {
-    name:"OrderDetailScreen",
-    component:OrderDetailScreen,
-  }
+    name: "OrderDetailScreen",
+    component: OrderDetailScreen,
+  },
 ];
 
 export const deliveryStack = [
   {
     name: "SelectDelivery",
-    component: SelectDelivery
+    component: SelectDelivery,
   },
   {
     name: "LiveMap",
-    component: LiveMap
+    component: LiveMap,
   },
   {
     name: "DeliveryImage",
-    component: DeliveryImage
-  }
-
+    component: DeliveryImage,
+  },
 ];
 
 export const mergedStacks = [...dashboardStack, ...authStack, ...orderStack, ...deliveryStack];

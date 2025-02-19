@@ -43,7 +43,7 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
           {
             text: '예',
             onPress: () => {
-              navigate('SelectDelivery'); // 라이더 등록 페이지로 이동
+              navigate('RiderManual'); // 라이더 등록 페이지로 이동
             },
             style: 'default',
           },
