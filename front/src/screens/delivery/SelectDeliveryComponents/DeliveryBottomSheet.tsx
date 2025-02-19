@@ -159,17 +159,17 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     }
   };
 
-  // 바텀시트 이동 시 GPS 버튼을 반대로 움직이도록 설정
-  const handleSheetChange = (index: number) => {
-    const positions = snapPoints.map(point => screenHeight - point); // 바텀시트 높이와 반대 값 설정
-    const adjustedTop = positions[index] + screenHeight * -0.10; // 바텀시트보다 약간 위에서 유지 (5% 여유)
+  // // 바텀시트 이동 시 GPS 버튼을 반대로 움직이도록 설정
+  // const handleSheetChange = (index: number) => {
+  //   const positions = snapPoints.map(point => screenHeight - point); // 바텀시트 높이와 반대 값 설정
+  //   const adjustedTop = positions[index] + screenHeight * -0.10; // 바텀시트보다 약간 위에서 유지 (5% 여유)
   
-    Animated.timing(animatedTop, {
-      toValue: adjustedTop,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  };
+  //   Animated.timing(animatedTop, {
+  //     toValue: adjustedTop,
+  //     duration: 300,
+  //     useNativeDriver: false,
+  //   }).start();
+  // };
 
   // 배달 아이템 렌더링 함수
   const renderItem = ({ item }: { item: DeliveryItem }) => (
@@ -197,15 +197,10 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
 
   return (
     <>
-      {/* GPS 버튼 */}
-      <Animated.View style={[styles.gpsButton, { top: animatedTop }]}>
-        <TouchableOpacity onPress={updateUserLocation}>
-          <Ionicons name="locate-outline" size={30} color="white" />
-        </TouchableOpacity>
-      </Animated.View>
+ 
 
       {/* 바텀시트 */}
-      <BottomSheet snapPoints={snapPoints} onChange={handleSheetChange}>
+      <BottomSheet snapPoints={snapPoints}>
         <View style={styles.container}>
           {loading ? (
             <ActivityIndicator size="large" color="#6610f2" />

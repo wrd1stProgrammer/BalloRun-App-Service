@@ -45,10 +45,12 @@ function DeliveryCustomMap({
   selectedLng,
   watchId
 }: DeliveryCustomMapProps) {
-  const [centerLat, setCenterLat] = useState<number | null>(null);
-  const [centerLng, setCenterLng] = useState<number | null>(null);
+  const [centerLat, setCenterLat] = useState<number | null>(35.175570);
+  const [centerLng, setCenterLng] = useState<number | null>(126.907074);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const markerPressRef = useRef<boolean>(false); // 마커 클릭 감지
+
+
 
   useEffect(() => {
     return () => {
@@ -71,7 +73,8 @@ function DeliveryCustomMap({
   const handleMarkerPress = (item: DeliveryItem | null) => {
     markerPressRef.current = true; // 마커 클릭 발생
     setTimeout(() => (markerPressRef.current = false), 500); // 0.5초 후 초기화
-
+    console.log("hi")
+    console.log(item)
     if (item) {
       setIsMarkerSelected(true);
       onMarkerSelect(item);
@@ -90,7 +93,7 @@ function DeliveryCustomMap({
   // 지도 클릭 시 원래 centerLat, centerLng 위치로 이동 & 바텀시트 닫기
   const handleMapPress = () => {
     if (markerPressRef.current) return; // 마커 클릭 시 무시
-
+    console.log(centerLat)
     if (centerLat !== null && centerLng !== null) {
       setIsMarkerSelected(false);
       onMarkerSelect(null);
@@ -107,21 +110,21 @@ function DeliveryCustomMap({
   };
 
   //GPS 마커 클릭 시 userLat, userLng 위치로 이동
-  const handleGpsMarkerPress = () => {
-    setIsMarkerSelected(false);
-    onMarkerSelect(null);
-    if (userLat !== null && userLng !== null) {
-      mapRef.current?.animateToRegion(
-        {
-          latitude: userLat,
-          longitude: userLng,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        500
-      );
-    }
-  };
+  // const handleGpsMarkerPress = () => {
+  //   setIsMarkerSelected(false);
+  //   onMarkerSelect(null);
+  //   if (userLat !== null && userLng !== null) {
+  //     mapRef.current?.animateToRegion(
+  //       {
+  //         latitude: userLat,
+  //         longitude: userLng,
+  //         latitudeDelta: 0.01,
+  //         longitudeDelta: 0.01,
+  //       },
+  //       500
+  //     );
+  //   }
+  // };
 
   return (
     <View style={{ flex: 1 }}>
@@ -153,7 +156,6 @@ function DeliveryCustomMap({
             title="내 위치"
             description="현재 위치입니다."
             pinColor="blue"
-            onPress={handleGpsMarkerPress} // 📌 GPS 마커 클릭 시 이동
           />
         )}
 

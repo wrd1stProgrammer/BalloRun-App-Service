@@ -1,65 +1,64 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Animated, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DeliveryCustomMap from './SelectDeliveryComponents/DeliveryCustomMap';
 import DeliveryBottomSheet from './SelectDeliveryComponents/DeliveryBottomSheet';
+import DeliveryCustomList from './SelectDeliveryComponents/DeliveryCustomList';
 import { getOrderData } from '../../redux/actions/riderAction';
 import { useAppDispatch } from '../../redux/config/reduxHook';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import DeliveryCustomList from './SelectDeliveryComponents/DeliveryCustomList';
 import Geolocation from 'react-native-geolocation-service';
 import MapView from 'react-native-maps';
+import { FontAwesome } from '@expo/vector-icons';
+
+const { height } = Dimensions.get("window");
 
 type DeliveryItem = {
   _id: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
   address: string;
-  deliveryType: "direct" | "cupholder" | any; // 🔥 배달 유형 추가
+  deliveryType: "direct" | "cupholder" | any;
   startTime: string;
-  deliveryFee: number; //배달팁
-  price: number; //상품 가격
+  deliveryFee: number;
+  price: number;
   cafeLogo: string;
-  createdAt: string; // 주문생성시간
-  endTime: string; //희망픽업시간
+  createdAt: string;
+  endTime: string;
   lat: string;
   lng: string;
   isReservation: boolean;
   orderType: "Order" | "NewOrder"; 
-  orderDetails: string; // 주문 상세내용
-  images: string; // 주문상품관련설명사진
-  orderImages:string; // 픽업할 위치 상세사진
+  orderDetails: string;
+  images: string;
+  orderImages: string;
 };
 
 function SelectDelivery() {
-  const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]); // 전체 주문 데이터
-  const [filteredItems, setFilteredItems] = useState<DeliveryItem[]>([]); // 필터링된 주문 데이터
-  const [selectedDeliveryItem, setSelectedDeliveryItem] = useState<DeliveryItem | null>(null); // 선택된 주문
+  const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<DeliveryItem[]>([]);
+  const [selectedDeliveryItem, setSelectedDeliveryItem] = useState<DeliveryItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
-
+  const [isListView, setIsListView] = useState(true);
 
   const mapRef = useRef<MapView | null>(null);
-
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
-
   const [watchId, setWatchId] = useState<number | null>(null);
 
   const dispatch = useAppDispatch();
+  const bottomAnim = useRef(new Animated.Value(height * 0.02)).current; // 초기 위치 (화면 높이의 2%)
 
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
       const orders = await dispatch(getOrderData());
       setDeliveryItems(orders);
-      setFilteredItems(orders); // 초기 상태는 전체 주문 표시
+      setFilteredItems(orders);
       setLoading(false);
     };
 
     fetchOrders();
-  }, [dispatch,isListView]);
-
+  }, [dispatch, isListView]);
 
   useEffect(() => {
-    //  현재 위치 추적 시작
     const watchId = Geolocation.watchPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
@@ -69,7 +68,7 @@ function SelectDelivery() {
       (error) => {
         Alert.alert('위치 추적 오류', error.message);
       },
-      { enableHighAccuracy: true, interval: 5000, distanceFilter: 10 } // 5초마다 또는 10m 이동 시 업데이트
+      { enableHighAccuracy: true, interval: 5000, distanceFilter: 10 }
     );
     setWatchId(watchId);
     return () => {
@@ -78,29 +77,30 @@ function SelectDelivery() {
         console.log("위치 추적 중지됨:", watchId);
       }
     };
-    // 메모리 누수 방지를 위해 언마운트 시 위치 추적 해제
   }, []);
 
+  useEffect(() => {
+    Animated.timing(bottomAnim, {
+      toValue: selectedDeliveryItem ? height * 0.27 : height * 0.02,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [selectedDeliveryItem]);
 
   const handleMarkerSelect = (item: DeliveryItem | any) => {
-    setSelectedDeliveryItem(item); // 선택된 주문 설정
+    setSelectedDeliveryItem(item);
   };
 
   const handleFilter = (type: string | null) => {
     if (type === "reservation") {
-      // 예약 주문 필터링
       setFilteredItems(deliveryItems.filter((item) => item.isReservation));
     } else if (type) {
-      // 특정 필터 적용
       setFilteredItems(deliveryItems.filter((item) => item.deliveryType === type));
     } else {
-      // 필터 해제 (전체 보기)
       setFilteredItems(deliveryItems);
     }
-    setSelectedDeliveryItem(null); // 선택된 주문 초기화
+    setSelectedDeliveryItem(null);
   };
-
-
 
   return (
     <>
@@ -112,9 +112,7 @@ function SelectDelivery() {
           ]}
           onPress={() => setIsListView(true)}
         >
-          <Text
-            style={isListView ? styles.activeButtonText : styles.inactiveButtonText}
-          >
+          <Text style={isListView ? styles.activeButtonText : styles.inactiveButtonText}>
             리스트로 보기
           </Text>
         </TouchableOpacity>
@@ -125,49 +123,57 @@ function SelectDelivery() {
           ]}
           onPress={() => setIsListView(false)}
         >
-          <Text
-            style={!isListView ? styles.activeButtonText : styles.inactiveButtonText}
-          >
+          <Text style={!isListView ? styles.activeButtonText : styles.inactiveButtonText}>
             지도로 보기
           </Text>
         </TouchableOpacity>
       </View>
 
       {isListView ? (
-        <DeliveryCustomList
-        deliveryItems={deliveryItems}
-        userLat={userLat}  
-        userLng={userLng}  
-        />
+        <DeliveryCustomList deliveryItems={deliveryItems} userLat={userLat} userLng={userLng} />
       ) : (
         <>
-        <DeliveryCustomMap
-        mapRef={mapRef}
-        deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
-        loading={loading}
-        onMarkerSelect={handleMarkerSelect}
-        onFilter={handleFilter} // 필터 핸들러 전달
-        userLat={userLat}
-        userLng={userLng}
-        watchId={watchId}
-        selectedLat={selectedDeliveryItem?.lat}
-        selectedLng={selectedDeliveryItem?.lng}
-        watchId={watchId}
-      />
-      {selectedDeliveryItem &&
-      <DeliveryBottomSheet
-        deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
-        loading={loading}
-        userLat={userLat}
-        userLng={userLng}
-        setUserLat={setUserLat}  // 추가
-        setUserLng={setUserLng} 
-        mapRef={mapRef}
-      />
-    }
-      </>
+          <DeliveryCustomMap
+            mapRef={mapRef}
+            deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
+            loading={loading}
+            onMarkerSelect={handleMarkerSelect}
+            onFilter={handleFilter}
+            userLat={userLat}
+            userLng={userLng}
+            watchId={watchId}
+            selectedLat={selectedDeliveryItem?.lat}
+            selectedLng={selectedDeliveryItem?.lng}
+          />
+          {selectedDeliveryItem && (
+            <DeliveryBottomSheet
+              deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
+              loading={loading}
+              userLat={userLat}
+              userLng={userLng}
+              setUserLat={setUserLat}
+              setUserLng={setUserLng}
+              mapRef={mapRef}
+            />
+          )}
+          <Animated.View style={[styles.gpsButton, { bottom: bottomAnim }]}>
+            <TouchableOpacity
+              onPress={() => {
+                if (mapRef.current) {
+                  mapRef.current.animateToRegion({
+                    latitude: userLat ?? 35.175570,
+                    longitude: userLng ?? 126.907074,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }, 500);
+                }
+              }}
+            >
+              <FontAwesome name="location-arrow" size={24} color="white" />
+            </TouchableOpacity>
+          </Animated.View>
+        </>
       )}
-
     </>
   );
 }
@@ -197,6 +203,14 @@ const styles = StyleSheet.create({
   inactiveButtonText: {
     color: "#6B7280",
   },
+  gpsButton: {
+    position: 'absolute',
+    right: 20,
+    backgroundColor: '#6C63FF',
+    padding: 12,
+    borderRadius: 30,
+    elevation: 5,
+  }
 });
 
 export default SelectDelivery;
