@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert,ScrollView } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
@@ -9,6 +9,10 @@ import { MapSocketContext } from '../../utils/sockets/MapSocket';
 import { getDeliveryListHandler } from '../../redux/actions/orderAction';
 import Geolocation from 'react-native-geolocation-service';
 import { setWatchId } from '../../redux/reducers/locationSlice';
+import Banner from './Banner/Banner';
+import OrderListComponent from './Banner/OrderListComponent';
+import MyAdBanner from './Banner/MyAdBanner';
+
 
 type DeliveryItem = {
   _id: string;
@@ -121,7 +125,7 @@ const HomeScreen: React.FC = () => {
   }, []); 
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* 상단 프로필/인사 문구 영역 */}
       <View style={styles.headerContainer}>
         <View style={styles.greetingContainer}>
@@ -134,21 +138,22 @@ const HomeScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* 메인 콘텐츠: 2개의 카드 */}
-      <View style={styles.cardList}>
-        {/* 배달하기 카드 */}
-        <TouchableOpacity style={[styles.card, styles.deliveryCard]} onPress={CheckIsDelivering}>
-          <Ionicons name="bicycle" size={28} color="#fff" />
-          <Text style={styles.cardTextWhite}>배달하기</Text>
-        </TouchableOpacity>
-
-        {/* 주문하기 카드 */}
-        <TouchableOpacity style={[styles.card, styles.orderCard]} onPress={() => navigate('OrderListScreen')}>
-          <Ionicons name="restaurant" size={28} color="#8A67F8" />
-          <Text style={styles.cardTextDark}>주문하기</Text>
-        </TouchableOpacity>
+      {/* 근처 배달가능 리스트 */}
+      <View style={styles.bannerContainer} >
+        <Banner />
       </View>
-    </View>
+      
+      <OrderListComponent user={user} />
+
+      <View style={styles.bannerContainer} >
+        <MyAdBanner/>
+      </View>
+      
+      <View style={styles.bannerContainer} >
+        <MyAdBanner/>
+      </View>
+
+    </ScrollView>
   );
 };
 
@@ -158,14 +163,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingHorizontal: 20,
+    width:'100%',
     paddingTop: 50,
   },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 30,
+    margin:15,
   },
   greetingContainer: {
     flex: 1,
@@ -220,5 +226,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 16,
+  },
+  bannerContainer: {
+    marginBottom: 20,
   },
 });

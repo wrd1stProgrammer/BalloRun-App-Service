@@ -18,7 +18,8 @@ const {
 const {
   getOnGoingNewOrders,
   getCompletedNewOrders,
-  fetchOrderDetails
+  fetchOrderDetails,
+  getBannerData
 } = require("../controllers/order/newOrderPresent");
 
 
@@ -35,6 +36,7 @@ router.get('/getDeliveryOngoingList',getDeliveryOngoingList); //진행주문
 
 router.get('/getNewOrderPresent',getOnGoingNewOrders);
 router.get('/getNewCompletedOrderPresent',getCompletedNewOrders);
+router.get('/getbannerdata',getBannerData);
 
 router.post('/showOrderDetails',fetchOrderDetails);
 

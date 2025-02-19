@@ -4,6 +4,55 @@ const User = require("../../models/User");
 
 const mongoose = require('mongoose');
 
+const getBannerData = async (req, res) => {
+    try {
+      const orders = await Order.find({ status: 'pending' })
+        .sort({ createdAt: -1 }) // 최신순 정렬
+        .limit(5); // 최대 5개만 가져오기
+  
+      const newOrders = await NewOrder.find({ status: 'pending' })
+        .sort({ createdAt: -1 }) // 최신순 정렬
+        .limit(5); // 최대 5개만 가져오기
+  
+      // Order 모델 데이터 변환
+      const formattedOrders = orders.map(order => ({
+        _id: order._id.toString(),
+        orderId:order._id,
+        name: order.items[0]?.cafeName || '카페 이름 없음', // items.cafeName
+        orderDetails: order.items[0]?.menuName,
+        deliveryFee: order.deliveryFee,
+        lat: order.lat,
+        lng: order.lng,
+      }));
+  
+      // NewOrder 모델 데이터 변환 (필드가 동일하므로 그대로 사용)
+      const formattedNewOrders = newOrders.map(order => ({
+        _id: order._id.toString(),
+        orderId:order._id,
+        name: order.name,
+        orderDetails: order.orderDetails,
+        deliveryFee: order.deliveryFee,
+        lat: order.lat,
+        lng: order.lng,
+      }));
+  
+      // 두 모델의 데이터를 합치기
+      const bannerData = [...formattedOrders, ...formattedNewOrders].slice(0, 5); // 최대 5개만 반환
+  
+      // 클라이언트에 응답
+      res.status(200).json({
+        success: true,
+        data: bannerData,
+      });
+    } catch (error) {
+      console.error('배너 데이터 불러오기 실패:', error);
+      res.status(500).json({
+        success: false,
+        message: '서버 오류로 배너 데이터를 불러오지 못했습니다.',
+      });
+    }
+  };
+
 const getCompletedNewOrders = async (req, res) => {
     const userId = req.user.userId;
     const redisClient = req.app.get("redisClient");
@@ -151,4 +200,4 @@ const fetchOrderDetails = async (req, res) => {
   };
 
 
-module.exports = { getOnGoingNewOrders , getCompletedNewOrders ,fetchOrderDetails};
+module.exports = { getOnGoingNewOrders , getCompletedNewOrders ,fetchOrderDetails,getBannerData};

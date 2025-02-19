@@ -181,3 +181,14 @@ export const orderNowHandler = (
       return [];
     }
   };
+
+  
+  export const getNewOrderToBanner =() => async(dispatch:any) => {
+    try {
+      const res = await appAxios.get(`/order/getbannerdata`);
+      return res.data
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }

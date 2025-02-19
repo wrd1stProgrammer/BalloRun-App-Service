@@ -261,7 +261,7 @@ const OrderFinalScreen = () => {
           
           <TouchableOpacity
               style={styles.kakaoPayButton}
-              onPress={handleKakaoPay}
+              onPress={handleNextPress}
             >
               <Text style={styles.kakaoPayButtonText}>카카오페이로 결제하기</Text>
             </TouchableOpacity>
