@@ -14,6 +14,7 @@ import { useAppDispatch } from "../../../redux/config/reduxHook";
 import { acceptActionHandler } from "../../../redux/actions/riderAction";
 import Geolocation from 'react-native-geolocation-service';
 import { navigate } from "../../../navigation/NavigationUtils";
+import DeliveryDetailModal from "../DeliveryDetailComponents/DeliveryDetailModal";
 
 type DeliveryItem = {
   _id: string;
@@ -64,7 +65,24 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
   const [sortCriteria, setSortCriteria] = useState<"distance" | "price">("distance");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDeliveryType, setSelectedDeliveryType] = useState<"all" | "direct" | "cupholder">("all");
-
+  const [selectedItem, setSelectedItem] = useState<DeliveryItem | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  const openModal = (item: DeliveryItem) => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+  
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+  
+  const handleAccept = () => {
+    if (selectedItem) {
+      acceptHandler(selectedItem._id, selectedItem.orderType);
+      closeModal();
+    }
+  };
 
 
 //여기서부터 수락 눌렀을때
@@ -188,7 +206,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
         </View>
         <View style={styles.footer}>
           <TouchableOpacity
-            onPress={() => acceptHandler(item._id,item.orderType)}
+            onPress={() => openModal(item)}
             style={[styles.button, trackingOrders[item._id] && styles.disabledButton]}
             disabled={trackingOrders[item._id]}
           >
@@ -255,6 +273,8 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
       />
+      <DeliveryDetailModal visible={modalVisible} onClose={closeModal} onAccept={handleAccept} deliveryItem={selectedItem} />
+
     </View>
   );
 }

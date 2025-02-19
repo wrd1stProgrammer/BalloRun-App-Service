@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import MapView from 'react-native-maps';
 import { Dimensions } from 'react-native';
 import { navigate } from "../../../navigation/NavigationUtils";
+import DeliveryDetailModal from '../DeliveryDetailComponents/DeliveryDetailModal';
 
 
 
@@ -25,13 +26,20 @@ type DeliveryItem = {
   _id: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
   address: string;
-  deliveryType: string;
+  deliveryType: "direct" | "cupholder" | any;
   startTime: string;
   deliveryFee: number;
+  price: number;
   cafeLogo: string;
   createdAt: string;
   endTime: string;
-  orderType: "Order" | "NewOrder"
+  lat: string;
+  lng: string;
+  isReservation: boolean;
+  orderType: "Order" | "NewOrder"; 
+  orderDetails: string;
+  images: string;
+  orderImages: string;
 };
 
 type DeliveryBottomSheetProps = {
@@ -58,7 +66,24 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
   const animatedTop = useRef(new Animated.Value(80)).current;
 
   // 배달 수락 함수
-
+  const [selectedItem, setSelectedItem] = useState<DeliveryItem | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  const openModal = (item: DeliveryItem) => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+  
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+  
+  const handleAccept = () => {
+    if (selectedItem) {
+      acceptHandler(selectedItem._id, selectedItem.orderType);
+      closeModal();
+    }
+  };
 
 const getCurrentLocation = (orderId): Promise<{ latitude: number; longitude: number }> => {
   return new Promise((resolve, reject) => {
@@ -184,7 +209,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
       </View>
       <View style={styles.footer}>
         <TouchableOpacity 
-          onPress={() => acceptHandler(item._id, item.orderType )} 
+          onPress={() => openModal(item)}
           style={[styles.button, tracking && styles.disabledButton]}
           disabled={tracking}
         >
@@ -212,6 +237,8 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
               showsVerticalScrollIndicator={false}
             />
           )}
+          <DeliveryDetailModal visible={modalVisible} onClose={closeModal} onAccept={handleAccept} deliveryItem={selectedItem} />
+
         </View>
       </BottomSheet>
     </>
