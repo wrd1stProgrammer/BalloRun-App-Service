@@ -28,7 +28,6 @@ import OrderPageScreen from "../screens/order/OrderCategory/OrderPageScreen copy
 import NewOrderList from "../screens/order/NewOrder/NewOrderList";
 import OrderDetailScreen from "../screens/order/NewOrder/OrderDetailScreen";
 import RiderManual from "../screens/auth/RiderRegister/RiderManual";
-
 // ++ New Screen Stack
 export const authStack = [
   {
@@ -43,6 +42,7 @@ export const authStack = [
     name: "RegisterScreen",
     component: RegisterScreen,
   },
+
 ];
 
 export const dashboardStack = [
