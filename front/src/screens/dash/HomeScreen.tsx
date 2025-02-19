@@ -12,6 +12,7 @@ import { setWatchId } from '../../redux/reducers/locationSlice';
 import Banner from './Banner/Banner';
 import OrderListComponent from './Banner/OrderListComponent';
 import MyAdBanner from './Banner/MyAdBanner';
+import FixedOrderStatusBanner from './Banner/FixedOrderStatusBanner';
 
 
 type DeliveryItem = {
@@ -125,6 +126,7 @@ const HomeScreen: React.FC = () => {
   }, []); 
 
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView style={styles.container}>
       {/* 상단 프로필/인사 문구 영역 */}
       <View style={styles.headerContainer}>
@@ -152,8 +154,10 @@ const HomeScreen: React.FC = () => {
       <View style={styles.bannerContainer} >
         <MyAdBanner/>
       </View>
-
     </ScrollView>
+    
+    <FixedOrderStatusBanner/>
+    </View>
   );
 };
 

@@ -46,8 +46,11 @@ const UserSchema = new mongoose.Schema(
     isDelivering:{
       type: Boolean,
       default:false,
+    },
+    isRider:{
+      type:Boolean,
+      default:false,
     }
-
   },
   { timestamps: true }
 );

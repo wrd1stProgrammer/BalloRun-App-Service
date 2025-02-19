@@ -27,6 +27,7 @@ import OrderFinalScreen from "../screens/order/OrderCategory/OrderFinalScreen";
 import OrderPageScreen from "../screens/order/OrderCategory/OrderPageScreen copy";
 import NewOrderList from "../screens/order/NewOrder/NewOrderList";
 import OrderDetailScreen from "../screens/order/NewOrder/OrderDetailScreen";
+import RiderManual from "../screens/auth/RiderRegister/RiderManual";
 
 // ++ New Screen Stack
 export const authStack = [
@@ -80,6 +81,10 @@ export const dashboardStack = [
   {
     name:"ChattingScreen",
     component: ChattingSceen,
+  },
+  {
+    name:"RiderManual",
+    component: RiderManual
   }
 ];
 

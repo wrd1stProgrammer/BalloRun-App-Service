@@ -27,12 +27,38 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
     navigate(screen, { name });
   };
 
-  const CheckIsDelivering = () => {
-    if (user?.isDelivering) {
-      // 경고창 띄우기
-      Alert.alert('알림', '이미 배달 중입니다.');
+  const handleDeliveryPress = () => {
+    // 1. 라이더로 등록되어 있는지 확인
+    if (!user?.isRider) {
+      // 라이더로 등록되지 않은 경우 경고창 띄우기
+      Alert.alert(
+        '배달하기 알림',
+        '배달하기 전에 라이더 등록이 필요합니다! (1시간 안에 인증완료)',
+        [
+          {
+            text: '아니오',
+            style: 'cancel',
+            onPress: () => {}, // 아무 동작 없음
+          },
+          {
+            text: '예',
+            onPress: () => {
+              navigate('RiderManual'); // 라이더 등록 페이지로 이동
+            },
+            style: 'default',
+          },
+        ],
+        { cancelable: true }
+      );
     } else {
-      navigate('SelectDelivery');
+      // 2. 라이더로 등록되어 있다면 배달 중인지 확인
+      if (user?.isDelivering) {
+        // 배달 중인 경우 경고창 띄우기
+        Alert.alert('알림', '이미 배달 중입니다.');
+      } else {
+        // 배달 중이 아니라면 추가 로직 (현재는 비워둠)
+        console.log('배달 시작 가능');
+      }
     }
   };
 
@@ -54,14 +80,12 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
           </TouchableOpacity>
         ))}
 
-
-      {/* 배달하기 버튼 */}
-      <TouchableOpacity style={styles.deliveryButton} onPress={CheckIsDelivering}>
-        <Ionicons name="bicycle" size={28} color="white" style={styles.deliveryIcon} />
-        <Text style={styles.deliveryButtonText}>배달하기</Text>
-      </TouchableOpacity>
+        {/* 배달하기 버튼 */}
+        <TouchableOpacity style={styles.deliveryButton} onPress={handleDeliveryPress}>
+          <Ionicons name="bicycle" size={28} color="white" style={styles.deliveryIcon} />
+          <Text style={styles.deliveryButtonText}>배달하기</Text>
+        </TouchableOpacity>
       </View>
-
     </View>
   );
 };
@@ -136,7 +160,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     marginTop: 20,
-    
     ...Platform.select({
       ios: {
         shadowColor: '#000',

@@ -3,12 +3,14 @@
     "compilerOptions": {
       "strict": true,
       "target": "esnext",
-      "moduleResolution": "node",
+      //"moduleResolution": "node",
       "allowSyntheticDefaultImports": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
       "jsx": "react-native",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext"
       // "typeRoots": ["./node_modules/@types", "./typings"]
     },
     // "include": ["./src/**/*", "typings.d.ts"]
