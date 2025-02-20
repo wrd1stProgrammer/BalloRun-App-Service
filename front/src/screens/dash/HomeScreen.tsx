@@ -83,7 +83,7 @@ const HomeScreen: React.FC = () => {
       console.log("📢 현재 Redux의 watchId 상태:", watchId);
   
       if (acceptedOrders.length > 0) {
-        console.log("🚀 배달 중인 주문 발견:", acceptedOrders);
+        //console.log("🚀 배달 중인 주문 발견:", acceptedOrders);
   
         acceptedOrders.forEach((order) => {
           socket?.emit("start_tracking", { orderId: order._id });
@@ -112,7 +112,7 @@ const HomeScreen: React.FC = () => {
           dispatch(setWatchId(id)); // Redux에 저장
         }
       } else {
-        console.log("배달 중인 주문 없음");
+        //console.log("배달 중인 주문 없음");
   
         if (watchId !== null && watchId !== undefined) {
           console.log("🚨 위치 추적 중지 시도 (watchId 존재)", watchId);
@@ -136,33 +136,26 @@ const HomeScreen: React.FC = () => {
     };
   }, []);
 
-  // 소켓으로 주문 상태 수신 및 처리
   useEffect(() => {
-    console.log(user?.userId, 'socket 부분');
     if (!orderSocket) {
-      console.log("orderSocker error")
+      console.log("orderSocket error");
       return;
     }
-
-    // 사용자 방에 조인
-    orderSocket.emit('join', user?._id);
+  
+    console.log("소켓 연결 상태:", orderSocket.connected); // 연결 상태 확인
+    orderSocket.emit('join', user?._id); // 방 조인 시도
     console.log(`${user?._id} 방에 조인 시도`);
-
-    console.log("orderSocket 연결 상태:", orderSocket.connected);
-
-    const handleOrderAccepted = (data: OrderStatus) => {
-      console.log("📢 주문 수락 수신:", data);
-      setOngoingOrder(data); // 진행 중인 주문 상태 저장
-      setIsMatching(true); // isMatching을 true로 설정
-      console.log("수신된 데이터:", data); // 데이터 로그 출력
-    };
-
-    orderSocket.on('order_accepted', handleOrderAccepted);
-
+  
+    orderSocket.on('order_accepted', (orderData) => {
+      console.log("order_accepted 이벤트 수신:", orderData);
+      setOngoingOrder(orderData);
+      setIsMatching(true);
+    });
+  
     return () => {
-      orderSocket.off('order_accepted', handleOrderAccepted);
+      orderSocket.off('order_accepted');
     };
-  }, [orderSocket]);
+  }, [orderSocket, user?._id]); // 의존성에 user?._id 추가
 
   return (
     <View style={{ flex: 1 }}>

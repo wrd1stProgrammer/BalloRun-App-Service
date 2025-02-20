@@ -39,15 +39,18 @@ module.exports = (io) => {
   // 소켓 연결
   io.on("connection", (socket) => {
     console.log(`${socket.user.userId} 연결되었습니다.`);
-    
+
     socket.on("join", (userId) => {
       socket.join(userId);
       console.log(`${userId}가 방에 조인함`);
+      // 방에 속한 소켓 목록 확인
+      const rooms = io.sockets.adapter.rooms.get(userId);
+      console.log(`방 ${userId}에 속한 소켓 수: ${rooms ? rooms.size : 0}`);
     });
-
+  
     const userRoom = socket.user.userId;
-    console.log(userRoom,'useroom');
-    socket.join(userRoom); // 사용자 전용 방에 조인
+    socket.join(userRoom);
+    console.log(`자동 조인: ${userRoom}`);
 
     socket.on("disconnect", () => {
       console.log(`${socket.user.userId} 연결 해제됨.`);
@@ -72,7 +75,7 @@ module.exports = (io) => {
   const tossOrderStatus = (orderData) => {
     const userId = orderData.userId;
     if (userId) {
-      io.to(userId).emit('order_accepted', {
+      io.emit('order_accepted', {
         createdAt: orderData.createdAt,
         orderId: orderData.orderId,
         status: orderData.status,
