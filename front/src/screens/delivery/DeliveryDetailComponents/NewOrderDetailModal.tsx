@@ -10,6 +10,7 @@ type NewOrderDetailModalProps = {
 
 const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onClose, onAccept, deliveryItem }) => {
   if (!deliveryItem) return null;
+  console.log(deliveryItem);
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -17,33 +18,24 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
         <View style={styles.modalContainer}>
           <ScrollView>
             <Text style={styles.header}>새로운 주문 상세</Text>
-            
-            {/* 주문 내용 */}
-            <Text style={styles.info}>주문 내용: {deliveryItem.orderDetails}</Text>
-            <Text style={styles.info}>배달 주소: {deliveryItem.deliveryAddress}</Text>
-            <Text style={styles.info}>픽업 시간: {deliveryItem.pickupTimeDisplay}</Text>
-            <Text style={styles.info}>배달 요청사항: {deliveryItem.riderRequest || "없음"}</Text>
+
+            {/* 주문 정보 */}
+            <Text style={styles.info}>가게 이름: {deliveryItem.items[0]?.cafeName || "없음"}</Text>
+            <Text style={styles.info}>주문 메뉴: {deliveryItem.items[0]?.menuName || "없음"}</Text>
+            <Text style={styles.info}>배달 주소: {deliveryItem.lat}, {deliveryItem.lng}</Text>
             <Text style={styles.info}>배달 유형: {deliveryItem.deliveryType === "direct" ? "직접 배달" : "기타"}</Text>
             <Text style={styles.info}>배달비: {deliveryItem.deliveryFee}원</Text>
-            <Text style={styles.info}>총 가격: {deliveryItem.priceOffer}원</Text>
-            <Text style={[styles.info, { color: deliveryItem.status === "cancelled" ? "red" : "green" }]}>
-              상태: {deliveryItem.status === "cancelled" ? "취소됨" : "대기 중"}
-            </Text>
-
-            {/* 주문 이미지 표시 */}
-            {deliveryItem.orderImages && (
-              <Image source={{ uri: deliveryItem.orderImages }} style={styles.image} />
-            )}
+            <Text style={styles.info}>총 주문 가격: {deliveryItem.price}원</Text>
+            <Text style={styles.info}>배달자 주문 요청사항: {deliveryItem.riderRequest}</Text>
+            <Text style={styles.info}>주문 종료 시간: {new Date(deliveryItem.endTime).toLocaleTimeString()}</Text>
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
                 <Text style={styles.buttonText}>닫기</Text>
               </TouchableOpacity>
-              {deliveryItem.status !== "cancelled" && (
-                <TouchableOpacity style={styles.acceptButton} onPress={onAccept}>
-                  <Text style={styles.buttonText}>배달하기</Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity style={styles.acceptButton} onPress={onAccept}>
+                <Text style={styles.buttonText}>배달하기</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </View>
@@ -78,12 +70,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
     marginBottom: 5,
-  },
-  image: {
-    width: "100%",
-    height: 250,
-    borderRadius: 10,
-    marginTop: 10,
   },
   buttonContainer: {
     flexDirection: "row",
