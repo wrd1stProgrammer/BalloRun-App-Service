@@ -189,8 +189,8 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
         <Text style={styles.deliveryType}>
           {item.deliveryType === "direct" ? "직접 배달" : "음료 보관함"}
         </Text>
-        <Text style={styles.timeInfo}>{`${format(new Date(item.startTime), "HH:mm")}`}</Text>
-        <Text style={styles.timeInfo}>{`${format(new Date(item.endTime), "HH:mm")}`}</Text>
+        {/* <Text style={styles.timeInfo}>{`${format(new Date(item.startTime), "HH:mm")}`}</Text>
+        <Text style={styles.timeInfo}>{`${format(new Date(item.endTime), "HH:mm")}`}</Text> */}
 
       </View>
       <View style={styles.rowFooter}>

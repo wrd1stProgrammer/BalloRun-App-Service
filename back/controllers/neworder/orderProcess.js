@@ -14,10 +14,11 @@ const newOrderCreate = async (req, res) => {
     orderImages,
     lat,
     lng,
-    deliveryType, // direct, nonContact
-    pickupTime,
     deliveryAddress,
-    pickupTimeDisplay, 
+    deliveryMethod, // direct, nonContact
+    startTime,
+    endTime,
+    selectedFloor,
   } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
@@ -39,10 +40,11 @@ const newOrderCreate = async (req, res) => {
       orderImages,
       lat,
       lng,
-      deliveryType,
-      pickupTime,
       deliveryAddress,
-      pickupTimeDisplay,
+      deliveryMethod,
+      startTime,
+      endTime,
+      selectedFloor,
     });
 
     // 메시지 큐에 전송

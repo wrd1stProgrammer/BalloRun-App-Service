@@ -14,10 +14,12 @@ export const neworderCompleteHandler = (
     orderImages: any, // 수령 위치 참고사진들
     lat: string,
     lng: string,
-    deliveryType: 'direct' | 'nonContact', // 직접이냐 비대면이냐
-    pickupTime: string | Date,
     deliveryAddress: string,
-    pickupTimeDisplay: string
+    deliveryMethod: string,
+
+    startTime: number | null,
+    endTime: number | null,
+    selectedFloor: string | null, 
   ) => async (dispatch: any) => {
     try {
       const res = await appAxios.post(`/neworder/ordercall`, {
@@ -30,10 +32,12 @@ export const neworderCompleteHandler = (
         orderImages,
         lat,
         lng,
-        deliveryType,
-        pickupTime,
         deliveryAddress,
-        pickupTimeDisplay,
+        deliveryMethod,
+
+        startTime,
+        endTime,
+        selectedFloor
       });
   
       return res.data;

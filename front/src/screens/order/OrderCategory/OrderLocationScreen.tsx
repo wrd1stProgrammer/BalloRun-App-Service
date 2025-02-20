@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker,Polygon } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../../navigation/NavigationUtils";
 import { RouteProp, useRoute } from "@react-navigation/native";
+
+import CustomMarker from "../OrderWriteLocationComponent/CustomMarker";
+
+import { markers } from "../../../componenets/cupholderMarkerLoc"; // 컵홀더 위치 데이터 불러오기
 
 type RootStackParamList = {
   OrderLocationScreen: {
@@ -12,8 +16,8 @@ type RootStackParamList = {
     orderDetails: string;
     priceOffer: string;
     deliveryFee: string;
-    riderRequest: string;
     images: string;
+    deliveryMethod: string
   };
 };
 
@@ -22,22 +26,33 @@ type OrderLocationScreenRouteProp = RouteProp<RootStackParamList, "OrderLocation
 const OrderLocationScreen = () => {
   const route = useRoute<OrderLocationScreenRouteProp>();
   const orderData = route.params;
+  const { deliveryMethod } = route.params;
+
 
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<any>(null); 
+  const [floor, setFloor] = useState(false)
+
+  const jnuBoundary = [
+    { latitude: 35.182031, longitude: 126.897108 },
+    { latitude: 35.182031, longitude: 126.911955 },
+    { latitude: 35.171504, longitude: 126.911955 },
+    { latitude: 35.171504, longitude: 126.897108 },
+    { latitude: 35.182031, longitude: 126.897108 },
+  ];
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permission to access location was denied");
-        return;
-      }
-      let currentLocation = await Location.getCurrentPositionAsync({});
+    setFloor(deliveryMethod === 'direct');
+  }, [deliveryMethod]);
+
+
+  useEffect(() => {
+ 
       setLocation({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-      });
-    })();
+        latitude: 35.176735,
+        longitude: 126.908421,
+
+    });
   }, []);
 
   const handleRegionChange = (region: { latitude: number; longitude: number }) => {
@@ -46,7 +61,7 @@ const OrderLocationScreen = () => {
 
   const handleConfirmLocation = () => {
     if (!location) return;
-    navigate("OrderFinalScreen", { ...orderData, lat: location.latitude, lng: location.longitude });
+    navigate("OrderFinalScreen", { ...orderData, lat: location.latitude, lng: location.longitude, selectedMarker  });
   };
 
   return (
@@ -54,22 +69,62 @@ const OrderLocationScreen = () => {
       <TouchableOpacity onPress={goBack} style={styles.backButton}>
         <Ionicons name="chevron-back" size={24} color="black" />
       </TouchableOpacity>
+
+      
       {location ? (
-        <MapView
-          style={styles.map}
-          initialRegion={{
+      <MapView
+      style={styles.map}
+      initialRegion={{
+        latitude: 35.176735,
+        longitude: 126.908421,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.002,
+      }}
+      onRegionChangeComplete={handleRegionChange}
+    >
+      {/* Draw a polygon boundary */}
+      <Polygon
+        coordinates={jnuBoundary}
+        strokeColor="rgba(0,0,255,0.8)"
+        fillColor="rgba(0,0,255,0.1)"
+        strokeWidth={2}
+      />
+
+      {/* Add current location marker */}
+      {floor &&
+      
+      <Marker
+          coordinate={{
             latitude: location.latitude,
             longitude: location.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
           }}
-          onRegionChangeComplete={handleRegionChange}
-        >
-          <Marker coordinate={location} />
-        </MapView>
-      ) : (
-        <Text style={styles.loadingText}>위치 정보를 불러오는 중...</Text>
+          title="현재 위치"
+        />
+        }
+
+      {/* Conditionally render markers */}
+      {!floor && (
+        <>
+
+          {markers.map((marker) => (
+            <Marker
+              key={marker.id}
+              coordinate={marker.coordinate}
+              title={marker.title}
+              onPress={() => setSelectedMarker(marker)}
+            >
+              {/* Render a custom marker */}
+              <CustomMarker marker={marker} />
+            </Marker>
+          ))}
+        </>
       )}
+    </MapView>
+  ) : (
+    <Text style={styles.loadingText}>위치 정보를 불러오는 중...</Text>
+  )}
+
+
       <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmLocation}>
         <Text style={styles.buttonText}>배달장소 선택 완료</Text>
       </TouchableOpacity>

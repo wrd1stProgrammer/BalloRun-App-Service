@@ -28,8 +28,11 @@ const OrderPageScreen = () => {
   const [orderDetails, setOrderDetails] = useState("");
   const [priceOffer, setPriceOffer] = useState("0원");
   const [deliveryFee, setdeliveryFee] = useState("0원");
-  const [riderRequest, setriderRequest] = useState("");
+  // const [riderRequest, setriderRequest] = useState("");
   const [images, setImages] = useState<string | null>(null); // uri만 저장
+
+  const [deliveryMethod, setDeliveryMethod] = useState("direct"); // 배달방식 선택 상태
+  
 
 
   useEffect(() => {
@@ -44,8 +47,9 @@ const OrderPageScreen = () => {
       orderDetails,
       priceOffer,
       deliveryFee,
-      riderRequest,
+      // riderRequest,
       images: images,
+      deliveryMethod
     });
   };
 
@@ -129,14 +133,59 @@ const OrderPageScreen = () => {
           onChangeText={(text) => handlePriceChange(text, setdeliveryFee)}
         />
 
-        <TextInput
+        {/* <TextInput
           style={styles.textArea}
           placeholder="주문 요청사항 입력"
           placeholderTextColor="#B0B0B0"
           multiline
           value={riderRequest}
           onChangeText={setriderRequest}
-        />
+        /> */}
+         <View style={styles.footer}>
+                <View style={styles.deliveryMethodContainer}>
+                  <Text style={styles.deliveryMethodTitle}>
+                    배달방식을 선택해주세요
+                  </Text>
+                  <View style={styles.deliveryButtonsContainer}>
+                    <TouchableOpacity
+                      style={[
+                        styles.deliveryButton,
+                        deliveryMethod === "direct" && styles.selectedButton,
+                      ]}
+                      onPress={() => setDeliveryMethod("direct")}
+                    >
+                      <Text
+                        style={
+                          deliveryMethod === "direct"
+                            ? styles.selectedButtonText
+                            : styles.deliveryButtonText
+                        }
+                      >
+                        직접배달
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.deliveryButton,
+                        deliveryMethod === "cupHolder" && styles.selectedButton,
+                      ]}
+                      onPress={() => setDeliveryMethod("cupHolder")}
+                    >
+                      <Text
+                        style={
+                          deliveryMethod === "cupHolder"
+                            ? styles.selectedButtonText
+                            : styles.deliveryButtonText
+                        }
+                      >
+                        음료보관대
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+
+
       </View>
 
       <TouchableOpacity
@@ -189,6 +238,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  footer: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
   textArea: {
     height: 150,
     borderColor: "#D0D0D0",
@@ -227,6 +281,37 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  deliveryMethodContainer: {
+    marginBottom: 16,
+  },
+  deliveryMethodTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  deliveryButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  deliveryButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#f0f0f0",
+    alignItems: "center",
+    marginHorizontal: 4,
+  },
+  selectedButton: {
+    backgroundColor: "#d0a6f3",
+  },
+  deliveryButtonText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  selectedButtonText: {
+    fontSize: 14,
+    color: "#fff",
   },
 });
 

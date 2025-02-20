@@ -12,6 +12,8 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { LatLng } from "react-native-maps";
+
 import { useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../../navigation/NavigationUtils";
@@ -22,6 +24,16 @@ import { neworderCompleteHandler } from "../../../redux/actions/newOrderAction";
 import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
 import { uploadFile } from "../../../redux/actions/fileAction";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
+import { Picker } from "@react-native-picker/picker";
+
+interface MarkerData {
+  id: number;
+  coordinate: LatLng;
+  title: string;
+  description: string;
+  image: any;
+  floors: string[];
+}
 
 type RootStackParamList = {
   OrderFinalScreen: {
@@ -29,14 +41,22 @@ type RootStackParamList = {
     orderDetails: string;
     priceOffer: string;
     deliveryFee: string;
-    riderRequest: string;
     images: string;
     lat?: number;
     lng?: number;
+    deliveryMethod: string
+    selectedMarker: MarkerData | null;
+    
   };
 };
 
 type OrderFinalScreenRouteProp = RouteProp<RootStackParamList, "OrderFinalScreen">;
+
+
+const toKST = (date: Date) => {
+  const offset = 9 * 60;
+  return new Date(date.getTime() + offset * 60 * 1000);
+};
 
 const OrderFinalScreen = () => {
   const route = useRoute<OrderFinalScreenRouteProp>();
@@ -45,21 +65,28 @@ const OrderFinalScreen = () => {
     orderDetails,
     priceOffer,
     deliveryFee,
-    riderRequest,
+    // riderRequest,
     images,
     lat,
     lng,
+    deliveryMethod,
+    selectedMarker
   } = route.params;
 
-  const [deliveryType, setdeliveryType] = useState<"direct" | "nonContact">("direct");
-  const [pickupTime, setPickupTime] = useState<"now" | "reservation">("now");
-  const [deliveryAddress, setDeliveryAddress] = useState("");
-  const [pickupDate, setPickupDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [deliveryAddress, setDeliveryAddress] = useState("없음");
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [riderRequest, setriderRequest] = useState<string>("");
 
-
+  // 02/21 03:13 추가
+  const [floor, setFloorState] = useState(false);
+  const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
+  const [startTime, setStartTimeLocal] = useState(toKST(new Date()));
+  const [endTime, setEndTimeLocal] = useState(toKST(new Date(new Date().getTime() + 60 * 60 * 1000)));
+  
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [reservationChecked, setReservationChecked] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -71,11 +98,25 @@ const OrderFinalScreen = () => {
     return `${ampm} ${formattedHours}시 ${minutes}분`;
   };
 
+
+  useEffect(() => {
+    if (!reservationChecked) {
+      setStartTimeLocal(toKST(new Date()));
+    }
+  }, [reservationChecked]);
+  useEffect(() => {
+    setFloorState(deliveryMethod === "cupHolder");
+    }, [deliveryMethod]);
+
+
   const handleNextPress = async () => {
     setIsLoading(true);
-
+    
     const imageResponse = images ? await dispatch(uploadFile(images, "neworderInfo_image")) : null;
     const imageResponse2 = selectedImageUri ? await dispatch(uploadFile(selectedImageUri, "neworderPickup_image")) : null;
+
+
+
 
     const res = await dispatch(neworderCompleteHandler(
       name,
@@ -87,21 +128,28 @@ const OrderFinalScreen = () => {
       imageResponse2 || "",
       lat?.toString() || "",
       lng?.toString() || "",
-      deliveryType,
-      pickupTime === "now" ? new Date() : pickupDate,
       deliveryAddress,
-      pickupTime === "now" ? formatTime(new Date()) : formatTime(pickupDate)
+      deliveryMethod,
+
+
+      startTime.getTime(),
+      endTime.getTime(),
+      selectedFloor
     ));
-    const orderId = res._id;
-    console.log(orderId);
+ 
+
 
     // user model db엔 없지만 주문상태를 상태관리 하기 위한 dispatch임.
     //client 에서만 사용하는 isOngoinOrder 상태
     dispatch(setIsOngoingOrder(true));
     
     
+
+
+    
   
     setTimeout(() => {
+
       setIsLoading(false);
       navigate("BottomTab", {
         screen: "DeliveryRequestListScreen",
@@ -109,11 +157,6 @@ const OrderFinalScreen = () => {
     }, 1000);
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    const currentDate = selectedDate || pickupDate;
-    setShowDatePicker(Platform.OS === "ios");
-    setPickupDate(currentDate);
-  };
 
   useEffect(() => {
     if (selectedImageUri) {
@@ -170,56 +213,8 @@ const OrderFinalScreen = () => {
           </View>
 
           <ScrollView style={styles.content}>
-            <Text style={styles.sectionTitle}>수령 방법</Text>
-            <View style={styles.optionContainer}>
-              <TouchableOpacity
-                style={[styles.optionButton, deliveryType === "direct" && styles.optionButtonActive]}
-                onPress={() => setdeliveryType("direct")}
-              >
-                <Text style={[styles.optionText, deliveryType === "direct" && styles.optionTextActive]}>직접 수령</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.optionButton, deliveryType === "nonContact" && styles.optionButtonActive]}
-                onPress={() => setdeliveryType("nonContact")}
-              >
-                <Text style={[styles.optionText, deliveryType === "nonContact" && styles.optionTextActive]}>비대면 수령</Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.sectionTitle}>픽업 시간</Text>
-            <View style={styles.optionContainer}>
-              <TouchableOpacity
-                style={[styles.optionButton, pickupTime === "now" && styles.optionButtonActive]}
-                onPress={() => setPickupTime("now")}
-              >
-                <Text style={[styles.optionText, pickupTime === "now" && styles.optionTextActive]}>지금 수령</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.optionButton, pickupTime === "reservation" && styles.optionButtonActive]}
-                onPress={() => setPickupTime("reservation")}
-              >
-                <Text style={[styles.optionText, pickupTime === "reservation" && styles.optionTextActive]}>예약 수령</Text>
-              </TouchableOpacity>
-            </View>
-
-            {pickupTime === "now" ? (
-              <Text style={styles.timeDisplayText}>{formatTime(new Date())}</Text>
-            ) : (
-              <View style={styles.datePickerContainer}>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                  <Text style={styles.datePickerText}>{formatTime(pickupDate)}</Text>
-                </TouchableOpacity>
-                {showDatePicker && (
-                  <DateTimePicker
-                    value={pickupDate}
-                    mode="time"
-                    display="default"
-                    onChange={handleDateChange}
-                  />
-                )}
-              </View>
-            )}
-
+          {!floor && (
+          <>
             <Text style={styles.sectionTitle}>상세 배달 주소</Text>
             <TextInput
               style={styles.textArea}
@@ -229,6 +224,148 @@ const OrderFinalScreen = () => {
               value={deliveryAddress}
               onChangeText={setDeliveryAddress}
             />
+          </>
+        )}
+
+        {floor && selectedMarker && (
+          <>
+            <Text style={styles.label}>층을 선택해주세요</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedFloor}
+                onValueChange={(itemValue) => setSelectedFloor(itemValue)}
+              >
+                <Picker.Item label="층을 선택해주세요" value="" />
+                {selectedMarker.floors.map((floor) => (
+                  <Picker.Item key={floor} label={floor} value={floor} />
+                ))}
+              </Picker>
+            </View>
+          </>
+        )}
+
+
+
+
+<Text style={styles.label}>배달 요청 시간</Text>
+        <View style={styles.timeInputContainer}>
+          <TouchableOpacity
+            style={[
+              styles.input,
+              styles.timeInput,
+              !reservationChecked && styles.disabledTimeInput,
+            ]}
+            onPress={() => {
+              if (reservationChecked) setShowStartPicker(true);
+            }}
+          >
+            <Text
+              style={[
+                styles.timeText_1,
+                !reservationChecked && styles.disabledTimeText,
+              ]}
+            >
+              {`${startTime.getFullYear()}년 ${startTime.getMonth() + 1
+                }월 ${startTime.getDate()}일`}
+            </Text>
+            <Text
+              style={[
+                styles.timeText,
+                !reservationChecked && styles.disabledTimeText,
+              ]}
+            >
+              {`${startTime.getHours()}시 ${startTime.getMinutes()}분`}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.input, styles.timeInput]}
+            onPress={() => {
+              setShowEndPicker(true);
+            }}
+          >
+            <Text style={styles.timeText_1}>
+              {`${endTime.getFullYear()}년 ${endTime.getMonth() + 1
+                }월 ${endTime.getDate()}일`}
+            </Text>
+
+            <Text style={[styles.timeText]}>
+              {`${endTime.getHours()}시 ${endTime.getMinutes()}분`}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.checkboxWrapper}>
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => setReservationChecked(!reservationChecked)}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  reservationChecked && styles.checkboxChecked,
+                ]}
+              />
+              <Text style={styles.checkboxText}>배달 예약</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {showStartPicker && reservationChecked && (
+          <DateTimePicker
+            value={startTime}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowStartPicker(false);
+              if (selectedDate) {
+                if (selectedDate < new Date()) {
+                  Alert.alert(
+                    "유효하지 않은 시간",
+                    "현재 시간보다 이전 시간을 선택할 수 없습니다."
+                  );
+                  return;
+                }
+                setStartTimeLocal(selectedDate);
+                if (selectedDate >= endTime) {
+                  setEndTimeLocal(
+                    new Date(selectedDate.getTime() + 60 * 60 * 1000)
+                  );
+                }
+              }
+            }}
+          />
+        )}
+
+        {showEndPicker && (
+          <DateTimePicker
+            value={endTime}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowEndPicker(false);
+              if (selectedDate) {
+                if (selectedDate <= startTime) {
+                  Alert.alert(
+                    "유효하지 않은 시간",
+                    "종료 시간은 시작 시간보다 늦어야 합니다."
+                  );
+                  return;
+                }
+                setEndTimeLocal(selectedDate);
+              }
+            }}
+          />
+        )}
+
+                   <TextInput
+          style={styles.textArea}
+          placeholder="주문 요청사항 입력"
+          placeholderTextColor="#B0B0B0"
+          multiline
+          value={riderRequest}
+          onChangeText={setriderRequest}
+        />
 
             <Text style={styles.sectionTitle}>사진 첨부</Text>
             <TouchableOpacity
@@ -286,6 +423,16 @@ const OrderFinalScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  label: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 6,
+  },
+  pickerContainer: {
+    backgroundColor: "#f2f2f2",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -435,6 +582,63 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#3A1D1D",
+  },
+
+  timeInputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  input: {
+    backgroundColor: "#f2f2f2",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    fontSize: 14,
+  },
+  timeInput: {
+    flex: 1,
+    backgroundColor: "#f2f2f2",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  disabledTimeInput: {
+    backgroundColor: "#d3d3d3",
+  },
+  timeText: {
+    color: "#333",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  timeText_1: {
+    color: "#555",
+    fontSize: 12,
+  },
+  checkboxWrapper: {
+    justifyContent: "center",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: "#6200ee",
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  checkboxChecked: {
+    backgroundColor: "#6200ee",
+  },
+  checkboxText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  disabledTimeText: {
+    color: "#a9a9a9",
   },
 });
 
