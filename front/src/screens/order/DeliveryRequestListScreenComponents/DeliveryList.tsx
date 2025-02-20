@@ -21,7 +21,7 @@ import { WebSocketContext } from "../../../utils/sockets/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
 import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions, Asset} from 'react-native-image-picker';
 import ChangeStatusPicker from "./DeliveryListComponents.tsx/ChangeStatusPicker";
-import { goToCafeHandler, goToClientHandler, makingMenuHandler } from "../../../redux/actions/riderAction";
+import { completeOrderHandler, goToCafeHandler, goToClientHandler, makingMenuHandler } from "../../../redux/actions/riderAction";
 
 
 
@@ -75,9 +75,6 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
     if (activeTab == "deliveries"){
         socket?.on("emitMatchTest", fetchOrders);
         fetchOrders();
-
-            
-         
     
         return () => {
           fetchOrders();
@@ -116,6 +113,8 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       await dispatch(goToClientHandler(orderId));
     } else if (selectedStatus === "makingMenu") {
       await dispatch(makingMenuHandler(orderId));
+    } else if (selectedStatus === "completeOrder") {
+      await dispatch(completeOrderHandler(orderId));
     }
   }
 

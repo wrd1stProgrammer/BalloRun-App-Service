@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert,ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
-import { selectUser } from '../../redux/reducers/userSlice';
+import { selectUser, selectIsOngoingOrder } from '../../redux/reducers/userSlice';
 import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "../.././../src/utils/fcm/FcmHandler";
 import { MapSocketContext } from '../../utils/sockets/MapSocket';
 import { getDeliveryListHandler } from '../../redux/actions/orderAction';
@@ -12,9 +12,9 @@ import { setWatchId } from '../../redux/reducers/locationSlice';
 import Banner from './Banner/Banner';
 import OrderListComponent from './Banner/OrderListComponent';
 import MyAdBanner from './Banner/MyAdBanner';
-import FixedOrderStatusBanner from './Banner/FixedOrderStatusBanner';
-
-
+import FixedOrderStatusBanner from './Banner/FixedOrderStatusBanner'; // 기존 배너
+import NewFixedOrderStatusBanner from './Banner/NewFixedOrderStatusBanner'; // 새로운 배너
+import { WebSocketContext } from '../../utils/sockets/Socket';
 type DeliveryItem = {
   _id: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
@@ -26,26 +26,37 @@ type DeliveryItem = {
   createdAt: string;
   endTime: string;
   status: string;
+  
 };
+
+// 주문 상태 인터페이스
+interface OrderStatus {
+  orderId: string;
+  status: string;
+  createdAt: string;
+}
 
 const HomeScreen: React.FC = () => {
   const user = useAppSelector(selectUser);
+  const isOngoingOrder = useAppSelector(selectIsOngoingOrder);
   const dispatch = useAppDispatch();
+  const orderSocket = useContext(WebSocketContext); // WebSocketContext에서 소켓 가져오기
   const socket = useContext(MapSocketContext);
 
   const watchId = useAppSelector((state) => state.location.watchId);
 
   const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [ongoingOrder, setOngoingOrder] = useState<OrderStatus | null>(null); // 진행 중인 주문 상태
+  const [isMatching, setIsMatching] = useState<boolean>(false); // 매칭 상태
 
   const CheckIsDelivering = () => {
-    //배달 중이면
-    if(user?.isDelivering) {
-      // 경고창 띄워서 이미 배달 중입니다 뭐 띄우기 못 들어가게.
-    }else{
+    if (user?.isDelivering) {
+      Alert.alert('배달 중', '현재 이미 배달 중입니다.');
+    } else {
       navigate("SelectDelivery");
     }
-  }
+  };
 
   // 🔥 FCM 알림 리스너 설정
   useEffect(() => {
@@ -123,40 +134,78 @@ const HomeScreen: React.FC = () => {
         socket?.emit("stop_tracking", {});
       }
     };
-  }, []); 
+  }, []);
+
+  // 소켓으로 주문 상태 수신 및 처리
+  useEffect(() => {
+    console.log(user?.userId, 'socket 부분');
+    if (!orderSocket) {
+      console.log("orderSocker error")
+      return;
+    }
+
+    // 사용자 방에 조인
+    orderSocket.emit('join', user?._id);
+    console.log(`${user?._id} 방에 조인 시도`);
+
+    console.log("orderSocket 연결 상태:", orderSocket.connected);
+
+    const handleOrderAccepted = (data: OrderStatus) => {
+      console.log("📢 주문 수락 수신:", data);
+      setOngoingOrder(data); // 진행 중인 주문 상태 저장
+      setIsMatching(true); // isMatching을 true로 설정
+      console.log("수신된 데이터:", data); // 데이터 로그 출력
+    };
+
+    orderSocket.on('order_accepted', handleOrderAccepted);
+
+    return () => {
+      orderSocket.off('order_accepted', handleOrderAccepted);
+    };
+  }, [orderSocket]);
 
   return (
     <View style={{ flex: 1 }}>
-    <ScrollView style={styles.container}>
-      {/* 상단 프로필/인사 문구 영역 */}
-      <View style={styles.headerContainer}>
-        <View style={styles.greetingContainer}>
-          <Text style={styles.userName}>{user?.username}님, 안녕하세요!!!!</Text>
-          <Text>캠퍼스 커피에서 편함을 주문해보세요.</Text>
+      <ScrollView style={styles.container}>
+        {/* 상단 프로필/인사 문구 영역 */}
+        <View style={styles.headerContainer}>
+          <View style={styles.greetingContainer}>
+            <Text style={styles.userName}>{user?.username}님, 안녕하세요!!!!</Text>
+            <Text>캠퍼스 커피에서 편함을 주문해보세요.</Text>
+          </View>
+          {/* 프로필 아이콘 */}
+          <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>
+            <Ionicons name="person-circle" size={36} color="#999" />
+          </TouchableOpacity>
         </View>
-        {/* 프로필 아이콘 */}
-        <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>
-          <Ionicons name="person-circle" size={36} color="#999" />
-        </TouchableOpacity>
-      </View>
 
-      {/* 근처 배달가능 리스트 */}
-      <View style={styles.bannerContainer} >
-        <Banner />
-      </View>
-      
-      <OrderListComponent user={user} />
+        {/* 근처 배달가능 리스트 */}
+        <View style={styles.bannerContainer}>
+          <Banner />
+        </View>
+        
+        <OrderListComponent user={user} />
 
-      <View style={styles.bannerContainer} >
-        <MyAdBanner/>
-      </View>
+        <View style={styles.bannerContainer}>
+          <MyAdBanner />
+        </View>
+        
+        <View style={styles.bannerContainer}>
+          <MyAdBanner />
+        </View>
+      </ScrollView>
       
-      <View style={styles.bannerContainer} >
-        <MyAdBanner/>
-      </View>
-    </ScrollView>
-    
-    <FixedOrderStatusBanner/>
+      {/* isOngoingOrder가 true이고 isMatching이 false일 때 기존 배너 */}
+      {isOngoingOrder && !isMatching && <FixedOrderStatusBanner />}
+      
+      {/* isOngoingOrder와 isMatching이 모두 true일 때 새로운 배너 */}
+      {isOngoingOrder && isMatching && ongoingOrder && (
+        <NewFixedOrderStatusBanner 
+          order={ongoingOrder} 
+          isOngoingOrder={isOngoingOrder} 
+          isMatching={isMatching} 
+        />
+      )}
     </View>
   );
 };
@@ -167,7 +216,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    width:'100%',
+    width: '100%',
     paddingTop: 50,
   },
   headerContainer: {
@@ -175,7 +224,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 30,
-    margin:15,
+    margin: 15,
   },
   greetingContainer: {
     flex: 1,
@@ -194,42 +243,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  cardList: {},
-  card: {
-    height: 250,
-    borderRadius: 12,
-    marginBottom: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    elevation: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  deliveryCard: {
-    backgroundColor: '#8A67F8',
-    shadowColor: '#8A67F8',
-    justifyContent: 'center',
-  },
-  orderCard: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#8A67F8',
-    justifyContent: 'center',
-  },
-  cardTextWhite: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 16,
-  },
-  cardTextDark: {
-    color: '#8A67F8',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 16,
   },
   bannerContainer: {
     marginBottom: 20,

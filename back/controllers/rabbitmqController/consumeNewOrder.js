@@ -20,7 +20,6 @@ const consumeNewOrderMessages = async (redisCli) => {
       durable: true,
       arguments: { "x-delayed-type": "direct" }
     });
-
     console.log(`New Waiting for messages in ${queue}`);
 
     channel.consume(
@@ -34,6 +33,10 @@ const consumeNewOrderMessages = async (redisCli) => {
             // DB 저장
             const newOrder = new NewOrder(orderData);
             await newOrder.save();
+            
+;
+
+            //expectedTime api랑 컨슈머에 둘 다 적용하자
 
             // Redis 저장 (30분 TTL)
             // await storeOrderInRedis(redisCli, orderData);
@@ -66,8 +69,7 @@ const consumeNewOrderMessages = async (redisCli) => {
             // 진행 주문 제거 이거 Ongoing에서 맞춰야 함.
             await invalidateOnGoingOrdersCache(orderData.userId, redisCli);
 
-            // 소켓 전송
-            // showOrderData(orderData);
+            
 
             await channel.publish(
               delayedExchange,

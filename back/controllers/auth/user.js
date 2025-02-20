@@ -26,6 +26,9 @@ const getProfile = async (req, res) => {
         userImage: user?.userImage,
         point: user.point,
         email: user.email,
+        isRider: user.isRider,
+        isDelivering: user.isDelivering,
+        
       }, // 임시로 4개만 뿌림.
     });
   } catch (error) {

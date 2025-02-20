@@ -39,8 +39,14 @@ module.exports = (io) => {
   // 소켓 연결
   io.on("connection", (socket) => {
     console.log(`${socket.user.userId} 연결되었습니다.`);
+    
+    socket.on("join", (userId) => {
+      socket.join(userId);
+      console.log(`${userId}가 방에 조인함`);
+    });
 
     const userRoom = socket.user.userId;
+    console.log(userRoom,'useroom');
     socket.join(userRoom); // 사용자 전용 방에 조인
 
     socket.on("disconnect", () => {
@@ -61,5 +67,21 @@ module.exports = (io) => {
     io.emit('showOrderData', orderData);
   }
 
-  return { emitSocketTest,emitMatchTest,showOrderData};
+
+  // 주문 상태 전송 (주문자에게만 emit)
+  const tossOrderStatus = (orderData) => {
+    const userId = orderData.userId;
+    if (userId) {
+      io.to(userId).emit('order_accepted', {
+        createdAt: orderData.createdAt,
+        orderId: orderData.orderId,
+        status: orderData.status,
+      });
+      console.log(`Emit 성공-> ${userId}:`, orderData);
+    } else {
+      console.warn("Emit 실패");
+    }
+  };
+
+  return { emitSocketTest,emitMatchTest,showOrderData,tossOrderStatus};
 };

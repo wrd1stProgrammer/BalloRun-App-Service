@@ -48,10 +48,11 @@ async function startServer() {
 
 
   // Socket.IO 설정 및 emit 함수 등록 -> 여기서 emit 할 거 여러가지 등록
-  const { emitSocketTest, emitMatchTest, showOrderData } = configureSocket(io);
+  const { emitSocketTest, emitMatchTest, showOrderData,tossOrderStatus } = configureSocket(io);
   app.set("emitSocketTest", emitSocketTest);
   app.set("emitMatchTest", emitMatchTest);
   app.set("showOrderData", showOrderData);
+  app.set("tossOrderStatus",tossOrderStatus);
 
 
   // fcm server startt

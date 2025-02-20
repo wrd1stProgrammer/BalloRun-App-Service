@@ -10,7 +10,7 @@ const {
 const {
   acceptNewOrder
 } = require("../controllers/rider/acceptNewOrder");
-const { goToCafeHandler, makingMenuHandler, goToClientHandler } = require("../controllers/rider/orderStatusChange");
+const { goToCafeHandler, makingMenuHandler, goToClientHandler,completeOrderHandler } = require("../controllers/rider/orderStatusChange");
 const router = express.Router();
 
 router.get('/getOrderData',getOrderDataWithRedis);
@@ -22,5 +22,6 @@ router.post(`/getroomId`,getroomId);
 router.post(`/goToCafeHandler`,goToCafeHandler);
 router.post(`/makingMenuHandler`,makingMenuHandler);
 router.post(`/goToClientHandler`,goToClientHandler);
+router.post(`/completeOrderHandler`,completeOrderHandler);
 
 module.exports = router;
