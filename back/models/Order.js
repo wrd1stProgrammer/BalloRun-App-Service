@@ -50,6 +50,7 @@ const OrderSchema = new mongoose.Schema(
   },
     price:{type:Number},
     quantity:{type:Number},
+    expectedTime:{type:Number}, // rider가 설정
   },
   {
     timestamps: true, // createdAt, updatedAt 자동 생성

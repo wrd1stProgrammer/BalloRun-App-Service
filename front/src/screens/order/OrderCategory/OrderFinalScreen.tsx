@@ -21,7 +21,7 @@ import { useAppDispatch } from "../../../redux/config/reduxHook";
 import { neworderCompleteHandler } from "../../../redux/actions/newOrderAction";
 import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
 import { uploadFile } from "../../../redux/actions/fileAction";
-
+import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 type RootStackParamList = {
   OrderFinalScreen: {
     name: string;
@@ -90,6 +90,10 @@ const OrderFinalScreen = () => {
       pickupTime === "now" ? formatTime(new Date()) : formatTime(pickupDate)
     ));
 
+    // user model db엔 없지만 주문상태를 상태관리 하기 위한 dispatch임.
+    //client 에서만 사용하는 isOngoinOrder 상태
+    dispatch(setIsOngoingOrder(true));
+  
     setTimeout(() => {
       setIsLoading(false);
       navigate("BottomTab", {

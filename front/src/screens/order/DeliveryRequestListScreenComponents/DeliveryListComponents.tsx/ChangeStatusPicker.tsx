@@ -24,6 +24,7 @@ const ChangeStatusPicker: React.FC<ChangeStatusPickerProps> = ({ onClose, onConf
           <Picker.Item label="카페로 이동중" value="goTocafe" />
           <Picker.Item label="고객에게 이동중" value="goToClient" />
           <Picker.Item label="제품 픽업 완료" value="makingMenu" />
+          <Picker.Item label="배달 완료" value="completeOrder" />
 
         </Picker>
       </View>

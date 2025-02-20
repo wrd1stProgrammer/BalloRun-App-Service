@@ -75,7 +75,7 @@ const completeOrder = async (req, res) => {
     // 2. MongoDB에서 주문 상태 변경 (`pending` → `accepted`)
     const order = await Order.findOneAndUpdate(
       { _id: orderId, status: "accepted" }, //_id 유의!
-      { $set: { status: "complete", riderId } },
+      { $set: { status: "delivered", riderId } },
       { new: true }
     );
 
