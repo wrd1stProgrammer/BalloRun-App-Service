@@ -70,19 +70,15 @@ const [selectedMarker, setSelectedMarker] = useState<any>(null); // 타입 명�
         deliveryMethod={deliveryMethod}
         markers={markers}
         onMarkerPress={setSelectedMarker}
+        address={address}  // 추가
+        bottomSheetRef={bottomSheetRef}  // 추가
+        selectedMarker={selectedMarker}  // 추가
       />
-
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
 
-      <LocationBottomSheet
-        address={address}
-        deliveryMethod={deliveryMethod}
-        bottomSheetRef={bottomSheetRef}
-        markers={markers}
-        selectedMarker={selectedMarker}
-      />
+
     </View>
   );
 };

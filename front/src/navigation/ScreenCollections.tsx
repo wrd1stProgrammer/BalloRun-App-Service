@@ -34,6 +34,7 @@ import Step3 from "../screens/auth/RiderRegister/Steps/Step3";
 import Step4 from "../screens/auth/RiderRegister/Steps/Step4";
 import Step5 from "../screens/auth/RiderRegister/Steps/Step5";
 import Step6 from "../screens/auth/RiderRegister/Steps/Step6";
+import NewLocationBottom from "../screens/order/OrderWriteLocationComponent/NewLocationBottom";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -142,6 +143,11 @@ export const orderStack = [
   {
     name: "OrderListScreen",
     component: OrderListSceen,
+  },
+  
+  {
+    name: "NewLocationBottom",
+    component: NewLocationBottom,
   },
   {
     name: "OrderPageScreen",

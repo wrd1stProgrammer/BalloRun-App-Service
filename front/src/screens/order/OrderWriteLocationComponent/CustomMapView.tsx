@@ -1,8 +1,21 @@
 import React from 'react';
-import MapView, { Marker, Polygon } from 'react-native-maps';
-import { StyleSheet } from 'react-native';
-import { CustomMapViewProps } from './CustomMapViewProps';
+import MapView, { Marker, Region, Polygon } from 'react-native-maps';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CustomMarker from './CustomMarker';
+import LocationBottomSheet from './LocationBottomSheet';
+import { goBack, navigate } from "../../../navigation/NavigationUtils";
+
+interface CustomMapViewProps {
+  region: Region;
+  onRegionChangeComplete: (region: Region) => void;
+  jnuBoundary: { latitude: number; longitude: number }[];
+  deliveryMethod: 'direct' | 'cupHolder';
+  markers: any[];
+  onMarkerPress: (marker: any) => void;
+  address: string;
+  bottomSheetRef: any;
+  selectedMarker: any;
+}
 
 const CustomMapView: React.FC<CustomMapViewProps> = ({
   deliveryMethod,
@@ -11,7 +24,16 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({
   jnuBoundary,
   markers,
   onMarkerPress,
+  address,
+  bottomSheetRef,
+  selectedMarker
+
 }) => {
+
+  const confirmLocation = () => {
+      console.log('선택된 배달 위치:', selectedMarker);
+      navigate("NewLocationBottom", { address, deliveryMethod,bottomSheetRef,markers,selectedMarker });
+  };
 
   const [floor, setFloor] = React.useState(false);
 
@@ -20,6 +42,7 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({
   }, [deliveryMethod]);
 
   return (
+    <View style={styles.container}>
     <MapView
       style={styles.map}
       initialRegion={region}
@@ -63,12 +86,38 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({
         </>
       )}
     </MapView>
+
+        <TouchableOpacity style={styles.confirmButton} onPress={confirmLocation}>
+        <Text style={styles.confirmButtonText}>배달 위치 결정하기</Text>
+      </TouchableOpacity>
+  </View>
+    
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   map: {
     flex: 1,
+  },
+  confirmButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: '10%',
+    right: '10%',
+    backgroundColor: '#007AFF',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+  },
+  confirmButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
