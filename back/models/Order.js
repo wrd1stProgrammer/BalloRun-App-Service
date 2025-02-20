@@ -35,11 +35,11 @@ const OrderSchema = new mongoose.Schema(
       default: 'pending',
     },
     // goToCafe : 카페가는중, makingMenu:제조중 , goToClient: 고객에게 가는중
-
+    orderImages: { type: String }, // 픽업할 위치 상세 사진
     riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더
     createdAt: { type: Date, default: Date.now }, // 생성 시간
     riderRequest: {type:String},
-    selectedFloor: {type:String},
+    selectedImageUri: {type:String},
     isReservation: {
       type: Boolean,
       default: false,

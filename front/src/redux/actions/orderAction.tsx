@@ -20,7 +20,8 @@ export const orderNowHandler = (
   riderRequest: string,
   selectedFloor: string | null,
   price: number | null,
-  quantity: number | null
+  quantity: number | null,
+  selectedImageUri: string | null
 ) => async (dispatch: any) => {
   try {
     const res = await appAxios.post(`/order/orderNow`, {
@@ -35,7 +36,8 @@ export const orderNowHandler = (
       riderRequest,
       selectedFloor, //선택한 층을 받아야 함함
       price,
-      quantity
+      quantity,
+      selectedImageUri
     });
 
         // 주문 성공 시 상태 초기화
@@ -62,7 +64,8 @@ export const orderNowHandler = (
     riderRequest: string,
     selectedFloor: string | null,
     price: number | null,
-    quantity: number | null
+    quantity: number | null,
+    selectedImageUri: string | null
 
   ) => async (dispatch: any) => {
     try {
@@ -78,7 +81,8 @@ export const orderNowHandler = (
         riderRequest,
         selectedFloor,      //선택한 층을 받아야 함함
         price,
-        quantity
+        quantity,
+        selectedImageUri
       });
 
               // 주문 성공 시 상태 초기화

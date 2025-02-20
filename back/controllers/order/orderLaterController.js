@@ -5,7 +5,7 @@ const {connectRabbitMQ} = require("../../config/rabbitMQ");
 
 
 const orderLaterDirectCreate = async (req, res) => {
-  const { items, lat, lng, isMatch, deliveryFee, deliveryType, startTime, endTime, riderRequest, selectedFloor,price,quantity } = req.body;
+  const { items, lat, lng, isMatch, deliveryFee, deliveryType, startTime, endTime, riderRequest, selectedFloor,price,quantity,selectedImageUri } = req.body;
 
   const userId = req.user.userId;
   const user = await User.findById(userId);
@@ -33,7 +33,8 @@ const orderLaterDirectCreate = async (req, res) => {
           riderRequest,
           selectedFloor,
           price,
-          quantity
+          quantity,
+          selectedImageUri
       });
 
       // 메시지 큐에 전송

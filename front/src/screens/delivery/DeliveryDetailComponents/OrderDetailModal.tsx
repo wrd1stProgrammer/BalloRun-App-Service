@@ -54,8 +54,8 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ visible, onClose, o
             </Text>
 
             {/* 이미지 표시 (메뉴 이미지) */}
-            {deliveryItem.items[0]?.imageUrl && (
-              <Image source={{ uri: deliveryItem.items[0].imageUrl }} style={styles.image} />
+            {deliveryItem.selectedImageUri && (
+              <Image source={{ uri: deliveryItem.selectedImageUri }} style={styles.image} />
             )}
 
             <View style={styles.buttonContainer}>

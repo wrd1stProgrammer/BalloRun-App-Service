@@ -23,6 +23,9 @@ import {
 import { selectMenu } from "../../../redux/reducers/menuSlice";
 import { orderNowHandler, orderLaterHandler } from "../../../redux/actions/orderAction";
 import { navigate } from "../../../navigation/NavigationUtils";
+import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from "react-native-image-picker";
+import { Ionicons } from "@expo/vector-icons";
+
 
 export interface MarkerData {
   id: number;
@@ -66,6 +69,9 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
   const [floor, setFloorState] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
 
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+
+
   useEffect(() => {
     if (!reservationChecked) {
       setStartTimeLocal(toKST(new Date()));
@@ -96,6 +102,11 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
         return;
       }
 
+
+    
+      
+
+
       const isMatch = false;
       if (reservationChecked) {
         await dispatch(
@@ -111,7 +122,8 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
             deliveryRequest,
             selectedFloor,
             menu.price,
-            menu.quantitiy
+            menu.quantitiy,
+            selectedImageUri
           )
         );
       } else {
@@ -128,7 +140,8 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
             deliveryRequest,
             selectedFloor,
             menu.price,
-            menu.quantitiy
+            menu.quantitiy,
+            selectedImageUri
           )
         );
       }
@@ -141,6 +154,32 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
     }
   };
 
+
+  //이미지 등록 관련
+  const handleImagePicker = async () => {
+    const options: ImageLibraryOptions = {
+      mediaType: "photo",
+      includeBase64: true,
+      selectionLimit: 1,
+    };
+  
+    const response: ImagePickerResponse = await launchImageLibrary(options);
+  
+    if (response.didCancel) Alert.alert("사진 선택이 취소되었습니다.");
+    else if (response.errorMessage) Alert.alert("에러 발생: " + response.errorMessage);
+    else if (response.assets && response.assets.length > 0) {
+      const uri = response.assets[0].uri;
+      setSelectedImageUri(uri || null);
+    }
+  };
+  
+  // 📌 이미지 제거 기능
+  const handleRemoveImage = () => {
+    setSelectedImageUri(null);
+  };
+  
+  // 📌 총 결제 금액 계산
+  const totalAmount = menu.price + Number(deliveryFee);
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
@@ -167,29 +206,69 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
             </View>
           </>
         )}
-
         <Text style={styles.label}>배달 요청 시간</Text>
         <View style={styles.timeInputContainer}>
           <TouchableOpacity
-            style={styles.timeInput}
-            onPress={() => setShowStartPicker(true)}
+            style={[
+              styles.input,
+              styles.timeInput,
+              !reservationChecked && styles.disabledTimeInput,
+            ]}
+            onPress={() => {
+              if (reservationChecked) setShowStartPicker(true);
+            }}
           >
-            <Text style={styles.timeText}>
+            <Text
+              style={[
+                styles.timeText_1,
+                !reservationChecked && styles.disabledTimeText,
+              ]}
+            >
+              {`${startTime.getFullYear()}년 ${startTime.getMonth() + 1
+                }월 ${startTime.getDate()}일`}
+            </Text>
+            <Text
+              style={[
+                styles.timeText,
+                !reservationChecked && styles.disabledTimeText,
+              ]}
+            >
               {`${startTime.getHours()}시 ${startTime.getMinutes()}분`}
             </Text>
           </TouchableOpacity>
-
           <TouchableOpacity
-            style={styles.timeInput}
-            onPress={() => setShowEndPicker(true)}
+            style={[styles.input, styles.timeInput]}
+            onPress={() => {
+              setShowEndPicker(true);
+            }}
           >
-            <Text style={styles.timeText}>
+            <Text style={styles.timeText_1}>
+              {`${endTime.getFullYear()}년 ${endTime.getMonth() + 1
+                }월 ${endTime.getDate()}일`}
+            </Text>
+
+            <Text style={[styles.timeText]}>
               {`${endTime.getHours()}시 ${endTime.getMinutes()}분`}
             </Text>
           </TouchableOpacity>
+
+          <View style={styles.checkboxWrapper}>
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => setReservationChecked(!reservationChecked)}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  reservationChecked && styles.checkboxChecked,
+                ]}
+              />
+              <Text style={styles.checkboxText}>배달 예약</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {showStartPicker && (
+        {showStartPicker && reservationChecked && (
           <DateTimePicker
             value={startTime}
             mode="time"
@@ -197,7 +276,21 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
             display="default"
             onChange={(event, selectedDate) => {
               setShowStartPicker(false);
-              if (selectedDate) setStartTimeLocal(selectedDate);
+              if (selectedDate) {
+                if (selectedDate < new Date()) {
+                  Alert.alert(
+                    "유효하지 않은 시간",
+                    "현재 시간보다 이전 시간을 선택할 수 없습니다."
+                  );
+                  return;
+                }
+                setStartTimeLocal(selectedDate);
+                if (selectedDate >= endTime) {
+                  setEndTimeLocal(
+                    new Date(selectedDate.getTime() + 60 * 60 * 1000)
+                  );
+                }
+              }
             }}
           />
         )}
@@ -210,7 +303,16 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
             display="default"
             onChange={(event, selectedDate) => {
               setShowEndPicker(false);
-              if (selectedDate) setEndTimeLocal(selectedDate);
+              if (selectedDate) {
+                if (selectedDate <= startTime) {
+                  Alert.alert(
+                    "유효하지 않은 시간",
+                    "종료 시간은 시작 시간보다 늦어야 합니다."
+                  );
+                  return;
+                }
+                setEndTimeLocal(selectedDate);
+              }
             }}
           />
         )}
@@ -230,7 +332,44 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
           onChangeText={setDeliberyRequest}
         />
 
-        <TouchableOpacity
+
+        
+        <Text style={styles.label}>사진 첨부</Text>
+    <TouchableOpacity
+      onPress={selectedImageUri ? handleRemoveImage : handleImagePicker}
+      style={styles.imagePicker}
+    >
+      <Ionicons
+        name={selectedImageUri ? "close-circle" : "camera"}
+        size={24}
+        color={selectedImageUri ? "red" : "black"}
+      />
+    </TouchableOpacity>
+
+    {/* 결제 금액 섹션 */}
+    <Text style={styles.label}>결제 금액을 확인해주세요</Text>
+    <View style={styles.paymentContainer}>
+      <View style={styles.paymentRow}>
+        <Text style={styles.paymentLabel}>상품 가격</Text>
+        <Text style={styles.paymentValue}>{menu.price.toLocaleString()}원</Text>
+      </View>
+      <View style={styles.paymentRow}>
+        <Text style={styles.paymentLabel}>배달팁</Text>
+        <Text style={styles.paymentValue}>{deliveryFee}원</Text>
+      </View>
+      <View style={styles.divider} />
+      <View style={styles.paymentRow}>
+        <Text style={styles.paymentLabel}>총 결제예정금액</Text>
+        <Text style={styles.paymentTotal}>{totalAmount.toLocaleString()}원</Text>
+      </View>
+    </View>
+
+    {/* 개인정보 제3자 제공 동의 */}
+    <View style={styles.paymentRow}>
+      <Text style={styles.paymentLabel}>개인정보 제3자 제공 동의 -</Text>
+    </View>
+
+    <TouchableOpacity
           style={styles.saveButton}
           onPress={() => {
             if (floor && !selectedFloor) {
@@ -251,6 +390,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+  },
+  disabledTimeText: {
+    color: "#a9a9a9",
   },
   content: {
     padding: 16,
@@ -304,8 +446,63 @@ const styles = StyleSheet.create({
     color: "#555",
     fontSize: 12,
   },
-  disabledTimeText: {
-    color: "#a9a9a9",
+  checkboxWrapper: {
+    justifyContent: "center",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: "#6200ee",
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  checkboxChecked: {
+    backgroundColor: "#6200ee",
+  },
+  checkboxText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  disabledTimeInput: {
+    backgroundColor: "#d3d3d3",
+  },
+  imagePicker: {
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  paymentContainer: {
+    marginBottom: 20,
+    padding: 16,
+    backgroundColor: "#f8f8f8",
+    borderRadius: 10,
+  },
+  paymentRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  paymentLabel: {
+    fontSize: 14,
+    color: "#555",
+  },
+  paymentValue: {
+    fontSize: 14,
+    color: "#000",
+  },
+  paymentTotal: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#E0E0E0",
+    marginVertical: 10,
   },
 });
 
