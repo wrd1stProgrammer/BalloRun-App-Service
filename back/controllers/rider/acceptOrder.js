@@ -8,6 +8,8 @@ const acceptOrder = async (req, res) => {
   const redisCli = redisClient.v4; // Redis v4 
   const { orderId } = req.body; // 아이디 받아오기
   const riderId = req.user.userId; //라이더 아이디
+  const tossOrderStatus = req.app.get("tossOrderStatus"); // socket 가져오기
+
 
   const lockKey = `lock:order:${orderId}`; // 주문별 락 키
 
@@ -49,6 +51,24 @@ const acceptOrder = async (req, res) => {
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
     console.log(`Order ${orderId} sent to RabbitMQ`);
+
+        // expectedTime 줘야하지만 테스트겸 더미로 createdAt 
+    if (tossOrderStatus) {
+        const userId = order.userId; // NewOrder 모델에서 userId 가져오기
+        if (!userId) {
+          console.warn("User ID not found in order data");
+        } else {
+          tossOrderStatus({
+            status: "accepted", // consumer 보다 빨리 될 수도 있어서
+            userId: userId,
+            createdAt: order.createdAt,
+            orderId: order._id,
+          });
+          console.log(`Emitted order_accepted to user ${userId}:`, { status: order.status, createdAt: order.createdAt, orderId: order._id });
+        }
+      } else {
+        console.warn("tossOrderStatus is not available");
+      }
 
     //  5. 락 해제 (성공적으로 처리된 경우)
     await redisCli.del(lockKey);

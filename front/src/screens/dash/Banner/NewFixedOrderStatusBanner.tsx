@@ -18,15 +18,17 @@ const NewFixedOrderStatusBanner: React.FC<{
   // createdAt을 Date로 변환하여 남은 시간 계산 (더미로 12분 유지)
   const createdAtDate = new Date(order.createdAt);
   const now = new Date();
+
+  // tmp function
   const timeDiff = Math.max(0, 12 - Math.floor((now.getTime() - createdAtDate.getTime()) / 60000)); // 12분에서 차감
 
   return (
     <View style={newFixedStyles.container}>
       <Text style={newFixedStyles.message}>
-        {`주문 ${order.orderId}이 ${order.status} 상태입니다`}
+        {`주문이 ${order.status} 상태입니다`}
       </Text>
       <View style={newFixedStyles.timeContainer}>
-        <Text style={newFixedStyles.time}>남은 시간: </Text>
+        <Text style={newFixedStyles.time}>{`예상 시간 :`} </Text>
         <Text style={newFixedStyles.dummyTime}>{timeDiff}분</Text>
       </View>
     </View>

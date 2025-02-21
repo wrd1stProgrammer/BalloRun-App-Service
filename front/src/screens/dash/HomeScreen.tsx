@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView } from 'rea
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
-import { selectUser, selectIsOngoingOrder } from '../../redux/reducers/userSlice';
+import { selectUser, selectIsOngoingOrder, setOngoingOrder, setIsMatching, selectIsMatching, selectOngoingOrder } from '../../redux/reducers/userSlice';
 import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "../.././../src/utils/fcm/FcmHandler";
 import { MapSocketContext } from '../../utils/sockets/MapSocket';
 import { getDeliveryListHandler } from '../../redux/actions/orderAction';
@@ -39,6 +39,8 @@ interface OrderStatus {
 const HomeScreen: React.FC = () => {
   const user = useAppSelector(selectUser);
   const isOngoingOrder = useAppSelector(selectIsOngoingOrder);
+  const ongoingOrder = useAppSelector(selectOngoingOrder);
+  const isMatching = useAppSelector(selectIsMatching);
   const dispatch = useAppDispatch();
   const orderSocket = useContext(WebSocketContext); // WebSocketContext에서 소켓 가져오기
   const socket = useContext(MapSocketContext);
@@ -47,9 +49,7 @@ const HomeScreen: React.FC = () => {
 
   const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [ongoingOrder, setOngoingOrder] = useState<OrderStatus | null>(null); // 진행 중인 주문 상태
-  const [isMatching, setIsMatching] = useState<boolean>(false); // 매칭 상태
-
+  
   const CheckIsDelivering = () => {
     if (user?.isDelivering) {
       Alert.alert('배달 중', '현재 이미 배달 중입니다.');
@@ -148,14 +148,16 @@ const HomeScreen: React.FC = () => {
   
     orderSocket.on('order_accepted', (orderData) => {
       console.log("order_accepted 이벤트 수신:", orderData);
-      setOngoingOrder(orderData);
-      setIsMatching(true);
-    });
+      dispatch(setOngoingOrder(orderData));
+      dispatch(setIsMatching(true));
+   });
   
     return () => {
       orderSocket.off('order_accepted');
     };
   }, [orderSocket, user?._id]); // 의존성에 user?._id 추가
+
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -187,12 +189,14 @@ const HomeScreen: React.FC = () => {
           <MyAdBanner />
         </View>
       </ScrollView>
+
       
       {/* isOngoingOrder가 true이고 isMatching이 false일 때 기존 배너 */}
       {isOngoingOrder && !isMatching && <FixedOrderStatusBanner />}
       
       {/* isOngoingOrder와 isMatching이 모두 true일 때 새로운 배너 */}
       {isOngoingOrder && isMatching && ongoingOrder && (
+        console.log("NewFixedOrderStatusBanner 렌더링"),
         <NewFixedOrderStatusBanner 
           order={ongoingOrder} 
           isOngoingOrder={isOngoingOrder} 

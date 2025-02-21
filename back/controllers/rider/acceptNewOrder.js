@@ -67,7 +67,7 @@ const acceptNewOrder = async (req, res) => {
           console.warn("User ID not found in order data");
         } else {
           tossOrderStatus({
-            status: order.status,
+            status: "accepted",
             userId: userId,
             createdAt: order.createdAt,
             orderId: order._id,

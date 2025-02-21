@@ -78,7 +78,7 @@ module.exports = (io) => {
       io.emit('order_accepted', {
         createdAt: orderData.createdAt,
         orderId: orderData.orderId,
-        status: orderData.status,
+        status: orderData.status, // 수기 타이핑 상태 정보.
       });
       console.log(`Emit 성공-> ${userId}:`, orderData);
     } else {
