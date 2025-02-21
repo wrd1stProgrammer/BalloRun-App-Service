@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { PERMISSIONS, request, check, RESULTS } from "react-native-permissions";
 import Geolocation from "react-native-geolocation-service";
+import { LocationProvider } from "./src/utils/Geolocation/LocationContext";
 
 const App: React.FC = () => {
   const [hasLocationPermission, setHasLocationPermission] = useState<boolean | null>(null);
@@ -62,9 +63,11 @@ const App: React.FC = () => {
             <WebSocketContainer>
               <MapSocketContainer>
                 <ChatSocketContainer>
+                  <LocationProvider>
                   <PersistGate loading={null} persistor={persistor}>
                     <Navigation />
                   </PersistGate>
+                  </LocationProvider>
                 </ChatSocketContainer>
               </MapSocketContainer>
             </WebSocketContainer>

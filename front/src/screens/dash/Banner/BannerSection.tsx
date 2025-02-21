@@ -15,9 +15,10 @@ interface BannerData {
 // props의 타입 정의
 interface BannerSectionProps {
   data: BannerData;
+  distance: any
 }
 
-const BannerSection: React.FC<BannerSectionProps> = ({ data }) => {
+const BannerSection: React.FC<BannerSectionProps> = ({ data, distance }) => {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
@@ -29,6 +30,13 @@ const BannerSection: React.FC<BannerSectionProps> = ({ data }) => {
         </Text>
         <Text style={styles.deliveryFee}>배달팁: {data.deliveryFee}</Text>
       </View>
+      {distance !== undefined && (
+        <View style={styles.contentContainer}>
+          <Text style={styles.name}>
+            떨어져 있는 거리: {String(distance)} Km
+          </Text>
+        </View>
+      )}
     </View>
   );
 };

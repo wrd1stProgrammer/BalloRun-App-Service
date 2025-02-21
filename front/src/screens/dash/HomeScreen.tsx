@@ -15,6 +15,7 @@ import MyAdBanner from './Banner/MyAdBanner';
 import FixedOrderStatusBanner from './Banner/FixedOrderStatusBanner'; // 기존 배너
 import NewFixedOrderStatusBanner from './Banner/NewFixedOrderStatusBanner'; // 새로운 배너
 import { WebSocketContext } from '../../utils/sockets/Socket';
+import { useLocation } from '../../utils/Geolocation/LocationContext';
 type DeliveryItem = {
   _id: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
@@ -45,18 +46,13 @@ const HomeScreen: React.FC = () => {
   const orderSocket = useContext(WebSocketContext); // WebSocketContext에서 소켓 가져오기
   const socket = useContext(MapSocketContext);
 
-  const watchId = useAppSelector((state) => state.location.watchId);
 
-  const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+
+  const { location, startTracking, stopTracking } = useLocation();
+
   
-  const CheckIsDelivering = () => {
-    if (user?.isDelivering) {
-      Alert.alert('배달 중', '현재 이미 배달 중입니다.');
-    } else {
-      navigate("SelectDelivery");
-    }
-  };
+  
+
 
   // 🔥 FCM 알림 리스너 설정
   useEffect(() => {
@@ -71,70 +67,31 @@ const HomeScreen: React.FC = () => {
   // ✅ 배달 리스트 가져오기 & "accepted" 상태의 주문 추적 시작
   useEffect(() => {
     const fetchOrders = async () => {
-      setLoading(true);
       const orders = await dispatch(getDeliveryListHandler());
-      setDeliveryItems(orders);
-      setLoading(false);
   
       const acceptedOrders = orders.filter((order: DeliveryItem) =>
         ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
       );
   
-      console.log("📢 현재 Redux의 watchId 상태:", watchId);
   
       if (acceptedOrders.length > 0) {
         //console.log("🚀 배달 중인 주문 발견:", acceptedOrders);
-  
+        console.log("배달중인")
         acceptedOrders.forEach((order) => {
           socket?.emit("start_tracking", { orderId: order._id });
           console.log(`Tracking started for order: ${order._id}`);
+          startTracking(order._id)
         });
   
-        if (!watchId) {
-          console.log("LOG  Geolocation.watchPosition 실행...");
-          const id = Geolocation.watchPosition(
-            (position) => {
-              const { latitude, longitude } = position.coords;
-  
-              console.log(`LOG  위치 업데이트: ${latitude} ${longitude}`);
-  
-              acceptedOrders.forEach((order) => {
-                socket?.emit("update_location", { orderId: order._id, latitude, longitude });
-              });
-            },
-            (error) => {
-              Alert.alert("위치 추적 오류", error.message);
-            },
-            { enableHighAccuracy: true, interval: 5000, distanceFilter: 20 }
-          );
-  
-          console.log("LOG  위치 추적 시작, watchId:", id);
-          dispatch(setWatchId(id)); // Redux에 저장
-        }
-      } else {
-        //console.log("배달 중인 주문 없음");
-  
-        if (watchId !== null && watchId !== undefined) {
-          console.log("🚨 위치 추적 중지 시도 (watchId 존재)", watchId);
-          Geolocation.clearWatch(watchId);
-          dispatch(setWatchId(null));
-          console.log("✅ 위치 추적 중지 완료");
-          socket?.emit("stop_tracking", {});
-        }
-      }
-    };
-  
+        }}
     fetchOrders();
   
     return () => {
-      console.log("🚨 HomeScreen Unmount 시 Redux watchId 상태:", watchId);
-      if (watchId !== null && watchId !== undefined) {
-        Geolocation.clearWatch(watchId);
-        dispatch(setWatchId(null));
-        socket?.emit("stop_tracking", {});
-      }
+      stopTracking
     };
   }, []);
+
+
 
   useEffect(() => {
     if (!orderSocket) {
@@ -166,7 +123,7 @@ const HomeScreen: React.FC = () => {
         <View style={styles.headerContainer}>
           <View style={styles.greetingContainer}>
             <Text style={styles.userName}>{user?.username}님, 안녕하세요!!!!</Text>
-            <Text>캠퍼스 커피에서 편함을 주문해보세요.</Text>
+            <Text>캠퍼스 딜리버리에서 편함을 주문해보세요.</Text>
           </View>
           {/* 프로필 아이콘 */}
           <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>

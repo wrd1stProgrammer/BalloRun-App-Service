@@ -5,6 +5,23 @@ import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { getNewOrderToBanner } from '../../../redux/actions/orderAction';
 import { View, Text, StyleSheet } from 'react-native'; // 추가된 import
 import { Dimensions } from 'react-native';
+import { useLocation } from '../../../utils/Geolocation/LocationContext';
+
+
+function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371; // 지구 반지름 (km)
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // 거리 (km)
+}
+
 
 // 배너 데이터 타입 정의
 interface BannerData {
@@ -22,6 +39,10 @@ export default function Banner() {
   const [bannerLists, setBannerLists] = useState<BannerData[]>([]); // 배너 데이터 상태
   const dispatch = useAppDispatch();
   const screenWidth = Dimensions.get('window').width;
+
+  const { location, startTracking, stopTracking } = useLocation();
+  
+
 
   const fetchData = async () => {
     try {
@@ -50,9 +71,21 @@ export default function Banner() {
           height={80}
           autoplayTimeout={slideTime}
         >
-          {bannerLists.map((banner) => (
-            <BannerSection key={banner._id} data={banner} />
-          ))}
+          
+          {bannerLists.map((banner) => {
+            // 🔹 `distance`를 여기에서 계산
+            const distance =
+              location && banner.lat && banner.lng
+                ? getDistance(
+                    location.latitude,
+                    location.longitude,
+                    parseFloat(banner.lat),
+                    parseFloat(banner.lng)
+                  ).toFixed(1)
+                : 0; // 위치 정보가 없을 경우 0으로 설정
+
+            return <BannerSection key={banner._id} data={banner} distance={distance} />;
+          })}
         </Swiper>
       ) : (
         <View style={styles.emptyContainer}>
