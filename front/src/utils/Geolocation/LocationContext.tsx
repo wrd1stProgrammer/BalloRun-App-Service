@@ -105,6 +105,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       socket?.emit("stop_tracking", {});
       console.log("✅ 위치 추적 중지 완료");
     }
+    console.log("위치 추적중이 아님")
   };
 
   useEffect(() => {

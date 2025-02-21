@@ -16,6 +16,10 @@ import FixedOrderStatusBanner from './Banner/FixedOrderStatusBanner'; // 기존 
 import NewFixedOrderStatusBanner from './Banner/NewFixedOrderStatusBanner'; // 새로운 배너
 import { WebSocketContext } from '../../utils/sockets/Socket';
 import { useLocation } from '../../utils/Geolocation/LocationContext';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
+
 type DeliveryItem = {
   _id: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
@@ -65,31 +69,37 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   // ✅ 배달 리스트 가져오기 & "accepted" 상태의 주문 추적 시작
-  useEffect(() => {
-    const fetchOrders = async () => {
-      const orders = await dispatch(getDeliveryListHandler());
+  useFocusEffect(
+    useCallback(() => {
+      const fetchOrders = async () => {
+        const orders = await dispatch(getDeliveryListHandler());
   
-      const acceptedOrders = orders.filter((order: DeliveryItem) =>
-        ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
-      );
+        const acceptedOrders = orders.filter((order: DeliveryItem) =>
+          ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
+        );
+        console.log("배달있는지 확인중")
+        if (acceptedOrders.length > 0) {
+          console.log("배달중인");
+          acceptedOrders.forEach((order) => {
+            socket?.emit("start_tracking", { orderId: order._id });
+            console.log(`Tracking started for order: ${order._id}`);
+            startTracking(order._id);
+          });
+        }
+        else {
+          console.log("배달중인 주문 없음")
+          stopTracking;
+
+        }
+      };
+      
+      fetchOrders();
   
-  
-      if (acceptedOrders.length > 0) {
-        //console.log("🚀 배달 중인 주문 발견:", acceptedOrders);
-        console.log("배달중인")
-        acceptedOrders.forEach((order) => {
-          socket?.emit("start_tracking", { orderId: order._id });
-          console.log(`Tracking started for order: ${order._id}`);
-          startTracking(order._id)
-        });
-  
-        }}
-    fetchOrders();
-  
-    return () => {
-      stopTracking
-    };
-  }, []);
+      return () => {
+        stopTracking();
+      };
+    }, [dispatch, socket, startTracking, stopTracking]) // 의존성 추가
+  );
 
 
 
