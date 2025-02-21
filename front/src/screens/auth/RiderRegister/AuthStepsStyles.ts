@@ -16,6 +16,9 @@ export const authStyles = StyleSheet.create({
     paddingVertical: basePadding * 2,
     alignItems: 'center',
   },
+  headerContainer:{
+    flexDirection:'row',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

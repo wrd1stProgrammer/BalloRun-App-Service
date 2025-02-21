@@ -1,11 +1,44 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet,Alert } from 'react-native';
+import { useState,useEffect } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { authStyles } from '../AuthStepsStyles';
 import { navigate } from '../../../../navigation/NavigationUtils';
 import AuthHeader from '../AuthHeader';
+import { launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
 
-const Step4Content: React.FC = () => {
+
+const Step4Content: React.FC<{ images?: string | null }> = ({ images }) => {
+  const [faceImage, setFaceImage] = useState<string | null>(null); // uri만 저장
+
+
+
+    useEffect(() => {
+      if (images) {
+        console.log(images, 'images 정보');
+      }
+    }, [images]);
+
+  const handleTakeFacePhoto = () => {
+    const options: CameraOptions = {
+      mediaType: 'photo',
+      cameraType: 'back',
+      videoQuality: "high",
+      saveToPhotos: true,
+    };
+
+    launchCamera(options, (response: ImagePickerResponse) => {
+      if (response.didCancel) {
+        Alert.alert("사진 촬영이 취소되었습니다.");
+      } else if (response.errorMessage) {
+        Alert.alert("사진 촬영 중 오류가 발생했습니다.", response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        setFaceImage(uri || null);
+      }
+    });
+  };
+
   return (
     <ScrollView contentContainerStyle={authStyles.container}>
       <Text style={[authStyles.title, { textAlign: 'center' }]}>얼굴 인증</Text>
@@ -18,7 +51,7 @@ const Step4Content: React.FC = () => {
 
       <TouchableOpacity
         style={[styles.optionButton, { marginBottom: 10 }]}
-        onPress={() => navigate('Step5')}
+        onPress={handleTakeFacePhoto}
       >
         <Ionicons name="camera" size={20} color="#666" style={{ marginRight: 10 }} />
         <Text style={styles.optionButtonText}>사진 찍기</Text>
@@ -27,7 +60,7 @@ const Step4Content: React.FC = () => {
 
       <TouchableOpacity
         style={[authStyles.wideEnableButton, { backgroundColor: '#FFC107', marginTop: 30 }]}
-        onPress={() => navigate('Step5')}
+        onPress={() => navigate('Step5',{images,faceImage})}
       >
         <Text style={authStyles.enableButtonText}>Continue</Text>
       </TouchableOpacity>
@@ -35,14 +68,16 @@ const Step4Content: React.FC = () => {
   );
 };
 
-const Step4: React.FC = () => {
+const Step4: React.FC<{ route: any }> = ({ route })=> {
+    const images = route.params?.images; // route.params에서 images 추출
+    console.log(images);
   return (
     <View style={{ flex: 1 }}>
       {/* 고정된 헤더 */}
       <AuthHeader step={4} totalSteps={6} />
       
       {/* 스크롤 가능한 본문 컨텐츠 */}
-      <Step4Content />
+      <Step4Content images={images} />
     </View>
   );
 };

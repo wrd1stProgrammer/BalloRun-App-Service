@@ -108,6 +108,7 @@ const login = async (req, res) => {
         userImage: user?.userImage,
         email: user.email,
         point: user.point,
+        verificationStatus: user.verificationStatus,
       },
     });
   } catch (err) {
@@ -180,6 +181,7 @@ const kakaologin = async (req, res) => {
         userImage: user?.userImage,
         email: user.email,
         point: user.point,
+        verificationStatus: user.verificationStatus,
       },
     });
 

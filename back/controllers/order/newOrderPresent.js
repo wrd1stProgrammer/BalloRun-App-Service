@@ -1,5 +1,6 @@
 const Order = require("../../models/Order");
 const NewOrder = require("../../models/NewOrder");
+const ChatRoom = require("../../models/ChatRoom");
 const User = require("../../models/User");
 
 const mongoose = require('mongoose');
@@ -53,17 +54,14 @@ const getBannerData = async (req, res) => {
     }
   };
 
-const getCompletedNewOrders = async (req, res) => {
+  const getCompletedNewOrders = async (req, res) => {
     const userId = req.user.userId;
     const redisClient = req.app.get("redisClient");
-    const redisCli = redisClient.v4; // Redis v4 클라이언트 사용
+    const redisCli = redisClient.v4;
     const cacheKey = `completedOrders:${userId}`;
   
     try {
-      // 1. 캐시 조회
       const cachedData = await redisCli.get(cacheKey);
-    
-      // 2. 캐시 검증
       if (cachedData) {
         const parsedData = JSON.parse(cachedData);
         if (Array.isArray(parsedData) && parsedData.length === 0) {
@@ -73,109 +71,122 @@ const getCompletedNewOrders = async (req, res) => {
           return res.json(parsedData);
         }
       }
-    
-   // 3. 캐시 미스 시 DB 조회
-   const orders = await Order.find({ userId, status: { $in: ['delivered', 'cancelled', 'complete'] } }).lean();
-   const newOrders = await NewOrder.find({ userId, status: { $in: ['delivered', 'cancelled', 'complete'] } }).lean();
-
-   // 4. Order와 NewOrder를 동일한 인터페이스로 변환
-   const transformedOrders = orders.map(order => ({
-     _id: order._id,
-     name: order.items[0].cafeName, // 첫 번째 아이템의 cafeName 사용
-     status: order.status,
-     createdAt: order.createdAt,
-     orderDetails: order.riderRequest,
-     priceOffer: order.items[0].price, // 첫 번째 아이템의 price 사용
-     deliveryFee: order.deliveryFee,
-   }));
-
-   const transformedNewOrders = newOrders.map(newOrder => ({
-     _id: newOrder._id,
-     name: newOrder.name,
-     status: newOrder.status,
-     createdAt: newOrder.createdAt,
-     orderDetails: newOrder.orderDetails,
-     priceOffer: newOrder.priceOffer,
-     deliveryFee: newOrder.deliveryFee,
-   }));
-
-   const combinedOrders = [...transformedOrders, ...transformedNewOrders];
-
   
-      // 4. 캐시 저장 (데이터 있을 때만)
+      const orders = await Order.find({ userId, status: { $in: ['delivered', 'cancelled', 'complete'] } }).lean();
+      const newOrders = await NewOrder.find({ userId, status: { $in: ['delivered', 'cancelled', 'complete'] } }).lean();
+  
+      const transformedOrders = await Promise.all(orders.map(async (order) => {
+        const chatRoom = await ChatRoom.findOne({
+          users: { $all: [order.userId, order.riderId || null] }
+        });
+        return {
+          _id: order._id,
+          name: order.items[0].cafeName,
+          status: order.status,
+          createdAt: order.createdAt,
+          orderDetails: order.riderRequest,
+          priceOffer: order.items[0].price,
+          deliveryFee: order.deliveryFee,
+          roomId: chatRoom ? chatRoom._id : null,
+        };
+      }));
+  
+      const transformedNewOrders = await Promise.all(newOrders.map(async (newOrder) => {
+        const chatRoom = await ChatRoom.findOne({
+          users: { $all: [newOrder.userId, newOrder.riderId || null] }
+        });
+        return {
+          _id: newOrder._id,
+          name: newOrder.name,
+          status: newOrder.status,
+          createdAt: newOrder.createdAt,
+          orderDetails: newOrder.orderDetails,
+          priceOffer: newOrder.priceOffer,
+          deliveryFee: newOrder.deliveryFee,
+          roomId: chatRoom ? chatRoom._id : null,
+        };
+      }));
+  
+      const combinedOrders = [...transformedOrders, ...transformedNewOrders];
+  
       if (combinedOrders.length > 0) {
         await redisCli.set(cacheKey, JSON.stringify(combinedOrders), {
           EX: 30000,
-          NX: true // 기존 키가 없을 때만 저장
+          NX: true,
         });
       }
-    
+  
       res.json(combinedOrders);
     } catch (error) {
       console.error("완료된 주문 조회 중 오류 발생:", error);
       res.status(500).json({ message: "서버 오류" });
     }
   };
-
-const getOnGoingNewOrders = async (req, res) => {
-  const redisCli = req.app.get("redisClient").v4;
-  const userId = req.user.userId;
-  const cacheKey = `OnGoingOrders:${userId}`;
-
-  try {
-    // 1. 캐시 조회
-    const cachedData = await redisCli.get(cacheKey);
-
-    // 2. 캐시 검증
-    if (cachedData) {
-      const parsedData = JSON.parse(cachedData);
-      if (Array.isArray(parsedData) && parsedData.length === 0) {
-        console.log("[캐시 무효] 빈 배열 발견");
-      } else {
-        console.log("[캐시 히트] 진행중 주문");
-        return res.json(parsedData);
+  
+  const getOnGoingNewOrders = async (req, res) => {
+    const redisCli = req.app.get("redisClient").v4;
+    const userId = req.user.userId;
+    const cacheKey = `OnGoingOrders:${userId}`;
+  
+    try {
+      const cachedData = await redisCli.get(cacheKey);
+      if (cachedData) {
+        const parsedData = JSON.parse(cachedData);
+        if (Array.isArray(parsedData) && parsedData.length === 0) {
+          console.log("[캐시 무효] 빈 배열 발견");
+        } else {
+          console.log("[캐시 히트] 진행중 주문");
+          return res.json(parsedData);
+        }
       }
+  
+      const orders = await Order.find({ userId, status: { $nin: ['delivered', 'cancelled', 'complete'] } }).lean();
+      const newOrders = await NewOrder.find({ userId, status: { $nin: ['delivered', 'cancelled', 'complete'] } }).lean();
+  
+      const transformedOrders = await Promise.all(orders.map(async (order) => {
+        const chatRoom = await ChatRoom.findOne({
+          users: { $all: [order.userId, order.riderId || null] }
+        });
+        return {
+          _id: order._id,
+          name: order.items[0].cafeName,
+          status: order.status,
+          createdAt: order.createdAt,
+          orderDetails: order.riderRequest,
+          priceOffer: order.items[0].price,
+          deliveryFee: order.deliveryFee,
+          orderType: order.orderType,
+          roomId: chatRoom ? chatRoom._id : null,
+        };
+      }));
+  
+      const transformedNewOrders = await Promise.all(newOrders.map(async (newOrder) => {
+        const chatRoom = await ChatRoom.findOne({
+          users: { $all: [newOrder.userId, newOrder.riderId || null] }
+        });
+        return {
+          _id: newOrder._id,
+          name: newOrder.name,
+          status: newOrder.status,
+          createdAt: newOrder.createdAt,
+          orderDetails: newOrder.orderDetails,
+          priceOffer: newOrder.priceOffer,
+          deliveryFee: newOrder.deliveryFee,
+          orderType: newOrder.orderType,
+          roomId: chatRoom ? chatRoom._id : null,
+        };
+      }));
+  
+      const combinedOrders = [...transformedOrders, ...transformedNewOrders];
+  
+      await redisCli.set(cacheKey, JSON.stringify(combinedOrders), 'EX', 60 * 1);
+  
+      return res.json(combinedOrders);
+    } catch (error) {
+      console.error("주문 조회 중 오류 발생:", error);
+      return res.status(500).json({ message: "주문 조회 중 오류가 발생했습니다." });
     }
-
-    // 3. 캐시 미스 시 DB 조회
-    const orders = await Order.find({ userId, status: { $nin: ['delivered', 'cancelled', 'complete'] } }).lean();
-    const newOrders = await NewOrder.find({ userId, status: { $nin: ['delivered', 'cancelled', 'complete'] } }).lean();
-
-    // 4. Order와 NewOrder를 동일한 인터페이스로 변환
-    const transformedOrders = orders.map(order => ({
-      _id: order._id,
-      name: order.items[0].cafeName, // 첫 번째 아이템의 cafeName 사용
-      status: order.status,
-      createdAt: order.createdAt,
-      orderDetails: order.riderRequest,
-      priceOffer: order.items[0].price, // 첫 번째 아이템의 price 사용
-      deliveryFee: order.deliveryFee,
-      orderType:order.orderType,
-    }));
-
-    const transformedNewOrders = newOrders.map(newOrder => ({
-      _id: newOrder._id,
-      name: newOrder.name,
-      status: newOrder.status,
-      createdAt: newOrder.createdAt,
-      orderDetails: newOrder.orderDetails,
-      priceOffer: newOrder.priceOffer,
-      deliveryFee: newOrder.deliveryFee,
-      orderType:newOrder.orderType,
-    }));
-
-    const combinedOrders = [...transformedOrders, ...transformedNewOrders];
-
-    // 5. 조회된 데이터 캐시에 저장
-    await redisCli.set(cacheKey, JSON.stringify(combinedOrders), 'EX', 60 * 1); // 1시간 유효
-
-    // 6. 클라이언트에 반환
-    return res.json(combinedOrders);
-  } catch (error) {
-    console.error("주문 조회 중 오류 발생:", error);
-    return res.status(500).json({ message: "주문 조회 중 오류가 발생했습니다." });
-  }
-};
+  };
 
 const fetchOrderDetails = async (req, res) => {
     const { orderId, orderType } = req.body; // 바디에서 orderId와 orderType 추출

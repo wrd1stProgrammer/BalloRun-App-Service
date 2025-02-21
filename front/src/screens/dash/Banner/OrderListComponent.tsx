@@ -28,37 +28,93 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
   };
 
   const handleDeliveryPress = () => {
-    // 1. 라이더로 등록되어 있는지 확인
-    if (!user?.isRider) {
-      // 라이더로 등록되지 않은 경우 경고창 띄우기
-      Alert.alert(
-        '배달하기 알림',
-        '배달하기 전에 라이더 등록이 필요합니다! (1시간 안에 인증완료)',
-        [
-          {
-            text: '아니오',
-            style: 'cancel',
-            onPress: () => {}, // 아무 동작 없음
+    console.log(user);
+    const status = user?.verificationStatus || 'notSubmitted'; // 기본값 설정
+    
+    switch (status) {
+      case 'notSubmitted':
+        handleNotSubmitted();
+        break;
+      case 'pending':
+        handlePending();
+        break;
+      case 'rejected':
+        handleRejected();
+        break;
+      case 'verified':
+        handleVerified();
+        break;
+      default:
+        console.warn('Unknown verification status:', status);
+        break;
+    }
+  };
+
+  // 상태별 핸들러 함수
+  const handleNotSubmitted = () => {
+    Alert.alert(
+      '배달하기 알림',
+      '배달하기 전에 라이더 등록이 필요합니다! (1시간 안에 인증완료)',
+      [
+        {
+          text: '아니오',
+          style: 'cancel',
+          onPress: () => {},
+        },
+        {
+          text: '예',
+          onPress: () => {
+            navigate('RiderManual');
           },
-          {
-            text: '예',
-            onPress: () => {
-              navigate('SelectDelivery'); // 라이더 등록 페이지로 이동
-            },
-            style: 'default',
+          style: 'default',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handlePending = () => {
+    Alert.alert(
+      '배달하기 알림',
+      '관리자가 라이더 인증을 심사 중입니다. 잠시만 기다려주세요.',
+      [
+        {
+          text: '확인',
+          style: 'default',
+          onPress: () => {},
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleRejected = () => {
+    Alert.alert(
+      '배달하기 알림',
+      '라이더 인증 심사가 거부되었습니다. 다시 신청해주세요.',
+      [
+        {
+          text: '아니오',
+          style: 'cancel',
+          onPress: () => {},
+        },
+        {
+          text: '예',
+          onPress: () => {
+            navigate('RiderManual');
           },
-        ],
-        { cancelable: true }
-      );
+          style: 'default',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleVerified = () => {
+    if (user?.isDelivering) {
+      Alert.alert('알림', '이미 배달 중입니다.');
     } else {
-      // 2. 라이더로 등록되어 있다면 배달 중인지 확인
-      if (user?.isDelivering) {
-        // 배달 중인 경우 경고창 띄우기
-        Alert.alert('알림', '이미 배달 중입니다.');
-      } else {
-        // 배달 중이 아니라면 추가 로직 (현재는 비워둠)
-        console.log('배달 시작 가능');
-      }
+      navigate('SelectDelivery');
     }
   };
 

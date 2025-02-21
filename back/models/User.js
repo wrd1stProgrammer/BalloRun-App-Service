@@ -50,7 +50,12 @@ const UserSchema = new mongoose.Schema(
     isRider:{
       type:Boolean,
       default:false,
-    }
+    },
+    verificationStatus: { // 선택적 추가
+      type: String,
+      enum: ['pending', 'verified', 'rejected', 'notSubmitted'],
+      default: 'notSubmitted',
+    },
   },
   { timestamps: true }
 );

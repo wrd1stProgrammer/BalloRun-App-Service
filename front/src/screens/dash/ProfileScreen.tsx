@@ -34,7 +34,7 @@ const ProfileScreen = () => {
         <View style={styles.userInfo}>
           <Text style={styles.userusername}>{user?.username}</Text>
           <Text style={styles.membership}>포인트 : {user?.point}</Text>
-          <Text style={styles.status}>{user?.status}</Text>
+          <Text style={styles.status}>라이더 인증상태 : {user?.verificationStatus}</Text>
         </View>
       </View>
 

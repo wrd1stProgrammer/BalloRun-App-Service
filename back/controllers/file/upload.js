@@ -23,6 +23,8 @@ const uploadMedia = async (req, res) => {
       folder = "neworderInfo_image";
     } else if (mediaType === "neworderPickup_image"){
       folder = "neworderPickup_image";
+    } else if (mediaType === "verification_image"){
+      folder = "verifiacation_image";
     }
      else {
       throw new BadRequestError("이상한 타입.");

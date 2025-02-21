@@ -13,6 +13,7 @@ interface OrderItemProps {
   deliveryFee: number;
   orderType:string;
   imageUrl: any; // 로컬 이미지 경로를 받기 위해 any 타입 사용
+  roomId:string;
 }
 
 const getStatusMessage = (status: string, createdAt: string) => {
@@ -61,7 +62,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt, orderDetails, priceOffer, deliveryFee,orderType, imageUrl }) => {
+const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt, orderDetails, priceOffer, deliveryFee,orderType, imageUrl ,roomId}) => {
   const statusColor = getStatusColor(status); // 상태에 따른 색상 가져오기
 
   //주문상세
@@ -79,7 +80,8 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
   // 더미 함수들
   const handleChatPress = () => {
     //생성된 채팅방 or 여기서 생성할까?
-    console.log('채팅 문의 버튼 클릭');
+    console.log('채팅 문의 버튼 클릭',{roomId});
+    navigate('ChatRoom',{roomId});
   };
 
   const handleLocationPress = () => {

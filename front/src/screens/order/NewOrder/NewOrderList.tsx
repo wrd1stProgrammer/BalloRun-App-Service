@@ -17,6 +17,7 @@ interface OrderItemProps {
     deliveryFee: number;
     orderType: string;
     imageUrl: any; // 로컬 이미지 경로를 받기 위해 any 타입 사용
+    roomId:string;
   }
 
 interface OrderListProps {
@@ -75,6 +76,7 @@ const NewOrderList:React.FC<OrderListProps> = ({activeTab}) => {
             deliveryFee={item.deliveryFee}
             imageUrl={localImage} // 로컬 이미지 사용
             orderType={item.orderType}
+            roomId={item.roomId}
           />
         )}
       />

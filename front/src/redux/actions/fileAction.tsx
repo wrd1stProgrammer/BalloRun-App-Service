@@ -30,3 +30,16 @@ export const uploadFile =
       return null;
     }
   };
+
+  export const saveVerifiaction = (idImage:string, faceImagee:string) => async(dispatch: any) => {
+    try {
+        const res = await appAxios.post(`/user/saveVerification`,{
+          idImage:idImage,
+          faceImage: faceImagee,
+        });
+
+        return res.data;
+      } catch (error: any) {
+        console.log('카페메뉴 불러오기 에러 :  ->', error);
+      }
+};
