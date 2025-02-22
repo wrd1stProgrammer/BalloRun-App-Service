@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView } from 'rea
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
-import { selectUser, selectIsOngoingOrder, setOngoingOrder, setIsMatching, selectIsMatching, selectOngoingOrder } from '../../redux/reducers/userSlice';
+import { selectUser, selectIsOngoingOrder, setOngoingOrder, setIsMatching, selectIsMatching, selectOngoingOrder, clearOngoingOrder } from '../../redux/reducers/userSlice';
 import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "../.././../src/utils/fcm/FcmHandler";
 import { MapSocketContext } from '../../utils/sockets/MapSocket';
 import { getDeliveryListHandler } from '../../redux/actions/orderAction';
@@ -68,39 +68,34 @@ const HomeScreen: React.FC = () => {
     };
   }, []);
 
-  // ✅ 배달 리스트 가져오기 & "accepted" 상태의 주문 추적 시작
-  useFocusEffect(
-    useCallback(() => {
-      const fetchOrders = async () => {
-        const orders = await dispatch(getDeliveryListHandler());
-  
-        const acceptedOrders = orders.filter((order: DeliveryItem) =>
-          ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
-        );
-        console.log("배달있는지 확인중")
-        if (acceptedOrders.length > 0) {
-          console.log("배달중인");
-          acceptedOrders.forEach((order) => {
-            socket?.emit("start_tracking", { orderId: order._id });
-            console.log(`Tracking started for order: ${order._id}`);
-            startTracking(order._id);
-          });
-        }
-        else {
-          console.log("배달중인 주문 없음")
-          stopTracking;
 
-        }
-      };
-      
-      fetchOrders();
+  useEffect(() => {
+    const fetchOrders = async () => {
+      console.log("🚀 배달 상태 확인 중...");
+
   
-      return () => {
+        // ✅ isOngoingOrder && isMatching && ongoingOrder 조건이 참일 때만 실행
+        if (isOngoingOrder && isMatching && ongoingOrder) {
+          console.log("🔥 배달 추적 시작!");
+  
+          
+            socket?.emit("start_tracking", { orderId: ongoingOrder.orderId });
+            console.log(`📌 Tracking started for order: ${ongoingOrder.orderId}`);
+            startTracking(ongoingOrder.orderId);
+          
+        }
+       else {
+        console.log("⚠️ 배달 중인 주문 없음. 추적 중지.");
         stopTracking();
-      };
-    }, [dispatch, socket]) // 의존성 추가
-  );
-
+      }
+    };
+  
+    fetchOrders();
+  
+    return () => {
+      stopTracking();
+    };
+  }, [dispatch, socket, isOngoingOrder, isMatching, ongoingOrder]);
 
 
   useEffect(() => {
@@ -119,6 +114,12 @@ const HomeScreen: React.FC = () => {
       dispatch(setIsMatching(true));
    });
   
+   orderSocket.on("order_completed", ({ orderId }) => {
+    console.log(`✅ 주문자 화면: 배달 완료 감지 -> 주문 ID: ${orderId}`);
+    dispatch(clearOngoingOrder()); // Redux 상태 초기화 -> 배너 삭제
+  });
+
+
     return () => {
       orderSocket.off('order_accepted');
     };

@@ -64,8 +64,7 @@ const NewOrderList:React.FC<OrderListProps> = ({activeTab}) => {
     <View>
       <FlatList
         data={orders}
-        keyExtractor={(item:any) => item._id}
-        renderItem={({ item }) => (
+        keyExtractor={(item, index) => item._id ? item._id : `order-${index}`}        renderItem={({ item }) => (
           <OrderItem
             orderId={item._id}
             name={item.name}

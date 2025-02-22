@@ -8,7 +8,7 @@ import { goBack } from "../../../navigation/NavigationUtils";
 
 const LiveMap = () => {
   const route = useRoute(); 
-  const { orderId, status } = route.params as { orderId: string, status: string }; 
+  const { orderId, status,userId } = route.params as { orderId: string, status: string , userId:any}; 
   const socket = useContext(MapSocketContext);
   const [deliveryLocation, setDeliveryLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
@@ -34,30 +34,55 @@ const LiveMap = () => {
     }
   };
 
+  // useEffect(() => {
+  //   if (!socket) return;
+  //   socket.emit("join_order", { orderId })
+  //   socket.emit("request_location", { orderId });
+
+  //   const handleLocationUpdate = (data: { orderId: string; latitude: number; longitude: number }) => {
+  //     console.log("사용자가 배달자의 위치를 받음", data); 
+    
+  //     if (!data.orderId) {
+  //       console.error("❌ orderId가 포함되지 않음", data);
+  //       return;
+  //     }
+
+  //     if (data.orderId === orderId) {
+  //       setDeliveryLocation({ latitude: data.latitude, longitude: data.longitude });
+  //       console.log("백엔드에서 올바르게 위치 데이터를 받아옴", data);
+  //       console.log(deliveryLocation)
+  //     }
+  //   };
+  //   socket.on("update_location", handleLocationUpdate);
+  //   return () => {
+  //     socket.off("update_location", handleLocationUpdate);
+  //   };
+  // }, [orderId, socket]);
+
   useEffect(() => {
     if (!socket) return;
-    socket.emit("join_order", { orderId })
+    socket.emit("join_order", { orderId });
     socket.emit("request_location", { orderId });
-
-    const handleLocationUpdate = (data: { orderId: string; latitude: number; longitude: number }) => {
-      console.log("사용자가 배달자의 위치를 받음", data); 
-    
-      if (!data.orderId) {
-        console.error("❌ orderId가 포함되지 않음", data);
-        return;
-      }
-
+  
+    const handleLocationUpdate = (data: { orderId: string; deliveryPersonId: string; latitude: number; longitude: number }) => {
+      console.log("프론트에서 받은 배달원 위치 데이터:", data);
+  
       if (data.orderId === orderId) {
-        setDeliveryLocation({ latitude: data.latitude, longitude: data.longitude });
-        console.log("백엔드에서 올바르게 위치 데이터를 받아옴", data);
-        console.log(deliveryLocation)
+        if (data.deliveryPersonId !== userId) {  // 🚀 내 ID와 다른 배달원의 위치만 반영
+          setDeliveryLocation({ latitude: data.latitude, longitude: data.longitude });
+          console.log("🚀 내 ID와 다른 배달원의 위치만 반영")
+
+        } else {
+          console.log("❌ 내 위치가 업데이트되지 않도록 방지함");
+        }
       }
     };
+  
     socket.on("update_location", handleLocationUpdate);
     return () => {
       socket.off("update_location", handleLocationUpdate);
     };
-  }, [orderId, socket]);
+  }, [orderId, socket, userId]);
 
   return (
     <View style={styles.container}>

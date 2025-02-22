@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,8 @@ import { uploadFile } from "../../../redux/actions/fileAction";
 import { getChatRoomIdAndUploadImage, getDeliveryListHandler } from "../../../redux/actions/orderAction";
 import { setWatchId } from "../../../redux/reducers/locationSlice";
 import Geolocation from 'react-native-geolocation-service';
+import { clearOngoingOrder } from "../../../redux/reducers/userSlice";
+import { WebSocketContext } from "../../../utils/sockets/Socket";
 
 interface OrderItem {
   _id: string;
@@ -52,6 +54,9 @@ const DeliveryImage = () => {
   const { item, photoUri } = route.params; // item과 photoUri 추출
   const orderId = route.params.item._id // 데이터 받기
   
+  const orderSocket = useContext(WebSocketContext); // WebSocketContext에서 소켓 가져오기
+  
+
   const dispatch = useAppDispatch();
 
 
@@ -96,6 +101,38 @@ const DeliveryImage = () => {
     }
   }
 
+// const handleSubmit = async () => {
+//   setIsLoading(true);
+
+//   try {
+//     const imageResponse = await dispatch(uploadFile(selectedImage?.uri, "order_image"));
+//     console.log("받은 이미지리스폰스", imageResponse);
+
+//     const roomId = await dispatch(getChatRoomIdAndUploadImage(orderId));
+//     resetAndNavigate("ChatRoom", { roomId });
+
+//     const orders = await dispatch(getDeliveryListHandler());
+//     const activeOrders = orders.filter((order) =>
+//       ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
+//     );
+//     console.log("DeliveryImages.tsx파일임")
+
+//     console.log(watchId)
+//     if (activeOrders.length === 0 && watchId !== null) {
+//       console.log("🚨 배달 중인 주문 없음 -> 위치 추적 종료", watchId);
+//       Geolocation.clearWatch(watchId);
+//       dispatch(setWatchId(null)); // Redux에서 watchId 삭제
+//       console.log("✅ 위치 추적 중지됨");
+//     }
+//   } catch (error) {
+//     console.error("업로드 실패:", error);
+//     Alert.alert("업로드 실패", "사진 업로드 중 오류가 발생했습니다.");
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
+
+
 const handleSubmit = async () => {
   setIsLoading(true);
 
@@ -106,19 +143,13 @@ const handleSubmit = async () => {
     const roomId = await dispatch(getChatRoomIdAndUploadImage(orderId));
     resetAndNavigate("ChatRoom", { roomId });
 
-    const orders = await dispatch(getDeliveryListHandler());
-    const activeOrders = orders.filter((order) =>
-      ["accepted", "delivered", "goToCafe", "goToClient", "makingMenu"].includes(order.status)
-    );
-    console.log("DeliveryImages.tsx파일임")
+    console.log("배달 완료 -> Redux 상태 초기화 실행!");
+    dispatch(clearOngoingOrder()); // ✅ 배달자 화면에서 Redux 초기화
 
-    console.log(watchId)
-    if (activeOrders.length === 0 && watchId !== null) {
-      console.log("🚨 배달 중인 주문 없음 -> 위치 추적 종료", watchId);
-      Geolocation.clearWatch(watchId);
-      dispatch(setWatchId(null)); // Redux에서 watchId 삭제
-      console.log("✅ 위치 추적 중지됨");
-    }
+    // ✅ 주문자의 userId를 포함하여 소켓으로 배달 완료 이벤트 전송
+    const userId = item.userId; // 주문자의 userId
+    orderSocket?.emit("order_completed", { orderId, userId });
+
   } catch (error) {
     console.error("업로드 실패:", error);
     Alert.alert("업로드 실패", "사진 업로드 중 오류가 발생했습니다.");

@@ -15,6 +15,7 @@ import { acceptActionHandler } from "../../../redux/actions/riderAction";
 import Geolocation from 'react-native-geolocation-service';
 import { navigate } from "../../../navigation/NavigationUtils";
 import DeliveryDetailModal from "../DeliveryDetailComponents/DeliveryDetailModal";
+import { useLocation } from "../../../utils/Geolocation/LocationContext";
 
 type DeliveryItem = {
   _id: string;
@@ -89,10 +90,43 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
 const socket = useContext(MapSocketContext);
 const [tracking, setTracking] = useState(false);
 const dispatch = useAppDispatch();
+const { location, startTracking, stopTracking } = useLocation();
 
 // 위치 추적 ID 저장 (해제할 때 필요)
-const [watchId, setWatchId] = useState<number | null>(null);
 const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
+
+
+
+
+// const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") => {
+//   try {
+//     console.log(orderId,orderType,"id logging");
+
+//     // 주문 수락 요청
+//     const dummyRes = await dispatch(acceptActionHandler(orderId,orderType));
+    
+
+//     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
+
+//     // 서버에 트래킹 시작 요청
+//     socket?.emit("start_tracking", { orderId });
+//     startTracking(orderId);
+
+
+//     // 위치 추적 시작
+//     console.log("Geolocation.watchPosition 실행...");
+ 
+
+//     setTimeout(() => {
+//       console.log("Navigating to BottomTab...");
+//       navigate("BottomTab", {
+//         screen: "DeliveryRequestListScreen",
+//       });
+//     }, 1500);
+//   } catch (error) {
+//     console.error("Error accepting order:", error);
+//   }
+// };
 
 
 
@@ -114,6 +148,7 @@ const getCurrentLocation = (orderId): Promise<{ latitude: number; longitude: num
     );
   });
 };
+
 
 const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") => {
   try {
@@ -145,7 +180,6 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
       { enableHighAccuracy: true, interval: 1000 }
     );
 
-    setWatchId(id);
     console.log("위치 추적 시작, watchId:", id);
 
     setTimeout(() => {
@@ -158,7 +192,6 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     console.error("Error accepting order:", error);
   }
 };
-
 
 
 
@@ -197,7 +230,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     return (
       <View style={styles.itemContainer}>
         <View style={styles.itemDetails}>
-          <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
+          {/* <Text style={styles.cafeName}>{item.items[0].cafeName}</Text> */}
           <Text style={styles.menu}>{item.items.map(i => `${i.menuName} x${i.quantity}`).join(", ")}</Text>
           <Text style={styles.info}>{item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
           <Text style={styles.info}>거리: {distance} km</Text>
