@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { navigate, goBack } from '../../../navigation/NavigationUtils';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
-import { refetchUser, withdrawAction } from '../../../redux/actions/userAction';
+import { refetchUser, withdrawAction, getWithdrawList } from '../../../redux/actions/userAction';
+
 interface User {
   account?: {
     bankName: string;
     accountNumber: string;
     holder: string;
   };
-  point: number; // 현재 잔액 추가
+  point: number;
 }
 
 interface WithdrawScreenProps {
@@ -22,35 +23,56 @@ interface WithdrawScreenProps {
   };
 }
 
+interface WithdrawItem {
+  id: string;
+  date: string;
+  amount: string;
+  status: string;
+}
+
 const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
   const user = route.params.user;
   const [amount, setAmount] = useState('');
+  const [withdrawHistory, setWithdrawHistory] = useState<WithdrawItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false); // 자체 로딩 상태 추가
 
   const dispatch = useAppDispatch();
 
-  // 더미 출금 내역 데이터 (
-  const dummyHistory = [
-    { id: '1', date: '2023-10-01', amount: '₩50,000', status: '완료 (24시간 내 처리 완료)' },
-    { id: '2', date: '2023-09-25', amount: '₩30,000', status: '처리중 (24시간 내 처리 완료)' },
-  ];
+  // 출금 내역 불러오기
+  useEffect(() => {
+    const fetchWithdrawHistory = async () => {
+      setIsLoading(true); // 로딩 시작
+      try {
+        const data = await dispatch(getWithdrawList());
+        if (data && data.withdrawals) {
+          setWithdrawHistory(data.withdrawals);
+        }
+      } catch (err) {
+        console.error('Failed to fetch withdraw history:', err);
+        Alert.alert('오류', '출금 내역을 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false); // 로딩 종료
+      }
+    };
+
+    fetchWithdrawHistory();
+  }, [dispatch]);
 
   // 출금 처리 핸들러
-  const handleWithdraw = async() => {
-    // 숫자만 입력되었는지 확인 (정규식으로 숫자만 허용)
+  const handleWithdraw = async () => {
     if (!/^\d+$/.test(amount)) {
       Alert.alert('입력 오류', '숫자만 입력해주세요.');
       return;
     }
 
     const withdrawAmount = parseInt(amount, 10);
-    const currentBalance = user.point || 0; // 현재 잔액 (Redux에서 가져옴)
+    const currentBalance = user.point || 0;
 
     if (withdrawAmount > currentBalance) {
       Alert.alert('출금 오류', '출금 가능한 액수를 초과했습니다.');
       return;
     }
 
-    // 수수료(8%) 계산
     const fee = withdrawAmount * 0.08;
     const finalAmount = withdrawAmount - fee;
 
@@ -58,21 +80,28 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
       '출금 확인',
       `수수료 8%를 적용한 최종 출금 금액은 ₩${finalAmount.toLocaleString()}입니다.\n출금을 진행하시겠습니까? (24시간 내 처리 완료)`,
       [
-        {
-          text: '취소',
-          style: 'cancel',
-          onPress: () => {},
-        },
+        { text: '취소', style: 'cancel' },
         {
           text: '확인',
-          onPress: async() => {
-            // 출금 로직 1. user.point필드 수정 , 출금상태 업뎃 , refetch
-            await dispatch(withdrawAction(withdrawAmount,fee,finalAmount));
-            console.log(`출금 요청: ₩${withdrawAmount}, 수수료: ₩${fee}, 최종: ₩${finalAmount}`);
-            await dispatch(refetchUser());
-            Alert.alert('출금 완료', '출금이 요청되었습니다. 24시간 내 처리 완료됩니다.');
-            setAmount(''); // 입력 필드 초기화
-            goBack();
+          onPress: async () => {
+            setIsLoading(true); // 출금 처리 중 로딩 시작
+            try {
+              await dispatch(withdrawAction(withdrawAmount, fee, finalAmount));
+              console.log(`출금 요청: ₩${withdrawAmount}, 수수료: ₩${fee}, 최종: ₩${finalAmount}`);
+              await dispatch(refetchUser());
+              const updatedHistory = await dispatch(getWithdrawList());
+              if (updatedHistory && updatedHistory.withdrawals) {
+                setWithdrawHistory(updatedHistory.withdrawals);
+              }
+              Alert.alert('출금 완료', '출금이 요청되었습니다. 24시간 내 처리 완료됩니다.');
+              setAmount('');
+              goBack();
+            } catch (err) {
+              console.error('Withdraw error:', err);
+              Alert.alert('오류', '출금 처리 중 오류가 발생했습니다.');
+            } finally {
+              setIsLoading(false); // 로딩 종료
+            }
           },
           style: 'default',
         },
@@ -109,7 +138,6 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
             keyboardType="numeric"
             value={amount}
             onChangeText={(text) => {
-              // 숫자만 허용 (정규식 필터링)
               const numericValue = text.replace(/[^0-9]/g, '');
               setAmount(numericValue);
             }}
@@ -117,24 +145,32 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
         </View>
 
         {/* 출금 버튼 */}
-        <TouchableOpacity style={styles.withdrawButton} onPress={handleWithdraw}>
-          <Text style={styles.withdrawButtonText}>출금하기</Text>
+        <TouchableOpacity style={styles.withdrawButton} onPress={handleWithdraw} disabled={isLoading}>
+          <Text style={styles.withdrawButtonText}>
+            {isLoading ? '처리중...' : '출금하기'}
+          </Text>
         </TouchableOpacity>
 
         {/* 출금 내역 */}
         <View style={styles.historySection}>
           <Text style={styles.historyTitle}>출금 내역</Text>
-          <FlatList
-            data={dummyHistory}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.historyItem}>
-                <Text style={styles.historyDate}>{item.date}</Text>
-                <Text style={styles.historyAmount}>{item.amount}</Text>
-                <Text style={styles.historyStatus}>{item.status}</Text>
-              </View>
-            )}
-          />
+          {isLoading ? (
+            <Text>로딩 중...</Text>
+          ) : withdrawHistory.length === 0 ? (
+            <Text>출금 내역이 없습니다.</Text>
+          ) : (
+            <FlatList
+              data={withdrawHistory}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.historyItem}>
+                  <Text style={styles.historyDate}>{item.date}</Text>
+                  <Text style={styles.historyAmount}>{item.amount}</Text>
+                  <Text style={styles.historyStatus}>{item.status}</Text>
+                </View>
+              )}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>

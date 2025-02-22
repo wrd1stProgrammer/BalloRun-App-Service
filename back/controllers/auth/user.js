@@ -200,6 +200,41 @@ const withdrawApi = async (req, res) => {
   }
 };
 
+// getWithdrawList API 추가
+const getWithdrawList = async (req, res) => {
+  try {
+    // 1. 인증 및 사용자 확인
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const userId = decodedToken.userId;
+
+    // 2. 출금 내역 조회
+    const withdrawals = await Withdrawal.find({ userId })
+      .sort({ createdAt: -1 }) // 최신순 정렬
+      .select("withdrawAmount fee finalAmount status createdAt"); // 필요한 필드만 선택
+
+    // 3. 데이터 형식화
+    const formattedWithdrawals = withdrawals.map((w) => ({
+      id: w._id.toString(),
+      date: w.createdAt.toISOString().split("T")[0], // YYYY-MM-DD 형식
+      amount: `₩${w.withdrawAmount.toLocaleString()}`,
+      status:
+        w.status === "pending" ? "처리중 (24시간 내 처리 완료)" : "완료",
+    }));
+
+    // 4. 응답
+    res.status(StatusCodes.OK).json({ withdrawals: formattedWithdrawals });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid token" });
+    } else {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: "Server error", error: error.message });
+    }
+  }
+};
+
 
 
 module.exports = {
@@ -207,5 +242,6 @@ module.exports = {
   updateProfile,
   saveVerification,
   registerAccountApi,
-  withdrawApi
+  withdrawApi,
+  getWithdrawList,
 };

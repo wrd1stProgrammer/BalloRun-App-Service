@@ -137,3 +137,12 @@ export const withdrawAction = (withdrawAmount:number,fee:number,finalAmount:numb
     console.log('account register ERROR ->', error);
   }
 }; // ap
+
+export const getWithdrawList = () => async (dispatch: any) => {
+  try {
+    const res = await appAxios.get('/user/getwithdrawlist');
+    return res.data;
+  } catch (error: any) {
+    console.log('account register ERROR ->', error);
+  }
+}; // ap
