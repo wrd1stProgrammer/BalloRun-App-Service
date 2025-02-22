@@ -98,7 +98,7 @@ const HomeScreen: React.FC = () => {
       return () => {
         stopTracking();
       };
-    }, [dispatch, socket, startTracking, stopTracking]) // 의존성 추가
+    }, [dispatch, socket]) // 의존성 추가
   );
 
 
