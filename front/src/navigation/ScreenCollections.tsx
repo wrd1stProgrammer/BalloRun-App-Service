@@ -35,6 +35,12 @@ import Step4 from "../screens/auth/RiderRegister/Steps/Step4";
 import Step5 from "../screens/auth/RiderRegister/Steps/Step5";
 import Step6 from "../screens/auth/RiderRegister/Steps/Step6";
 import NewLocationBottom from "../screens/order/OrderWriteLocationComponent/NewLocationBottom";
+import LawScreen from "../screens/dash/Profile/LawScreen";
+import TermsScreen from "../screens/dash/Profile/LawScreenChild.tsx/TermsScreen";
+import PrivacyPolicyScreen from "../screens/dash/Profile/LawScreenChild.tsx/PrivacyPolicyScreen";
+import PrivacyConsentScreen from "../screens/dash/Profile/LawScreenChild.tsx/PrivacyConsentScreen";
+import LocationServiceTermsScreen from "../screens/dash/Profile/LawScreenChild.tsx/LocationServiceTermsScreen";
+import CarrierAgreementScreen from "../screens/dash/Profile/LawScreenChild.tsx/CarrierAgreementScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -117,6 +123,30 @@ export const dashboardStack = [
     name: "Step6",
     component: Step6,
   },
+  {
+    name:"LawScreen",
+    component: LawScreen,
+  },
+  {
+    name:"TermsScreen",
+    component: TermsScreen
+  },
+  {
+    name:"PrivacyPolicy",
+    component: PrivacyPolicyScreen
+  },
+  {
+    name: "PrivacyConsentScreen",
+    component:PrivacyConsentScreen,
+  },
+  {
+    name: "LocationServiceTermsScreen",
+    component: LocationServiceTermsScreen,
+  },
+  {
+    name:"CarrierAgreementScreen",
+    component:CarrierAgreementScreen
+  }
 ];
 
 export const orderStack = [
