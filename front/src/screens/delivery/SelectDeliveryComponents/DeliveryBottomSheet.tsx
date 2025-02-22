@@ -11,6 +11,7 @@ import MapView from 'react-native-maps';
 import { Dimensions } from 'react-native';
 import { navigate } from "../../../navigation/NavigationUtils";
 import DeliveryDetailModal from '../DeliveryDetailComponents/DeliveryDetailModal';
+import { useLocation } from '../../../utils/Geolocation/LocationContext';
 
 
 
@@ -58,6 +59,7 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
   const dispatch = useAppDispatch();
   const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
   
+  const { location, startTracking} = useLocation();
 
   // 위치 추적 ID 저장 (해제할 때 필요)
   const [watchId, setWatchId] = useState<number | null>(null);
@@ -85,24 +87,6 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
     }
   };
 
-const getCurrentLocation = (orderId): Promise<{ latitude: number; longitude: number }> => {
-  return new Promise((resolve, reject) => {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        console.log("현재 위치 받아옴:", latitude, longitude);
-        resolve({ latitude, longitude });
-        socket?.emit("update_location", { orderId, latitude, longitude });
-
-      },
-      (error) => {
-        console.error("위치 가져오기 실패:", error);
-        reject(error);
-      },
-      { enableHighAccuracy: true }
-    );
-  });
-};
 
 
 const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") => {
@@ -111,32 +95,18 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
 
     // 주문 수락 요청
     const dummyRes = await dispatch(acceptActionHandler(orderId,orderType));
-    //console.log(dummyRes);
     
 
     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
 
     // 서버에 트래킹 시작 요청
     socket?.emit("start_tracking", { orderId });
-    const location = await getCurrentLocation(orderId);
+    startTracking(orderId);
+
 
     // 위치 추적 시작
     console.log("Geolocation.watchPosition 실행...");
-    const id = Geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        socket?.emit("update_location", { orderId, latitude, longitude });
-        console.log("위치 업데이트:", latitude, longitude);
-      },
-      (error) => {
-        console.log("위치 추적 오류:", error);
-        Alert.alert("위치 추적 오류", error.message);
-      },
-      { enableHighAccuracy: true, interval: 1000 }
-    );
-
-    setWatchId(id);
-    console.log("위치 추적 시작, watchId:", id);
+ 
 
     setTimeout(() => {
       console.log("Navigating to BottomTab...");
@@ -148,7 +118,6 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     console.error("Error accepting order:", error);
   }
 };
-
   // 현재 위치 업데이트
   const updateUserLocation = () => {
     Geolocation.getCurrentPosition(
