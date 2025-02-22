@@ -5,15 +5,18 @@ interface CustomMarkerProps {
   marker: {
     image: any;
     title: string;
+    id: string;
   };
+  isSelected: boolean; // 선택된 마커인지 여부 추가
 }
 
-const CustomMarker: React.FC<CustomMarkerProps> = React.memo(({ marker }) => (
-  
+const CustomMarker: React.FC<CustomMarkerProps> = React.memo(({ marker, isSelected }) => (
   <View style={styles.customMarker}>
-    <View style={styles.markerContainer}>
+    <View style={[styles.markerContainer, isSelected && styles.selectedMarker]}>
       <Image source={marker.image} style={styles.markerImage} />
-      <Text style={styles.markerText}>{marker.title}</Text>
+      <Text style={[styles.markerText, isSelected && styles.selectedText]}>
+        {marker.title}
+      </Text>
     </View>
   </View>
 ));
@@ -33,7 +36,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,
-    borderColor: 'red',
+    borderColor: 'gray', // 기본 색상
+  },
+  selectedMarker: {
+    borderColor: 'red', // 선택된 마커는 빨간색 테두리
+    backgroundColor: '#ffe6e6', // 선택된 마커의 배경 색상 변경
   },
   markerImage: {
     width: 40,
@@ -45,6 +52,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
+  },
+  selectedText: {
+    color: 'red', // 선택된 마커의 텍스트 색상 변경
   },
 });
 

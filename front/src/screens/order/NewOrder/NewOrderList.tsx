@@ -50,10 +50,16 @@ const NewOrderList:React.FC<OrderListProps> = ({activeTab}) => {
       const completedOrders = await dispatch(getCompletedNewOrdersHandler());  
       // 두 배열 합
       const combinedOrders = [...ongoingOrders, ...completedOrders];
+
+      // 중복 제거
+      const uniqueOrders: OrderItemProps[] = combinedOrders.filter(
+        (order, index, self) =>
+          index === self.findIndex((o) => o._id === order._id)
+      );
       // 최신순으로 정렬 (createdAt 기준)
-      combinedOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());  
+      uniqueOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());  
       // 상태 업데이트
-      setOrders(combinedOrders);
+      setOrders(uniqueOrders);
     } catch (error) {
       console.error('주문 데이터 불러오기 실패:', error);
     }
@@ -64,7 +70,8 @@ const NewOrderList:React.FC<OrderListProps> = ({activeTab}) => {
     <View>
       <FlatList
         data={orders}
-        keyExtractor={(item, index) => item._id ? item._id : `order-${index}`}        renderItem={({ item }) => (
+        keyExtractor={(item, index) => item._id || `order-${index}`}
+        renderItem={({ item }) => (
           <OrderItem
             orderId={item._id}
             name={item.name}

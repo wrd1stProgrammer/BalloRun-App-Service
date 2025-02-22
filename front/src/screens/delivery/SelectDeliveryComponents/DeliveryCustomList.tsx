@@ -230,12 +230,29 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     return (
       <View style={styles.itemContainer}>
         <View style={styles.itemDetails}>
-          {/* <Text style={styles.cafeName}>{item.items[0].cafeName}</Text> */}
+          <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
           <Text style={styles.menu}>{item.items.map(i => `${i.menuName} x${i.quantity}`).join(", ")}</Text>
           <Text style={styles.info}>{item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
           <Text style={styles.info}>거리: {distance} km</Text>
           <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>
           <Text style={styles.price}>가격: {item.price}원</Text>
+          <Text style={styles.price}>
+  종료: {
+    (() => {
+      const now = new Date();
+      const endTime = new Date(item.endTime);
+      const diff = endTime - now; // 밀리초 차이
+
+      if (diff <= 0) return "종료됨"; // 이미 종료된 경우
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      return `${hours}시간 ${minutes}분 ${seconds}초 남음`;
+    })()
+  }
+</Text>
         </View>
         <View style={styles.footer}>
           <TouchableOpacity

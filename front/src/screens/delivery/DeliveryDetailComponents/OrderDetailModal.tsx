@@ -46,8 +46,23 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ visible, onClose, o
 
             {/* 주문 시간 */}
             <Text style={styles.info}>주문 요청 시간: {new Date(deliveryItem.startTime).toLocaleTimeString()}</Text>
-            <Text style={styles.info}>주문 종료 시간: {new Date(deliveryItem.endTime).toLocaleTimeString()}</Text>
+            <Text style={styles.info}>
+              종료: {
+                (() => {
+                  const now = new Date();
+                  const endTime = new Date(deliveryItem.endTime);
+                  const diff = endTime - now; // 밀리초 차이
 
+                  if (diff <= 0) return "종료됨"; // 이미 종료된 경우
+
+                  const hours = Math.floor(diff / (1000 * 60 * 60));
+                  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                  return `${hours}시간 ${minutes}분 ${seconds}초 남음`;
+                })()
+              }
+            </Text>
                         {/* 상태 표시 */}
                         <Text style={[styles.info, { color: deliveryItem.status === "cancelled" ? "red" : "green" }]}>
               상태: {deliveryItem.status === "cancelled" ? "취소됨" : "대기 중"}

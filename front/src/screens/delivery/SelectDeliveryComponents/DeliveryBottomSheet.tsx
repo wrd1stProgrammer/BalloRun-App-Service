@@ -118,31 +118,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     console.error("Error accepting order:", error);
   }
 };
-  // 현재 위치 업데이트
-  const updateUserLocation = () => {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserLat(latitude);
-        setUserLng(longitude);
 
-        if (mapRef.current) {
-          mapRef.current.animateToRegion({
-            latitude,
-            longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }, 1000);
-        }
-
-
-      },
-      (error) => {
-        Alert.alert("위치 갱신 오류", error.message);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    );
-  };
 
   // 위치 추적 정지 (필요한 경우)
   const stopTracking = () => {

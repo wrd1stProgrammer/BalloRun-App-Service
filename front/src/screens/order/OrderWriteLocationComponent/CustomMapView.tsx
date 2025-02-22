@@ -72,24 +72,27 @@ const CustomMapView: React.FC<CustomMapViewProps> = ({
       {!floor && (
         <>
 
-          {markers.map((marker) => (
-            <Marker
-              key={marker.id}
-              coordinate={marker.coordinate}
-              title={marker.title}
-              onPress={() => onMarkerPress(marker)}
-            >
-              {/* Render a custom marker */}
-              <CustomMarker marker={marker} />
-            </Marker>
-          ))}
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            coordinate={marker.coordinate}
+            title={marker.title}
+            onPress={() => onMarkerPress(marker)}
+          >
+            {/* 선택 여부를 CustomMarker에 전달 */}
+            <CustomMarker marker={marker} isSelected={selectedMarker && selectedMarker.id === marker.id} />
+          </Marker>
+        ))}
         </>
       )}
     </MapView>
 
-        <TouchableOpacity style={styles.confirmButton} onPress={confirmLocation}>
-        <Text style={styles.confirmButtonText}>배달 위치 결정하기</Text>
-      </TouchableOpacity>
+    <TouchableOpacity 
+  style={[styles.confirmButton, selectedMarker ? {} : styles.disabledButton]} 
+  onPress={confirmLocation}
+  disabled={!(selectedMarker || deliveryMethod === 'direct')}>
+  <Text style={styles.confirmButtonText}>배달 위치 결정하기</Text>
+</TouchableOpacity>
   </View>
     
   );
@@ -101,6 +104,9 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  disabledButton: {
+    backgroundColor: '#B0B0B0', // 회색으로 변경
   },
   confirmButton: {
     position: 'absolute',
