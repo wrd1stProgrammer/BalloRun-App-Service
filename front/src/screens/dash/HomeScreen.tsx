@@ -134,7 +134,7 @@ const HomeScreen: React.FC = () => {
         <View style={styles.headerContainer}>
           <View style={styles.greetingContainer}>
             <Text style={styles.userName}>{user?.username}님, 안녕하세요!!!!</Text>
-            <Text>캠퍼스 딜리버리에서 편함을 주문해보세요.</Text>
+            <Text>캠퍼스 커피에서 편함을 주문해보세요.</Text>
           </View>
           {/* 프로필 아이콘 */}
           <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>

@@ -13,8 +13,9 @@ const ProfileScreen = () => {
   const dispatch = useAppDispatch();
 
   const handleAccountCheck = () => {
+    console.log(user)
     if (!user?.account || Object.keys(user?.account || {}).length === 0) {
-      console.log('asd')
+
       Alert.alert(
         '계좌 등록 필요',
         '계좌가 등록되지 않았습니다. 계좌를 등록하시겠습니까?',
@@ -33,7 +34,7 @@ const ProfileScreen = () => {
         { cancelable: true }
       );
     } else {
-      navigate('WithdrawScreen', { user });
+      navigate('WithdrawScreen', {user});
     }
   };
 

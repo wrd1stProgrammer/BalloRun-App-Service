@@ -1,14 +1,39 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet ,Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { navigate,goBack } from '../../../navigation/NavigationUtils';
-
+import { useAppDispatch } from '../../../redux/config/reduxHook';
+import { refetchUser, registerAccount } from '../../../redux/actions/userAction';
 
 const AccountRegistrationScreen: React.FC = () => {
   const [bankName, setBankName] = useState('');
-  const [accountNumber, setAccountNumber] = useState('');
+  const [accountNumber, setAccountNumber] = useState(0);
   const [holder, setHolder] = useState('');
+  const dispatch = useAppDispatch();
+
+  const submitAccountHandler = async() => {
+    if (!bankName.trim()) {
+      Alert.alert('입력 오류', '은행명을 입력해주세요.');
+      return;
+    }
+    if (accountNumber === 0) { // default 0 이라서.
+      Alert.alert('입력 오류', '계좌번호를 입력해주세요.');
+      return;
+    }
+    if (!holder.trim()) {
+      Alert.alert('입력 오류', '예금주를 입력해주세요.');
+      return;
+    }
+
+    // 모든 필드가 입력되었을 때 처리 로직 (예: API 호출, 데이터 저장)
+    // user 업뎃 뒤로가서 user refetch?
+    await dispatch(registerAccount(bankName,accountNumber,holder));
+    await dispatch(refetchUser()); // user 상태 새로고침.
+    Alert.alert('성공', '계좌가 성공적으로 등록되었습니다.', [
+      { text: '확인', onPress: () => goBack() },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -54,7 +79,7 @@ const AccountRegistrationScreen: React.FC = () => {
         </View>
 
         {/* 등록 버튼 */}
-        <TouchableOpacity style={styles.registerButton}>
+        <TouchableOpacity style={styles.registerButton} onPress={submitAccountHandler}>
           <Text style={styles.registerButtonText}>등록하기</Text>
         </TouchableOpacity>
       </View>

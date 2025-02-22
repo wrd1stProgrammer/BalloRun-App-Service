@@ -112,3 +112,37 @@ export const Logout = () => async (dispatch: any) => {
   resetAndNavigate('LoginScreen');
 };
 
+
+export const registerAccount = (bankName:string,accountNumber:number,holder:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/user/registeraccount',{
+      bankName,
+      accountNumber,
+      holder,
+    });
+    
+  } catch (error: any) {
+    console.log('account register ERROR ->', error);
+  }
+}; // ap
+
+export const withdrawAction = (withdrawAmount:number,fee:number,finalAmount:number) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/user/withdraw',{
+      withdrawAmount,
+      fee,
+      finalAmount,
+    });
+  } catch (error: any) {
+    console.log('account register ERROR ->', error);
+  }
+}; // ap
+
+export const getWithdrawList = () => async (dispatch: any) => {
+  try {
+    const res = await appAxios.get('/user/getwithdrawlist');
+    return res.data;
+  } catch (error: any) {
+    console.log('account register ERROR ->', error);
+  }
+}; // ap

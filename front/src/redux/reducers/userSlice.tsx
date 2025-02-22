@@ -34,9 +34,9 @@ export const userSlice = createSlice({
   reducers: {
     setUser: (state, action: PayloadAction<UserData>) => {
       state.user = {
-        ...state.user,
-        ...action.payload,
-        isOngoingOrder: action.payload.isOngoingOrder ?? false,
+        ...state.user, // 기존 user 상태 유지
+        ...action.payload, // 서버 데이터 병합
+        isOngoingOrder: action.payload.isOngoingOrder ?? state.user?.isOngoingOrder ?? false, // 기존 값 유지
       };
     },
     setIsOngoingOrder: (state, action: PayloadAction<boolean>) => {
