@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
@@ -12,20 +12,42 @@ const ProfileScreen = () => {
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
 
-  // 임시 데이터 (아래 공간에 표시할 항목)
-  const tempData = Array.from({ length: 20 }, (_, i) => ({ id: i.toString(), text: `Item ${i + 1}` }));
+  const handleAccountCheck = () => {
+    if (!user?.account || Object.keys(user?.account || {}).length === 0) {
+      console.log('asd')
+      Alert.alert(
+        '계좌 등록 필요',
+        '계좌가 등록되지 않았습니다. 계좌를 등록하시겠습니까?',
+        [
+          {
+            text: '취소',
+            style: 'cancel',
+            onPress: () => {}, // 취소 버튼 클릭 시 아무 작업도 하지 않음
+          },
+          {
+            text: '예',
+            onPress: () => navigate('AccountRegistrationScreen'),
+            style: 'default',
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      navigate('WithdrawScreen', { user });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* 상단 바 */}
       <View style={styles.topBar}>
         <Text style={styles.topBarTitle}>마이배달</Text>
+        <TouchableOpacity onPress={() => dispatch(Logout())} style={styles.settingsIcon} activeOpacity={0.7}>
+          <Ionicons name="settings-outline" size={24} color="#333" />
+        </TouchableOpacity>
         <View style={styles.topBarIcons}>
-          <TouchableOpacity onPress={() => console.log('알림 클릭')} activeOpacity={0.7}>
+          <TouchableOpacity onPress={() => console.log(user)} activeOpacity={0.7}>
             <Ionicons name="notifications-outline" size={24} color="#333" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => dispatch(Logout())} style={styles.settingsIcon} activeOpacity={0.7}>
-            <Ionicons name="settings-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>
       </View>
@@ -35,8 +57,19 @@ const ProfileScreen = () => {
         <Image source={{ uri: user?.userImage }} style={styles.userImage} />
         <View style={styles.userInfo}>
           <Text style={styles.userusername}>{user?.username}</Text>
-          <Text style={styles.membership}>포인트 : {user?.point}</Text>
-          <Text style={styles.status}>라이더 인증상태 : {user?.verificationStatus}</Text>
+          <View style={styles.membershipContainer}>
+            <Text style={styles.membership}>포인트 : {user?.point || 0}</Text>
+            {user?.verificationStatus === 'verified' && (
+              <TouchableOpacity
+                style={styles.withdrawButton}
+                onPress={handleAccountCheck}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.withdrawButtonText}>출금</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <Text style={styles.status}>송달사 인증상태 : {user?.verificationStatus || '미인증'}</Text>
         </View>
       </View>
 
@@ -51,47 +84,47 @@ const ProfileScreen = () => {
 
       {/* 메뉴 섹션 */}
       <ScrollView>
-      <View style={styles.menuSection}>
-        {/* 이용안내 섹션 */}
-        <Text style={styles.sectionTitle}>이용안내</Text>
-        <TouchableOpacity style={styles.menuItem} onPress={() => console.log('공지사항')} activeOpacity={0.7}>
-          <Ionicons name="volume-high" size={22} color="#333" />
-          <Text style={styles.menuText}>공지사항</Text>
-          {true && <View style={styles.notificationDot} />}
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem} onPress={() => console.log('자주 하는 질문')} activeOpacity={0.7}>
-          <Ionicons name="help-circle-outline" size={22} color="#333" />
-          <Text style={styles.menuText}>자주 하는 질문</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem} onPress={() => console.log('설정')} activeOpacity={0.7}>
-          <Ionicons name="settings-outline" size={22} color="#333" />
-          <Text style={styles.menuText}>설정</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigate("LawScreen")} activeOpacity={0.7}>
-          <Ionicons name="document-text-outline" size={22} color="#333" />
-          <Text style={styles.menuText}>약관 및 정책</Text>
-        </TouchableOpacity>
+        <View style={styles.menuSection}>
+          {/* 이용안내 섹션 */}
+          <Text style={styles.sectionTitle}>이용안내</Text>
+          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('공지사항')} activeOpacity={0.7}>
+            <Ionicons name="volume-high" size={22} color="#333" />
+            <Text style={styles.menuText}>공지사항</Text>
+            {true && <View style={styles.notificationDot} />}
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('자주 하는 질문')} activeOpacity={0.7}>
+            <Ionicons name="help-circle-outline" size={22} color="#333" />
+            <Text style={styles.menuText}>자주 하는 질문</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('설정')} activeOpacity={0.7}>
+            <Ionicons name="settings-outline" size={22} color="#333" />
+            <Text style={styles.menuText}>설정</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigate('LawScreen')} activeOpacity={0.7}>
+            <Ionicons name="document-text-outline" size={22} color="#333" />
+            <Text style={styles.menuText}>약관 및 정책</Text>
+          </TouchableOpacity>
 
-        {/* 기타 섹션 */}
-        <Text style={styles.sectionTitle}>기타</Text>
-        <TouchableOpacity style={styles.menuItem} onPress={() => console.log('정보 동의 설정')} activeOpacity={0.7}>
-          <Ionicons name="information-circle-outline" size={22} color="#333" />
-          <Text style={styles.menuText}>정보 동의 설정</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem} onPress={() => console.log('회원 탈퇴')} activeOpacity={0.7}>
-          <Ionicons name="person-remove-outline" size={22} color="#333" />
-          <Text style={styles.menuText}>회원 탈퇴</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem} onPress={() => dispatch(Logout())} activeOpacity={0.7}>
-          <Ionicons name="log-out-outline" size={22} color="#333" />
-          <Text style={styles.menuText}>로그아웃</Text>
-        </TouchableOpacity>
-      </View>
+          {/* 기타 섹션 */}
+          <Text style={styles.sectionTitle}>기타</Text>
+          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('정보 동의 설정')} activeOpacity={0.7}>
+            <Ionicons name="information-circle-outline" size={22} color="#333" />
+            <Text style={styles.menuText}>정보 동의 설정</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('회원 탈퇴')} activeOpacity={0.7}>
+            <Ionicons name="person-remove-outline" size={22} color="#333" />
+            <Text style={styles.menuText}>회원 탈퇴</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.menuItem} onPress={() => dispatch(Logout())} activeOpacity={0.7}>
+            <Ionicons name="log-out-outline" size={22} color="#333" />
+            <Text style={styles.menuText}>로그아웃</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -153,11 +186,28 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     color: '#333',
   },
+  membershipContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   membership: {
     fontSize: 16,
     color: '#007bff',
-    marginBottom: 4,
     fontFamily: 'Roboto',
+  },
+  withdrawButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginLeft: 30,
+  },
+  withdrawButtonText: {
+    fontSize: 14,
+    color: '#fff',
+    fontFamily: 'Roboto',
+    fontWeight: 'bold',
   },
   status: {
     fontSize: 14,

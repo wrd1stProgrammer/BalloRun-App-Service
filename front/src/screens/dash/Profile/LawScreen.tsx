@@ -12,7 +12,7 @@ const LawScreen = () => {
         <TouchableOpacity onPress={() => goBack()} style={styles.backButton} activeOpacity={0.7}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.topBarTitle}>이용안내</Text>
+        <Text style={styles.topBarTitle}>약관 및 정책</Text>
       </View>
 
       {/* 메뉴 섹션 */}

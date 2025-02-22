@@ -109,6 +109,7 @@ const login = async (req, res) => {
         email: user.email,
         point: user.point,
         verificationStatus: user.verificationStatus,
+        account: user.account ?? null, // account가 undefined일 경우 null로 처리
       },
     });
   } catch (err) {
@@ -182,6 +183,7 @@ const kakaologin = async (req, res) => {
         email: user.email,
         point: user.point,
         verificationStatus: user.verificationStatus,
+        account: user.account ?? null, // account가 undefined일 경우 null로 처리
       },
     });
 

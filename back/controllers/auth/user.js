@@ -30,7 +30,7 @@ const getProfile = async (req, res) => {
         isRider: user.isRider,
         isDelivering: user.isDelivering,
         verificationStatus:user.verificationStatus,
-
+        account: user.account ?? null, // account가 undefined일 경우 null로 처리
       }, // 임시로 4개만 뿌림.
     });
   } catch (error) {

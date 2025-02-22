@@ -41,6 +41,8 @@ import PrivacyPolicyScreen from "../screens/dash/Profile/LawScreenChild.tsx/Priv
 import PrivacyConsentScreen from "../screens/dash/Profile/LawScreenChild.tsx/PrivacyConsentScreen";
 import LocationServiceTermsScreen from "../screens/dash/Profile/LawScreenChild.tsx/LocationServiceTermsScreen";
 import CarrierAgreementScreen from "../screens/dash/Profile/LawScreenChild.tsx/CarrierAgreementScreen";
+import AccountRegistrationScreen from "../screens/dash/Profile/AccountRegistrationScreen";
+import WithdrawScreen from "../screens/dash/Profile/WithdrawScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -146,6 +148,14 @@ export const dashboardStack = [
   {
     name:"CarrierAgreementScreen",
     component:CarrierAgreementScreen
+  },
+  {
+    name:"AccountRegistrationScreen",
+    component: AccountRegistrationScreen
+  },
+  {
+    name:"WithdrawScreen",
+    component:WithdrawScreen
   }
 ];
 

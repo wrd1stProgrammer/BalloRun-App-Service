@@ -56,6 +56,11 @@ const UserSchema = new mongoose.Schema(
       enum: ['pending', 'verified', 'rejected', 'notSubmitted'],
       default: 'notSubmitted',
     },
+    account: {
+      bankName: String,
+      accountNumber: String,
+      holder: String,
+    },
   },
   { timestamps: true }
 );
