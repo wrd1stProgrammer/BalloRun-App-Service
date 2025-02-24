@@ -75,7 +75,7 @@ const HomeScreen: React.FC = () => {
 
   
         // ✅ isOngoingOrder && isMatching && ongoingOrder 조건이 참일 때만 실행
-        if (isOngoingOrder && isMatching && ongoingOrder) {
+        if (isOngoingOrder && !isMatching && ongoingOrder) {
           console.log("🔥 배달 추적 시작!");
   
           
