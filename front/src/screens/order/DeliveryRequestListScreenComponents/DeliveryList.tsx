@@ -38,7 +38,8 @@ interface OrderItem {
   riderRequest: string;
   endTime: string;
   selectedFloor: null | string;
-  updatedAt: string
+  updatedAt: string;
+  orderType:string;
 }
 
 interface OrderListProps {
@@ -54,7 +55,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const navigation = useNavigation(); // ✅ useNavigation 사용
-  console.log(orders)
+
   const fetchOrders = async () => {
     try {
       const completedOrdersResponse = await dispatch(getDeliveryListHandler());
@@ -105,16 +106,16 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
 
 
-  const ClickStatus = async (selectedStatus:String,orderId:string) => {
-    console.log("Selected Status:", selectedStatus);
+  const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string) => {
+    console.log("Selected Status:", selectedStatus, orderId,orderType);
     if (selectedStatus === "goTocafe") {
-      await dispatch(goToCafeHandler(orderId));
-    } else if (selectedStatus === "goToClient") {
-      await dispatch(goToClientHandler(orderId));
-    } else if (selectedStatus === "makingMenu") {
-      await dispatch(makingMenuHandler(orderId));
-    } else if (selectedStatus === "completeOrder") {
-      await dispatch(completeOrderHandler(orderId));
+      await dispatch(goToCafeHandler(orderId,orderType));
+    } else if (selectedStatus === "goToClient") { // 구매하러감
+      await dispatch(goToClientHandler(orderId,orderType));
+    } else if (selectedStatus === "makingMenu") { 
+      await dispatch(makingMenuHandler(orderId,orderType));
+    } else if (selectedStatus === "delivered") {
+      await dispatch(completeOrderHandler(orderId,orderType));
     }
   }
 
@@ -148,28 +149,20 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
           ? "수락 대기 중"
           : item.status === "accepted"
           ? "배달중 accepted"
-          : item.status === "delivered" 
-          ? "배달중 delivered"
           : item.status === "goToCafe" 
           ? "카페로 이동중"
           : item.status === "goToClient" 
           ? "고객에게 이동중"
           : item.status === "makingMenu" 
           ? "제품 픽업 완료"
-          : item.status === "complete" 
+          : item.status === "delivered" 
           ? "배달완료"
           : item.status === "cancelled" 
           ? "배달취소"
           :"수정"}
       </Text>
 
-
-          
-
-
-
-
-        {item.status !== "complete" && (
+        {item.status !== "delivered" && (
           <>
             <TouchableOpacity
               style={styles.button}
@@ -230,7 +223,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
               onClose={() => setSelectedOrder(null)}
               onConfirm={(selectedStatus) => {
                 if (selectedOrder) {
-                  ClickStatus(selectedStatus, selectedOrder._id);
+                  ClickStatus(selectedStatus, selectedOrder._id,selectedOrder.orderType);
                   setSelectedOrder(null)
                 }
               }}

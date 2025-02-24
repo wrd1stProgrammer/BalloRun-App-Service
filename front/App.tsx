@@ -16,6 +16,8 @@ import { PERMISSIONS, request, check, RESULTS } from "react-native-permissions";
 import Geolocation from "react-native-geolocation-service";
 import { LocationProvider } from "./src/utils/Geolocation/LocationContext";
 import { initializeAdMob } from "./src/screens/dash/AdMob/ConfigureAdMob";
+
+
 const App: React.FC = () => {
   const [hasLocationPermission, setHasLocationPermission] = useState<boolean | null>(null);
 

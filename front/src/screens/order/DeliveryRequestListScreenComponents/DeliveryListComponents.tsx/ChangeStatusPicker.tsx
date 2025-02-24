@@ -21,10 +21,10 @@ const ChangeStatusPicker: React.FC<ChangeStatusPickerProps> = ({ onClose, onConf
           style={styles.picker} // ✅ 스타일 추가
         >
           <Picker.Item label="배달 상태 선택" value="" />
-          <Picker.Item label="카페로 이동중" value="goTocafe" />
+          <Picker.Item label="상품 구매하러 이동중" value="goTocafe" />
           <Picker.Item label="고객에게 이동중" value="goToClient" />
           <Picker.Item label="제품 픽업 완료" value="makingMenu" />
-          <Picker.Item label="배달 완료" value="completeOrder" />
+          <Picker.Item label="배달 완료" value="delivered" />
 
         </Picker>
       </View>

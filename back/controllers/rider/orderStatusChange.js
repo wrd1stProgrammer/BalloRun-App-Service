@@ -1,7 +1,8 @@
 const Order = require("../../models/Order");
+const NewOrder = require("../../models/NewOrder"); // NewOrder 모델 추가
 const User = require("../../models/User");
 const { sendPushNotification } = require("../../utils/sendPushNotification");
-const { invalidateOnGoingOrdersCache } = require("../../utils/deleteRedisCache");
+const { invalidateOnGoingOrdersCache,invalidateCompletedOrdersCache} = require("../../utils/deleteRedisCache");
 
 // 공통 소켓 이벤트 발송 함수
 const emitOrderStatus = (req, order, status) => {
@@ -12,7 +13,7 @@ const emitOrderStatus = (req, order, status) => {
     return;
   }
 
-  const userId = order.userId; // NewOrder 모델에서 userId 가져오기
+  const userId = order.userId; // Order 또는 NewOrder에서 userId 가져오기
   if (!userId) {
     console.warn("User ID not found in order data");
     return;
@@ -29,24 +30,33 @@ const emitOrderStatus = (req, order, status) => {
   console.log(`Emitted order_${status} to user ${userId}:`, eventData);
 };
 
+// 모델 선택 헬퍼 함수
+const getOrderModel = (orderType) => {
+  if (orderType === "Order") return Order;
+  if (orderType === "NewOrder") return NewOrder;
+  throw new Error("Invalid orderType. Must be 'Order' or 'NewOrder'");
+};
+
 // goToCafeHandler
 const goToCafeHandler = async (req, res) => {
   try {
     const redisClient = req.app.get("redisClient");
     const redisCli = redisClient.v4;
 
-    const { orderId } = req.body;
-    const order = await Order.findById(orderId);
+    const { orderId, orderType } = req.body;
+    console.log(orderId, "orderId 있음?", orderType, "orderType 있음?");
+
+    const OrderModel = getOrderModel(orderType);
+    const order = await OrderModel.findById(orderId);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({ message: `${orderType} not found` });
     }
 
-    order.status = "goToCafe"; // 상태 직접 지정
+    order.status = "goToCafe";
     await order.save();
 
     await invalidateOnGoingOrdersCache(order.userId, redisCli);
 
-    // 소켓 이벤트 발송
     emitOrderStatus(req, order, "goToCafe");
 
     res.status(200).json({ message: "Order status updated to goToCafe" });
@@ -62,18 +72,18 @@ const makingMenuHandler = async (req, res) => {
     const redisClient = req.app.get("redisClient");
     const redisCli = redisClient.v4;
 
-    const { orderId } = req.body;
-    const order = await Order.findById(orderId);
+    const { orderId, orderType } = req.body;
+    const OrderModel = getOrderModel(orderType);
+    const order = await OrderModel.findById(orderId);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({ message: `${orderType} not found` });
     }
 
-    order.status = "makingMenu"; // 상태 직접 지정
+    order.status = "makingMenu";
     await order.save();
 
     await invalidateOnGoingOrdersCache(order.userId, redisCli);
 
-    // 소켓 이벤트 발송
     emitOrderStatus(req, order, "makingMenu");
 
     res.status(200).json({ message: "Order status updated to makingMenu" });
@@ -89,18 +99,18 @@ const goToClientHandler = async (req, res) => {
     const redisClient = req.app.get("redisClient");
     const redisCli = redisClient.v4;
 
-    const { orderId } = req.body;
-    const order = await Order.findById(orderId);
+    const { orderId, orderType } = req.body;
+    const OrderModel = getOrderModel(orderType);
+    const order = await OrderModel.findById(orderId);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({ message: `${orderType} not found` });
     }
 
-    order.status = "goToClient"; // 상태 직접 지정
+    order.status = "goToClient";
     await order.save();
 
     await invalidateOnGoingOrdersCache(order.userId, redisCli);
 
-    // 소켓 이벤트 발송
     emitOrderStatus(req, order, "goToClient");
 
     res.status(200).json({ message: "Order status updated to goToClient" });
@@ -116,18 +126,18 @@ const completeOrderHandler = async (req, res) => {
     const redisClient = req.app.get("redisClient");
     const redisCli = redisClient.v4;
 
-    const { orderId } = req.body;
-    const order = await Order.findById(orderId);
+    const { orderId, orderType } = req.body;
+    const OrderModel = getOrderModel(orderType);
+    const order = await OrderModel.findById(orderId);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({ message: `${orderType} not found` });
     }
 
-    order.status = "delivered"; // 상태 직접 지정
+    order.status = "delivered";
     await order.save();
 
-    await invalidateOnGoingOrdersCache(order.userId, redisCli);
+    await invalidateCompletedOrdersCache(order.userId, redisCli);
 
-    // 소켓 이벤트 발송
     emitOrderStatus(req, order, "delivered");
 
     res.status(200).json({ message: "Order status updated to delivered" });

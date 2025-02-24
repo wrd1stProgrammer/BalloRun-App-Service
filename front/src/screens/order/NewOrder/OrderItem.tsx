@@ -27,14 +27,12 @@ const getStatusMessage = (status: string, createdAt: string) => {
       return '배달 접수 완료';
     case "goToCafe": 
       return "카페로 이동중"
-    case 'delivered':
-      return '배달중 delive'
+      case 'delivered':
+        return `배달완료 (${formattedDate})`;
     case 'makingMenu':
       return '가게로 이동 중';
     case 'goToClient':
       return '고객에게 이동 중';
-    case 'complete':
-      return `배달완료 (${formattedDate})`;
     case 'cancelled':
       return `주문 취소 (${formattedDate})`;
     default:

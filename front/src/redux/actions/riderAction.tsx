@@ -53,7 +53,7 @@ export const getOrderData = () => async (dispatch: any) => {
       return [];
     }
   };
-  export const completeActionHandler = (orderId:string)=> async (dispatch: any) => {
+  export const completeActionHandler = (orderId:string,orderType:string)=> async (dispatch: any) => {
     try {
       const res = await appAxios.post('/rider/completeOrder',{
         orderId,
@@ -68,10 +68,11 @@ export const getOrderData = () => async (dispatch: any) => {
 
 
 
-  export const goToCafeHandler = (orderId:string)=> async (dispatch: any) => {
+  export const goToCafeHandler = (orderId:string,orderType:string)=> async (dispatch: any) => {
     try {
       const res = await appAxios.post('/rider/goToCafeHandler',{
         orderId,
+        orderType,
       }); // 서버
       return res;
       
@@ -81,10 +82,12 @@ export const getOrderData = () => async (dispatch: any) => {
     }
   };
 
-  export const makingMenuHandler = (orderId:string)=> async (dispatch: any) => {
+  export const makingMenuHandler = (orderId:string,orderType:string)=> async (dispatch: any) => {
     try {
       const res = await appAxios.post('/rider/makingMenuHandler',{
         orderId,
+        orderType,
+
       }); // 서버
       return res;
       
@@ -95,10 +98,12 @@ export const getOrderData = () => async (dispatch: any) => {
   };
 
   
-  export const goToClientHandler = (orderId:string)=> async (dispatch: any) => {
+  export const goToClientHandler = (orderId:string,orderType:string)=> async (dispatch: any) => {
     try {
       const res = await appAxios.post('/rider/goToClientHandler',{
         orderId,
+        orderType,
+
       }); // 서버
       return res;
       
@@ -108,10 +113,12 @@ export const getOrderData = () => async (dispatch: any) => {
     }
   };
 
-  export const completeOrderHandler = (orderId:string)=> async (dispatch: any) => {
+  export const completeOrderHandler = (orderId:string,orderType:string)=> async (dispatch: any) => {
     try {
       const res = await appAxios.post('/rider/completeOrderHandler',{
         orderId,
+        orderType,
+
       }); // 서버
       return res;
       
