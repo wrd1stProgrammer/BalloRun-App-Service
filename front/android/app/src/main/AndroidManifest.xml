@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"> <!-- tools 네임스페이스 추가 -->
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <!-- OPTIONAL PERMISSIONS, REMOVE WHATEVER YOU DO NOT NEED -->
@@ -9,10 +10,8 @@
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
   <!-- END OPTIONAL PERMISSIONS -->
-
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
 
   <queries>
     <!-- Support checking for http(s) links via the Linking API -->
@@ -23,33 +22,45 @@
     </intent>
   </queries>
 
-  <application android:name=".MainApplication" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:allowBackup="false" android:theme="@style/AppTheme" android:supportsRtl="true" android:usesCleartextTraffic="true" >
+  <application 
+    android:name=".MainApplication" 
+    android:label="@string/app_name" 
+    android:icon="@mipmap/ic_launcher" 
+    android:roundIcon="@mipmap/ic_launcher_round" 
+    android:allowBackup="false" 
+    android:theme="@style/AppTheme" 
+    android:supportsRtl="true" 
+    android:usesCleartextTraffic="true">
+    
     <!-- AdMob App ID 추가 -->
     <meta-data 
       android:name="com.google.android.gms.ads.APPLICATION_ID" 
-      android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"/>
-    
-    
-    <!-- application에 추가함. -->
+      android:value="ca-app-pub-9384938904470201~2342733511"
+      tools:replace="android:value"/> <!-- tools:replace 추가 -->
+
+    <!-- Google Maps API 키 -->
     <meta-data 
-    android:name="com.google.android.geo.API_KEY" 
-    android:value="AIzaSyBxGkcR9TFrCBVAwzTWacT8oIb4mn2CSXU"
-/>
- <activity
-    android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+      android:name="com.google.android.geo.API_KEY" 
+      android:value="AIzaSyBxGkcR9TFrCBVAwzTWacT8oIb4mn2CSXU"/>
+
+    <activity
+      android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
       android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-
-        <!-- Redirect URI: "kakao{ea648111b964cded4b08fdbaf9616a8d}://oauth“ -->
-        <data android:host="oauth"
-            android:scheme="kakaoea648111b964cded4b08fdbaf9616a8d"/>
+        <data android:host="oauth" android:scheme="kakaoea648111b964cded4b08fdbaf9616a8d"/>
       </intent-filter>
     </activity>
 
-    <activity android:name=".MainActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.App.SplashScreen" android:exported="true">
+    <activity 
+      android:name=".MainActivity" 
+      android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode" 
+      android:launchMode="singleTask" 
+      android:windowSoftInputMode="adjustResize" 
+      android:theme="@style/Theme.App.SplashScreen" 
+      android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
