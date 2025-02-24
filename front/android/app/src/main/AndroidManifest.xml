@@ -24,6 +24,12 @@
   </queries>
 
   <application android:name=".MainApplication" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:allowBackup="false" android:theme="@style/AppTheme" android:supportsRtl="true" android:usesCleartextTraffic="true" >
+    <!-- AdMob App ID 추가 -->
+    <meta-data 
+      android:name="com.google.android.gms.ads.APPLICATION_ID" 
+      android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"/>
+    
+    
     <!-- application에 추가함. -->
     <meta-data 
     android:name="com.google.android.geo.API_KEY" 

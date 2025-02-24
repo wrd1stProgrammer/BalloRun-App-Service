@@ -151,7 +151,7 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation 'com.google.android.gms:play-services-measurement-impl:21.0.0' 
-
+    implementation 'com.google.android.gms:play-services-ads:23.0.0' // 최신 버전 확인
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:32.7.4')
 

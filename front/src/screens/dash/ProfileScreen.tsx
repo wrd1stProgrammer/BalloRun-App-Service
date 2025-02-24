@@ -43,9 +43,6 @@ const ProfileScreen = () => {
       {/* 상단 바 */}
       <View style={styles.topBar}>
         <Text style={styles.topBarTitle}>마이배달</Text>
-        <TouchableOpacity onPress={() => dispatch(Logout())} style={styles.settingsIcon} activeOpacity={0.7}>
-          <Ionicons name="settings-outline" size={24} color="#333" />
-        </TouchableOpacity>
         <View style={styles.topBarIcons}>
           <TouchableOpacity onPress={() => console.log(user)} activeOpacity={0.7}>
             <Ionicons name="notifications-outline" size={24} color="#333" />

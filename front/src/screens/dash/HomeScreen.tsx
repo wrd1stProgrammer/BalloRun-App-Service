@@ -18,6 +18,7 @@ import { WebSocketContext } from '../../utils/sockets/Socket';
 import { useLocation } from '../../utils/Geolocation/LocationContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import AdMobBanner from './AdMob/AdMobBanner';
 
 
 type DeliveryItem = {
@@ -150,7 +151,7 @@ const HomeScreen: React.FC = () => {
         <OrderListComponent user={user} />
 
         <View style={styles.bannerContainer}>
-          <MyAdBanner />
+          <AdMobBanner/>
         </View>
         
         <View style={styles.bannerContainer}>

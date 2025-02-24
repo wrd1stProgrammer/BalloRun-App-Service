@@ -1,3 +1,4 @@
+
 require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
 require File.join(File.dirname(`node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
 def node_require(script)
@@ -19,6 +20,7 @@ podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties
 
 ENV['RCT_NEW_ARCH_ENABLED'] = podfile_properties['newArchEnabled'] == 'true' ? '1' : '0'
 ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = podfile_properties['EX_DEV_CLIENT_NETWORK_INSPECTOR']
+ENV['RNGoogleMobileAdsAsStaticFramework'] = 'true' # admob for static??
 
 
 platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
@@ -56,7 +58,6 @@ target 'makemilliondollor' do
   use_expo_modules!
   # pod 'GoogleUtilities', :modular_headers => true
  use_frameworks! :linkage => :static 
-
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
