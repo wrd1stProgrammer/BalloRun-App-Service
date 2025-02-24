@@ -22,11 +22,13 @@ import { navigate } from "../../../navigation/NavigationUtils";
 import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions, Asset} from 'react-native-image-picker';
 import ChangeStatusPicker from "./DeliveryListComponents.tsx/ChangeStatusPicker";
 import { completeOrderHandler, goToCafeHandler, goToClientHandler, makingMenuHandler } from "../../../redux/actions/riderAction";
+import { clearOngoingOrder, setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 
 
 
 interface OrderItem {
   _id: string;
+  userId:string;
   items: { cafeName: string; menuName: string }[];
   lat: string;
   lng: string;
@@ -55,6 +57,9 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const navigation = useNavigation(); // ✅ useNavigation 사용
+
+  const orderSocket = useContext(WebSocketContext); // WebSocketContext에서 소켓 가져오기
+  
 
   const fetchOrders = async () => {
     try {
@@ -106,7 +111,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
 
 
-  const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string) => {
+  const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string,userId:any) => {
     console.log("Selected Status:", selectedStatus, orderId,orderType);
     if (selectedStatus === "goTocafe") {
       await dispatch(goToCafeHandler(orderId,orderType));
@@ -116,6 +121,11 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       await dispatch(makingMenuHandler(orderId,orderType));
     } else if (selectedStatus === "delivered") {
       await dispatch(completeOrderHandler(orderId,orderType));
+      dispatch(setIsOngoingOrder(true));
+      dispatch(clearOngoingOrder()); // ✅ 배달자 화면에서 Redux 초기화
+
+      // ✅ 주문자의 userId를 포함하여 소켓으로 배달 완료 이벤트 전송
+      orderSocket?.emit("order_completed", { orderId,userId });
     }
   }
 
@@ -223,7 +233,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
               onClose={() => setSelectedOrder(null)}
               onConfirm={(selectedStatus) => {
                 if (selectedOrder) {
-                  ClickStatus(selectedStatus, selectedOrder._id,selectedOrder.orderType);
+                  ClickStatus(selectedStatus, selectedOrder._id,selectedOrder.orderType, selectedOrder.userId);
                   setSelectedOrder(null)
                 }
               }}
