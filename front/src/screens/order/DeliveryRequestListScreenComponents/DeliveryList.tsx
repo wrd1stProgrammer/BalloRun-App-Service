@@ -23,6 +23,7 @@ import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, Im
 import ChangeStatusPicker from "./DeliveryListComponents.tsx/ChangeStatusPicker";
 import { completeOrderHandler, goToCafeHandler, goToClientHandler, makingMenuHandler } from "../../../redux/actions/riderAction";
 import { clearOngoingOrder, setIsOngoingOrder } from "../../../redux/reducers/userSlice";
+import { useLocation } from "../../../utils/Geolocation/LocationContext";
 
 
 
@@ -42,6 +43,7 @@ interface OrderItem {
   selectedFloor: null | string;
   updatedAt: string;
   orderType:string;
+  riderId:string
 }
 
 interface OrderListProps {
@@ -59,6 +61,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
   const navigation = useNavigation(); // ✅ useNavigation 사용
 
   const orderSocket = useContext(WebSocketContext); // WebSocketContext에서 소켓 가져오기
+  const { location, startTracking, stopTracking } = useLocation();
   
 
   const fetchOrders = async () => {
@@ -111,7 +114,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
 
 
-  const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string,userId:any) => {
+  const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string,userId:string) => {
     console.log("Selected Status:", selectedStatus, orderId,orderType);
     if (selectedStatus === "goTocafe") {
       await dispatch(goToCafeHandler(orderId,orderType));
@@ -121,9 +124,8 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       await dispatch(makingMenuHandler(orderId,orderType));
     } else if (selectedStatus === "delivered") {
       await dispatch(completeOrderHandler(orderId,orderType));
-      dispatch(setIsOngoingOrder(true));
       dispatch(clearOngoingOrder()); // ✅ 배달자 화면에서 Redux 초기화
-
+      stopTracking();
       // ✅ 주문자의 userId를 포함하여 소켓으로 배달 완료 이벤트 전송
       orderSocket?.emit("order_completed", { orderId,userId });
     }

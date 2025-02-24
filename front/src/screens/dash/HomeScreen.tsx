@@ -124,7 +124,7 @@ const HomeScreen: React.FC = () => {
     return () => {
       orderSocket.off('order_accepted');
     };
-  }, [orderSocket, user?._id]); // 의존성에 user?._id 추가
+  }, [orderSocket]); // 의존성에 user?._id 추가
 
 
 

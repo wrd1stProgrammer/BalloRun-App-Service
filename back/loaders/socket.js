@@ -66,7 +66,7 @@ module.exports = (io) => {
         console.log(`🚀 배달 완료 이벤트 수신 -> 주문자 ${userId}에게 전달`);
 
         // 주문자에게만 배달 완료 이벤트 전송
-        io.to(userId,orderId).emit("order_completed", { orderId });
+        io.to(userId).emit("order_completed", { orderId });
 
         console.log(`✅ 주문자(${userId})에게 배달 완료 이벤트 전송`);
     });

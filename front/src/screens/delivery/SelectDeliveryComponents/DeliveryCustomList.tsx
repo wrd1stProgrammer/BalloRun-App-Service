@@ -16,6 +16,7 @@ import Geolocation from 'react-native-geolocation-service';
 import { navigate } from "../../../navigation/NavigationUtils";
 import DeliveryDetailModal from "../DeliveryDetailComponents/DeliveryDetailModal";
 import { useLocation } from "../../../utils/Geolocation/LocationContext";
+import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 
 type DeliveryItem = {
   _id: string;
@@ -107,7 +108,8 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     
 
     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
-
+    dispatch(setIsOngoingOrder(true));
+    
     // 서버에 트래킹 시작 요청
     socket?.emit("start_tracking", { orderId });
     startTracking(orderId);
