@@ -25,6 +25,7 @@ import { orderNowHandler, orderLaterHandler } from "../../../redux/actions/order
 import { navigate } from "../../../navigation/NavigationUtils";
 import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from "react-native-image-picker";
 import { Ionicons } from "@expo/vector-icons";
+import { reverseGeocode } from "../../../utils/Geolocation/reverseGeocode";
 
 
 export interface MarkerData {
@@ -73,34 +74,6 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
 
   const [resolvedAddress, setResolvedAddress] = useState(address); // 상태 추가
 
-// lat, lng을 주소로 변환하는 함수
-const reverseGeocode = async (lat: string, lng: string) => {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyBxGkcR9TFrCBVAwzTWacT8oIb4mn2CSXU&language=ko`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.status === "OK") {
-      const results = data.results;
-
-      //  도로명 주소 찾기 (street_address, route)
-      const roadResult = results.find(result =>
-        result.types.includes("street_address") || 
-        result.types.includes("route")
-      );
-      const roadAddress = roadResult ? roadResult.formatted_address : "도로명 주소를 찾을 수 없음";
-
-      return roadAddress;
-    } else {
-      console.error("Geocoding failed:", data.status);
-      return "주소를 가져올 수 없음";
-    }
-  } catch (error) {
-    console.error("Error fetching address:", error);
-    return "주소를 가져올 수 없음";
-  }
-};
 
   // lat, lng을 address로 변환 후 상태 업데이트
   useEffect(() => {
@@ -163,6 +136,7 @@ const reverseGeocode = async (lat: string, lng: string) => {
             menu.items,
             lat,
             lng,
+            resolvedAddress,
             startTime.getTime(),
             endTime.getTime(),
             isMatch,
@@ -181,6 +155,7 @@ const reverseGeocode = async (lat: string, lng: string) => {
             menu.items,
             lat,
             lng,
+            resolvedAddress,
             startTime.getTime(),
             endTime.getTime(),
             isMatch,

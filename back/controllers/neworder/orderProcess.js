@@ -19,6 +19,7 @@ const newOrderCreate = async (req, res) => {
     startTime,
     endTime,
     selectedFloor,
+    resolvedAddress
   } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
@@ -45,6 +46,7 @@ const newOrderCreate = async (req, res) => {
       startTime,
       endTime,
       selectedFloor,
+      resolvedAddress
     });
 
     // 메시지 큐에 전송

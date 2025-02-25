@@ -31,6 +31,7 @@ type DeliveryItem = {
   endTime: string;
   lat: string;
   lng: string;
+  resolvedAddress: string
   isReservation: boolean;
   orderType: "Order" | "NewOrder"
 };
@@ -226,6 +227,8 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     setSortedItems(filteredItems);
   }, [sortCriteria, searchQuery, selectedDeliveryType, deliveryItems, userLat, userLng]);
 
+
+
   const renderItem = ({ item }: { item: DeliveryItem }) => {
     const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
 
@@ -234,6 +237,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
         <View style={styles.itemDetails}>
           <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
           <Text style={styles.menu}>{item.items.map(i => `${i.menuName} x${i.quantity}`).join(", ")}</Text>
+          <Text style={styles.info}>{item.resolvedAddress || "주소 정보 없음"}</Text>
           <Text style={styles.info}>{item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
           <Text style={styles.info}>거리: {distance} km</Text>
           <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>

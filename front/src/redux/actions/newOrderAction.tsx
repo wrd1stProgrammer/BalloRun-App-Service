@@ -20,6 +20,7 @@ export const neworderCompleteHandler = (
     startTime: number | null,
     endTime: number | null,
     selectedFloor: string | null, 
+    resolvedAddress: string | null
   ) => async (dispatch: any) => {
     try {
       const res = await appAxios.post(`/neworder/ordercall`, {
@@ -37,7 +38,8 @@ export const neworderCompleteHandler = (
 
         startTime,
         endTime,
-        selectedFloor
+        selectedFloor,
+        resolvedAddress
       });
   
       return res.data;

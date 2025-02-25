@@ -24,6 +24,7 @@ type DeliveryItem = {
   endTime: string;
   lat: string;
   lng: string;
+  resolvedAddress: string
   isReservation: boolean;
   orderType: "Order" | "NewOrder"; 
   orderDetails: string;

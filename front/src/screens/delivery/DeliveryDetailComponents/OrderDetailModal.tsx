@@ -36,7 +36,8 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ visible, onClose, o
 
 
             {/* 배달 정보 */}
-            <Text style={styles.info}>위치: {deliveryItem.lat}, {deliveryItem.lng}</Text>
+            <Text style={styles.info}>배달위치: {deliveryItem.resolvedAddress}</Text>
+            <Text style={styles.info}>상세 배달위치: {"AI융합대학 3층"}</Text>
             <Text style={styles.info}>배달 유형: {deliveryItem.deliveryType === "direct" ? "직접 배달" : "기타"}</Text>
             <Text style={styles.info}>배달비: {deliveryItem.deliveryFee}원</Text>
             <Text style={styles.info}>총 가격: {deliveryItem.price || 0}원</Text>

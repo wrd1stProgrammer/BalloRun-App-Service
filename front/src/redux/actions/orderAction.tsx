@@ -11,6 +11,7 @@ export const orderNowHandler = (
   items:any[], // 명시적으로 타입 정의
   lat: string,
   lng: string,
+  resolvedAddress: string | null,
   startTime: number, // 픽업희망 시간간
   endTime: number, // 픽업희망 시간간
 
@@ -28,6 +29,7 @@ export const orderNowHandler = (
       items,
       lat,
       lng,
+      resolvedAddress,
       startTime,  //시작
       endTime,    //끝끝
       isMatch,
@@ -56,6 +58,7 @@ export const orderNowHandler = (
     items: any[],
     lat: string,
     lng: string,
+    resolvedAddress: string | null,
     startTime: number, // 주문시작 시간 (예약때만 쓰자);
     endTime: Number, // any?
     isMatch: boolean,
@@ -73,6 +76,7 @@ export const orderNowHandler = (
         items, 
         lat,
         lng,
+        resolvedAddress,
         isMatch,
         deliveryType,
         startTime,    //시작

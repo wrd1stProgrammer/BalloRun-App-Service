@@ -6,7 +6,7 @@ const {connectRabbitMQ} = require("../../config/rabbitMQ");
 
 const orderNowDirectCreate = async (req, res) => {
   //요청사항 추가
-  const { items, lat, lng, isMatch, deliveryFee, deliveryType,startTime,endTime,riderRequest,selectedFloor,price,quantity,selectedImageUri } = req.body;
+  const { items, lat, lng,resolvedAddress, isMatch, deliveryFee, deliveryType,startTime,endTime,riderRequest,selectedFloor,price,quantity,selectedImageUri } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
 
@@ -27,6 +27,7 @@ const orderNowDirectCreate = async (req, res) => {
         items,
         lat,
         lng,
+        resolvedAddress,
         isMatch,
         deliveryFee,
         deliveryType,
@@ -70,6 +71,7 @@ setTimeout(() => {
         items,
         lat,
         lng,
+        resolvedAddress,
         isMatch,
         deliveryFee,
         deliveryType, 

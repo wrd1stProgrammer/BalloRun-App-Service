@@ -25,6 +25,7 @@ import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 're
 import { uploadFile } from "../../../redux/actions/fileAction";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import { Picker } from "@react-native-picker/picker";
+import { reverseGeocode } from "../../../utils/Geolocation/reverseGeocode";
 
 interface MarkerData {
   id: number;
@@ -88,6 +89,8 @@ const OrderFinalScreen = () => {
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [reservationChecked, setReservationChecked] = useState(false);
 
+  const [resolvedAddress, setResolvedAddress] = useState(""); // 상태 추가
+
   const dispatch = useAppDispatch();
 
   const formatTime = (date: Date) => {
@@ -97,6 +100,20 @@ const OrderFinalScreen = () => {
     const formattedHours = hours % 12 || 12;
     return `${ampm} ${formattedHours}시 ${minutes}분`;
   };
+
+  // lat, lng을 address로 변환 후 상태 업데이트
+  useEffect(() => {
+    const fetchAddress = async () => {
+
+      if (!lat || !lng) return;
+
+      const fetchedAddress = await reverseGeocode(String(lat), String(lng));
+      console.log(lat, lng)
+      setResolvedAddress(fetchedAddress);
+    };
+
+    fetchAddress();
+  }, []);
 
 
   useEffect(() => {
@@ -134,7 +151,9 @@ const OrderFinalScreen = () => {
 
       startTime.getTime(),
       endTime.getTime(),
-      selectedFloor
+      selectedFloor,
+      resolvedAddress || ""
+      
     ));
  
 
@@ -215,6 +234,8 @@ const OrderFinalScreen = () => {
           <ScrollView style={styles.content}>
           {!floor && (
           <>
+            <Text style={styles.label}>배달 주소</Text>
+            <TextInput style={styles.input} value={resolvedAddress} editable={false} />
             <Text style={styles.sectionTitle}>상세 배달 주소</Text>
             <TextInput
               style={styles.textArea}

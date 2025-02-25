@@ -20,6 +20,7 @@ const OrderSchema = new mongoose.Schema(
     },
     lat: { type: String, required: true }, // 위도
     lng: { type: String, required: true }, // 경도
+    resolvedAddress:{type: String, required: true}, // 위도 경도를 주소로 한거
     isMatch: { type: Boolean, default: false }, // 매칭 상태
     deliveryType: {
       type: String,

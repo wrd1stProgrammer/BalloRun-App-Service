@@ -12,6 +12,7 @@ const NewOrderSchema = new mongoose.Schema(
     orderImages: { type: String }, // 픽업할 위치 상세 사진
     lat: { type: String, required: true }, // 위도
     lng: { type: String, required: true }, // 경도
+    resolvedAddress:{type: String, required: true}, // 위도 경도를 주소로 한거
     deliveryMethod: {
       type: String,
       enum: ['direct', 'cupHolder'], // 배달 방법 (직접, 비대면)
