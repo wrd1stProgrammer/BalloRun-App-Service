@@ -85,7 +85,7 @@ const LoginScreen: React.FC = () => {
 
   const goRegister = () => {
     console.log('회원가입 누름');
-    navigate('RegisterScreen');
+    navigate('FirstScreen');
   };
 
   // 로그인 버튼 텍스트: 입력란 펼쳐진 상태면 "로그인하기", 아니면 "로그인"

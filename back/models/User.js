@@ -12,12 +12,18 @@ const UserSchema = new mongoose.Schema(
       ],
       unique: true,
     },
-    username: {
+    username: { // real name
       type: String,
       required: true,
       match: [/^[a-zA-Z0-9_]{3,30}$/, "Please provide a valid username"],
       unique: true,
     },
+      nickname: {
+        type:String,
+        required:false,
+        unique:true,
+      },
+
     userId: {
       type: String,
       maxlength: 50,

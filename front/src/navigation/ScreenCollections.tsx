@@ -43,6 +43,10 @@ import LocationServiceTermsScreen from "../screens/dash/Profile/LawScreenChild.t
 import CarrierAgreementScreen from "../screens/dash/Profile/LawScreenChild.tsx/CarrierAgreementScreen";
 import AccountRegistrationScreen from "../screens/dash/Profile/AccountRegistrationScreen";
 import WithdrawScreen from "../screens/dash/Profile/WithdrawScreen";
+import FirstScreen from "../screens/auth/Register/FirstScreen";
+import SecondScreen from "../screens/auth/Register/SecondScreen";
+import ThirdScreen from "../screens/auth/Register/ThirdScreen";
+import FourthScreen from "../screens/auth/Register/FourthScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -57,6 +61,22 @@ export const authStack = [
   {
     name: "RegisterScreen",
     component: RegisterScreen,
+  },
+  {
+    name:"FirstScreen",
+    component:FirstScreen,
+  },
+  {
+    name:"SecondScreen",
+    component:SecondScreen,
+  },
+  {
+    name:"ThirdScreen",
+    component:ThirdScreen,
+  },
+  {
+    name:"FourthScreen",
+    component:FourthScreen
   },
 ];
 
@@ -156,7 +176,8 @@ export const dashboardStack = [
   {
     name:"WithdrawScreen",
     component:WithdrawScreen
-  }
+  },
+  
 ];
 
 export const orderStack = [

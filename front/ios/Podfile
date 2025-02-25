@@ -59,6 +59,8 @@ target 'makemilliondollor' do
   # pod 'GoogleUtilities', :modular_headers => true
  use_frameworks! :linkage => :static 
 
+ pod 'Firebase/Auth'
+
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
   else

@@ -11,6 +11,7 @@ const {
 const router = express.Router();
 
 const {sendEmail} = require("../controllers/auth/mailVerify"); // email
+const {checkNicknameApi,checkEmailApi,checkUserIdApi} = require("../controllers/auth/register");
 const { route } = require("./rider");
 
 router.post("/refreshToken", refreshToken);
@@ -22,6 +23,12 @@ router.post("/kakaologin",kakaologin);
 
 //mail router 
 router.post("/verifyEmail",sendEmail);
+
+
+//register
+router.post("/checkNickname",checkNicknameApi);
+router.post("/checkUserId",checkUserIdApi);
+router.post("/checkEmail",checkEmailApi);
 module.exports = router;
 
 

@@ -81,6 +81,44 @@ export const register = (email:string, userId:string, password:string, username:
   }
 };
 
+export const checkNicknameDuplicateAction = ( nickname:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/auth/checkNickname',{
+      nickname
+    });
+    return res.data;
+    
+  } catch (error: any) {
+    console.log('닉네임 검증 에러 ->', error);
+  }
+};
+
+export const checkUserIdDuplicateAction = ( userId:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/auth/checkUserId',{
+      userId,
+    });
+    return res.data;
+    
+  } catch (error: any) {
+    console.log('닉네임 검증 에러 ->', error);
+  }
+};
+
+
+export const checkEmailDuplicateAction = ( email:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/auth/checkEmail',{
+      email,
+    });
+    return res.data;
+    
+  } catch (error: any) {
+    console.log('닉네임 검증 에러 ->', error);
+  }
+};
+
+
 export const verifyEmail = (email:string) => async (dispatch: any) => {
   try {
     const res = await appAxios.post('/auth/verifyEmail',{
