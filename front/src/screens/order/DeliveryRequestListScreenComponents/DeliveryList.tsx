@@ -114,7 +114,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
 
 
-  const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string,userId:string) => {
+  const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string,userId:string,riderId:string) => {
     console.log("Selected Status:", selectedStatus, orderId,orderType);
     if (selectedStatus === "goTocafe") {
       await dispatch(goToCafeHandler(orderId,orderType));
@@ -127,7 +127,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       dispatch(clearOngoingOrder()); // ✅ 배달자 화면에서 Redux 초기화
       stopTracking();
       // ✅ 주문자의 userId를 포함하여 소켓으로 배달 완료 이벤트 전송
-      orderSocket?.emit("order_completed", { orderId,userId });
+      orderSocket?.emit("order_completed", { orderId,userId,riderId });
     }
   }
 
@@ -235,7 +235,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
               onClose={() => setSelectedOrder(null)}
               onConfirm={(selectedStatus) => {
                 if (selectedOrder) {
-                  ClickStatus(selectedStatus, selectedOrder._id,selectedOrder.orderType, selectedOrder.userId);
+                  ClickStatus(selectedStatus, selectedOrder._id,selectedOrder.orderType, selectedOrder.userId, selectedOrder.riderId);
                   setSelectedOrder(null)
                 }
               }}
