@@ -4,7 +4,7 @@ const NewOrder = require("../../models/NewOrder");
 const User = require("../../models/User");
 const {storeOrderInRedis, removeOrderFromRedis} = require("./storeOrderInRedis");
 const {connectRabbitMQ} = require("../../config/rabbitMQ");
-const {invalidateOnGoingOrdersCache} = require("../../utils/deleteRedisCache");
+const {invalidateOnGoingOrdersCache, invalidateCompletedOrdersCache} = require("../../utils/deleteRedisCache");
 const {sendPushNotification} = require("../../utils/sendPushNotification");
 const { consumeNewOrderMessages } = require("./consumeNeworder");
 
@@ -120,6 +120,8 @@ const consumeDelayedMessages = async (emitCancel,redisCli) => {
               await order.save();
               userId = order.userId;
               await invalidateOnGoingOrdersCache(userId, redisCli);
+              await invalidateCompletedOrdersCache(order.userId, redisCli);
+
               console.log(` Order ${orderId} cancelled automatically`);
 
               // 주문 취소 시 emitCancel 실행

@@ -18,6 +18,11 @@ const NewOrderSchema = new mongoose.Schema(
       enum: ['direct', 'cupHolder'], // 배달 방법 (직접, 비대면)
       required: true,
     },
+    cancellation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'OrderCancellation',
+      required: false, // 취소 데이터가 있을 경우 참조
+    },
 
 
     startTime: { type: Number, required: true }, // 픽업 시간

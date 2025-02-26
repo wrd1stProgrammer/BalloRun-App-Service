@@ -35,6 +35,11 @@ const OrderSchema = new mongoose.Schema(
       enum: ['pending', 'matched','accepted', 'inProgress', 'delivered', 'cancelled','matchFailed','complete','goToCafe','makingMenu','goToClient'], // 주문 상태
       default: 'pending',
     },
+    cancellation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'OrderCancellation',
+      required: false, // 취소 데이터가 있을 경우 참조
+    },
     // goToCafe : 카페가는중, makingMenu:제조중 , goToClient: 고객에게 가는중
     orderImages: { type: String }, // 픽업할 위치 상세 사진
     riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더
