@@ -11,7 +11,7 @@ const { consumeNewOrderMessages } = require("./consumeNeworder");
 
 
 // 기본 주문 컨슈머
-const consumeMessages = async (showOrderData, redisCli) => {
+const consumeMessages = async (emitCancel, redisCli) => {
   try {
     const { channel } = await connectRabbitMQ();
     const cacheKey = `activeOrders`;
@@ -47,18 +47,19 @@ const consumeMessages = async (showOrderData, redisCli) => {
             await storeOrderInRedis(redisCli, orderData);
             const redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
             redisOrders.push(order);
-            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 1800 }); // 3분 1분 테스트
+            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 18 }); // 3분 1분 테스트
 
             await invalidateOnGoingOrdersCache(order.userId,redisCli);
 
             // 소켓 전송
-            showOrderData(orderData);
+            //showOrderData(orderData);
+            //emitCancel(orderData)
 
             await channel.publish(
               delayedExchange,
               "delayed_route.order", // 바인딩 시 사용한 라우팅 키
               Buffer.from(JSON.stringify({ orderId: order._id, type: "order"  })),
-              { headers: { "x-delay": 1800000 }, persistent: true } // 3분(180초 = 180,000ms) 1분 테스트
+              { headers: { "x-delay": 18000 }, persistent: true } // 3분(180초 = 180,000ms) 1분 테스트
             );
 
             channel.ack(msg);
@@ -75,7 +76,7 @@ const consumeMessages = async (showOrderData, redisCli) => {
 };
 
 // 지연 주문 처리 컨슈머
-const consumeDelayedMessages = async (redisCli) => {
+const consumeDelayedMessages = async (emitCancel,redisCli) => {
   try {
     const { channel } = await connectRabbitMQ();
     const delayedExchange = "delayed_exchange";
@@ -105,23 +106,29 @@ const consumeDelayedMessages = async (redisCli) => {
           console.log(`[DELAY RECEIVE] Raw 2: ${msg.content.toString()}`); // 🔼 수신 로그
           try {
             const { orderId, type } = JSON.parse(msg.content.toString());
+            let order = null;
+            let userId = null;
 
             if (type === "order") {
-              const order = await Order.findById(orderId);
-              if (order && order.status === "pending") {
-                order.status = "cancelled";
-                await order.save();
-                await invalidateOnGoingOrdersCache(order.userId, redisCli);
-                console.log(order.status, "매치 변화 상태 ");
-              }
+              order = await Order.findById(orderId);
             } else if (type === "neworder") {
-              const newOrder = await NewOrder.findById(orderId);
-              if (newOrder && newOrder.status === "pending") {
-                newOrder.status = "cancelled";
-                await newOrder.save();
-                await invalidateOnGoingOrdersCache(newOrder.userId, redisCli);
-                console.log(newOrder.status, "매치 변화 상태 ");
-              }
+              order = await NewOrder.findById(orderId);
+            }
+
+            if (order && order.status === "pending") {
+              order.status = "cancelled";
+              await order.save();
+              userId = order.userId;
+              await invalidateOnGoingOrdersCache(userId, redisCli);
+              console.log(` Order ${orderId} cancelled automatically`);
+
+              // 주문 취소 시 emitCancel 실행
+              emitCancel({
+                orderId: orderId,
+                userId: userId,
+                status: "cancelled",
+                message: "Your order has been cancelled due to no acceptance."
+              });
             }
 
             channel.ack(msg);

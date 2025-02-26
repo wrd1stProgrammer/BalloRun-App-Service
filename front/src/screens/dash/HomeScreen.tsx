@@ -100,12 +100,12 @@ const HomeScreen: React.FC = () => {
 
 
   useEffect(() => {
+
     if (!orderSocket) {
       console.log("orderSocket error");
       return;
     }
     orderSocket.emit('join', user?._id); // 방 조인 시도
-  
     orderSocket.on('order_accepted', (orderData) => {
       console.log("order_accepted 이벤트 수신:", orderData);
       dispatch(setOngoingOrder(orderData));
@@ -117,6 +117,14 @@ const HomeScreen: React.FC = () => {
     dispatch(clearOngoingOrder()); // Redux 상태 초기화 -> 배너 삭제
   });
 
+  orderSocket.on("emitCancel", ({ orderId, message }) => {
+    console.log(`주문자 화면: 배달 캔슬 감지 -> 주문 ID: ${orderId}`);
+    console.log(`주문 취소 사유: ${message}`);
+
+    dispatch(clearOngoingOrder());
+
+    alert(`주문이 취소되었습니다. \n주문 ID: ${orderId}\n사유: ${message}`);
+  });
 
     //return () => {
     //  orderSocket.off('order_accepted');

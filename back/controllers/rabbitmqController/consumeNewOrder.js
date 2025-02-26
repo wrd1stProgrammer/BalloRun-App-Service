@@ -56,6 +56,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                 endTime: newOrder.pickupTime,
                 lat: newOrder.lat,
                 lng: newOrder.lng,
+                resolvedAddress: newOrder.resolvedAddress,
                 isReservation: newOrder.isReservation,
                 orderType: newOrder.orderType,
               };

@@ -48,11 +48,12 @@ async function startServer() {
 
 
   // Socket.IO 설정 및 emit 함수 등록 -> 여기서 emit 할 거 여러가지 등록
-  const { emitSocketTest, emitMatchTest, showOrderData,tossOrderStatus } = configureSocket(io);
+  const { emitSocketTest, emitMatchTest, showOrderData,tossOrderStatus,emitCancel } = configureSocket(io);
   app.set("emitSocketTest", emitSocketTest);
   app.set("emitMatchTest", emitMatchTest);
   app.set("showOrderData", showOrderData);
   app.set("tossOrderStatus",tossOrderStatus);
+  app.set("emitCancel", emitCancel);
 
 
   // fcm server startt
@@ -62,8 +63,8 @@ async function startServer() {
   // RabbitMQ 소비자 실행 (7초 딜레이)
   setTimeout(() => {
     console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
-    consumeMessages(showOrderData, redisCli);
-    consumeDelayedMessages(redisCli);
+    consumeMessages(emitCancel, redisCli);
+    consumeDelayedMessages(emitCancel,redisCli);
     consumeOrderAcceptQueue(redisCli);
     consumeNewOrderMessages(redisCli);
   }, 10000);

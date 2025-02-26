@@ -87,6 +87,28 @@ module.exports = (io) => {
     io.emit('showOrderData', orderData);
   }
 
+    // 주문 상태 전송 (주문자에게만 emit)
+    const emitCancel = (orderData) => {
+      const { userId, orderId, status, createdAt, message } = orderData;
+
+      if (userId) {
+        // 특정 유저에게만 emit (모든 클라이언트가 아니라 해당 유저만 받음)
+        const userIdString = userId.toString(); // ✅ ObjectId → 문자열 변환
+
+    // 특정 유저에게만 emit (모든 클라이언트가 아니라 해당 유저만 받음)
+          io.to(userIdString).emit("emitCancel", {
+          createdAt: createdAt || new Date().toISOString(), // 없으면 현재 시간
+          orderId: orderId,
+          status: status || "cancelled", // 기본값: cancelled
+          message: message || "Your order has been cancelled due to no acceptance.",
+        });
+    
+        console.log(` Emit 성공 -> ${userId}에게 주문 취소 알림 전송:`, orderData);
+      } else {
+        console.warn("⚠️ Emit 실패 - userId가 없음", orderData);
+      }
+    };
+
 
   // 주문 상태 전송 (주문자에게만 emit)
   const tossOrderStatus = (orderData) => {
@@ -103,5 +125,5 @@ module.exports = (io) => {
     }
   };
 
-  return { emitSocketTest,emitMatchTest,showOrderData,tossOrderStatus};
+  return { emitSocketTest,emitMatchTest,showOrderData,tossOrderStatus, emitCancel};
 };
