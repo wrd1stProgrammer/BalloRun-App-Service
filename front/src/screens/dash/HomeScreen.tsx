@@ -104,10 +104,7 @@ const HomeScreen: React.FC = () => {
       console.log("orderSocket error");
       return;
     }
-  
-    console.log("소켓 연결 상태:", orderSocket.connected); // 연결 상태 확인
     orderSocket.emit('join', user?._id); // 방 조인 시도
-    console.log(`${user?._id} 방에 조인 시도`);
   
     orderSocket.on('order_accepted', (orderData) => {
       console.log("order_accepted 이벤트 수신:", orderData);
@@ -121,9 +118,9 @@ const HomeScreen: React.FC = () => {
   });
 
 
-    return () => {
-      orderSocket.off('order_accepted');
-    };
+    //return () => {
+    //  orderSocket.off('order_accepted');
+    //};
   }, [orderSocket]); // 의존성에 user?._id 추가
 
 

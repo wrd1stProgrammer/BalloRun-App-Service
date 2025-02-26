@@ -144,7 +144,7 @@ export const orderNowHandler = (
   export const getDeliveryListHandler =() => async(dispatch:any) => {
     try {
       const res = await appAxios.get(`/order/getDeliveryList`);
-      console.log(res);
+      //console.log(res);
       return res.data
     } catch (error) {
       console.error(':', error);

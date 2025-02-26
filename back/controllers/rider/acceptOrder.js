@@ -52,6 +52,9 @@ const acceptOrder = async (req, res) => {
 
     console.log(`Order ${orderId} sent to RabbitMQ`);
 
+        //  5. 락 해제 (성공적으로 처리된 경우)
+        await redisCli.del(lockKey);
+
         // expectedTime 줘야하지만 테스트겸 더미로 createdAt 
     if (tossOrderStatus) {
         const userId = order.userId; // NewOrder 모델에서 userId 가져오기
@@ -70,8 +73,7 @@ const acceptOrder = async (req, res) => {
         console.warn("tossOrderStatus is not available");
       }
 
-    //  5. 락 해제 (성공적으로 처리된 경우)
-    await redisCli.del(lockKey);
+
 
     res.status(200).json({ message: "Order accepted successfully"});
 

@@ -161,12 +161,7 @@ const OrderFinalScreen = () => {
     // user model db엔 없지만 주문상태를 상태관리 하기 위한 dispatch임.
     //client 에서만 사용하는 isOngoinOrder 상태
     dispatch(setIsOngoingOrder(true));
-    
-    
-
-
-    
-  
+                                          
     setTimeout(() => {
 
       setIsLoading(false);

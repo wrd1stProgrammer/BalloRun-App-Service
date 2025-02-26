@@ -16,7 +16,7 @@ const persistConfig = {
   key: 'root',
   storage: reduxStorage,
   blacklist: [],
-  whitelist: ['user'],
+  whitelist: ['user'], // isOngoin 포함..?
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

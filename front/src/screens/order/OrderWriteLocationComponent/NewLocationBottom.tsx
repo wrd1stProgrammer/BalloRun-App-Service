@@ -26,6 +26,7 @@ import { navigate } from "../../../navigation/NavigationUtils";
 import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from "react-native-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { reverseGeocode } from "../../../utils/Geolocation/reverseGeocode";
+import { selectIsOngoingOrder, setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 
 
 export interface MarkerData {
@@ -169,7 +170,7 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
           )
         );
       }
-
+      dispatch(setIsOngoingOrder(true));
       setTimeout(() => {
         navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
       }, 1500);

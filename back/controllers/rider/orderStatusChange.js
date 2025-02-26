@@ -125,6 +125,12 @@ const completeOrderHandler = async (req, res) => {
   try {
     const redisClient = req.app.get("redisClient");
     const redisCli = redisClient.v4;
+    const userId = req.user.userId;
+
+    const rideruser = await User.findById(userId);
+    rideruser.isDelivering = false;
+    rideruser.save();
+
 
     const { orderId, orderType } = req.body;
     const OrderModel = getOrderModel(orderType);
@@ -135,7 +141,8 @@ const completeOrderHandler = async (req, res) => {
 
     order.status = "delivered";
     await order.save();
-
+    
+    await invalidateOnGoingOrdersCache(order.userId, redisCli);
     await invalidateCompletedOrdersCache(order.userId, redisCli);
 
     emitOrderStatus(req, order, "delivered");

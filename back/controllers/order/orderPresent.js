@@ -99,7 +99,7 @@ const getOngoingOrders = async (req, res) => {
 };
 
 
-// 진행 중인 배달 따로하자 이건 배달완료,취소 주문만
+// 진행 중인 배달 따로하자
 const getDeliveryList = async (req, res) => {
   const userId = req.user.userId;
   const redisClient = req.app.get("redisClient");
@@ -113,6 +113,7 @@ const getDeliveryList = async (req, res) => {
 
     const transformedNewOrders = newOrder.map(newOrder => ({
       _id: newOrder._id,
+      userId:newOrder.userId,
       items: [
         {
           menuName: newOrder.orderDetails, // orderDetails 값을 menuName으로
@@ -155,6 +156,7 @@ const getDeliveryOngoingList = async (req, res) => {
 
     const transformedNewOrders = newOrder.map(newOrder => ({
       _id: newOrder._id,
+      userId:newOrder.userId,
       items: [
         {
           menuName: newOrder.orderDetails, // orderDetails 값을 menuName으로

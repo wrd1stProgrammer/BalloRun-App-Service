@@ -108,6 +108,7 @@ const login = async (req, res) => {
         userImage: user?.userImage,
         email: user.email,
         point: user.point,
+        isDelivering: user.isDelivering,
         verificationStatus: user.verificationStatus,
         account: user.account ?? null, // account가 undefined일 경우 null로 처리
       },
@@ -182,6 +183,7 @@ const kakaologin = async (req, res) => {
         userImage: user?.userImage,
         email: user.email,
         point: user.point,
+        isDelivering: user.isDelivering,
         verificationStatus: user.verificationStatus,
         account: user.account ?? null, // account가 undefined일 경우 null로 처리
       },

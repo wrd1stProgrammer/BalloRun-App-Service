@@ -57,7 +57,7 @@ module.exports = (io) => {
     });
 
       // 배달 완료 이벤트 처리 → 주문자(userId)에게 전달
-      socket.on("order_completed", ({ orderId, userId, riderId }) => {
+      socket.on("order_completed", ({ orderId, userId }) => {
         if (!userId) {
             console.error("❌ 주문자의 userId가 전달되지 않음!");
             return;
@@ -67,7 +67,7 @@ module.exports = (io) => {
 
         // 주문자에게만 배달 완료 이벤트 전송
         io.to(userId).emit("order_completed", { orderId });
-        io.to(riderId).emit("order_completed", { orderId });
+        //io.to(riderId).emit("order_completed", { orderId });
 
         console.log(`✅ 주문자(${userId})에게 배달 완료 이벤트 전송`);
     });

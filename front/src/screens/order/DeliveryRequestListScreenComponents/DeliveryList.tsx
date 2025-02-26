@@ -24,6 +24,7 @@ import ChangeStatusPicker from "./DeliveryListComponents.tsx/ChangeStatusPicker"
 import { completeOrderHandler, goToCafeHandler, goToClientHandler, makingMenuHandler } from "../../../redux/actions/riderAction";
 import { clearOngoingOrder, setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import { useLocation } from "../../../utils/Geolocation/LocationContext";
+import { refetchUser } from "../../../redux/actions/userAction";
 
 
 
@@ -115,7 +116,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
 
   const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string,userId:string,riderId:string) => {
-    console.log("Selected Status:", selectedStatus, orderId,orderType);
+    console.log("Selected Status:", selectedStatus, orderId,orderType,userId);
     if (selectedStatus === "goTocafe") {
       await dispatch(goToCafeHandler(orderId,orderType));
     } else if (selectedStatus === "goToClient") { // 구매하러감
@@ -124,10 +125,11 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
       await dispatch(makingMenuHandler(orderId,orderType));
     } else if (selectedStatus === "delivered") {
       await dispatch(completeOrderHandler(orderId,orderType));
+      await dispatch(refetchUser());
       dispatch(clearOngoingOrder()); // ✅ 배달자 화면에서 Redux 초기화
       stopTracking();
       // ✅ 주문자의 userId를 포함하여 소켓으로 배달 완료 이벤트 전송
-      orderSocket?.emit("order_completed", { orderId,userId,riderId });
+      orderSocket?.emit("order_completed", { orderId,userId });
     }
   }
 

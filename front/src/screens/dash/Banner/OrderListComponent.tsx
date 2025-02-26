@@ -2,6 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { navigate } from '../../../navigation/NavigationUtils';
+import { useAppSelector } from '../../../redux/config/reduxHook';
+import { selectIsOngoingOrder,setIsOngoingOrder } from '../../../redux/reducers/userSlice';
+
 
 interface OrderListProps {
   user: any;
@@ -16,15 +19,33 @@ interface Category {
 const categories: Category[] = [
   { name: '커피', icon: 'cafe', screen: 'CafeListScreen' },
   { name: '편의점', icon: 'storefront', screen: 'OrderPageScreen' },
-  { name: '약', icon: 'medical', screen: 'OrderPageScreen' },
-  { name: '음식', icon: 'fast-food', screen: 'OrderPageScreen' },
-  { name: '물건', icon: 'cart', screen: 'OrderPageScreen' },
+  { name: '마트', icon: 'medical', screen: 'OrderPageScreen' },
+//{ name: '음식', icon: 'fast-food', screen: 'OrderPageScreen' },
+//{ name: '물건', icon: 'cart', screen: 'OrderPageScreen' },
   { name: '기타', icon: 'ellipsis-horizontal', screen: 'OrderPageScreen' },
 ];
 
 const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
+
+
+
   const handleCategoryPress = (screen: string, name: string) => {
-    navigate(screen, { name });
+    if (user?.isOngoingOrder) {
+      Alert.alert(
+        '알림',
+        '주문은 동시에 1개만 가능합니다.',
+        [
+          {
+            text: '확인',
+            style: 'default',
+            onPress: () => {},
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      navigate(screen, { name });
+    }
   };
 
   const handleDeliveryPress = () => {
@@ -111,6 +132,7 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
   };
 
   const handleVerified = () => {
+    console.log(user,'logggggggg')
     if (user?.isDelivering) {
       Alert.alert('알림', '이미 배달 중입니다.');
     } else {

@@ -47,6 +47,7 @@ export const getOrderData = () => async (dispatch: any) => {
       const res = await appAxios.post(endpoint, {
         orderId,
       });
+      
       return res;
     } catch (error: any) {
       console.error('주문 요청 실패:', error);

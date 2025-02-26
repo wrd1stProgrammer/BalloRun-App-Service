@@ -12,6 +12,7 @@ import { Dimensions } from 'react-native';
 import { navigate } from "../../../navigation/NavigationUtils";
 import DeliveryDetailModal from '../DeliveryDetailComponents/DeliveryDetailModal';
 import { useLocation } from '../../../utils/Geolocation/LocationContext';
+import { refetchUser } from '../../../redux/actions/userAction';
 
 
 
@@ -95,7 +96,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
 
     // 주문 수락 요청
     const dummyRes = await dispatch(acceptActionHandler(orderId,orderType));
-    
+    await dispatch(refetchUser()); // isDelivering 상태 업뎃 위함.
 
     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
 

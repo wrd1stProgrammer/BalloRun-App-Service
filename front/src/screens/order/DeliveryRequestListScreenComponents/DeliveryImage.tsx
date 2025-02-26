@@ -144,7 +144,7 @@ const handleSubmit = async () => {
     resetAndNavigate("ChatRoom", { roomId });
 
     console.log("배달 완료 -> Redux 상태 초기화 실행!");
-    dispatch(clearOngoingOrder()); // ✅ 배달자 화면에서 Redux 초기화
+    //dispatch(clearOngoingOrder()); // ✅ 배달자 화면에서 Redux 초기화
 
     // ✅ 주문자의 userId를 포함하여 소켓으로 배달 완료 이벤트 전송
     const userId = item.userId; // 주문자의 userId

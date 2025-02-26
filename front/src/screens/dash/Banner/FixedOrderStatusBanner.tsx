@@ -4,10 +4,8 @@ import { View, Text, StyleSheet } from 'react-native';
 const FixedOrderStatusBanner: React.FC = () => {
   return (
     <View style={fixedStyles.container}>
-      <Text style={fixedStyles.message}>주문이 진행 중이에요</Text>
+      <Text style={fixedStyles.message}>주문 요청이 완료 되었습니다.</Text>
       <View style={fixedStyles.timeContainer}>
-        <Text style={fixedStyles.time}>남은 시간: </Text>
-        <Text style={fixedStyles.dummyTime}>12분</Text>
       </View>
     </View>
   );
