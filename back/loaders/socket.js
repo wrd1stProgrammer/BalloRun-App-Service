@@ -100,7 +100,7 @@ module.exports = (io) => {
           createdAt: createdAt || new Date().toISOString(), // 없으면 현재 시간
           orderId: orderId,
           status: status || "cancelled", // 기본값: cancelled
-          message: message || "Your order has been cancelled due to no acceptance.",
+          message: message || "주문 예약 시간이 지나서 취소",
         });
     
         console.log(` Emit 성공 -> ${userId}에게 주문 취소 알림 전송:`, orderData);

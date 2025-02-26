@@ -129,7 +129,7 @@ const consumeDelayedMessages = async (emitCancel,redisCli) => {
                 orderId: orderId,
                 userId: userId,
                 status: "cancelled",
-                message: "Your order has been cancelled due to no acceptance."
+                message: "주문 예약 시간이 지나서 취소"
               });
             }
 

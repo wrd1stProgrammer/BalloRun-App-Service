@@ -117,6 +117,7 @@ const HomeScreen: React.FC = () => {
    orderSocket.on("order_completed", ({ orderId }) => {
     console.log(`✅ 주문자 화면: 배달 완료 감지 -> 주문 ID: ${orderId}`);
     dispatch(clearOngoingOrder()); // Redux 상태 초기화 -> 배너 삭제
+    stopTracking()
   });
 
   orderSocket.on("emitCancel", ({ orderId, message }) => {
@@ -127,7 +128,9 @@ const HomeScreen: React.FC = () => {
 
     alert(`주문이 취소되었습니다. \n주문 ID: ${orderId}\n사유: ${message}`);
   });
-
+    return () => {
+      orderSocket.off("emitCancel"); // ✅ 컴포넌트 언마운트 시 이벤트 제거
+    };
     //return () => {
     //  orderSocket.off('order_accepted');
     //};
