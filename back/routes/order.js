@@ -22,8 +22,9 @@ const {
   getBannerData
 } = require("../controllers/order/newOrderPresent");
 
-
-
+const {
+  getOrderDataForCancelApi,
+} = require("../controllers/order/ordercancel")
 const router = express.Router();
 
 router.post('/orderNow',orderNowDirectCreate);
@@ -40,4 +41,5 @@ router.get('/getbannerdata',getBannerData);
 
 router.post('/showOrderDetails',fetchOrderDetails);
 
+router.post(`/getOrderDataForCancel`,getOrderDataForCancelApi);
 module.exports = router;

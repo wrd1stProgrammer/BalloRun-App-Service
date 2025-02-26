@@ -47,6 +47,7 @@ import FirstScreen from "../screens/auth/Register/FirstScreen";
 import SecondScreen from "../screens/auth/Register/SecondScreen";
 import ThirdScreen from "../screens/auth/Register/ThirdScreen";
 import FourthScreen from "../screens/auth/Register/FourthScreen";
+import CancelOrderScreen from "../screens/order/NewOrder/OrderCancel/CancelOrderScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -177,7 +178,10 @@ export const dashboardStack = [
     name:"WithdrawScreen",
     component:WithdrawScreen
   },
-  
+  {
+    name:"CancelOrderScreen",
+    component:CancelOrderScreen,
+  }
 ];
 
 export const orderStack = [

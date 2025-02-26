@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import { navigate } from '../../../navigation/NavigationUtils';
+import { Alert } from 'react-native';
 
 interface OrderItemProps {
   orderId:string;
@@ -88,9 +89,24 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
     
   };
 
-  const handleOrderConfirmPress = () => {
-
-    console.log('주문 확인 버튼 클릭');
+  const handlerOrederCancel = () => {
+    Alert.alert(
+      '주문 취소 확인',
+      '정말 주문을 취소하시겠습니까?',
+      [
+        {
+          text: '아니오',
+          style: 'cancel',
+        },
+        {
+          text: '예',
+          onPress: () => {
+            navigate('CancelOrderScreen', { orderId, orderType });
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   const handleReviewPress = () => {
@@ -108,8 +124,8 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
     switch (status) {
       case 'pending':
         return (
-          <Button mode="outlined" style={styles.button} onPress={handleOrderConfirmPress}>
-            주문 확인
+          <Button mode="outlined" style={styles.button} onPress={handlerOrederCancel}>
+            주문 취소
           </Button>
         );
       case 'complete':

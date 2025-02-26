@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView } from 'rea
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
-import { selectUser, selectIsOngoingOrder, setOngoingOrder, setIsMatching, selectIsMatching, selectOngoingOrder, clearOngoingOrder } from '../../redux/reducers/userSlice';
+import { selectUser, selectIsOngoingOrder, setOngoingOrder, setIsMatching, selectIsMatching, selectOngoingOrder, clearOngoingOrder, setIsOngoingOrder } from '../../redux/reducers/userSlice';
 import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "../.././../src/utils/fcm/FcmHandler";
 import { MapSocketContext } from '../../utils/sockets/MapSocket';
 import { getDeliveryListHandler } from '../../redux/actions/orderAction';
@@ -61,6 +61,7 @@ const HomeScreen: React.FC = () => {
 
   // 🔥 FCM 알림 리스너 설정
   useEffect(() => {
+    
     const foregroundListener = setupForegroundNotifications();
     setupBackgroundNotifications();
     onNotificationOpenedApp();
@@ -72,6 +73,7 @@ const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      //await dispatch(setIsOngoingOrder(false));
       console.log("🚀 배달 상태 확인 중...");
 
   

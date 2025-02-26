@@ -4,7 +4,7 @@ const NewOrder = require("../../models/NewOrder");
 const User = require("../../models/User");
 const {storeOrderInRedis, removeOrderFromRedis} = require("./storeOrderInRedis");
 const {connectRabbitMQ} = require("../../config/rabbitMQ");
-const {invalidateOnGoingOrdersCache} = require("../../utils/deleteRedisCache");
+const {invalidateOnGoingOrdersCache, invalidateCompletedOrdersCache} = require("../../utils/deleteRedisCache");
 const {sendPushNotification} = require("../../utils/sendPushNotification");
 const { consumeNewOrderMessages } = require("./consumeNeworder");
 
@@ -112,6 +112,7 @@ const consumeDelayedMessages = async (redisCli) => {
                 order.status = "cancelled";
                 await order.save();
                 await invalidateOnGoingOrdersCache(order.userId, redisCli);
+                await invalidateCompletedOrdersCache(order.userId, redisCli);
                 console.log(order.status, "매치 변화 상태 ");
               }
             } else if (type === "neworder") {
@@ -120,6 +121,7 @@ const consumeDelayedMessages = async (redisCli) => {
                 newOrder.status = "cancelled";
                 await newOrder.save();
                 await invalidateOnGoingOrdersCache(newOrder.userId, redisCli);
+                await invalidateCompletedOrdersCache(newOrder.userId, redisCli);
                 console.log(newOrder.status, "매치 변화 상태 ");
               }
             }
