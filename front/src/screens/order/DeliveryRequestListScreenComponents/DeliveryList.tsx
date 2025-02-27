@@ -176,7 +176,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
           :"수정"}
       </Text>
 
-        {item.status !== "delivered" && (
+        {item.status !== "delivered" && item.status !== "cancelled" && (
           <>
             <TouchableOpacity
               style={styles.button}

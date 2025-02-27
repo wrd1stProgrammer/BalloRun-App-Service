@@ -73,6 +73,8 @@ const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      //dispatch(clearOngoingOrder());
+
       //await dispatch(setIsOngoingOrder(false));
       console.log("🚀 배달 상태 확인 중...");
 
@@ -120,7 +122,7 @@ const HomeScreen: React.FC = () => {
     stopTracking()
   });
 
-  orderSocket.on("emitCancel", ({ orderId, message }) => {
+  orderSocket.on("emitCancel", ({ orderId, message,status }) => {
     console.log(`주문자 화면: 배달 캔슬 감지 -> 주문 ID: ${orderId}`);
     console.log(`주문 취소 사유: ${message}`);
 
@@ -128,9 +130,6 @@ const HomeScreen: React.FC = () => {
 
     alert(`주문이 취소되었습니다. \n주문 ID: ${orderId}\n사유: ${message}`);
   });
-    return () => {
-      orderSocket.off("emitCancel"); // ✅ 컴포넌트 언마운트 시 이벤트 제거
-    };
     //return () => {
     //  orderSocket.off('order_accepted');
     //};

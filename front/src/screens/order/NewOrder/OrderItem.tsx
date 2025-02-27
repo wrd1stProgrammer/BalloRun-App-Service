@@ -142,8 +142,8 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
         );
       default:
         return (
-          <Button mode="outlined" style={styles.button} onPress={handleLocationPress}>
-            위치 보기
+          <Button mode="outlined" style={styles.button} onPress={handlerOrederCancel}>
+            주문 취소
           </Button>
         );
     }

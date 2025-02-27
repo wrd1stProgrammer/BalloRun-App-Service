@@ -1,6 +1,8 @@
 const Order = require("../../models/Order");
 const NewOrder = require("../../models/NewOrder");
 const User = require("../../models/User");
+const OrderCancellation = require("../../models/OrderCancellation");
+const { invalidateOnGoingOrdersCache,invalidateCompletedOrdersCache } = require("../../utils/deleteRedisCache");
 
 const getOrderDataForCancelApi = async (req, res) => {
     try {
@@ -25,7 +27,7 @@ const getOrderDataForCancelApi = async (req, res) => {
       // 타입에 따른 주문 금액 결정
       let orderPrice;
       if (orderType === "Order") {
-        orderPrice = order.items.price;
+        orderPrice = order.price;
       } else {
         // NewOrder: priceOffer 사용
         orderPrice = order.priceOffer;
@@ -98,4 +100,92 @@ const getOrderDataForCancelApi = async (req, res) => {
     }
   };
 
-module.exports = { getOrderDataForCancelApi };
+
+  const orderCancelApi = async (req, res) => {
+    try {
+      // 1. 요청 데이터 추출
+      const { orderId, orderType, cancelReason, refundAmount, penaltyAmount } = req.body;
+  
+      // 입력값 검증
+      if (!orderId || !orderType || !cancelReason || refundAmount === undefined || penaltyAmount === undefined) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+  
+      // 2. orderType에 따라 주문 조회
+      let order;
+      if (orderType === "Order") {
+        order = await Order.findById(orderId);
+      } else if (orderType === "NewOrder") {
+        order = await NewOrder.findById(orderId);
+      } else {
+        return res.status(400).json({ error: "Invalid orderType" });
+      }
+  
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      //redis 객체 가져오깅
+      const redisClient = req.app.get("redisClient");
+      const redisCli = redisClient.v4;
+    
+
+      order.status = "cancelled";
+      await order.save();
+      
+
+      // 3. 결제 금액 계산 (price와 deliveryFee 합산)
+      const paymentAmount = (orderType === "Order" ? order.price : order.priceOffer) + order.deliveryFee;
+  
+      // 4. OrderCancellation 생성
+      const cancellation = new OrderCancellation({
+        orderId: order._id,
+        orderType,
+        cancelReason,
+        paymentAmount,
+        refundAmount,
+        penaltyAmount,
+        cancelStatus: "pending", // 초기 상태
+        riderNotified: false, // 초기값
+      });
+  
+      await cancellation.save();
+  
+      // 5. 주문 모델에 cancellation 연결
+      order.cancellation = cancellation._id;
+      await order.save();
+  
+      // 6. 매칭 여부 확인 및 처리
+      const isMatched = !!order.riderId;
+      if (isMatched) {
+        // 매칭되면 라이더에게 알람. 
+        // isDelivering 상태 업뎃.
+        console.log('라이더 있는 부분 주문취소');
+        const riderUser = await User.findById(order.riderId);
+        console.log(riderUser,'Rideruser 찾음??');
+        riderUser.isDelivering = false;
+        await riderUser.save(); // 라이더는 refetch 강제 해야 + 알림 ?
+
+        console.log(`라이더 ${order.riderId}에게 알림 전송 준비: 주문 ${orderId} 취소`);
+      }else{
+        //진행 중인 주문 레디스 삭제.
+        const cacheKey = "activeOrders";
+        let redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
+        redisOrders = redisOrders.filter((order) => order._id.toString() !== orderId);
+        await redisCli.set(cacheKey, JSON.stringify(redisOrders));
+    
+      }
+      
+      await invalidateOnGoingOrdersCache(order.userId, redisCli);
+      await invalidateCompletedOrdersCache(order.userId,redisCli);
+  
+      // 7. 성공 응답
+      return res.status(200).json({
+        message: "주문 취소 요청이 성공적으로 처리되었습니다.",
+        cancellationId: cancellation._id.toString(),
+      });
+    } catch (error) {
+      console.error("Error in orderCancelApi:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  };
+module.exports = { getOrderDataForCancelApi,orderCancelApi };

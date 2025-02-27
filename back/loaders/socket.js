@@ -89,7 +89,7 @@ module.exports = (io) => {
 
     // 주문 상태 전송 (주문자에게만 emit)
     const emitCancel = (orderData) => {
-      const { userId, orderId, status, createdAt, message } = orderData;
+      const { userId, orderId, status, message } = orderData;
 
       if (userId) {
         // 특정 유저에게만 emit (모든 클라이언트가 아니라 해당 유저만 받음)
@@ -97,9 +97,9 @@ module.exports = (io) => {
 
     // 특정 유저에게만 emit (모든 클라이언트가 아니라 해당 유저만 받음)
           io.to(userIdString).emit("emitCancel", {
-          createdAt: createdAt || new Date().toISOString(), // 없으면 현재 시간
+          createdAt: new Date().toISOString(), // 없으면 현재 시간
           orderId: orderId,
-          status: status || "cancelled", // 기본값: cancelled
+          status: "cancelled", // 기본값: cancelled
           message: message || "주문 예약 시간이 지나서 취소",
         });
     

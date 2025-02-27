@@ -108,7 +108,6 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     // 위치 추적 시작
     console.log("Geolocation.watchPosition 실행...");
  
-
     setTimeout(() => {
       console.log("Navigating to BottomTab...");
       navigate("BottomTab", {

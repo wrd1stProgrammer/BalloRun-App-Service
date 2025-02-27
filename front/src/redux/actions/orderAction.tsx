@@ -200,3 +200,19 @@ export const orderNowHandler = (
       throw error;
     }
   }
+
+  export const cancelOrderAction =(orderId:string,orderType:string,cancelReason:string,refundAmount:number,penaltyAmount:number) => async(dispatch:any) => {
+    try {
+      const res = await appAxios.post(`/order/cancelOrderAction`,{
+        orderId,
+        orderType,
+        cancelReason,
+        refundAmount,
+        penaltyAmount,
+      });
+      return res.data
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }

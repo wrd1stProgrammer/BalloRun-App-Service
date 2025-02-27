@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Button } from 'react-native-paper';
-import { goBack, navigate } from '../../../../navigation/NavigationUtils';
+import { goBack, navigate, resetAndNavigate } from '../../../../navigation/NavigationUtils';
 import { useAppDispatch } from '../../../../redux/config/reduxHook';
 import { getOrderDataForCancel } from '../../../../redux/actions/cancelAction';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { cancelOrderAction } from '../../../../redux/actions/orderAction';
+import { clearOngoingOrder } from '../../../../redux/reducers/userSlice';
 
 // 주문 데이터 타입 정의
 interface OrderData {
@@ -41,14 +43,30 @@ const CancelOrderScreen: React.FC<{ route: { params: RouteParams } }> = ({ route
   const [cancelReason, setCancelReason] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+  const timerRef = useRef<NodeJS.Timeout | null>(null); // 타이머 참조
 
-  // 주문 데이터 가져오기
+  // 주문 데이터 가져오기 함수
+  const loadOrderData = async () => {
+    const data = await dispatch(getOrderDataForCancel(orderId, orderType));
+    setOrderData(data);
+  };
+
+  // 초기 데이터 로드 및 타이머 설정
   useEffect(() => {
-    const loadOrderData = async () => {
-      const data = await dispatch(getOrderDataForCancel(orderId, orderType));
-      setOrderData(data);
-    };
     loadOrderData();
+
+    // 3분 타이머 설정
+    timerRef.current = setTimeout(() => {
+      console.log('3분 경과, 데이터 리로딩');
+      loadOrderData(); // 3분 후 리로딩
+    }, 180000); // 180초 = 3분
+
+    // 컴포넌트 언마운트 시 타이머 정리
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
   }, [orderId, orderType, dispatch]);
 
   // 취소 처리 함수
@@ -61,8 +79,20 @@ const CancelOrderScreen: React.FC<{ route: { params: RouteParams } }> = ({ route
     setLoading(true);
     try {
       console.log('주문 취소 요청:', { orderId, orderType, cancelReason });
+
+      // 타이머 초기화
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      await dispatch(cancelOrderAction(orderId,orderType,cancelReason,orderData?.refundAmount,orderData?.penaltyAmount));
+
+      // status = cancelled, client clear, 라이더 유무에 따라 isDelivering ,
+      // 푸시알림으로 라이더에게 알림 -> isDelivering, refetch 하자.
+      await dispatch(clearOngoingOrder()); // 주문자 상태 클리어
       Alert.alert('성공', '주문이 취소되었습니다.', [
-        { text: '확인', onPress: () => navigate('OrderListScreen') },
+        { text: '확인', onPress: () => resetAndNavigate('BottomTab',{
+            screen: "DeliveryRequestListScreen"
+        }) },
       ]);
     } catch (error) {
       Alert.alert('오류', '주문 취소 중 문제가 발생했습니다.');
@@ -214,7 +244,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   cancelButton: {
-    backgroundColor: '#0066ff', // 토스 스타일의 파란색
+    backgroundColor: '#0066ff',
     borderRadius: 8,
     paddingVertical: 5,
   },

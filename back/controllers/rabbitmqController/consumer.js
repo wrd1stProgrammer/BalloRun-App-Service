@@ -47,7 +47,7 @@ const consumeMessages = async (emitCancel, redisCli) => {
             await storeOrderInRedis(redisCli, orderData);
             const redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
             redisOrders.push(order);
-            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 18 }); // 3분 1분 테스트
+            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 1800 }); // 3분 1분 테스트
 
             await invalidateOnGoingOrdersCache(order.userId,redisCli);
 
