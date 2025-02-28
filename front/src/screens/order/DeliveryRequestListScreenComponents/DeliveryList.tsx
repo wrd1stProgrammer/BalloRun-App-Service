@@ -296,7 +296,7 @@ const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
 
 
 
-const styles =  StyleSheet.create({
+const styles = StyleSheet.create({
   filterContainer: {
     marginBottom: 0,
   },
@@ -335,19 +335,21 @@ const styles =  StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9f9f9",
     paddingHorizontal: 16,
-    
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     marginTop: 12,
     marginHorizontal: 10,
   },
   button: {
+    flex: 1, // 버튼 크기를 균일하게 조정
     backgroundColor: "#8A67F8",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 5, // 버튼 사이 간격 추가
   },
   activeButton: {
     backgroundColor: "#6200ee",
@@ -356,6 +358,7 @@ const styles =  StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
+    textAlign: "center",
   },
   loadingContainer: {
     flex: 1,
@@ -366,23 +369,21 @@ const styles =  StyleSheet.create({
     padding: 16,
   },
   divider: {
-    height: 1, // 선의 두께
-    backgroundColor: "#D1D5DB", // 연한 회색
-    marginVertical: 12, // 위아래 간격
+    height: 1,
+    backgroundColor: "#D1D5DB",
+    marginVertical: 12,
     width: "100%",
   },
   card: {
-    
     backgroundColor: "#fff",
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12, // 모서리 둥글게 조정
     marginBottom: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15, // 그림자 강조
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
-    
+    shadowRadius: 5,
+    elevation: 3, // 안드로이드 그림자 적용
   },
   rowHeader: {
     flexDirection: "row",
@@ -455,7 +456,7 @@ const styles =  StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     width: "80%",

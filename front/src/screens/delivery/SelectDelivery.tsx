@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Animated, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView,Alert, Animated, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DeliveryCustomMap from './SelectDeliveryComponents/DeliveryCustomMap';
 import DeliveryBottomSheet from './SelectDeliveryComponents/DeliveryBottomSheet';
 import DeliveryCustomList from './SelectDeliveryComponents/DeliveryCustomList';
@@ -114,6 +114,8 @@ function SelectDelivery() {
 
   return (
     <>
+        <SafeAreaView style={styles.container}>
+    
       <View style={styles.toggleButtons}>
         <TouchableOpacity
           style={[
@@ -185,11 +187,17 @@ function SelectDelivery() {
           </Animated.View>
         </>
       )}
+          </SafeAreaView>
+      
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f9f9f9",
+  },
   toggleButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
