@@ -11,6 +11,8 @@ import { navigate } from '../../navigation/NavigationUtils';
 
 interface Props {
   roomId: string;
+  username:string;
+  nickname:string;
   userImage: string;
   roomName: string;
   timeStamp: string;
@@ -21,6 +23,8 @@ interface Props {
 }
 
 const ChatRoomItem = ({
+  username,
+  nickname,
   roomId,
   userImage,
   roomName,
@@ -30,6 +34,8 @@ const ChatRoomItem = ({
   onExitPressHandler,
   onToggleNotificationHandler,
 }: Props) => {
+
+  
 
 
   const renderRightActions = () => {
@@ -77,7 +83,7 @@ const ChatRoomItem = ({
       renderRightActions={renderRightActions}
       friction={1.5}
     >
-      <Pressable onPress={() => navigate('ChatRoom',{roomId})}>
+      <Pressable onPress={() => navigate('ChatRoom',{roomId,username,nickname,userImage})}>
       <View
         style={{
           backgroundColor: Color.white,
@@ -111,7 +117,7 @@ const ChatRoomItem = ({
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={[{ color: Color.black }, TYPOS.headline4]}>
-                {roomName}
+                {username}
               </Text>
               <Text
                 style={[

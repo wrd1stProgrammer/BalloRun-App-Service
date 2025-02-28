@@ -142,12 +142,14 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
+<ScrollView
+      style={styles.container}
+      contentContainerStyle={{ alignContent: 'center' }}
+    >
         {/* 상단 프로필/인사 문구 영역 */}
         <View style={styles.headerContainer}>
           <View style={styles.greetingContainer}>
-            <Text style={styles.userName}>{user?.username}님, 안녕하세요!!!!</Text>
-            <Text>발로뛰어로 동네 주민한테 심부름을 요청해보세요!</Text>
+            <Text style={styles.userName}>북구 용주로 30번길 88</Text>
           </View>
           {/* 프로필 아이콘 */}
           <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>
@@ -155,20 +157,22 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* 근처 배달가능 리스트 */}
+        <View style={styles.bannerContainer}>
+          <MyAdBanner />
+        </View>
         <View style={styles.bannerContainer}>
           <Banner />
         </View>
-        
         <OrderListComponent user={user} />
+
+
+
 
         <View style={styles.bannerContainer}>
           <AdMobBanner/>
         </View>
         
-        <View style={styles.bannerContainer}>
-          <MyAdBanner />
-        </View>
+
       </ScrollView>
 
       
@@ -194,14 +198,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    width: '100%',
+    //width: '100%',
     paddingTop: 50,
+    
   },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 10,
     margin: 15,
   },
   greetingContainer: {
@@ -223,6 +228,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bannerContainer: {
-    marginBottom: 20,
+    marginBottom: 15,
+    alignItems: 'center', // 배너를 수평으로 중앙에 정렬
   },
 });
