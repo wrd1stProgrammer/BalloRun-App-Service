@@ -1,52 +1,54 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigationState, useNavigation } from "@react-navigation/native";
-import { goBack, navigate } from "../../../navigation/NavigationUtils";
+// AppBar.tsx
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface AppBarProps {
-  title?: string;
+  onBackPress?: () => void;
+  username?: string; // username prop 추가
+  nickname?: string; // nickname prop 추가
 }
 
-const AppBar: React.FC<AppBarProps> = ({ title = "채팅방" }) => {
-  const navigation = useNavigation();
-  const navigationState = useNavigationState((state) => state);
-
-  const handleGoBack = () => {
-    // Check if there is a stack to go back to
-    if (navigationState.routes.length > 1) {
-      goBack(); // Go back if there is a stack
-    } else {
-      // Navigate to the ChattingScreen within the bottom tab navigator
-      navigate("BottomTab", { screen: "Chatting" });
-    }
-  };
-
+const AppBar: React.FC<AppBarProps> = ({ onBackPress, username = '진관', nickname }) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handleGoBack}>
-        <Text style={styles.backButton}>{"<"}</Text>
+      <TouchableOpacity onPress={onBackPress}>
+        <Ionicons name="chevron-back" size={24} color="#000" />
       </TouchableOpacity>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title}>{username}</Text>
+      <View style={styles.icons}>
+        <TouchableOpacity style={styles.icon}>
+          <Ionicons name="call-outline" size={24} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.icon}>
+          <Ionicons name="videocam-outline" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    backgroundColor: "#007AFF",
-  },
-  backButton: {
-    fontSize: 20,
-    color: "white",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   title: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  icons: {
+    flexDirection: 'row',
+  },
+  icon: {
+    marginLeft: 16,
   },
 });
 

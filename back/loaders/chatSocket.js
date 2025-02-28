@@ -48,36 +48,58 @@ module.exports = (chatIo) => {
     console.log(`[ChatSocket] User ${socket.user.userId} left room ${roomId}`);
   });
 
-    socket.on("room-list", async ({ token }) => {
-      try {
-        console.log("room-list server log");
-        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        const userId = decodedToken.userId;
-
-        // MongoDB에서 사용자의 채팅방 목록 조회 --> 이것이 문제일 수 있다
-        const chatRooms = await ChatRoom.find({
-          $or: [
-            { participants: new mongoose.Types.ObjectId(userId) }, // ✅ 올바른 변환 방식
-            { users: new mongoose.Types.ObjectId(userId) } // ✅ 올바른 변환 방식
-          ]
-        });
-        
-
-        const chatRoomList = chatRooms.map((room) => ({
-          id: room._id.toString(),
-          title: room.title,
-          lastChat: room.lastMessage || "대화 없음",
-          lastChatAt: room.updatedAt,
-          isAlarm: room.isAlarm || false,
-          image: room.image || "",
-        }));
-
-        socket.emit("room-list", { data: { chatRoomList } });
-      } catch (error) {
-        console.error("[ChatSocket] room-list 조회 실패:", error);
-        socket.emit("error", { message: "채팅방 목록을 가져오는 중 오류 발생" });
-      }
-    });
+  socket.on("room-list", async ({ token }) => {
+    try {
+      console.log("room-list server log");
+      const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      const userId = decodedToken.userId;
+  
+      // MongoDB에서 사용자의 채팅방 목록 조회
+      const chatRooms = await ChatRoom.find({
+        $or: [
+          { participants: new mongoose.Types.ObjectId(userId) },
+          { users: new mongoose.Types.ObjectId(userId) },
+        ],
+      });
+  
+      // 채팅방 목록 가공
+      const chatRoomList = await Promise.all(
+        chatRooms.map(async (room) => {
+          // 1. users 배열에서 userId와 비교하여 다른 사용자의 아이디 찾기
+          const otherUserId = room.users.find(
+            (user) => user.toString() !== userId
+          );
+  
+          // 2. 다른 사용자의 userImage 조회
+          let userImage = "";
+          if (otherUserId) {
+            const otherUser = await User.findById(otherUserId);
+            userImage = otherUser?.userImage || "";
+            username = otherUser?.username;
+            nickname = otherUser?.nickname;
+          }
+          
+  
+          // 기존 반환 데이터 구조 유지
+          return {
+            id: room._id.toString(),
+            title: room.title,
+            lastChat: room.lastMessage || "대화 없음",
+            lastChatAt: room.updatedAt,
+            isAlarm: room.isAlarm || false,
+            userImage, // 조회한 userImage 사용
+            username,
+            nickname,
+          };
+        })
+      );
+  
+      socket.emit("room-list", { data: { chatRoomList } });
+    } catch (error) {
+      console.error("[ChatSocket] room-list 조회 실패:", error);
+      socket.emit("error", { message: "채팅방 목록을 가져오는 중 오류 발생" });
+    }
+  });
 
     // 특정 채팅방의 메시지 불러오기 (`chat-list`)
     socket.on("chat-list", async ({ token, chatRoomId }) => {

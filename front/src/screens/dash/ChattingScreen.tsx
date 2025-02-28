@@ -20,6 +20,8 @@ interface RoomData {
   lastChatAt: string;
   isAlarm: boolean;
   userImage: string;
+  username:string;
+  nickname:string;
 }
 
 const Chatting: React.FC = () => {
@@ -38,6 +40,7 @@ const Chatting: React.FC = () => {
       });
       socket.on('room-list', ({ data: { chatRoomList } }) => {
         setRooms(chatRoomList);
+        console.log(rooms, '받은채팅데이터')
       });
     };
 
@@ -61,7 +64,7 @@ const Chatting: React.FC = () => {
           text: '나가기',
           onPress: async () => {
             const isExit = await dispatch(chatExitHandler(id)); // 채팅방 나가기 액션 실행
-            console.log(isExit,"이게 뭐냐");
+            //console.log(isExit,"이게 뭐냐");
             if (isExit=="true") {
               // isExit가 true이면 해당 채팅방을 목록에서 제거
               setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
@@ -108,6 +111,8 @@ const Chatting: React.FC = () => {
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <ChatRoomItem
+            username={item.username}
+            nickname={item.nickname}
             roomId={item.id}
             userImage={item.userImage}
             roomName={item.title}
