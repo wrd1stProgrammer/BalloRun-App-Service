@@ -9,7 +9,8 @@ import Geolocation from 'react-native-geolocation-service';
 import MapView from 'react-native-maps';
 import { FontAwesome } from '@expo/vector-icons';
 
-const { height } = Dimensions.get("window");
+const { height,width } = Dimensions.get("window");
+
 
 type DeliveryItem = {
   _id: string;
@@ -33,6 +34,7 @@ type DeliveryItem = {
 };
 
 function SelectDelivery() {
+  const tabIndicator = useRef(new Animated.Value(0)).current;
   const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<DeliveryItem[]>([]);
   const [selectedDeliveryItem, setSelectedDeliveryItem] = useState<DeliveryItem | null>(null);
@@ -46,6 +48,13 @@ function SelectDelivery() {
 
   const dispatch = useAppDispatch();
   const bottomAnim = useRef(new Animated.Value(height * 0.02)).current; // 초기 위치 (화면 높이의 2%)
+
+  useEffect(() => {
+    Animated.spring(tabIndicator, {
+      toValue: isListView ? 0 : width / 2, // 리스트 → 0, 지도 → width 절반만큼 이동
+      useNativeDriver: false,
+    }).start();
+  }, [isListView]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -109,25 +118,26 @@ function SelectDelivery() {
         <TouchableOpacity
           style={[
             styles.toggleButton,
-            isListView ? styles.activeButton : styles.inactiveButton,
+            
           ]}
           onPress={() => setIsListView(true)}
         >
-          <Text style={isListView ? styles.activeButtonText : styles.inactiveButtonText}>
+          <Text style={styles.toggleButtonText}>
             리스트로 보기
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.toggleButton,
-            !isListView ? styles.activeButton : styles.inactiveButton,
-          ]}
+                      ]}
           onPress={() => setIsListView(false)}
         >
-          <Text style={!isListView ? styles.activeButtonText : styles.inactiveButtonText}>
+          <Text style={styles.toggleButtonText}>
             지도로 보기
           </Text>
         </TouchableOpacity>
+        <Animated.View style={[styles.underline, { transform: [{ translateX: tabIndicator }] }]} />
+
       </View>
 
       {isListView ? (
@@ -189,20 +199,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     alignItems: "center",
-    borderRadius: 8,
   },
-  activeButton: {
-    backgroundColor: "#6C63FF",
-  },
-  inactiveButton: {
-    backgroundColor: "#E5E7EB",
-  },
-  activeButtonText: {
-    color: "white",
+  toggleButtonText: {
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#333",
   },
-  inactiveButtonText: {
-    color: "#6B7280",
+  underline: {
+    position: "absolute",
+    bottom: -2, // 살짝 아래로 위치 조정
+    left: 0,
+    width: "50%",
+    height: 4,
+    backgroundColor: "#6C63FF",
   },
   gpsButton: {
     position: 'absolute',
@@ -211,7 +220,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 30,
     elevation: 5,
-  }
+  },
+  
 });
 
 export default SelectDelivery;

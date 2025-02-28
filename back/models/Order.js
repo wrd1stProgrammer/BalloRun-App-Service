@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const OrderSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // 주문한 사용자
+    name: { type: String, default: '카페'
+    }, // 주문한 사용자
     items: {
       type: [
         {

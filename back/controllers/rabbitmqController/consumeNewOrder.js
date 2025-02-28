@@ -42,13 +42,14 @@ const consumeNewOrderMessages = async (redisCli) => {
             // await storeOrderInRedis(redisCli, orderData);
             const transformedOrder = {
                 _id: newOrder._id,
+                name: newOrder.name,
                 items: [
                   {
                     menuName: newOrder.orderDetails, // orderDetails 값을 menuName으로
                     cafeName: newOrder.name, // name 값을 cafeName으로
                   }
                 ],
-                deliveryType: newOrder.deliveryType,
+                deliveryType: newOrder.deliveryMethod,
                 startTime: newOrder.startTime,
                 deliveryFee: newOrder.deliveryFee,
                 price: newOrder.priceOffer,

@@ -1,5 +1,5 @@
 import React, { useContext, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList, Alert, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList, Alert, Animated, Image } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { acceptActionHandler } from '../../../redux/actions/riderAction';
@@ -13,6 +13,8 @@ import { navigate } from "../../../navigation/NavigationUtils";
 import DeliveryDetailModal from '../DeliveryDetailComponents/DeliveryDetailModal';
 import { useLocation } from '../../../utils/Geolocation/LocationContext';
 import { refetchUser } from '../../../redux/actions/userAction';
+import Cafe from "../../../assets/Icon/icon-coffee.png";
+import Noodle from "../../../assets/Icon/icon-noodles.png";
 
 
 
@@ -22,6 +24,19 @@ const snapPoints = ['25%', '30%', '35%'].map(percent => {
   return (parseFloat(percent) / 100) * screenHeight;
 });
 
+function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371; // 지구 반지름 (km)
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // 거리 (km)
+}
 
 
 type DeliveryItem = {
@@ -130,41 +145,49 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     }
   };
 
-  // // 바텀시트 이동 시 GPS 버튼을 반대로 움직이도록 설정
-  // const handleSheetChange = (index: number) => {
-  //   const positions = snapPoints.map(point => screenHeight - point); // 바텀시트 높이와 반대 값 설정
-  //   const adjustedTop = positions[index] + screenHeight * -0.10; // 바텀시트보다 약간 위에서 유지 (5% 여유)
-  
-  //   Animated.timing(animatedTop, {
-  //     toValue: adjustedTop,
-  //     duration: 300,
-  //     useNativeDriver: false,
-  //   }).start();
-  // };
-
   // 배달 아이템 렌더링 함수
-  const renderItem = ({ item }: { item: DeliveryItem }) => (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cafeName}>{item.items[0]?.cafeName || '카페 이름'}</Text>
+const renderItem = ({ item }) => {
+    const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
+    const now = new Date();
+    const endTime = new Date(item.endTime);
+    const diff = endTime - now;
+    const timeRemaining = diff <= 0 ? "종료됨" : `${Math.floor(diff / (1000 * 60 * 60))}시간 ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))}분 남음`;
+    const isCafe = item.items[0].cafeName=="편의점"
+
+    return (
+      <View style={styles.itemContainer}>
+        {/* 왼쪽: 카페 로고 및 종료 시간 */}
+        <View style={styles.leftSection}>
+          {isCafe ? <Image source={Noodle} style={styles.cafeLogo} />: <Image source={Cafe} style={styles.cafeLogo} />}
+          
+          <Text style={styles.timeRemaining}>{timeRemaining}</Text>
+        </View>
+
+
+        {/* 중앙: 배달 정보 */}
+        <View style={styles.centerSection}>
+          <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
+          <Text style={styles.info}>배달 종류: {item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
+          <Text style={styles.info}>거리: {distance} km</Text>
+                    <Text style={styles.price}>배달팁: {item.deliveryFee}원</Text>
+
+        </View>
+
+        {/* 오른쪽: 수락 버튼 */}
+        <View style={styles.rightSection}>
+          <TouchableOpacity
+            onPress={() => openModal(item)}
+            style={[styles.button, trackingOrders[item._id] && styles.disabledButton]}
+            disabled={trackingOrders[item._id]}
+          >
+            <Text style={styles.buttonText}>
+              {trackingOrders[item._id] ? "배달 중..." : "수락하기"}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <Text style={styles.address}>{item.address || '배달 주소'}</Text>
-      <View style={styles.cardBody}>
-        <Text style={styles.deliveryType}>{item.deliveryType || '배달 유형'}</Text>
-        <Text style={styles.time}>{new Date(item.endTime).toLocaleTimeString()} 만료 시간</Text>
-      </View>
-      <View style={styles.footer}>
-        <TouchableOpacity 
-          onPress={() => openModal(item)}
-          style={[styles.button, tracking && styles.disabledButton]}
-          disabled={tracking}
-        >
-          <Text style={styles.buttonText}>{tracking ? "배달 중..." : "수락하기"}</Text>
-        </TouchableOpacity>
-        <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <>
@@ -275,6 +298,152 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#212529',
   },
+  divider: {
+    height: 1, // 선의 두께
+    backgroundColor: "#D1D5DB", // 연한 회색
+    marginVertical: 12, // 위아래 간격
+    width: "100%",
+  },
+  filterContainer: {
+    marginBottom: 0,
+  },
+  filterLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+
+  /** 🛵 배달 유형 필터 및 정렬 버튼 스타일 **/
+  deliveryTypeOptions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  sortOptions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  /** 📍 필터 버튼 스타일 **/
+  filterButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: "#E5E7EB",
+    marginHorizontal: 5,
+  },
+  activeFilterButton: {
+    backgroundColor: "#2563EB",
+  },
+  filterButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  activeFilterText: {
+    color: "#ffffff",
+  },
+
+
+  /** 🏷️ Delivery Item Card **/
+  itemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 15,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2, // Android shadow
+  },
+
+  /** 📍 Left Section (Cafe Logo & Time) **/
+  leftSection: {
+    alignItems: "center",
+    marginRight: 13,
+  },
+  cafeLogo: {
+    width: 60,
+    height: 60,
+    borderRadius: 25,
+  },
+  timeRemaining: {
+    fontSize: 12,
+    color: "#4B5563",
+    fontWeight: "600",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    borderRadius: 3, // Softer edges
+    textAlign: "center",
+    marginTop: 6,
+    backgroundColor: "#F3F4F6",
+  },
+
+  /** 🏠 Middle Section (Details) **/
+  centerSection: {
+    flex: 1,
+    justifyContent: "center",
+  },
+ 
+  info: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "500",
+    marginBottom: 3,
+  },
+
+
+  /** ✅ Right Section (Accept Button) **/
+  rightSection: {
+    justifyContent: "center",
+
+  },
+ 
+
+
+  /** 🔍 Search Input **/
+  searchInput: {
+    height: 48,
+    borderColor: "#E5E7EB",
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    marginVertical: 12,
+    backgroundColor: "#ffffff",
+    fontSize: 15,
+  },
+
+  /** 📌 Delivery Type Filters **/
+
+  deliveryTypeButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginHorizontal: 6,
+    borderRadius: 12,
+    backgroundColor: "#E5E7EB",
+  },
+
+  /** 📊 Sorting Options **/
+
+  sortButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginHorizontal: 6,
+    borderRadius: 12,
+    backgroundColor: "#E5E7EB",
+  },
+  activeButton: {
+    backgroundColor: "#2563EB",
+  },
+
+  /** 🔽 Footer Section **/
+
 });
 
 export default DeliveryBottomSheet;

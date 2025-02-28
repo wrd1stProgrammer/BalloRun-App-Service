@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   Alert,
+  Image,
 } from "react-native";
 import { token_storage } from "../../../redux/config/storage";
 import { MapSocketContext } from "../../../utils/sockets/MapSocket";
@@ -17,12 +18,15 @@ import { navigate } from "../../../navigation/NavigationUtils";
 import DeliveryDetailModal from "../DeliveryDetailComponents/DeliveryDetailModal";
 import { useLocation } from "../../../utils/Geolocation/LocationContext";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
+import Cafe from "../../../assets/Icon/icon-coffee.png";
+import Noodle from "../../../assets/Icon/icon-noodles.png";
 
 type DeliveryItem = {
   _id: string;
+  name: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
   address: string;
-  deliveryType: "direct" | "cupholder" | any; // 🔥 배달 유형 추가
+  deliveryType: "direct" | "cupHolder" | any; // 🔥 배달 유형 추가
   startTime: string;
   deliveryFee: number;
   price: number;
@@ -67,7 +71,7 @@ function DeliveryCustomList({ deliveryItems, userLat, userLng }: DeliveryCustomL
   const [sortedItems, setSortedItems] = useState<DeliveryItem[]>([]);
   const [sortCriteria, setSortCriteria] = useState<"distance" | "price">("distance");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDeliveryType, setSelectedDeliveryType] = useState<"all" | "direct" | "cupholder">("all");
+  const [selectedDeliveryType, setSelectedDeliveryType] = useState<"all" | "direct" | "cupHolder">("all");
   const [selectedItem, setSelectedItem] = useState<DeliveryItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   
@@ -131,73 +135,6 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
   }
 };
 
-
-
-// const getCurrentLocation = (orderId): Promise<{ latitude: number; longitude: number }> => {
-//   return new Promise((resolve, reject) => {
-//     Geolocation.getCurrentPosition(
-//       (position) => {
-//         const { latitude, longitude } = position.coords;
-//         console.log("현재 위치 받아옴:", latitude, longitude);
-//         resolve({ latitude, longitude });
-//         socket?.emit("update_location", { orderId, latitude, longitude });
-
-//       },
-//       (error) => {
-//         console.error("위치 가져오기 실패:", error);
-//         reject(error);
-//       },
-//       { enableHighAccuracy: true }
-//     );
-//   });
-// };
-
-
-// const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") => {
-//   try {
-//     console.log(orderId,orderType,"id logging");
-
-//     // 주문 수락 요청
-//     const dummyRes = await dispatch(acceptActionHandler(orderId,orderType));
-//     //console.log(dummyRes);
-    
-
-//     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
-
-//     // 서버에 트래킹 시작 요청
-//     socket?.emit("start_tracking", { orderId });
-//     const location = await getCurrentLocation(orderId);
-
-//     // 위치 추적 시작
-//     console.log("Geolocation.watchPosition 실행...");
-//     const id = Geolocation.watchPosition(
-//       (position) => {
-//         const { latitude, longitude } = position.coords;
-//         socket?.emit("update_location", { orderId, latitude, longitude });
-//         console.log("위치 업데이트:", latitude, longitude);
-//       },
-//       (error) => {
-//         console.log("위치 추적 오류:", error);
-//         Alert.alert("위치 추적 오류", error.message);
-//       },
-//       { enableHighAccuracy: true, interval: 1000 }
-//     );
-
-//     console.log("위치 추적 시작, watchId:", id);
-
-//     setTimeout(() => {
-//       console.log("Navigating to BottomTab...");
-//       navigate("BottomTab", {
-//         screen: "DeliveryRequestListScreen",
-//       });
-//     }, 1500);
-//   } catch (error) {
-//     console.error("Error accepting order:", error);
-//   }
-// };
-
-
-
   useEffect(() => {
     let filteredItems = [...deliveryItems];
 
@@ -228,43 +165,35 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
   }, [sortCriteria, searchQuery, selectedDeliveryType, deliveryItems, userLat, userLng]);
 
 
-
-  const renderItem = ({ item }: { item: DeliveryItem }) => {
+  const renderItem = ({ item }) => {
     const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
+    const now = new Date();
+    const endTime = new Date(item.endTime);
+    const diff = endTime - now;
+    const timeRemaining = diff <= 0 ? "종료됨" : `${Math.floor(diff / (1000 * 60 * 60))}시간 ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))}분 남음`;
+    const isCafe = item.items[0].cafeName=="편의점"
 
     return (
       <View style={styles.itemContainer}>
-        <View style={styles.itemDetails}>
-          <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
-          <Text style={styles.menu}>{item.items.map(i => `${i.menuName} x${i.quantity}`).join(", ")}</Text>
-          <Text style={styles.info}>{item.resolvedAddress || "주소 정보 없음"}</Text>
-          <Text style={styles.info}>{item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
-          <Text style={styles.info}>거리: {distance} km</Text>
-          <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>
-          <Text style={styles.price}>가격: {item.price}원</Text>
-
-          <Text style={styles.price}>[주의]배달희망 시간(startTime): {new Date(item.startTime).toLocaleTimeString()}부터</Text>
-
-
-          <Text style={styles.price}>
-            
-  종료: {
-    (() => {
-      const now = new Date();
-      const endTime = new Date(item.endTime);
-      const diff = endTime - now; // 밀리초 차이
-      if (diff <= 0) return "종료됨"; // 이미 종료된 경우
-
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-      return `${hours}시간 ${minutes}분 ${seconds}초 남음`;
-    })()
-  }
-</Text>
+        {/* 왼쪽: 카페 로고 및 종료 시간 */}
+        <View style={styles.leftSection}>
+          {isCafe ? <Image source={Noodle} style={styles.cafeLogo} />: <Image source={Cafe} style={styles.cafeLogo} />}
+          
+          <Text style={styles.timeRemaining}>{timeRemaining}</Text>
         </View>
-        <View style={styles.footer}>
+
+
+        {/* 중앙: 배달 정보 */}
+        <View style={styles.centerSection}>
+          <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
+          <Text style={styles.info}>배달 종류: {item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
+          <Text style={styles.info}>거리: {distance} km</Text>
+                    <Text style={styles.price}>배달팁: {item.deliveryFee}원</Text>
+
+        </View>
+
+        {/* 오른쪽: 수락 버튼 */}
+        <View style={styles.rightSection}>
           <TouchableOpacity
             onPress={() => openModal(item)}
             style={[styles.button, trackingOrders[item._id] && styles.disabledButton]}
@@ -274,7 +203,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
               {trackingOrders[item._id] ? "배달 중..." : "수락하기"}
             </Text>
           </TouchableOpacity>
-              </View>
+        </View>
       </View>
     );
   };
@@ -290,7 +219,51 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
       />
 
       {/* 2️⃣ 배달 유형 필터 */}
-      <View style={styles.deliveryTypeOptions}>
+<View style={styles.filterContainer}>
+  <Text style={styles.filterLabel}>배달 유형</Text>
+  <View style={styles.deliveryTypeOptions}>
+    {[
+      { type: "all", label: "전체" },
+      { type: "direct", label: "직접 배달" },
+      { type: "cupHolder", label: "컵홀더 배달" },
+    ].map(({ type, label }) => (
+      <TouchableOpacity
+        key={type}
+        style={[styles.filterButton, selectedDeliveryType === type && styles.activeFilterButton]}
+        onPress={() => setSelectedDeliveryType(type)}
+      >
+        <Text style={[styles.filterButtonText, selectedDeliveryType === type && styles.activeFilterText]}>
+          {label}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+</View>
+<View style={styles.divider} />
+
+{/* 3️⃣ 정렬 옵션 버튼 */}
+<View style={styles.filterContainer}>
+  <Text style={styles.filterLabel}>정렬 기준</Text>
+  <View style={styles.sortOptions}>
+    {[
+      { type: "distance", label: "거리순" },
+      { type: "price", label: "가격순" },
+    ].map(({ type, label }) => (
+      <TouchableOpacity
+        key={type}
+        style={[styles.filterButton, sortCriteria === type && styles.activeFilterButton]}
+        onPress={() => setSortCriteria(type)}
+      >
+        <Text style={[styles.filterButtonText, sortCriteria === type && styles.activeFilterText]}>
+          {label}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+</View>
+<View style={styles.divider} />
+
+      {/* <View style={styles.deliveryTypeOptions}>
         <TouchableOpacity
           style={[styles.deliveryTypeButton, selectedDeliveryType === "all" && styles.activeButton]}
           onPress={() => setSelectedDeliveryType("all")}
@@ -311,7 +284,6 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
         </TouchableOpacity>
       </View>
 
-      {/* 3️⃣ 정렬 옵션 버튼 */}
       <View style={styles.sortOptions}>
         <TouchableOpacity
           style={[styles.sortButton, sortCriteria === "distance" && styles.activeButton]}
@@ -325,7 +297,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
         >
           <Text style={styles.buttonText}>가격순</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* 4️⃣ 리스트 출력 */}
       <FlatList
@@ -342,101 +314,193 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
 export default DeliveryCustomList;
 
 const styles = StyleSheet.create({
+  divider: {
+    height: 1, // 선의 두께
+    backgroundColor: "#D1D5DB", // 연한 회색
+    marginVertical: 12, // 위아래 간격
+    width: "100%",
+  },
+  filterContainer: {
+    marginBottom: 0,
+  },
+  filterLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+
+  /** 🛵 배달 유형 필터 및 정렬 버튼 스타일 **/
+  deliveryTypeOptions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  sortOptions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  /** 📍 필터 버튼 스타일 **/
+  filterButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: "#E5E7EB",
+    marginHorizontal: 5,
+  },
+  activeFilterButton: {
+    backgroundColor: "#2563EB",
+  },
+  filterButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  activeFilterText: {
+    color: "#ffffff",
+  },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F9FAFB", // Light gray background
     paddingHorizontal: 16,
   },
-  searchInput: {
-    height: 40,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginVertical: 10,
+
+  /** 🏷️ Delivery Item Card **/
+  itemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 15,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2, // Android shadow
   },
+
+  /** 📍 Left Section (Cafe Logo & Time) **/
+  leftSection: {
+    alignItems: "center",
+    marginRight: 13,
+  },
+  cafeLogo: {
+    width: 60,
+    height: 60,
+    borderRadius: 25,
+  },
+  timeRemaining: {
+    fontSize: 12,
+    color: "#4B5563",
+    fontWeight: "600",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    borderRadius: 3, // Softer edges
+    textAlign: "center",
+    marginTop: 6,
+    backgroundColor: "#F3F4F6",
+  },
+
+  /** 🏠 Middle Section (Details) **/
+  centerSection: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  cafeName: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 4,
+  },
+  info: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "500",
+    marginBottom: 3,
+  },
+  price: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#2563EB",
+    marginTop: 6,
+  },
+
+  /** ✅ Right Section (Accept Button) **/
+  rightSection: {
+    justifyContent: "center",
+
+  },
+  button: {
+    backgroundColor: "#2563EB",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14, // 기존 24에서 14로 줄임
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontWeight: "600",
+    fontSize: 15,
+  },
+  disabledButton: {
+    backgroundColor: "#9CA3AF",
+  },
+
+  /** 🔍 Search Input **/
+  searchInput: {
+    height: 48,
+    borderColor: "#E5E7EB",
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    marginVertical: 12,
+    backgroundColor: "#ffffff",
+    fontSize: 15,
+  },
+
+  /** 📌 Delivery Type Filters **/
   deliveryTypeOptions: {
     flexDirection: "row",
     justifyContent: "center",
-    marginVertical: 10,
+    marginVertical: 12,
   },
   deliveryTypeButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginHorizontal: 5,
-    borderRadius: 5,
-    backgroundColor: "#e5e7eb",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginHorizontal: 6,
+    borderRadius: 12,
+    backgroundColor: "#E5E7EB",
   },
+
+  /** 📊 Sorting Options **/
   sortOptions: {
     flexDirection: "row",
     justifyContent: "center",
     marginVertical: 10,
   },
   sortButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginHorizontal: 5,
-    borderRadius: 5,
-    backgroundColor: "#e5e7eb",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginHorizontal: 6,
+    borderRadius: 12,
+    backgroundColor: "#E5E7EB",
   },
   activeButton: {
-    backgroundColor: "#6C63FF",
+    backgroundColor: "#2563EB",
   },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  sortText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  itemContainer: {
-    flexDirection: "row",
-    padding: 16,
-    backgroundColor: "#F8F8F8",
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  cafeLogo: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 16,
-  },
-  itemDetails: {
-    flex: 1,
-  },
-  cafeName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  menu: {
-    fontSize: 14,
-    color: "#4B5563",
-    marginVertical: 4,
-  },
-  info: {
-    fontSize: 12,
-    color: "#6B7280",
-  },
-  price: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginTop: 4,
-    color: "#6C63FF",
-  },
-  button: {
-    backgroundColor: '#6610f2',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
+
+  /** 🔽 Footer Section **/
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  disabledButton: {
-    backgroundColor: '#bbb',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 });
