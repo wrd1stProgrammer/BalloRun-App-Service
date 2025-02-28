@@ -79,6 +79,7 @@ export const orderNowHandler = (
         resolvedAddress,
         isMatch,
         deliveryType,
+        
         startTime,    //시작
         endTime,     //끝나느시간간
         deliveryFee,

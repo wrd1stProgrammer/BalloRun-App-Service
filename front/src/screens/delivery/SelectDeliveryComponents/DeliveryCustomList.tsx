@@ -242,7 +242,9 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
           <Text style={styles.info}>거리: {distance} km</Text>
           <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>
           <Text style={styles.price}>가격: {item.price}원</Text>
+
           <Text style={styles.price}>
+            
   종료: {
     (() => {
       const now = new Date();

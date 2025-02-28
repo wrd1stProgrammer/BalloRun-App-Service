@@ -104,7 +104,6 @@ const HomeScreen: React.FC = () => {
 
 
   useEffect(() => {
-
     if (!orderSocket) {
       console.log("orderSocket error");
       return;

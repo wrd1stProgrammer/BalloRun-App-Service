@@ -21,7 +21,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ visible, onClose, o
 
             {/* 카페 및 메뉴 정보 */}
             <Text style={styles.info}>가게 이름: {deliveryItem.items[0]?.cafeName || "없음"}</Text>
-            <Text style={styles.info}>메뉴: {deliveryItem.items.map(i => `${i.menuName} x${i.quantity}`).join(", ") || "없음"}</Text>
+            <Text style={styles.info}>주문 메뉴: {deliveryItem.items.map(i => `${i.menuName} x${i.quantity}`).join(", ") || "없음"}</Text>
             <Text style={styles.info}>설명: {deliveryItem.items[0]?.description || "없음"}</Text>
             <Text style={styles.info}>
                 {deliveryItem.items.map(i => {
@@ -41,14 +41,14 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ visible, onClose, o
             <Text style={styles.info}>배달 유형: {deliveryItem.deliveryType === "direct" ? "직접 배달" : "기타"}</Text>
             <Text style={styles.info}>배달비: {deliveryItem.deliveryFee}원</Text>
             <Text style={styles.info}>총 가격: {deliveryItem.price || 0}원</Text>
-            <Text style={styles.info}>라이더 요청사항: {deliveryItem.riderRequest || "없음"}</Text>
+            <Text style={styles.info}>배달자 주문 요청사항: {deliveryItem.riderRequest || "없음"}</Text>
 
 
 
             {/* 주문 시간 */}
             <Text style={styles.info}>주문 요청 시간: {new Date(deliveryItem.startTime).toLocaleTimeString()}</Text>
             <Text style={styles.info}>
-              종료: {
+              주문 종료 시간: {
                 (() => {
                   const now = new Date();
                   const endTime = new Date(deliveryItem.endTime);

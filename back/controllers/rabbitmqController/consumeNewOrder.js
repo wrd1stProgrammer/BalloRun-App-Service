@@ -49,11 +49,11 @@ const consumeNewOrderMessages = async (redisCli) => {
                   }
                 ],
                 deliveryType: newOrder.deliveryType,
-                startTime: newOrder.createdAt,
+                startTime: newOrder.startTime,
                 deliveryFee: newOrder.deliveryFee,
                 price: newOrder.priceOffer,
                 createdAt: newOrder.createdAt,
-                endTime: newOrder.pickupTime,
+                endTime: newOrder.endTime,
                 lat: newOrder.lat,
                 lng: newOrder.lng,
                 resolvedAddress: newOrder.resolvedAddress,

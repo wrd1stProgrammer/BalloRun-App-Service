@@ -25,9 +25,9 @@ const NewOrderSchema = new mongoose.Schema(
     },
 
 
-    startTime: { type: Number, required: true }, // 픽업 시간
+    startTime: { type: Date, required: true }, // 픽업 시간
     deliveryAddress: { type: String, required: true }, // 배달 상세 주소
-    endTime: { type: Number, required: true }, // 픽업 시간 표시
+    endTime: { type: Date, required: true }, // 픽업 시간 표시
     selectedFloor: {type:String},
 
     status: {
