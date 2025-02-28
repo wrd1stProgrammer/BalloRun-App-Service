@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-// data의 타입 정의
 interface BannerData {
   _id: string;
   orderId: string;
@@ -12,15 +11,17 @@ interface BannerData {
   lng: string;
 }
 
-// props의 타입 정의
 interface BannerSectionProps {
   data: BannerData;
-  distance: any
+  distance: string;
 }
 
 const BannerSection: React.FC<BannerSectionProps> = ({ data, distance }) => {
   return (
-    <View style={styles.container}>
+    <View style={styles.card}>
+      {/* 초록색 동그라미 */}
+      <View style={styles.greenDot} />
+      {/* 데이터 배치 */}
       <View style={styles.contentContainer}>
         <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
           {data.name}
@@ -28,51 +29,65 @@ const BannerSection: React.FC<BannerSectionProps> = ({ data, distance }) => {
         <Text style={styles.orderDetails} numberOfLines={1} ellipsizeMode="tail">
           {data.orderDetails}
         </Text>
-        <Text style={styles.deliveryFee}>배달팁: {data.deliveryFee}</Text>
+        <Text style={styles.info}>
+          배달팁 :{data.deliveryFee}원  {distance}km
+        </Text>
       </View>
-      {distance !== undefined && (
-        <View style={styles.contentContainer}>
-          <Text style={styles.name}>
-            떨어져 있는 거리: {String(distance)} Km
-          </Text>
-        </View>
-      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: 365,
-    height: 70,
-    borderRadius: 10,
-    justifyContent: 'center',
+  card: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#dde2e8',
+    paddingHorizontal: 12,
+    flexDirection: 'row', // 수평 배치
     alignItems: 'center',
-    paddingHorizontal: 16,
+    shadowColor: '#000',
+    //shadowOpacity: 0.05,
+    //shadowRadius: 2,
+    elevation: 1,
+  },
+  greenDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#00FF00', // 초록색
+    marginRight: 8, // 동그라미와 텍스트 간 간격
   },
   contentContainer: {
-    width: '100%',
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   name: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '600',
     color: '#333',
-    flex: 1,
-    marginRight: 8,
+    fontFamily: 'NotoSansKR-Regular',
+    flex: 1, // 왼쪽에 고정
   },
   orderDetails: {
     fontSize: 14,
-    color: '#555',
-    flex: 1,
-    marginRight: 8,
+    fontWeight: '500',
+    color: '#666',
+    fontFamily: 'NotoSansKR-Regular',
+    flex: 2, // 중간에 더 많은 공간 차지
+    textAlign: 'center',
   },
-  deliveryFee: {
+  info: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#8A67F8', // 보라색으로 강조
+    fontWeight: '500',
+    color: '#333',
+    fontFamily: 'NotoSansKR-Regular',
+    flex: 1,
+    textAlign: 'right',
   },
 });
 

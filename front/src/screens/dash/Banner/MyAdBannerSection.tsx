@@ -1,25 +1,21 @@
 import React from 'react';
 import { Image, View, Text, StyleSheet } from 'react-native';
-import { Dimensions } from 'react-native';
-import { screenWidth } from '../../../utils/Scaling';
-// data의 타입 정의
+
 interface BannerData {
   id: number;
   imageUrl: string;
   title: string;
 }
 
-// props의 타입 정의
 interface BannerSectionProps {
   data: BannerData;
+  bannerWidth: number; // bannerWidth를 props로 추가
 }
 
-const MyAdBannerSection: React.FC<BannerSectionProps> = ({ data }) => {
-  const screenWidth = Dimensions.get('window').width;
-    
+const MyAdBannerSection: React.FC<BannerSectionProps> = ({ data, bannerWidth }) => {
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: data.imageUrl }} style={styles.image} />
+    <View style={[styles.container, { width: bannerWidth }]}>
+      <Image source={{ uri: data.imageUrl }} style={[styles.image, { width: bannerWidth }]} />
       <Text style={styles.title}>{data.title}</Text>
     </View>
   );
@@ -27,15 +23,15 @@ const MyAdBannerSection: React.FC<BannerSectionProps> = ({ data }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    flex: 1,
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 20,
   },
   image: {
-    width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    borderRadius: 16,
   },
   title: {
     position: 'absolute',

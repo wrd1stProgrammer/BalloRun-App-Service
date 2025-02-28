@@ -19,7 +19,7 @@ interface Category {
 const categories: Category[] = [
   { name: '커피', icon: 'cafe', screen: 'CafeListScreen' },
   { name: '편의점', icon: 'storefront', screen: 'OrderPageScreen' },
-  { name: '마트', icon: 'medical', screen: 'OrderPageScreen' },
+ // { name: '마트', icon: 'medical', screen: 'OrderPageScreen' },
 //{ name: '음식', icon: 'fast-food', screen: 'OrderPageScreen' },
 //{ name: '물건', icon: 'cart', screen: 'OrderPageScreen' },
   { name: '기타', icon: 'ellipsis-horizontal', screen: 'OrderPageScreen' },
@@ -143,7 +143,7 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
   return (
     <View style={styles.container}>
       {/* 주문하기 제목 추가 */}
-      <Text style={styles.title}>주문하기</Text>
+      <Text style={styles.title}>심부름 맡기기</Text>
 
       {/* 카테고리 그리드 */}
       <View style={styles.gridContainer}>
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 10,
     width: '100%',
-    height: '47%',
+    height: '40%',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
