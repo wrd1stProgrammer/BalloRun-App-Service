@@ -72,6 +72,7 @@ const HomeScreen: React.FC = () => {
 
 
   useEffect(() => {
+    
     const fetchOrders = async () => {
       //dispatch(clearOngoingOrder());
 

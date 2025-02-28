@@ -28,11 +28,13 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
             <Text style={styles.info}>총 주문 가격: {deliveryItem.price}원</Text>
             <Text style={styles.info}>배달자 주문 요청사항: {deliveryItem.riderRequest}</Text>
 
-            <Text style={styles.info}>주문 요청 시간: {new Date(deliveryItem.startTime).toLocaleTimeString()}</Text>
+            <Text style={styles.info}>[주의]배달희망 시간(startTime): {new Date(deliveryItem.startTime).toLocaleTimeString()}부터</Text>
+            <Text style={styles.info}>주문 종료 시간: {new Date(deliveryItem.endTime).toLocaleTimeString()}</Text>
+            
             <Text style={styles.info}>
-              주문 종료 시간: {
+              남은 시간: {
                 (() => {
-                  const now = new Date(deliveryItem.startTime);
+                  const now = new Date();
                   const endTime = new Date(deliveryItem.endTime);
                   const diff = endTime - now; // 밀리초 차이
 

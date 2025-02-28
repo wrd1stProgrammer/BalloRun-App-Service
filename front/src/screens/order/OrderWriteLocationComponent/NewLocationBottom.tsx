@@ -49,20 +49,17 @@ interface NewLocationBottomProps {
   };
 }
 
-const toKST = (date: Date) => {
-  const offset = 9 * 60;
-  return new Date(date.getTime() + offset * 60 * 1000);
-};
 
 const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
   const { address, deliveryMethod, markers, selectedMarker } = route.params;
   const dispatch = useAppDispatch();
   const menu = useAppSelector(selectMenu);
 
-  const [startTime, setStartTimeLocal] = useState(toKST(new Date()));
-  const [endTime, setEndTimeLocal] = useState(
-    toKST(new Date(new Date().getTime() + 60 * 60 * 1000))
-  );
+  const [startTime, setStartTimeLocal] = useState(new Date());
+  const [endTime, setEndTimeLocal] = useState(() => {
+    const initialStartTime = new Date();
+    return new Date(initialStartTime.getTime() + 60 * 60 * 1000);
+  });
   const [deliveryFee, setDeliveryFeeLocal] = useState("500");
   const [deliveryRequest, setDeliberyRequest] = useState("없음");
   const [showStartPicker, setShowStartPicker] = useState(false);
@@ -97,7 +94,7 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
 
   useEffect(() => {
     if (!reservationChecked) {
-      setStartTimeLocal(toKST(new Date()));
+      setStartTimeLocal(new Date());
     }
   }, [reservationChecked]);
 

@@ -54,10 +54,7 @@ type RootStackParamList = {
 type OrderFinalScreenRouteProp = RouteProp<RootStackParamList, "OrderFinalScreen">;
 
 
-const toKST = (date: Date) => {
-  const offset = 9 * 60;
-  return new Date(date.getTime() + offset * 60 * 1000);
-};
+
 
 const OrderFinalScreen = () => {
   const route = useRoute<OrderFinalScreenRouteProp>();
@@ -82,9 +79,11 @@ const OrderFinalScreen = () => {
   // 02/21 03:13 추가
   const [floor, setFloorState] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
-  const [startTime, setStartTimeLocal] = useState(toKST(new Date()));
-  const [endTime, setEndTimeLocal] = useState(toKST(new Date(new Date().getTime() + 60 * 60 * 1000)));
-  
+  const [startTime, setStartTimeLocal] = useState(new Date());
+   const [endTime, setEndTimeLocal] = useState(() => {
+     const initialStartTime = new Date();
+     return new Date(initialStartTime.getTime() + 60 * 60 * 1000);
+   });
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [reservationChecked, setReservationChecked] = useState(false);
@@ -118,7 +117,7 @@ const OrderFinalScreen = () => {
 
   useEffect(() => {
     if (!reservationChecked) {
-      setStartTimeLocal(toKST(new Date()));
+      setStartTimeLocal(new Date());
     }
   }, [reservationChecked]);
   useEffect(() => {

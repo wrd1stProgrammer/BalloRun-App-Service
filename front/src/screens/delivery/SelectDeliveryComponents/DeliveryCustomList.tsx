@@ -243,14 +243,16 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
           <Text style={styles.price}>배달비: {item.deliveryFee}원</Text>
           <Text style={styles.price}>가격: {item.price}원</Text>
 
+          <Text style={styles.price}>[주의]배달희망 시간(startTime): {new Date(item.startTime).toLocaleTimeString()}부터</Text>
+
+
           <Text style={styles.price}>
             
   종료: {
     (() => {
-      const now = new Date(item.startTime);
+      const now = new Date();
       const endTime = new Date(item.endTime);
       const diff = endTime - now; // 밀리초 차이
-
       if (diff <= 0) return "종료됨"; // 이미 종료된 경우
 
       const hours = Math.floor(diff / (1000 * 60 * 60));
