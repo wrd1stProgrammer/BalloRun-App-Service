@@ -96,7 +96,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
 
     // 주문 수락 요청
     const dummyRes = await dispatch(acceptActionHandler(orderId,orderType));
-    await dispatch(refetchUser()); // isDelivering 상태 업뎃 위함.
+    
 
     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
 
@@ -107,6 +107,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
 
     // 위치 추적 시작
     console.log("Geolocation.watchPosition 실행...");
+    //await dispatch(refetchUser()); // isDelivering 상태 업뎃 위함.
  
     setTimeout(() => {
       console.log("Navigating to BottomTab...");

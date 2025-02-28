@@ -53,8 +53,10 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
 
           const orderUser = await User.findById(userId);
           const riderUser = await User.findById(riderId); // 알람 일단 보려고 임시
+          console.log('수락에서 riderUser', riderUser);
           riderUser.isDelivering = true;
           await riderUser.save();
+          console.log('riderUser UPdate',riderUser);
 
           // 3️⃣ 기존 1:1 채팅방 존재 여부 확인
           let chatRoom = await ChatRoom.findOne({

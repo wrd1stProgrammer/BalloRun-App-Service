@@ -19,6 +19,7 @@ import { useLocation } from '../../utils/Geolocation/LocationContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import AdMobBanner from './AdMob/AdMobBanner';
+import { refetchUser } from '../../redux/actions/userAction';
 
 
 type DeliveryItem = {
@@ -73,6 +74,7 @@ const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      await dispatch(refetchUser());
       //dispatch(clearOngoingOrder());
 
       //await dispatch(setIsOngoingOrder(false));

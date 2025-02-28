@@ -64,7 +64,7 @@ const consumeNewOrderMessages = async (redisCli) => {
 
             const redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
             redisOrders.push(transformedOrder);
-            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 1800 }); // 3분 1분 테스트
+            await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 120 }); // 3분 1분 테스트
 
 
             // 진행 주문 제거 이거 Ongoing에서 맞춰야 함.
