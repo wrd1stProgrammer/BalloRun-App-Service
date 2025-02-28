@@ -44,7 +44,7 @@ const newOrderCreate = async (req, res) => {
       deliveryAddress,
       deliveryMethod,
       startTime,
-      endTime,
+      endTime, // 끝
       selectedFloor,
       resolvedAddress
     });

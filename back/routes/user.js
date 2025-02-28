@@ -10,7 +10,7 @@ const {
 
 const router = express.Router();
 
-router.route("/profile").get(getProfile).patch(updateProfile);
+router.route("/profile").get(getProfile);
 router.post(`/saveVerification`,saveVerification);
 router.post(`/registeraccount`,registerAccountApi);
 router.post(`/withdraw`,withdrawApi);

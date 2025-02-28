@@ -8,6 +8,7 @@ const { default: mongoose } = require("mongoose");
 
 // Get user profile
 const getProfile = async (req, res) => {
+  console.log('getProfile')
   const accessToken = req.headers.authorization?.split(" ")[1];
 
   const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
@@ -42,6 +43,7 @@ const getProfile = async (req, res) => {
 
 // Update user profile
 const updateProfile = async (req, res) => {
+  console.log('updateProfile')
   const accessToken = req.headers.authorization?.split(" ")[1];
 
   const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
@@ -59,9 +61,9 @@ const updateProfile = async (req, res) => {
   }
 
   try {
-    if (username) user.name = name;
-    if (email) user.bio = bio;
-    if (userImage) user.userImage = userImage;
+    //if (username) user.name = name;
+    //if (email) user.bio = bio;
+    //if (userImage) user.userImage = userImage;
 
     await user.save();
 
