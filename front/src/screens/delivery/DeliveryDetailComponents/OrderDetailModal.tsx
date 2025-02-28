@@ -50,7 +50,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ visible, onClose, o
             <Text style={styles.info}>
               주문 종료 시간: {
                 (() => {
-                  const now = new Date();
+                  const now = new Date(deliveryItem.startTime);
                   const endTime = new Date(deliveryItem.endTime);
                   const diff = endTime - now; // 밀리초 차이
 

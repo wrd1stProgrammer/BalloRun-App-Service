@@ -247,7 +247,7 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
             
   종료: {
     (() => {
-      const now = new Date();
+      const now = new Date(item.startTime);
       const endTime = new Date(item.endTime);
       const diff = endTime - now; // 밀리초 차이
 
