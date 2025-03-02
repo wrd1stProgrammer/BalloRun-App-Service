@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from "react-native";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { goBack } from "../../navigation/NavigationUtils";
 import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
 import { selectMenu, setMenu } from "../../redux/reducers/menuSlice";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Header from "../../utils/OrderComponents/Header";
 
 interface MenuOptionParams {
   menuItem: {
@@ -96,14 +97,11 @@ const CafeMenuOption: React.FC = () => {
   };
 
   return (
+    <SafeAreaView style={styles.container_1}>
+      <Header title={menuItem.menuName} showCart={false} />
     <View style={styles.container}>
       {/* 상단 바 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{menuItem.cafeName}</Text>
-      </View>
+      
 
       {/* 이미지 */}
       <Image source={{ uri: menuItem.imageUrl }} style={styles.image} />
@@ -160,6 +158,7 @@ const CafeMenuOption: React.FC = () => {
         <Text style={styles.addButtonText}>장바구니에 추가</Text>
       </TouchableOpacity>
     </View>
+    </SafeAreaView>
   );
 };
 
@@ -168,6 +167,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#FFFFFF",
+  },
+  container_1: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",

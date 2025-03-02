@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../../navigation/NavigationUtils";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
+import Header from "../../../utils/OrderComponents/Header";
 
 type RootStackParamList = {
   OrderPageScreen: { name: string };
@@ -81,15 +82,7 @@ const OrderPageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => goBack()}>
-          <Ionicons name="chevron-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{name}</Text>
-        <TouchableOpacity onPress={() => alert("고객센터 연결")}> 
-          <Text style={styles.customerCenterText}>고객센터</Text>
-        </TouchableOpacity>
-      </View>
+      <Header title={name} />
 
       <View style={styles.content}>
         <View style={styles.sectionHeader}>

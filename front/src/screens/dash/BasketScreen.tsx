@@ -6,6 +6,7 @@ import {
   View,
   FlatList,
   Alert,
+  SafeAreaView,
 } from "react-native";
 import React, { useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -16,6 +17,7 @@ import {
   updateQuantity,
   removeItem,
 } from "../../redux/reducers/menuSlice";
+import Header from "../../utils/OrderComponents/Header";
 
 interface MenuItem {
   _id: string;
@@ -150,13 +152,10 @@ const BasketScreen: React.FC = () => {
   );
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>장바구니</Text>
-      </View>
+      <Header title="장바구니" showCart={false}  />
+
       <FlatList
         data={menu.items as MenuItem[]} // 타입 단언 추가
         renderItem={renderMenuItem}
@@ -230,12 +229,17 @@ const BasketScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </View>
+    </SafeAreaView>
   );
 };
 
 export default BasketScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   deleteButton: {
     position: "absolute",
     top: 8,

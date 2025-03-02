@@ -8,6 +8,8 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  SafeAreaView,
+  TextInput,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { goBack, navigate } from "../../navigation/NavigationUtils";
@@ -16,6 +18,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
 import { getCafeMenusBycafeName } from "../../redux/actions/menuAction";
 import { selectMenu, setMenu } from "../../redux/reducers/menuSlice";
 import { WebSocketContext } from "../../utils/sockets/Socket";
+import Header from "../../utils/OrderComponents/Header";
 
 interface CafeMenuListScreenParams {
   cafeName: string; // CafeListScreen에서 넘어오는 카페 이름
@@ -68,34 +71,26 @@ const CafeMenuListScreen: React.FC = () => {
 
 
   return (
+        <SafeAreaView style={styles.container}>
+    
     <View style={styles.container}>
       {/* 상단 바 */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
+      <Header title={cafeName} showCart={false}  />
 
-        <TouchableOpacity style={styles.dropdown}>
-          <Text style={styles.dropdownText}>{cafeName}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.iconButton}>
-          <Ionicons name="search" size={25} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.iconButton}>
-          <Ionicons name="settings" size={25} />
-        </TouchableOpacity>
-      </View>
 
       {/* 로딩 중 표시 */}
       {loading ? (
         <ActivityIndicator size="large" color="#6C63FF" style={styles.loader} />
       ) : (
         <>
-          {/* 메뉴 리스트 */}
-          <Text style={styles.sectionTitle}>메뉴</Text>
-
+          <View style={styles.container_1}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="카페 이름 검색..."
+                value={"메뉴 이름 입력"}
+                onChangeText={(text) => (text)}
+              />
+                      
           <FlatList
             data={menuItems}
             renderItem={renderMenuItem}
@@ -103,6 +98,7 @@ const CafeMenuListScreen: React.FC = () => {
             contentContainerStyle={styles.menuList}
             numColumns={2}
           />
+          </View>
         </>
       )}
 
@@ -127,15 +123,31 @@ const CafeMenuListScreen: React.FC = () => {
         <Text style={styles.cartButtonText}>{menu.price}원</Text>
       </TouchableOpacity>
     </View>
+    </SafeAreaView>
   );
 };
 
 export default CafeMenuListScreen;
 
 const styles = StyleSheet.create({
+  searchInput: {
+    height: 48,
+    borderColor: "#E5E7EB",
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    marginVertical: 12,
+    backgroundColor: "#ffffff",
+    fontSize: 15,
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  container_1: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
   },
   header: {
     flexDirection: "row",

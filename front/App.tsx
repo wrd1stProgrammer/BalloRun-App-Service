@@ -61,7 +61,6 @@ const App: React.FC = () => {
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edges={["top"]}>
         <StatusBar translucent backgroundColor="transparent" />
         
-        <View style={{ flex: 1, paddingTop: Platform.OS === "ios" ? getStatusBarHeight(true) : 0 }}>
           <Provider store={store}>
             <WebSocketContainer>
               <MapSocketContainer>
@@ -75,7 +74,6 @@ const App: React.FC = () => {
               </MapSocketContainer>
             </WebSocketContainer>
           </Provider>
-        </View>
       </SafeAreaView>
     </GestureHandlerRootView>
   );

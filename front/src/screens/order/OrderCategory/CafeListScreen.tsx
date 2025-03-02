@@ -17,6 +17,8 @@ import cafes from "../../../componenets/cafe/cafeNameData";
 import { useAppSelector } from "../../../redux/config/reduxHook";
 import { selectMenu } from "../../../redux/reducers/menuSlice";
 import CafeCustomMapView from "../CafeListScreenComponent/CafeCustomMapView";
+import ToggleSwitch from "../../../utils/OrderComponents/ToggleSwitch";
+import Header from "../../../utils/OrderComponents/Header";
 
 const CafeListScreen: React.FC = () => {
   const [isListView, setIsListView] = useState(true); // 리스트/지도 전환 상태
@@ -38,51 +40,12 @@ const CafeListScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>주문하기</Text>
-        <TouchableOpacity
-          style={styles.cartButton}
-          onPress={() => navigate("BasketScreen")}
-        >
-          <Ionicons name="cart-outline" size={24} color="white" />
-          <View style={styles.cartBadge}>
-            <Text style={styles.cartBadgeText}>{menu.items.length}</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+      <Header title="주문하기" showCart={true} cartItemCount={menu.items.length} />
+
 
       {/* 뷰 전환 버튼 */}
-      <View style={styles.toggleButtons}>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            isListView ? styles.activeButton : styles.inactiveButton,
-          ]}
-          onPress={() => setIsListView(true)}
-        >
-          <Text
-            style={isListView ? styles.activeButtonText : styles.inactiveButtonText}
-          >
-            리스트로 카페찾기
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            !isListView ? styles.activeButton : styles.inactiveButton,
-          ]}
-          onPress={() => setIsListView(false)}
-        >
-          <Text
-            style={!isListView ? styles.activeButtonText : styles.inactiveButtonText}
-          >
-            지도로 카페찾기
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <ToggleSwitch isListView={isListView} onToggle={setIsListView} />
+
 
       {/* 리스트 또는 지도 표시 */}
       {isListView ? (

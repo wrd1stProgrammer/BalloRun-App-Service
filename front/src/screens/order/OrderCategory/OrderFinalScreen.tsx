@@ -26,6 +26,7 @@ import { uploadFile } from "../../../redux/actions/fileAction";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import { Picker } from "@react-native-picker/picker";
 import { reverseGeocode } from "../../../utils/Geolocation/reverseGeocode";
+import Header from "../../../utils/OrderComponents/Header";
 
 interface MarkerData {
   id: number;
@@ -220,15 +221,7 @@ const OrderFinalScreen = () => {
         </View>
       ) : (
         <>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => goBack()}>
-              <Ionicons name="chevron-back" size={24} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{name}</Text>
-            <TouchableOpacity onPress={() => alert("고객센터 연결")}>
-              <Text style={styles.customerCenterText}>고객센터</Text>
-            </TouchableOpacity>
-          </View>
+          <Header title={name} />
 
           <ScrollView style={styles.content}>
           {!floor && (

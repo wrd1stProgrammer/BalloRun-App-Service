@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
@@ -203,6 +204,7 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
   // 📌 총 결제 금액 계산
   const totalAmount = menu.price + Number(deliveryFee);
   return (
+    <SafeAreaView style={styles.container}>
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         {!floor && (
@@ -407,6 +409,7 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 

@@ -74,6 +74,7 @@ const [selectedMarker, setSelectedMarker] = useState<any>(null); // 타입 명�
         bottomSheetRef={bottomSheetRef}  // 추가
         selectedMarker={selectedMarker}  // 추가
       />
+      
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 16,
+    top: 80,
     left: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderRadius: 20,
