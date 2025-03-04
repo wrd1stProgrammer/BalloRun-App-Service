@@ -22,6 +22,7 @@ interface RoomData {
   userImage: string;
   username:string;
   nickname:string;
+  unreadCount: number;
 }
 
 const Chatting: React.FC = () => {

@@ -20,8 +20,9 @@ interface Props {
   isNotificationEnabled?: boolean;
   onExitPressHandler?: () => void;
   onToggleNotificationHandler?: () => void;
+  unreadCount:any;
 }
-
+// username -> nickname 교체 필요! 나중에 닉네임 부분 결정되면.
 const ChatRoomItem = ({
   username,
   nickname,
@@ -33,12 +34,14 @@ const ChatRoomItem = ({
   isNotificationEnabled,
   onExitPressHandler,
   onToggleNotificationHandler,
+  unreadCount,
 }: Props) => {
 
   
 
 
   const renderRightActions = () => {
+    console.log(unreadCount,'안읽은메세지 카운트 더미 로그');
     return (
       <View
         style={{
@@ -128,15 +131,19 @@ const ChatRoomItem = ({
               </Text>
               {!isNotificationEnabled && <Bell16 color={Color.neutral2} />}
             </View>
-            <Text style={[{ color: Color.neutral2 }, TYPOS.body3]}>
-              {timeStamp}
-            </Text>
-          </View>
-          <View>
-            <Text style={[{ color: Color.neutral1 }, TYPOS.body2]}>
-              {content}
-            </Text>
-          </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={[{ color: Color.neutral2 }, TYPOS.body3]}>{timeStamp}</Text>
+                {unreadCount > 0 && (
+                  <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: Color.blue, marginLeft: 8 }} />
+                )}
+              </View>
+            </View>
+            <View>
+              <Text style={[{ color: Color.neutral1 }, TYPOS.body2]}>{content}</Text>
+              {unreadCount > 0 && (
+                <Text style={[{ color: Color.blue }, TYPOS.body3]}>{`새 메시지 ${unreadCount}개`}</Text>
+              )}
+            </View>
         </View>
       </View>
       </Pressable>

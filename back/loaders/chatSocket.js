@@ -37,11 +37,20 @@ module.exports = (chatIo) => {
   chatIo.on("connection", (socket) => {
     console.log(`[ChatSocket] User ${socket.user.userId} connected`);
 
-  // Add room management handlers
-  socket.on("joinRoom", ({ roomId }) => {
+  // 채팅방 유저가 들어갈 시 조인 소켓.
+  socket.on("joinRoom", async ({ roomId }) => {
     socket.join(roomId);
     console.log(`[ChatSocket] User ${socket.user.userId} joined room ${roomId}`);
-  });
+
+    // 모든 안 읽은 메시지를 읽음 처리
+    await ChatMessage.updateMany(
+      { chatRoomId: roomId, readBy: { $ne: socket.user.userId } },
+      { $addToSet: { readBy: socket.user.userId } }
+  );
+
+  // 채팅방 목록 갱신 트리거 (선택적)
+  //socket.emit("room-list-update", { roomId });
+});
 
   socket.on("leaveRoom", ({ roomId }) => {
     socket.leave(roomId);
@@ -79,6 +88,11 @@ module.exports = (chatIo) => {
             nickname = otherUser?.nickname;
           }
           
+          // 안 읽은 메시지 수 계산
+        const unreadCount = await ChatMessage.countDocuments({
+          chatRoomId: room._id,
+          readBy: { $ne: userId }, // userId가 readBy에 없는 메시지
+        });
   
           // 기존 반환 데이터 구조 유지
           return {
@@ -90,6 +104,7 @@ module.exports = (chatIo) => {
             userImage, // 조회한 userImage 사용
             username,
             nickname,
+            unreadCount, // 안 읽은 메세지 개수 (상대가 보낸.)
           };
         })
       );
@@ -152,6 +167,7 @@ module.exports = (chatIo) => {
             chatRoomId,
             sender: userId,
             content: message,
+            readBy: [userId], // 보낸 사람은 기본적으로 읽음
           });
   
           await newMessage.save();
@@ -161,6 +177,20 @@ module.exports = (chatIo) => {
             lastMessage: message,
             lastMessageAt: new Date(),
           });
+
+      // 실시간으로 방에 있는 사용자 확인 -> 테스트 필요함.
+      /*
+    const roomUsers = chatIo.sockets.adapter.rooms.get(chatRoomId);
+    if (roomUsers) {
+      const participants = Array.from(roomUsers).map((socketId) => {
+        return chatIo.sockets.sockets.get(socketId)?.user?.userId;
+      });
+      // 방에 있는 모든 사용자를 읽음 처리
+      await ChatMessage.updateOne(
+        { _id: newMessage._id },
+        { $addToSet: { readBy: { $each: participants } } }
+      );
+    }*/
   
           //  3. 해당 채팅방의 모든 사용자에게 메시지 전송
           // 1.실시간 x 
@@ -169,6 +199,7 @@ module.exports = (chatIo) => {
             sender: userId,
             content: message,
             createdAt: newMessage.createdAt,
+            readBy: newMessage.readBy,
           });
 
             // 푸쉬 알림 -> 배달매칭ㅇㅋ, 채팅 ㅇㅋ 

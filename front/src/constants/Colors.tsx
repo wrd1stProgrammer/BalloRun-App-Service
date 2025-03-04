@@ -8,6 +8,7 @@ const Color = {
   success: "#4CAF50", // 성공 색상 (초록색)
   warning: "#FFC107", // 경고 색상 (노란색)
   primary: "#007AFF", // 기본적인 블루 계열 색상
+  blue: "#007AFF",
 };
 
 export default Color;

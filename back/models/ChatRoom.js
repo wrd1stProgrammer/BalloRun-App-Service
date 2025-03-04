@@ -4,7 +4,6 @@ const ChatRoomSchema = new mongoose.Schema(
   {
     users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // 참여자들
     orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order", unique: true }, // 주문과 연결
-
     title: { type: String, required: true }, // 채팅방 이름
     participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // 채팅방 참여자들
     lastMessage: { type: String, default: "" }, // 마지막 메시지
