@@ -5,6 +5,7 @@ import { uploadFile } from '../../redux/actions/fileAction';
 import { launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
 import { useAppDispatch } from '../../redux/config/reduxHook';
 import { Ionicons } from '@expo/vector-icons';
+import { updateLastChat } from '../../redux/reducers/chatSlice';
 
 interface InputProps {
   chatRoomId: string;
@@ -72,6 +73,15 @@ const Input: React.FC<InputProps> = ({ chatRoomId, onPostMessageHandler }) => {
           imageUrl,
         });
         onPostMessageHandler('', imageUrl, false, tempId);
+        // 리덕스 업데이트
+        dispatch(
+          updateLastChat({
+            roomId: chatRoomId,
+            lastChat: '사진을 보냈습니다.',
+            lastChatAt: new Date().toISOString(),
+          })
+        );
+        
         setSelectedImage(null);
       }
     } catch (error) {
@@ -88,6 +98,15 @@ const Input: React.FC<InputProps> = ({ chatRoomId, onPostMessageHandler }) => {
         chatRoomId,
         message,
       });
+      // 리덕스 업데이트
+      dispatch(
+        updateLastChat({
+          roomId: chatRoomId,
+          lastChat: message,
+          lastChatAt: new Date().toISOString(),
+        })
+      );
+
       setMessage('');
     }
   };

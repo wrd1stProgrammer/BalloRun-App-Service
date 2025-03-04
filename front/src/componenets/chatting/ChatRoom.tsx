@@ -10,6 +10,9 @@ import { ChatSocketContext } from '../../utils/sockets/ChatSocket';
 import { token_storage } from '../../redux/config/storage';
 import { useAppSelector } from '../../redux/config/reduxHook';
 import { selectUser } from '../../redux/reducers/userSlice';
+import { updateLastChat } from '../../redux/reducers/chatSlice';
+import { useAppDispatch } from '../../redux/config/reduxHook';
+
 
 export type ChatRoomScreenProps = StackScreenProps<RootStackParamList, 'ChatRoom'>;
 
@@ -33,7 +36,7 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
   const { roomId, username, nickname, userImage } = route.params; // userImage 추출
   const [chatData, setChatData] = useState<ChatData>({});
   const user = useAppSelector(selectUser);
-
+  const dispatch = useAppDispatch();
   const scrollViewRef = useRef<ScrollView | null>(null);
 
   const scrollToBottom = () => {
@@ -72,12 +75,21 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
 
           currentMessages.push({
             id: newMessage.id,
-            content: newMessage.content,
+            content: newMessage.content, //메세지내용
             imageUrl: newMessage.imageUrl,
             timestamp: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             isMe: newMessage.sender === user?._id,
             isLoading: false,
           });
+
+          // 리덕스에 마지막 메시지 업데이트
+          dispatch(
+            updateLastChat({
+              roomId,
+              lastChat: newMessage.content || '사진을 보냈습니다.',
+              lastChatAt: newMessage.createdAt,
+            })
+          );
 
           return {
             ...updatedChatData,

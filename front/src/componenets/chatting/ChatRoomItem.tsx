@@ -8,6 +8,8 @@ import FillPin24 from './etc/FillPin24';
 import Bell16 from './etc/Bell16';
 import PinIndicator from './etc/PinIndicator';
 import { navigate } from '../../navigation/NavigationUtils';
+import { selectChatRoom } from '../../redux/reducers/chatSlice';
+import { useAppDispatch ,useAppSelector} from '../../redux/config/reduxHook';
 
 interface Props {
   roomId: string;
@@ -36,9 +38,11 @@ const ChatRoomItem = ({
   onToggleNotificationHandler,
   unreadCount,
 }: Props) => {
+  const chatRoom = useAppSelector((state) => selectChatRoom(state, roomId));
 
-  
-
+  // 리덕스 값이 있으면 사용, 없으면 초기값 사용
+  const latestContent = chatRoom?.lastChat ?? content;
+  const latestTimeStamp = chatRoom?.lastChatAt ?? timeStamp;
 
   const renderRightActions = () => {
     console.log(unreadCount,'안읽은메세지 카운트 더미 로그');
@@ -132,14 +136,14 @@ const ChatRoomItem = ({
               {!isNotificationEnabled && <Bell16 color={Color.neutral2} />}
             </View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={[{ color: Color.neutral2 }, TYPOS.body3]}>{timeStamp}</Text>
+                <Text style={[{ color: Color.neutral2 }, TYPOS.body3]}>{new Date(latestTimeStamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
                 {unreadCount > 0 && (
                   <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: Color.blue, marginLeft: 8 }} />
                 )}
               </View>
             </View>
             <View>
-              <Text style={[{ color: Color.neutral1 }, TYPOS.body2]}>{content}</Text>
+              <Text style={[{ color: Color.neutral1 }, TYPOS.body2]}>{latestContent}</Text>
               {unreadCount > 0 && (
                 <Text style={[{ color: Color.blue }, TYPOS.body3]}>{`새 메시지 ${unreadCount}개`}</Text>
               )}

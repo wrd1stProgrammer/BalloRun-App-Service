@@ -91,7 +91,10 @@ module.exports = (chatIo) => {
           // 안 읽은 메시지 수 계산
         const unreadCount = await ChatMessage.countDocuments({
           chatRoomId: room._id,
-          readBy: { $ne: userId }, // userId가 readBy에 없는 메시지
+          readBy: { $ne: userId },
+        }).catch((err) => {
+          console.log(`[ChatSocket] unreadCount 계산 실패 for room ${room._id}:`, err);
+          return 0; // 에러 시 기본값 0
         });
   
           // 기존 반환 데이터 구조 유지

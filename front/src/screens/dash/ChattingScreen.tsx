@@ -10,8 +10,7 @@ import { setUser } from '../../redux/reducers/userSlice';
 import axios from 'axios';
 import { token_storage } from '../../redux/config/storage';
 import { chatExitHandler } from '../../redux/actions/chatAction';
-
-
+import { setChatRooms } from '../../redux/reducers/chatSlice';
 // 전부 필수 데이터
 interface RoomData {
   id: string;
@@ -32,16 +31,22 @@ const Chatting: React.FC = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log('채팅방 유스이ㅂㅔㄱ트');
     if (!socket) return;
-    // 채팅방 목록 가져오기
+
     const handleGetChatList = () => {
-      socket.emit('room-list', {
-        token: access_token,
-      });
+      socket.emit('room-list', { token: access_token });
       socket.on('room-list', ({ data: { chatRoomList } }) => {
+        // 리덕스에 마지막 메시지와 시간 저장
+        dispatch(
+          setChatRooms(
+            chatRoomList.map((room: RoomData) => ({
+              id: room.id,
+              lastChat: room.lastChat,
+              lastChatAt: room.lastChatAt,
+            }))
+          )
+        );
         setRooms(chatRoomList);
-        console.log(rooms, '받은채팅데이터')
       });
     };
 
@@ -50,7 +55,7 @@ const Chatting: React.FC = () => {
     return () => {
       socket.off('room-list');
     };
-  }, [socket]);
+  }, [socket, dispatch]);
 
   const onExitPressHandler = async (id: string) => {
     Alert.alert(
@@ -114,6 +119,7 @@ const Chatting: React.FC = () => {
           <ChatRoomItem
             username={item.username}
             nickname={item.nickname}
+            unreadCount={item.unreadCount}
             roomId={item.id}
             userImage={item.userImage}
             roomName={item.title}
