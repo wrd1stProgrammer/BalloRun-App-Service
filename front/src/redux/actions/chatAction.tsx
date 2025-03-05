@@ -16,3 +16,14 @@ export const chatExitHandler =(chatRoomId:string) => async(dispatch:any) => {
       throw error;
     }
   }
+
+  export const checkChatRoomAction =(roomId:string) => async(dispatch:any) => {
+    try {
+      const res = await appAxios.get(`/chat/checkchatroom/${roomId}`);
+      console.log(res);
+      return res.data;
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }

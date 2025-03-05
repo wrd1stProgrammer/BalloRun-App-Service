@@ -29,7 +29,7 @@ const ChatBubble = ({ message, isSentByMe, timeStamp, imageUrl, isLoading, userI
           {userImage ? (
             <Image source={{ uri: userImage }} style={styles.avatarImage} resizeMode="cover" />
           ) : (
-            <Text style={styles.avatarText}>진</Text>
+            <Text style={styles.avatarText}>U</Text>
           )}
         </View>
       )}

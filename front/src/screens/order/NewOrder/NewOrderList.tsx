@@ -18,6 +18,9 @@ interface OrderItemProps {
     orderType: string;
     imageUrl: any; // 로컬 이미지 경로
     roomId: string;
+    riderUsername:string;
+    riderNickname:string;
+    riderUserImage:string;
 }
 
 interface OrderListProps {
@@ -75,6 +78,9 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
             imageUrl={localImage} // 로컬 이미지 사용
             orderType={item.orderType}
             roomId={item.roomId}
+            username={item.riderUsername}
+            nickname={item.riderNickname}
+            userImage={item.riderUserImage}
           />
         )}
         contentContainerStyle={styles.listContainer} // 스타일 적용

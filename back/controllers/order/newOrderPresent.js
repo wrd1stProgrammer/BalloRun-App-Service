@@ -79,6 +79,20 @@ const getBannerData = async (req, res) => {
         const chatRoom = await ChatRoom.findOne({
           users: { $all: [order.userId, order.riderId || null] }
         });
+  
+        // riderId로 사용자 정보 조회
+        let riderInfo = { username: "알 수 없음", nickname: "알 수 없음", userImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s" };
+        if (order.riderId) {
+          const rider = await User.findById(order.riderId).lean();
+          if (rider) {
+            riderInfo = {
+              username: rider.username,
+              nickname: rider.nickname,
+              userImage: rider.userImage,
+            };
+          }
+        }
+  
         return {
           _id: order._id,
           name: order.items[0].cafeName,
@@ -88,6 +102,9 @@ const getBannerData = async (req, res) => {
           priceOffer: order.items[0].price,
           deliveryFee: order.deliveryFee,
           roomId: chatRoom ? chatRoom._id : null,
+          riderUsername: riderInfo.username,
+          riderNickname: riderInfo.nickname,
+          riderUserImage: riderInfo.userImage,
         };
       }));
   
@@ -95,6 +112,20 @@ const getBannerData = async (req, res) => {
         const chatRoom = await ChatRoom.findOne({
           users: { $all: [newOrder.userId, newOrder.riderId || null] }
         });
+  
+        // riderId로 사용자 정보 조회
+        let riderInfo = { username: "알 수 없음", nickname: "알 수 없음", userImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s" };
+        if (newOrder.riderId) {
+          const rider = await User.findById(newOrder.riderId).lean();
+          if (rider) {
+            riderInfo = {
+              username: rider.username,
+              nickname: rider.nickname,
+              userImage: rider.userImage,
+            };
+          }
+        }
+  
         return {
           _id: newOrder._id,
           name: newOrder.name,
@@ -104,6 +135,9 @@ const getBannerData = async (req, res) => {
           priceOffer: newOrder.priceOffer,
           deliveryFee: newOrder.deliveryFee,
           roomId: chatRoom ? chatRoom._id : null,
+          riderUsername: riderInfo.username,
+          riderNickname: riderInfo.nickname,
+          riderUserImage: riderInfo.userImage,
         };
       }));
   
@@ -147,6 +181,20 @@ const getBannerData = async (req, res) => {
         const chatRoom = await ChatRoom.findOne({
           users: { $all: [order.userId, order.riderId || null] }
         });
+  
+        // riderId로 사용자 정보 조회
+        let riderInfo = { username: "알 수 없음", nickname: "알 수 없음", userImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s" };
+        if (order.riderId) {
+          const rider = await User.findById(order.riderId).lean();
+          if (rider) {
+            riderInfo = {
+              username: rider.username,
+              nickname: rider.nickname,
+              userImage: rider.userImage,
+            };
+          }
+        }
+  
         return {
           _id: order._id,
           name: order.items[0].cafeName,
@@ -157,6 +205,9 @@ const getBannerData = async (req, res) => {
           deliveryFee: order.deliveryFee,
           orderType: order.orderType,
           roomId: chatRoom ? chatRoom._id : null,
+          riderUsername: riderInfo.username,
+          riderNickname: riderInfo.nickname,
+          riderUserImage: riderInfo.userImage,
         };
       }));
   
@@ -164,6 +215,20 @@ const getBannerData = async (req, res) => {
         const chatRoom = await ChatRoom.findOne({
           users: { $all: [newOrder.userId, newOrder.riderId || null] }
         });
+  
+        // riderId로 사용자 정보 조회
+        let riderInfo = { username: "알 수 없음", nickname: "알 수 없음", userImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s" };
+        if (newOrder.riderId) {
+          const rider = await User.findById(newOrder.riderId).lean();
+          if (rider) {
+            riderInfo = {
+              username: rider.username,
+              nickname: rider.nickname,
+              userImage: rider.userImage,
+            };
+          }
+        }
+  
         return {
           _id: newOrder._id,
           name: newOrder.name,
@@ -174,6 +239,9 @@ const getBannerData = async (req, res) => {
           deliveryFee: newOrder.deliveryFee,
           orderType: newOrder.orderType,
           roomId: chatRoom ? chatRoom._id : null,
+          riderUsername: riderInfo.username,
+          riderNickname: riderInfo.nickname,
+          riderUserImage: riderInfo.userImage,
         };
       }));
   

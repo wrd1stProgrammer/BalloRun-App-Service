@@ -76,7 +76,7 @@ const HomeScreen: React.FC = () => {
 
     const fetchOrders = async () => {
       await dispatch(refetchUser());
-      //dispatch(clearOngoingOrder());
+      // dispatch(clearOngoingOrder());
 
       //await dispatch(setIsOngoingOrder(false));
       console.log("🚀 배달 상태 확인 중...");

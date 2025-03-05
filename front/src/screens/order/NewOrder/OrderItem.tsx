@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { navigate } from '../../../navigation/NavigationUtils';
+import { navigate, resetAndNavigate } from '../../../navigation/NavigationUtils';
+import { useAppDispatch } from '../../../redux/config/reduxHook';
+import { checkChatRoomAction } from '../../../redux/actions/chatAction';
 
 interface OrderItemProps {
   orderId: string;
@@ -13,6 +15,9 @@ interface OrderItemProps {
   orderType: string;
   imageUrl: any;
   roomId: string;
+  username: string;
+  nickname: string;
+  userImage: string;
 }
 
 const getStatusMessage = (status: string) => {
@@ -27,14 +32,30 @@ const getStatusMessage = (status: string) => {
   }
 };
 
-const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt, orderDetails, priceOffer, deliveryFee, orderType, imageUrl, roomId }) => {
+const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt, orderDetails, priceOffer, deliveryFee, orderType, imageUrl, roomId, userImage, username, nickname }) => {
+  const dispatch = useAppDispatch();
+
+  const checkChatRoom = async () => {
+    const isChatRoom = await dispatch(checkChatRoomAction(roomId));
+    return isChatRoom;
+  };
 
   const showOrderDetails = () => {
     navigate("OrderDetailScreen", { orderId, orderType });
   };
 
-  const handleChatPress = () => {
-    navigate('ChatRoom', { roomId });
+  const handleChatPress = async () => {
+    const chatRoomExists = await checkChatRoom();
+    if (chatRoomExists === 1) {
+      navigate('ChatRoom', { roomId, username, nickname, userImage });
+    } else {
+      Alert.alert(
+        '알림',
+        '존재하지 않는 채팅방입니다.',
+        [{ text: '확인', style: 'cancel' }],
+        { cancelable: true }
+      );
+    }
   };
 
   const handleLocationPress = () => {
@@ -58,7 +79,10 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
   };
 
   const handleReorderPress = () => {
-    navigate('OrderListScreen');
+    resetAndNavigate('BottomTab',{
+      screen:"HomeScreen"
+    }
+    );
   };
 
   const renderActionButton = () => {
@@ -83,8 +107,8 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
         );
       default:
         return (
-          <TouchableOpacity style={[styles.actionButton, styles.buttonSpacing]} onPress={handleLocationPress}>
-            <Text style={styles.actionButtonText}>위치 확인</Text>
+          <TouchableOpacity style={[styles.actionButton, styles.buttonSpacing]} onPress={handlerOrderCancel}>
+            <Text style={styles.actionButtonText}>주문 취소</Text>
           </TouchableOpacity>
         );
     }
@@ -120,6 +144,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
 
 export default OrderItem;
 
+// styles는 그대로 유지
 const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
@@ -127,11 +152,11 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   buttonSpacing: {
-    marginHorizontal: 5, // 버튼 간격 추가
+    marginHorizontal: 5,
   },
   chatButton: {
     flex: 1,
-    backgroundColor: '#EEE', // 회색 버튼
+    backgroundColor: '#EEE',
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 8,
@@ -139,21 +164,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   chatButtonText: {
-    color: '#000', // 검정색 글씨
+    color: '#000',
     fontWeight: 'bold',
     textAlign: 'center',
   },
   actionButton: {
     flex: 1,
-    backgroundColor: '#3366FF', // 기본 파란색 버튼
-    paddingVertical: 12, // 버튼 높이 일정하게
+    backgroundColor: '#3366FF',
+    paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   actionButtonText: {
-    color: '#fff', // 흰색 글씨
+    color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -208,5 +233,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-
 });
