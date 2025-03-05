@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Alert, StyleSheet, Modal } from "react-native";
+import { View, Text, TouchableOpacity, Alert, StyleSheet, Modal, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import NoticeTimePicker from "./NoticeTimePicker";
@@ -28,6 +28,30 @@ const DeliveryTimePicker: React.FC<DeliveryTimePickerProps> = ({
   const getTodayMinMaxTime = (time: Date) => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), today.getDate(), time.getHours(), time.getMinutes());
+  };
+
+  const handleConfirmTime = () => {
+    if (tempTime) {
+      if (showPicker === "start") {
+        const todayStart = getTodayMinMaxTime(tempTime);
+        if (todayStart < new Date()) {
+          Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
+          return;
+        }
+        setStartTime(todayStart);
+        if (todayStart >= endTime) {
+          setEndTime(new Date(todayStart.getTime() + 60 * 60 * 1000));
+        }
+      } else {
+        const todayEnd = getTodayMinMaxTime(tempTime);
+        if (todayEnd <= startTime) {
+          Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
+          return;
+        }
+        setEndTime(todayEnd);
+      }
+    }
+    setShowPicker(null);
   };
 
   return (
@@ -82,67 +106,59 @@ const DeliveryTimePicker: React.FC<DeliveryTimePickerProps> = ({
         <Text style={styles.checkboxText}>배달 예약</Text>
       </TouchableOpacity>
 
-      {/* 📌 모달을 활용한 DateTimePicker (확인 버튼 추가) */}
+      {/* 📌 Android와 iOS 분리 처리 */}
       {showPicker && (
-        <Modal transparent={true} animationType="slide">
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>
-                {showPicker === "start" ? "배달 시작 시간 선택" : "배달 종료 시간 선택"}
-              </Text>
-
-              <DateTimePicker
-                value={tempTime || new Date()}
-                mode="time"
-                is24Hour={true}
-                display="spinner"
-                minimumDate={getTodayMinMaxTime(new Date(0, 0, 0, 0, 0))} // ✅ 최소: 오늘 00:00
-                maximumDate={getTodayMinMaxTime(new Date(0, 0, 0, 23, 59))} // ✅ 최대: 오늘 23:59
-                onChange={(event, selectedDate) => {
-                  if (selectedDate) setTempTime(selectedDate);
-                }}
-              />
-
-              <View style={styles.modalButtonContainer}>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => setShowPicker(null)}
-                >
-                  <Text style={styles.cancelButtonText}>취소</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.confirmButton}
-                  onPress={() => {
-                    if (tempTime) {
-                      if (showPicker === "start") {
-                        const todayStart = getTodayMinMaxTime(tempTime);
-                        if (todayStart < new Date()) {
-                          Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
-                          return;
-                        }
-                        setStartTime(todayStart);
-                        if (todayStart >= endTime) {
-                          setEndTime(new Date(todayStart.getTime() + 60 * 60 * 1000));
-                        }
-                      } else {
-                        const todayEnd = getTodayMinMaxTime(tempTime);
-                        if (todayEnd <= startTime) {
-                          Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
-                          return;
-                        }
-                        setEndTime(todayEnd);
-                      }
-                    }
-                    setShowPicker(null);
+        Platform.OS === "ios" ? (
+          <Modal transparent={true} animationType="slide">
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>
+                  {showPicker === "start" ? "배달 시작 시간 선택" : "배달 종료 시간 선택"}
+                </Text>
+                <DateTimePicker
+                  value={tempTime || new Date()}
+                  mode="time"
+                  is24Hour={true}
+                  display="spinner"
+                  minimumDate={getTodayMinMaxTime(new Date(0, 0, 0, 0, 0))}
+                  maximumDate={getTodayMinMaxTime(new Date(0, 0, 0, 23, 59))}
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) setTempTime(selectedDate);
                   }}
-                >
-                  <Text style={styles.confirmButtonText}>확인</Text>
-                </TouchableOpacity>
+                />
+                <View style={styles.modalButtonContainer}>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => setShowPicker(null)}
+                  >
+                    <Text style={styles.cancelButtonText}>취소</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.confirmButton}
+                    onPress={handleConfirmTime}
+                  >
+                    <Text style={styles.confirmButtonText}>확인</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        </Modal>
+          </Modal>
+        ) : (
+          <DateTimePicker
+            value={tempTime || new Date()}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            minimumDate={getTodayMinMaxTime(new Date(0, 0, 0, 0, 0))}
+            maximumDate={getTodayMinMaxTime(new Date(0, 0, 0, 23, 59))}
+            onChange={(event, selectedDate) => {
+              if (selectedDate) {
+                setTempTime(selectedDate);
+                handleConfirmTime();
+              }
+            }}
+          />
+        )
       )}
 
       {/* 📌 배달 예약 안내 모달 추가 */}
@@ -157,6 +173,9 @@ const DeliveryTimePicker: React.FC<DeliveryTimePickerProps> = ({
     </View>
   );
 };
+
+
+
 
 export default DeliveryTimePicker;
 
