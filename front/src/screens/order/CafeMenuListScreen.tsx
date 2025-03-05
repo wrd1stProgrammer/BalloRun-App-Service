@@ -19,6 +19,7 @@ import { getCafeMenusBycafeName } from "../../redux/actions/menuAction";
 import { selectMenu, setMenu } from "../../redux/reducers/menuSlice";
 import { WebSocketContext } from "../../utils/sockets/Socket";
 import Header from "../../utils/OrderComponents/Header";
+import CartButton from "../../utils/OrderComponents/CartButton";
 
 interface CafeMenuListScreenParams {
   cafeName: string; // CafeListScreen에서 넘어오는 카페 이름
@@ -58,7 +59,16 @@ const CafeMenuListScreen: React.FC = () => {
 
   // 메뉴 렌더링
   const renderMenuItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.card} onPress={() => navigate("CafeMenuOption", { menuItem: item })}>
+    <TouchableOpacity style={styles.card}   onPress={() =>
+      navigate("CafeMenuOption", {
+        menuItem: item,
+        requiredOptions: ["Ice", "Hot"], // 필수 옵션 예제
+        additionalOptions: [
+          { name: "샷 추가", price: 500 },
+          { name: "디카페인 변경", price: 500 },
+          { name: "우유 변경 (오트밀크)", price: 1000 },
+        ], // 추가 옵션 예제
+       })}>
       <Image source={{ uri: item.imageUrl }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.itemName}>{item.menuName}</Text>
@@ -103,25 +113,22 @@ const CafeMenuListScreen: React.FC = () => {
       )}
 
       {/* 장바구니 이동 버튼 */}
-      <TouchableOpacity
-        style={styles.cartButton}
-        onPress={() => {
-          if (menu.items && menu.items.length > 0) {
-            navigate("BasketScreen");
-          } else {
-            Alert.alert(
-              "장바구니가 비어 있습니다",
-              "상품을 추가한 후 장바구니로 이동할 수 있습니다.",
-              [{ text: "확인", onPress: () => console.log("Alert 닫기") }]
-            );
-          }
-        }}
-      >
-        <Text style={styles.cartButtonText}>
-          장바구니로 이동 ({menu.quantitiy}개)
-        </Text>
-        <Text style={styles.cartButtonText}>{menu.price}원</Text>
-      </TouchableOpacity>
+        <CartButton
+          title="장바구니로 이동"
+          quantity={menu.quantitiy}
+          price={menu.price}
+          onPress={() => {
+            if (menu.items && menu.items.length > 0) {
+              navigate("BasketScreen");
+            } else {
+              Alert.alert(
+                "장바구니가 비어 있습니다",
+                "상품을 추가한 후 장바구니로 이동할 수 있습니다.",
+                [{ text: "확인", onPress: () => console.log("Alert 닫기") }]
+              );
+            }
+          }}
+        />
     </View>
     </SafeAreaView>
   );

@@ -28,6 +28,7 @@ import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from "re
 import { Ionicons } from "@expo/vector-icons";
 import { reverseGeocode } from "../../../utils/Geolocation/reverseGeocode";
 import { selectIsOngoingOrder, setIsOngoingOrder } from "../../../redux/reducers/userSlice";
+import DeliveryTimePicker from "../../../utils/OrderComponents/NewLocationBottomComponents/DeliveryTimePicker";
 
 
 export interface MarkerData {
@@ -232,116 +233,21 @@ const NewLocationBottom: React.FC<NewLocationBottomProps> = ({ route }) => {
             </View>
           </>
         )}
-        <Text style={styles.label}>배달 요청 시간</Text>
-        <View style={styles.timeInputContainer}>
-          <TouchableOpacity
-            style={[
-              styles.input,
-              styles.timeInput,
-              !reservationChecked && styles.disabledTimeInput,
-            ]}
-            onPress={() => {
-              if (reservationChecked) setShowStartPicker(true);
-            }}
-          >
-            <Text
-              style={[
-                styles.timeText_1,
-                !reservationChecked && styles.disabledTimeText,
-              ]}
-            >
-              {`${startTime.getFullYear()}년 ${startTime.getMonth() + 1
-                }월 ${startTime.getDate()}일`}
-            </Text>
-            <Text
-              style={[
-                styles.timeText,
-                !reservationChecked && styles.disabledTimeText,
-              ]}
-            >
-              {`${startTime.getHours()}시 ${startTime.getMinutes()}분`}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.input, styles.timeInput]}
-            onPress={() => {
-              setShowEndPicker(true);
-            }}
-          >
-            <Text style={styles.timeText_1}>
-              {`${endTime.getFullYear()}년 ${endTime.getMonth() + 1
-                }월 ${endTime.getDate()}일`}
-            </Text>
 
-            <Text style={[styles.timeText]}>
-              {`${endTime.getHours()}시 ${endTime.getMinutes()}분`}
-            </Text>
-          </TouchableOpacity>
 
-          <View style={styles.checkboxWrapper}>
-            <TouchableOpacity
-              style={styles.checkboxContainer}
-              onPress={() => setReservationChecked(!reservationChecked)}
-            >
-              <View
-                style={[
-                  styles.checkbox,
-                  reservationChecked && styles.checkboxChecked,
-                ]}
-              />
-              <Text style={styles.checkboxText}>배달 예약</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
 
-        {showStartPicker && reservationChecked && (
-          <DateTimePicker
-            value={startTime}
-            mode="time"
-            is24Hour={true}
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowStartPicker(false);
-              if (selectedDate) {
-                if (selectedDate < new Date()) {
-                  Alert.alert(
-                    "유효하지 않은 시간",
-                    "현재 시간보다 이전 시간을 선택할 수 없습니다."
-                  );
-                  return;
-                }
-                setStartTimeLocal(selectedDate);
-                if (selectedDate >= endTime) {
-                  setEndTimeLocal(
-                    new Date(selectedDate.getTime() + 60 * 60 * 1000)
-                  );
-                }
-              }
-            }}
+          {/* 배달 요청 시간 UI 적용 */}
+          <DeliveryTimePicker
+            startTime={startTime}
+            setStartTime={setStartTimeLocal}
+            endTime={endTime}
+            setEndTime={setEndTimeLocal}
+            reservationChecked={reservationChecked}
+            setReservationChecked={setReservationChecked}
           />
-        )}
 
-        {showEndPicker && (
-          <DateTimePicker
-            value={endTime}
-            mode="time"
-            is24Hour={true}
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowEndPicker(false);
-              if (selectedDate) {
-                if (selectedDate <= startTime) {
-                  Alert.alert(
-                    "유효하지 않은 시간",
-                    "종료 시간은 시작 시간보다 늦어야 합니다."
-                  );
-                  return;
-                }
-                setEndTimeLocal(selectedDate);
-              }
-            }}
-          />
-        )}
+
+
 
         <Text style={styles.label}>배달비 설정</Text>
         <TextInput
@@ -427,6 +333,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "bold",
+
     marginBottom: 6,
   },
   input: {
