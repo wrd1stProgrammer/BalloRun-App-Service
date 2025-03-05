@@ -6,6 +6,7 @@ interface ChatRoomState {
   [roomId: string]: {
     lastChat: string;  // 마지막 메시지 내용
     lastChatAt: string; // 마지막 메시지 시간
+    unreadCount: number;
   };
 }
 
@@ -16,22 +17,24 @@ export const chatSlice = createSlice({
   initialState,
   reducers: {
     // 초기 채팅방 목록 설정
-    setChatRooms: (state, action: PayloadAction<{ id: string; lastChat: string; lastChatAt: string }[]>) => {
+    setChatRooms: (state, action: PayloadAction<{ id: string; lastChat: string; lastChatAt: string; unreadCount: number }[]>) => {
       action.payload.forEach((room) => {
         state[room.id] = {
           lastChat: room.lastChat,
           lastChatAt: room.lastChatAt,
+          unreadCount: room.unreadCount
         };
       });
     },
     // 특정 채팅방의 마지막 메시지 업데이트
     updateLastChat: (
       state,
-      action: PayloadAction<{ roomId: string; lastChat: string; lastChatAt: string }>
+      action: PayloadAction<{ roomId: string; lastChat: string; lastChatAt: string; unreadCount: number }>
     ) => {
       state[action.payload.roomId] = {
         lastChat: action.payload.lastChat,
         lastChatAt: action.payload.lastChatAt,
+        unreadCount: action.payload.unreadCount,
       };
     },
   },

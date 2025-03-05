@@ -89,7 +89,7 @@ const FirstScreen = () => {
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={goBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#6200EE" />
+            <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>본인정보 입력</Text>
         </View>
@@ -149,7 +149,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#007AFF',
+
     justifyContent: 'center',
   },
   backButton: {
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#6200EE',
+    color: '#007AFF',
     textAlign: 'center',
   },
   inputContainer: {
@@ -169,12 +170,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#6200EE',
+    color: '#007AFF',
     marginBottom: 10,
   },
   input: {
     borderBottomWidth: 1,
-    borderBottomColor: '#6200EE',
+    borderBottomColor: '#007AFF',
     marginBottom: 30,
     padding: 10,
     fontSize: 24,
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   nextButton: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#007AFF',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',

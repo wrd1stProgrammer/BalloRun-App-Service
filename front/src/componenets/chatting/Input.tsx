@@ -79,9 +79,10 @@ const Input: React.FC<InputProps> = ({ chatRoomId, onPostMessageHandler }) => {
             roomId: chatRoomId,
             lastChat: '사진을 보냈습니다.',
             lastChatAt: new Date().toISOString(),
+            unreadCount: 0,
           })
         );
-        
+
         setSelectedImage(null);
       }
     } catch (error) {
@@ -104,6 +105,7 @@ const Input: React.FC<InputProps> = ({ chatRoomId, onPostMessageHandler }) => {
           roomId: chatRoomId,
           lastChat: message,
           lastChatAt: new Date().toISOString(),
+          unreadCount: 0,
         })
       );
 

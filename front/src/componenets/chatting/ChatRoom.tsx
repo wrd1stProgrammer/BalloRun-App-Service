@@ -64,39 +64,32 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
         setChatData((prevChatData) => {
           const messageDate = new Date(newMessage.createdAt).toDateString();
           const tempIdPrefix = 'temp_';
-
           const updatedChatData = { ...prevChatData };
           const currentMessages = updatedChatData[messageDate] ? [...updatedChatData[messageDate]] : [];
 
           const tempMessageIndex = currentMessages.findIndex((msg) => msg.id.startsWith(tempIdPrefix));
-          if (tempMessageIndex !== -1) {
-            currentMessages.splice(tempMessageIndex, 1);
-          }
+          if (tempMessageIndex !== -1) currentMessages.splice(tempMessageIndex, 1);
 
           currentMessages.push({
             id: newMessage.id,
-            content: newMessage.content, //메세지내용
+            content: newMessage.content,
             imageUrl: newMessage.imageUrl,
             timestamp: new Date(newMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             isMe: newMessage.sender === user?._id,
             isLoading: false,
           });
 
-          // 리덕스에 마지막 메시지 업데이트
           dispatch(
             updateLastChat({
               roomId,
               lastChat: newMessage.content || '사진을 보냈습니다.',
               lastChatAt: newMessage.createdAt,
+              unreadCount: 0,
             })
           );
 
-          return {
-            ...updatedChatData,
-            [messageDate]: currentMessages,
-          };
+          return { ...updatedChatData, [messageDate]: currentMessages };
         });
-
         scrollToBottom();
       });
     };

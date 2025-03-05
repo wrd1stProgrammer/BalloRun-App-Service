@@ -43,6 +43,7 @@ const ChatRoomItem = ({
   // 리덕스 값이 있으면 사용, 없으면 초기값 사용
   const latestContent = chatRoom?.lastChat ?? content;
   const latestTimeStamp = chatRoom?.lastChatAt ?? timeStamp;
+  const latestUnreadCount = chatRoom?.unreadCount ?? unreadCount;
 
   const renderRightActions = () => {
     console.log(unreadCount,'안읽은메세지 카운트 더미 로그');
@@ -86,70 +87,34 @@ const ChatRoomItem = ({
   };
 
   return (
-    <Swipeable
-      renderRightActions={renderRightActions}
-      friction={1.5}
-    >
-      <Pressable onPress={() => navigate('ChatRoom',{roomId,username,nickname,userImage})}>
-      <View
-        style={{
-          backgroundColor: Color.white,
-          padding: 16,
-          flexDirection: 'row',
-          position: 'relative',
-        }}
-      >
-        <Image
-          style={[
-            {
-              width: 48,
-              height: 48,
-              resizeMode: 'cover',
-              borderRadius: 48,
-              marginRight: 16,
-            },
-          ]}
-          source={{
-            uri: userImage,
-          }}
-        />
-        <View style={{ flex: 1 }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              flex: 1,
-              justifyContent: 'space-between',
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={[{ color: Color.black }, TYPOS.headline4]}>
-                {username}
-              </Text>
-              <Text
-                style={[
-                  { color: Color.neutral2, marginHorizontal: 4 },
-                  TYPOS.body3,
-                ]}
-              >
-              </Text>
-              {!isNotificationEnabled && <Bell16 color={Color.neutral2} />}
-            </View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={[{ color: Color.neutral2 }, TYPOS.body3]}>{new Date(latestTimeStamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-                {unreadCount > 0 && (
+    <Swipeable renderRightActions={renderRightActions} friction={1.5}>
+      <Pressable onPress={() => navigate('ChatRoom', { roomId, username, nickname, userImage })}>
+        <View style={{ backgroundColor: Color.white, padding: 16, flexDirection: 'row', position: 'relative' }}>
+          <Image style={{ width: 48, height: 48, resizeMode: 'cover', borderRadius: 48, marginRight: 16 }} source={{ uri: userImage }} />
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={[{ color: Color.black }, TYPOS.headline4]}>{username}</Text>
+                {!isNotificationEnabled && <Bell16 color={Color.neutral2} />}
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={[{ color: Color.neutral2 }, TYPOS.body3]}>
+                  {new Date(latestTimeStamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+                {latestUnreadCount > 0 && (
                   <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: Color.blue, marginLeft: 8 }} />
                 )}
               </View>
             </View>
             <View>
-              <Text style={[{ color: Color.neutral1 }, TYPOS.body2]}>{latestContent}</Text>
-              {unreadCount > 0 && (
-                <Text style={[{ color: Color.blue }, TYPOS.body3]}>{`새 메시지 ${unreadCount}개`}</Text>
+              {latestUnreadCount > 0 ? (
+                <Text style={[{ color: Color.blue }, TYPOS.body2]}>{`새 메시지 ${latestUnreadCount}개`}</Text>
+              ) : (
+                <Text style={[{ color: Color.neutral1 }, TYPOS.body2]}>{latestContent}</Text>
               )}
             </View>
+          </View>
         </View>
-      </View>
       </Pressable>
     </Swipeable>
   );

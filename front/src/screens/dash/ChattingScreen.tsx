@@ -11,6 +11,7 @@ import axios from 'axios';
 import { token_storage } from '../../redux/config/storage';
 import { chatExitHandler } from '../../redux/actions/chatAction';
 import { setChatRooms } from '../../redux/reducers/chatSlice';
+import { updateLastChat } from '../../redux/reducers/chatSlice';
 // 전부 필수 데이터
 interface RoomData {
   id: string;
@@ -43,17 +44,30 @@ const Chatting: React.FC = () => {
               id: room.id,
               lastChat: room.lastChat,
               lastChatAt: room.lastChatAt,
+              unreadCount: room.unreadCount,
             }))
           )
         );
         setRooms(chatRoomList);
       });
     };
+    const handleRoomUpdated = (data: { roomId: string; lastMessage: string; lastMessageAt: string; unreadCount: number }) => {
+      const { roomId, lastMessage, lastMessageAt, unreadCount } = data;
+      dispatch(updateLastChat({ roomId, lastChat: lastMessage, lastChatAt: lastMessageAt, unreadCount }));
+      setRooms((prevRooms) =>
+        prevRooms.map((room) =>
+          room.id === roomId ? { ...room, lastChat: lastMessage, lastChatAt: lastMessageAt, unreadCount } : room
+        )
+      );
+    };
 
     handleGetChatList();
 
+    socket.on('room-updated', handleRoomUpdated);
+
     return () => {
       socket.off('room-list');
+      socket.off('room-updated');
     };
   }, [socket, dispatch]);
 

@@ -36,21 +36,28 @@ module.exports = (chatIo) => {
   // 채팅 연결 및 이벤트 설정
   chatIo.on("connection", (socket) => {
     console.log(`[ChatSocket] User ${socket.user.userId} connected`);
-
+    socket.join(`user_${socket.user.userId}`); // 개인 방 가입
+    
   // 채팅방 유저가 들어갈 시 조인 소켓.
   socket.on("joinRoom", async ({ roomId }) => {
     socket.join(roomId);
     console.log(`[ChatSocket] User ${socket.user.userId} joined room ${roomId}`);
-
-    // 모든 안 읽은 메시지를 읽음 처리
+  
+    // 모든 메시지 읽음 처리
     await ChatMessage.updateMany(
       { chatRoomId: roomId, readBy: { $ne: socket.user.userId } },
       { $addToSet: { readBy: socket.user.userId } }
-  );
-
-  // 채팅방 목록 갱신 트리거 (선택적)
-  //socket.emit("room-list-update", { roomId });
-});
+    );
+  
+    // 채팅방 정보 가져오기
+    const chatRoom = await ChatRoom.findById(roomId);
+    socket.emit("room-updated", {
+      roomId,
+      lastMessage: chatRoom.lastMessage,
+      lastMessageAt: chatRoom.lastMessageAt,
+      unreadCount: 0, // 읽음 처리했으므로 0
+    });
+  });
 
   socket.on("leaveRoom", ({ roomId }) => {
     socket.leave(roomId);
@@ -174,12 +181,16 @@ module.exports = (chatIo) => {
           });
   
           await newMessage.save();
-  
-          //  2. 채팅방의 마지막 메시지 업데이트
-          await ChatRoom.findByIdAndUpdate(chatRoomId, {
-            lastMessage: message,
-            lastMessageAt: new Date(),
-          });
+          
+          // 2. 챗룸 저장.
+          const chatRoom = await ChatRoom.findByIdAndUpdate(
+            chatRoomId,
+            { lastMessage: message, lastMessageAt: new Date() },
+            { new: true }
+          ).populate('users');
+      
+          // 3. 상대방 찾기 (1대1이므로 users 배열에서 sender가 아닌 사용자)
+          const otherUserId = chatRoom.users.find(u => u._id.toString() !== userId)._id.toString();
 
       // 실시간으로 방에 있는 사용자 확인 -> 테스트 필요함.
       /*
@@ -204,6 +215,18 @@ module.exports = (chatIo) => {
             createdAt: newMessage.createdAt,
             readBy: newMessage.readBy,
           });
+
+            // 5. 상대방에게만 채팅방 업데이트 알림
+    const unreadCount = await ChatMessage.countDocuments({
+      chatRoomId,
+      readBy: { $ne: otherUserId },
+    });
+    chatIo.to(`user_${otherUserId}`).emit("room-updated", {
+      roomId: chatRoomId,
+      lastMessage: message,
+      lastMessageAt: newMessage.createdAt,
+      unreadCount,
+    });
 
             // 푸쉬 알림 -> 배달매칭ㅇㅋ, 채팅 ㅇㅋ 
             const notipayload ={
@@ -242,11 +265,15 @@ module.exports = (chatIo) => {
     
         await newMessage.save();
     
-        // 3. 채팅방의 마지막 메시지 업데이트 (이미지 메시지임을 표시)
-        await ChatRoom.findByIdAndUpdate(chatRoomId, {
-          lastMessage: "사진을 보냈습니다.", // 마지막 메시지 내용
-          lastMessageAt: new Date(),
-        });
+        // 2. 채팅방 업데이트
+    const chatRoom = await ChatRoom.findByIdAndUpdate(
+      chatRoomId,
+      { lastMessage: "사진을 보냈습니다.", lastMessageAt: new Date() },
+      { new: true }
+    ).populate('users');
+
+    // 3. 상대방 찾기
+    const otherUserId = chatRoom.users.find(u => u._id.toString() !== userId)._id.toString();
     
         // 4. 해당 채팅방의 모든 사용자에게 이미지 메시지 전송
         chatIo.to(chatRoomId).emit("chatMessage", {
@@ -255,8 +282,20 @@ module.exports = (chatIo) => {
           imageUrl, // 이미지 URL 전송
           createdAt: newMessage.createdAt,
         });
+
+        // 5. 상대방에게 채팅방 업데이트 알림
+    const unreadCount = await ChatMessage.countDocuments({
+      chatRoomId,
+      readBy: { $ne: otherUserId },
+    });
+    chatIo.to(`user_${otherUserId}`).emit("room-updated", {
+      roomId: chatRoomId,
+      lastMessage: "사진을 보냈습니다.",
+      lastMessageAt: newMessage.createdAt,
+      unreadCount,
+    });
     
-        // 5. 푸시 알림 (이미지 메시지임을 표시)
+        // 6. 푸시 알림 (이미지 메시지임을 표시)
         const notipayload = {
           title: `사진이 도착하였습니다.`,
           body: `사진을 보냈습니다.`,

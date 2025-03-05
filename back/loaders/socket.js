@@ -6,6 +6,7 @@ module.exports = (io) => {
     console.error("Socket.IO 객체가 전달되지 않았습니다.");
     return;
   }
+  const userSocketMap = new Map();
 
   io.use(async (socket, next) => {
     console.log("Socket.IO Middleware 작동 중...");
@@ -40,6 +41,13 @@ module.exports = (io) => {
   io.on("connection", (socket) => {
     console.log(`${socket.user.userId} 연결되었습니다.`);
 
+    // 연결 시 userId와 socket.id 매핑
+    const userId = socket.user.userId.toString(); // ObjectId → 문자열 변환
+    userSocketMap.set(userId, socket.id);
+    console.log(`매핑 추가: ${userId} -> ${socket.id}`);
+
+
+    //필요 없을듯 일단 유지
     socket.on("join", (userId) => {
       socket.join(userId);
       console.log(`${userId}가 방에 조인함`);
@@ -53,7 +61,9 @@ module.exports = (io) => {
     console.log(`자동 조인: ${userRoom}`);
 
     socket.on("disconnect", () => {
-      console.log(`${socket.user.userId} 연결 해제됨.`);
+      console.log(`${socket.user.userId} 연결 해제됨.`); // 기존
+      userSocketMap.delete(userId);
+      console.log(`${userId} 연결 해제됨. 매핑 제거`);
     });
 
       // 배달 완료 이벤트 처리 → 주문자(userId)에게 전달
@@ -87,43 +97,49 @@ module.exports = (io) => {
     io.emit('showOrderData', orderData);
   }
 
-    // 주문 상태 전송 (주문자에게만 emit)
-    const emitCancel = (orderData) => {
-      const { userId, orderId, status, message } = orderData;
+// 주문 상태 전송 (주문자에게만 emit)
+const emitCancel = (orderData) => {
+  const { userId, orderId, status, message } = orderData;
 
-      if (userId) {
-        // 특정 유저에게만 emit (모든 클라이언트가 아니라 해당 유저만 받음)
-        const userIdString = userId.toString(); // ✅ ObjectId → 문자열 변환
+  if (userId) {
+    const userIdString = userId.toString();
+    const socketId = userSocketMap.get(userIdString);
+    if (socketId) {
+      io.to(socketId).emit("emitCancel", {
+        createdAt: new Date().toISOString(),
+        orderId: orderId,
+        status: "cancelled",
+        message: message || "주문 예약 시간이 지나서 취소",
+      });
+      console.log(`Emit 성공 -> ${userId}에게 주문 취소 알림 전송:`, orderData);
+    } else {
+      console.warn(`Emit 실패: ${userId}에 해당하는 소켓 없음`);
+    }
+  } else {
+    console.warn("⚠️ Emit 실패 - userId가 없음", orderData);
+  }
+};
 
-    // 특정 유저에게만 emit (모든 클라이언트가 아니라 해당 유저만 받음)
-          io.to(userIdString).emit("emitCancel", {
-          createdAt: new Date().toISOString(), // 없으면 현재 시간
-          orderId: orderId,
-          status: "cancelled", // 기본값: cancelled
-          message: message || "주문 예약 시간이 지나서 취소",
-        });
-    
-        console.log(` Emit 성공 -> ${userId}에게 주문 취소 알림 전송:`, orderData);
-      } else {
-        console.warn("⚠️ Emit 실패 - userId가 없음", orderData);
-      }
-    };
-
-
-  // 주문 상태 전송 (주문자에게만 emit)
-  const tossOrderStatus = (orderData) => {
-    const userId = orderData.userId;
-    if (userId) {
-      io.emit('order_accepted', {
+// 주문 상태 전송 (주문자에게만 emit)
+const tossOrderStatus = (orderData) => {
+  const userId = orderData.userId;
+  if (userId) {
+    const userIdString = userId.toString(); // ObjectId → 문자열 변환
+    const socketId = userSocketMap.get(userIdString);
+    if (socketId) {
+      io.to(socketId).emit('order_accepted', {
         createdAt: orderData.createdAt,
         orderId: orderData.orderId,
-        status: orderData.status, // 수기 타이핑 상태 정보.
+        status: orderData.status,
       });
-      console.log(`Emit 성공-> ${userId}:`, orderData);
+      console.log(`Emit 성공 -> ${userId}:`, orderData);
     } else {
-      console.warn("Emit 실패");
+      console.warn(`Emit 실패: ${userId}에 해당하는 소켓 없음`);
     }
-  };
+  } else {
+    console.warn("Emit 실패: userId 없음");
+  }
+};
 
   return { emitSocketTest,emitMatchTest,showOrderData,tossOrderStatus, emitCancel};
 };
