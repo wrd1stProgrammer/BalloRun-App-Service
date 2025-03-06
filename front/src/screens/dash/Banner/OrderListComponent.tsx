@@ -3,9 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Alert } from 'react
 import { Ionicons } from '@expo/vector-icons';
 import { navigate } from '../../../navigation/NavigationUtils';
 import { useAppSelector } from '../../../redux/config/reduxHook';
-import { selectIsOngoingOrder,setIsOngoingOrder } from '../../../redux/reducers/userSlice';
-
-
+import { selectIsOngoingOrder, setIsOngoingOrder } from '../../../redux/reducers/userSlice';
+import AdMobBanner from '../AdMob/AdMobBanner';
 interface OrderListProps {
   user: any;
 }
@@ -17,18 +16,14 @@ interface Category {
 }
 
 const categories: Category[] = [
-  { name: '커피', icon: 'cafe', screen: 'CafeListScreen' },
+  { name: '커피', icon: 'cafe', screen: 'OrderPageScreen' },
   { name: '편의점', icon: 'storefront', screen: 'OrderPageScreen' },
- // { name: '마트', icon: 'medical', screen: 'OrderPageScreen' },
-//{ name: '음식', icon: 'fast-food', screen: 'OrderPageScreen' },
-//{ name: '물건', icon: 'cart', screen: 'OrderPageScreen' },
+  { name: '마트', icon: 'medical', screen: 'OrderPageScreen' },
+  { name: '음식', icon: 'fast-food', screen: 'OrderPageScreen' },
   { name: '기타', icon: 'ellipsis-horizontal', screen: 'OrderPageScreen' },
 ];
 
 const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
-
-
-
   const handleCategoryPress = (screen: string, name: string) => {
     if (user?.isOngoingOrder) {
       Alert.alert(
@@ -50,8 +45,8 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
 
   const handleDeliveryPress = () => {
     console.log(user);
-    const status = user?.verificationStatus || 'notSubmitted'; // 기본값 설정
-    
+    const status = user?.verificationStatus || 'notSubmitted';
+
     switch (status) {
       case 'notSubmitted':
         handleNotSubmitted();
@@ -71,17 +66,12 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
     }
   };
 
-  // 상태별 핸들러 함수
   const handleNotSubmitted = () => {
     Alert.alert(
       '배달하기 알림',
       '배달하기 전에 라이더 등록이 필요합니다! (1시간 안에 인증완료)',
       [
-        {
-          text: '아니오',
-          style: 'cancel',
-          onPress: () => {},
-        },
+        { text: '아니오', style: 'cancel', onPress: () => {} },
         {
           text: '예',
           onPress: () => {
@@ -114,11 +104,7 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
       '배달하기 알림',
       '라이더 인증 심사가 거부되었습니다. 다시 신청해주세요.',
       [
-        {
-          text: '아니오',
-          style: 'cancel',
-          onPress: () => {},
-        },
+        { text: '아니오', style: 'cancel', onPress: () => {} },
         {
           text: '예',
           onPress: () => {
@@ -132,7 +118,7 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
   };
 
   const handleVerified = () => {
-    console.log(user,'logggggggg')
+    console.log(user, 'logggggggg');
     if (user?.isDelivering) {
       Alert.alert('알림', '이미 배달 중입니다.');
     } else {
@@ -148,22 +134,29 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
       {/* 카테고리 그리드 */}
       <View style={styles.gridContainer}>
         {categories.map((cat, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.categoryButton}
-            onPress={() => handleCategoryPress(cat.screen, cat.name)}
-          >
-            <Ionicons name={cat.icon as any} size={32} color="black" />
+          <View key={index} style={styles.categoryWrapper}>
+            <TouchableOpacity
+              style={styles.categoryButton}
+              onPress={() => handleCategoryPress(cat.screen, cat.name)}
+            >
+              <Ionicons name={cat.icon as any} size={28} color="black" />
+            </TouchableOpacity>
             <Text style={styles.categoryText}>{cat.name}</Text>
-          </TouchableOpacity>
+          </View>
         ))}
-
-        {/* 배달하기 버튼 */}
-        <TouchableOpacity style={styles.deliveryButton} onPress={handleDeliveryPress}>
-          <Ionicons name="bicycle" size={28} color="white" style={styles.deliveryIcon} />
-          <Text style={styles.deliveryButtonText}>배달하기</Text>
-        </TouchableOpacity>
       </View>
+
+      <View style={styles.bannerContainer}>
+          <AdMobBanner/>
+        </View>
+
+
+
+      {/* 배달하기 버튼 */}
+      <TouchableOpacity style={styles.deliveryButton} onPress={handleDeliveryPress}>
+        <Ionicons name="bicycle" size={28} color="white" style={styles.deliveryIcon} />
+        <Text style={styles.deliveryButtonText}>배달하기</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -178,7 +171,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 10,
     width: '100%',
-    height: '40%',
+    height: '70%',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -195,19 +188,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 23,
+    marginBottom: 16,
   },
   gridContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  categoryWrapper: {
+    alignItems: 'center', // 아이콘과 텍스트 중앙 정렬
+    width: '19%', // 5열 유지
   },
   categoryButton: {
-    width: '30%', // 3열 그리드
-    aspectRatio: 1,
+    width: 50, // 고정 너비로 변경
+    height: 50, // 고정 높이로 변경
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
     ...Platform.select({
@@ -223,21 +219,21 @@ const styles = StyleSheet.create({
     }),
   },
   categoryText: {
-    marginTop: 8,
-    fontSize: 14,
+    marginTop: 6,
+    fontSize: 12,
     fontWeight: '600',
     color: '#333',
+    textAlign: 'center',
   },
   deliveryButton: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#007AFF', // iPhone 스타일의 파란색
+    backgroundColor: '#007AFF',
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 20,
-    marginTop: 20,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -251,12 +247,17 @@ const styles = StyleSheet.create({
     }),
   },
   deliveryIcon: {
-    marginRight: 5, // 아이콘과 텍스트 사이 간격
+    marginRight: 5,
   },
   deliveryButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
+  },
+  bannerContainer: {
+    marginTop:20,
+    marginBottom: 15,
+    alignItems: 'center', // 배너를 수평으로 중앙에 정렬
   },
 });
 
