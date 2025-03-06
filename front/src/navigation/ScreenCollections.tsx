@@ -48,6 +48,7 @@ import SecondScreen from "../screens/auth/Register/SecondScreen";
 import ThirdScreen from "../screens/auth/Register/ThirdScreen";
 import FourthScreen from "../screens/auth/Register/FourthScreen";
 import CancelOrderScreen from "../screens/order/NewOrder/OrderCancel/CancelOrderScreen";
+import EditProfileScreen from "../screens/dash/Profile/EditProfileScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -230,6 +231,10 @@ export const orderStack = [
     name: "OrderDetailScreen",
     component: OrderDetailScreen,
   },
+  {
+    name:"EditProfileScreen",
+    component: EditProfileScreen,
+  }
 ];
 
 export const deliveryStack = [
