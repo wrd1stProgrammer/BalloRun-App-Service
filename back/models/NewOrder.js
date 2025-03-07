@@ -23,13 +23,12 @@ const NewOrderSchema = new mongoose.Schema(
       ref: 'OrderCancellation',
       required: false, // 취소 데이터가 있을 경우 참조
     },
+    
 
 
     startTime: { type: Date, required: true }, // 픽업 시간
     deliveryAddress: { type: String, required: true }, // 배달 상세 주소
     endTime: { type: Date, required: true }, // 픽업 시간 표시
-    selectedFloor: {type:String},
-
     status: {
       type: String,
       enum: ['pending', 'matched','accepted', 'inProgress', 'delivered', 'cancelled','matchFailed','complete','goToCafe','makingMenu','goToClient'], // 주문 상태
@@ -45,6 +44,17 @@ const NewOrderSchema = new mongoose.Schema(
     },
     riderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // 배달 라이더
     createdAt: { type: Date, default: Date.now }, // 생성 시간
+    // 별점 관련 필드 추가
+    rating: {
+      type: Number,
+      min: 0,
+      max: 5, // 0~5점 사이의 별점
+      default: null, // 초기값은 null로 설정 (아직 평가되지 않음)
+    },
+    isRated: {
+      type: Boolean,
+      default: false, // 별점이 평가되었는지 여부
+    },
   },
   {
     timestamps: true, // createdAt, updatedAt 자동 생성

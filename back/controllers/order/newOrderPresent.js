@@ -4,6 +4,7 @@ const ChatRoom = require("../../models/ChatRoom");
 const User = require("../../models/User");
 
 const mongoose = require('mongoose');
+const { invalidateCompletedOrdersCache } = require("../../utils/deleteRedisCache");
 
 const getBannerData = async (req, res) => {
     try {
@@ -105,6 +106,7 @@ const getBannerData = async (req, res) => {
           riderUsername: riderInfo.username,
           riderNickname: riderInfo.nickname,
           riderUserImage: riderInfo.userImage,
+          isRated:order.isRated,
         };
       }));
   
@@ -138,6 +140,8 @@ const getBannerData = async (req, res) => {
           riderUsername: riderInfo.username,
           riderNickname: riderInfo.nickname,
           riderUserImage: riderInfo.userImage,
+          isRated:newOrder.isRated,
+
         };
       }));
   
@@ -208,6 +212,8 @@ const getBannerData = async (req, res) => {
           riderUsername: riderInfo.username,
           riderNickname: riderInfo.nickname,
           riderUserImage: riderInfo.userImage,
+          isRated:order.isRated,
+
         };
       }));
   
@@ -242,6 +248,8 @@ const getBannerData = async (req, res) => {
           riderUsername: riderInfo.username,
           riderNickname: riderInfo.nickname,
           riderUserImage: riderInfo.userImage,
+          isRated:newOrder.isRated,
+
         };
       }));
   
@@ -279,4 +287,53 @@ const fetchOrderDetails = async (req, res) => {
   };
 
 
-module.exports = { getOnGoingNewOrders , getCompletedNewOrders ,fetchOrderDetails,getBannerData};
+  const rateRiderStars = async (req, res) => {
+    const { orderId, rating } = req.body;
+    const redisClient = req.app.get("redisClient");
+    const redisCli = redisClient.v4;
+    
+  
+    // 입력값 검증
+    if (!orderId || rating === undefined) {
+      return res.status(400).json({ message: 'orderId와 rating은 필수입니다.' });
+    }
+    if (typeof rating !== 'number' || rating < 0 || rating > 5) {
+      return res.status(400).json({ message: 'rating은 0에서 5 사이의 숫자여야 합니다.' });
+    }
+  
+    try {
+      // NewOrder에서 주문 찾기
+      const order = await NewOrder.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: '주문을 찾을 수 없습니다.' });
+      }
+  
+      // 배달 완료 상태인지 확인
+      if (order.status !== 'delivered') {
+        return res.status(400).json({ message: '배달 완료된 주문만 평가할 수 있습니다.' });
+      }
+  
+      // 이미 평가했는지 확인
+      if (order.isRated) {
+        return res.status(400).json({ message: '이미 평가된 주문입니다.' });
+      }
+  
+      // 별점 업데이트
+      order.rating = rating;
+      order.isRated = true;
+      await order.save();
+      console.log(order.userId);
+      
+      invalidateCompletedOrdersCache(order.userId,redisCli);
+
+      res.status(200).json({
+        success: true,
+        message: '별점이 성공적으로 등록되었습니다.',
+      });
+    } catch (error) {
+      console.error('별점 등록 오류:', error);
+      res.status(500).json({ message: '서버 오류로 별점을 등록하지 못했습니다.' });
+    }
+  };
+  
+  module.exports = { getOnGoingNewOrders, getCompletedNewOrders, fetchOrderDetails, getBannerData, rateRiderStars };

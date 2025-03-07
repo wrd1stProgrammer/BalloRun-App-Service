@@ -19,7 +19,8 @@ const {
   getOnGoingNewOrders,
   getCompletedNewOrders,
   fetchOrderDetails,
-  getBannerData
+  getBannerData,
+  rateRiderStars,
 } = require("../controllers/order/newOrderPresent");
 
 const {
@@ -39,13 +40,12 @@ router.get('/getDeliveryOngoingList',getDeliveryOngoingList); //진행주문
 router.get('/getNewOrderPresent',getOnGoingNewOrders);
 router.get('/getNewCompletedOrderPresent',getCompletedNewOrders);
 router.get('/getbannerdata',getBannerData);
+router.post(`/raterider`,rateRiderStars);
 
 router.post('/showOrderDetails',fetchOrderDetails);
 
 router.post(`/getOrderDataForCancel`,getOrderDataForCancelApi);
 router.post(`/cancelOrderAction`,orderCancelApi);
-
-
 
 
 

@@ -217,3 +217,16 @@ export const orderNowHandler = (
       throw error;
     }
   }
+
+  export const rateStarsAction =(orderId:string, rating:number) => async(dispatch:any) => {
+    try {
+      const res = await appAxios.post(`/order/raterider`, {
+        orderId,
+        rating,
+      });
+      return res.data
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }

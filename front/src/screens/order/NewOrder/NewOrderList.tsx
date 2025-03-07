@@ -21,6 +21,8 @@ interface OrderItemProps {
     riderUsername:string;
     riderNickname:string;
     riderUserImage:string;
+    isRated:boolean;
+
 }
 
 interface OrderListProps {
@@ -49,7 +51,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
       const ongoingOrders = await dispatch(getOngoingNewOrdersHandler());
       const completedOrders = await dispatch(getCompletedNewOrdersHandler());
       const combinedOrders = [...ongoingOrders, ...completedOrders];
-
+      console.log(combinedOrders);
       // 중복 제거 및 최신순 정렬
       const uniqueOrders: OrderItemProps[] = combinedOrders.filter(
         (order, index, self) => index === self.findIndex((o) => o._id === order._id)
@@ -81,6 +83,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
             username={item.riderUsername}
             nickname={item.riderNickname}
             userImage={item.riderUserImage}
+            isRated={item.isRated}
           />
         )}
         contentContainerStyle={styles.listContainer} // 스타일 적용
