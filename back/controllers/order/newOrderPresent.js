@@ -291,9 +291,8 @@ const fetchOrderDetails = async (req, res) => {
     const { orderId, rating } = req.body;
     const redisClient = req.app.get("redisClient");
     const redisCli = redisClient.v4;
-    
   
-    // 입력값 검증
+    
     if (!orderId || rating === undefined) {
       return res.status(400).json({ message: 'orderId와 rating은 필수입니다.' });
     }
@@ -302,30 +301,49 @@ const fetchOrderDetails = async (req, res) => {
     }
   
     try {
-      // NewOrder에서 주문 찾기
+      // NewOrder
       const order = await NewOrder.findById(orderId);
       if (!order) {
         return res.status(404).json({ message: '주문을 찾을 수 없습니다.' });
       }
   
-      // 배달 완료 상태인지 확인
+
       if (order.status !== 'delivered') {
         return res.status(400).json({ message: '배달 완료된 주문만 평가할 수 있습니다.' });
       }
   
-      // 이미 평가했는지 확인
+
       if (order.isRated) {
         return res.status(400).json({ message: '이미 평가된 주문입니다.' });
       }
   
-      // 별점 업데이트
+
+      const expMap = {
+        1: 5,
+        2: 7,
+        3: 10,
+        4: 15,
+        5: 20,
+      };
+      const experienceToAdd = expMap[rating] || 0;
+  
+      const rider = await User.findById(order.riderId);
+      if (!rider) {
+        return res.status(404).json({ message: '라이더를 찾을 수 없습니다.' });
+      }
+  
+      // 경험치 추가 및 레벨업 (pre-save 미들웨어가 처리)
+      rider.exp += experienceToAdd;
+  
       order.rating = rating;
       order.isRated = true;
-      await order.save();
-      console.log(order.userId);
-      
-      invalidateCompletedOrdersCache(order.userId,redisCli);
-
+  
+      // 트랜잭션으로 두 모델 동시 저장
+      await Promise.all([order.save(), rider.save()]);
+  
+      // 캐시 무효화
+      invalidateCompletedOrdersCache(order.userId, redisCli);
+  
       res.status(200).json({
         success: true,
         message: '별점이 성공적으로 등록되었습니다.',

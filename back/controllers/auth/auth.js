@@ -103,6 +103,8 @@ const login = async (req, res) => {
       },
       user: {
         _id: user._id,
+        exp:user.exp,
+        level:user.level,
         username: user.username,
         userId: user.userId,
         userImage: user?.userImage,
@@ -178,6 +180,8 @@ const kakaologin = async (req, res) => {
       },
       user: {
         _id: user._id,
+        exp:user.exp,
+        level:user.level,
         username: user.username,
         userId: user.userId,
         userImage: user?.userImage,

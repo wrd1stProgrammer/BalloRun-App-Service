@@ -67,7 +67,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           if (!chatRoom) {
             // 4️⃣ 채팅방 생성 (새 주문이므로 1:1 채팅방 필요)
             chatRoom = new ChatRoom({
-              title: "더미 채팅 제목",
+              title: "채팅방",
               users: [userId, riderId],
               orderId,
             });

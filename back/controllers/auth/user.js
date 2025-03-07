@@ -25,6 +25,8 @@ const getProfile = async (req, res) => {
       user: {
         username: user.username,
         _id: user._id,
+        exp:user.exp,
+        level:user.level,
         userId: user.userId,
         userImage: user?.userImage,
         point: user.point,

@@ -4,6 +4,7 @@ import { navigate, resetAndNavigate } from '../../../navigation/NavigationUtils'
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { checkChatRoomAction } from '../../../redux/actions/chatAction';
 import { rateStarsAction, getCompletedNewOrdersHandler } from '../../../redux/actions/orderAction';
+import { refetchUser } from '../../../redux/actions/userAction';
 
 interface OrderItemProps {
   orderId: string;
@@ -87,6 +88,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
   const handleSubmitReview = async () => {
     try {
       await dispatch(rateStarsAction(orderId, rating));
+      await dispatch(refetchUser());
       setLocalIsRated(true); // 즉시 로컬 상태 업데이트
       Alert.alert('별점 등록 완료', `${rating}점이 등록되었습니다.`, [
         {

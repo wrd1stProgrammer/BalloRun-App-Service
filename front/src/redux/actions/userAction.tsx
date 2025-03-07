@@ -136,7 +136,6 @@ export const verifyEmail = (email:string) => async (dispatch: any) => {
 export const refetchUser = () => async (dispatch: any) => {
   try {
     const res = await appAxios.get('/user/profile');
-    console.log('refetchhhhhhhhhhhhhhh',res);
     await dispatch(setUser(res.data.user));
     
   } catch (error: any) {

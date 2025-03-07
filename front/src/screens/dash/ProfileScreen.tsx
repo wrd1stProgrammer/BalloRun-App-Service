@@ -31,6 +31,15 @@ const ProfileScreen = () => {
     navigate('EditProfileScreen', { user });
   };
 
+  // 경험치 퍼센트 계산 함수
+  const getExpPercentage = () => {
+    if (!user?.level || !user?.exp) return 0;
+    if (user.level === 1) return Math.min((user.exp / 100) * 100, 100); // 최대 100%
+    if (user.level === 2) return Math.min((user.exp / 300) * 100, 100); // 최대 100%
+    if (user.level === 3) return 100; // 레벨 3은 항상 100%
+    return 0;
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* 상단 바 (고정) */}
@@ -72,16 +81,19 @@ const ProfileScreen = () => {
           <Text style={styles.editButtonText}>프로필 수정</Text>
         </TouchableOpacity>
 
-        {/* 레벨 및 경험치 섹션 */}
-        <View style={styles.levelSection}>
+{/* 레벨 및 경험치 섹션 */}
+<View style={styles.levelSection}>
           <Text style={styles.gradeTitle}>등급 혜택</Text>
           <View style={styles.expRow}>
-            <Text style={styles.expText}>Lv.1</Text>
-            <Text style={styles.expText}>경험치 70%</Text>
+            <Text style={styles.expText}>Lv.{user?.level || 1}</Text>
+            <Text style={styles.expText}>경험치 {getExpPercentage().toFixed(0)}%</Text>
           </View>
           <View style={styles.expContainer}>
-            <View style={[styles.expBar, { width: '70%' }]} />
+            <View style={[styles.expBar, { width: `${getExpPercentage()}%` }]} />
           </View>
+          <Text style={styles.expDetail}>
+            {user?.exp || 0} / {user?.level === 1 ? 100 : user?.level === 2 ? 300 : '최대'}
+          </Text>
         </View>
 
         {/* 메뉴 섹션 */}
@@ -132,6 +144,7 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  
   safeArea: {
     flex: 0.95,
     backgroundColor: '#fff', // Unified white background
@@ -245,6 +258,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 15,
     color: '#333',
+  },
+  expDetail: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+    textAlign: 'right',
+    fontFamily: 'Roboto',
   },
   expRow: {
     flexDirection: 'row',

@@ -67,6 +67,18 @@ const UserSchema = new mongoose.Schema(
       accountNumber: String,
       holder: String,
     },
+    // 레벨과 경험치 
+    level: {
+      type: Number,
+      default: 1, // 기본 레벨 1
+      min: 1,
+      max: 3, // 최대 레벨 3
+    },
+    exp: {
+      type: Number,
+      default: 0, // 기본 경험치 0
+      min: 0,
+    },
   },
   { timestamps: true }
 );
@@ -84,6 +96,19 @@ UserSchema.methods.createAccessToken = function () {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     });
   };
+
+  //레벨업 로직은 수정하자..
+UserSchema.pre('save', function (next) {
+  const user = this;
+  if (user.isModified('exp')) { 
+    if (user.exp >= 400 && user.level < 3) {
+      user.level = 3;
+    } else if (user.exp >= 100 && user.level < 2) {
+      user.level = 2;
+    }
+  }
+  next();
+});
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
