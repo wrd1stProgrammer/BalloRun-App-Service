@@ -49,6 +49,9 @@ import ThirdScreen from "../screens/auth/Register/ThirdScreen";
 import FourthScreen from "../screens/auth/Register/FourthScreen";
 import CancelOrderScreen from "../screens/order/NewOrder/OrderCancel/CancelOrderScreen";
 import EditProfileScreen from "../screens/dash/Profile/EditProfileScreen";
+import AddressSettingScreen from "../screens/dash/Address/AddressSettingScreen";
+import AddressSearchScreen from "../screens/dash/Address/AddressSearchScreen";
+import AddressDetailScreen from "../screens/dash/Address/AddressDetailScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -182,6 +185,18 @@ export const dashboardStack = [
   {
     name:"CancelOrderScreen",
     component:CancelOrderScreen,
+  },
+  {
+    name:"AddressSettingScreen",
+    component:AddressSettingScreen
+  },
+  {
+    name:"AddressSearchScreen",
+    component:AddressSearchScreen
+  },
+  {
+    name:"AddressDetailScreen",
+    component:AddressDetailScreen
   }
 ];
 

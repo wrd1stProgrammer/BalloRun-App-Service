@@ -131,7 +131,9 @@ const HomeScreen: React.FC = () => {
       >
         <View style={styles.headerContainer}>
           <View style={styles.greetingContainer}>
-            <Text style={styles.userName}>북구 용주로 30번길 88</Text>
+            <TouchableOpacity onPress={() => navigate('AddressSettingScreen')}>
+              <Text style={styles.userName}>북구 용주로 30번길 88</Text>
+            </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>
             <Ionicons name="person-circle" size={36} color="#999" />
