@@ -26,6 +26,7 @@ import { reverseGeocode } from "../../../utils/Geolocation/reverseGeocode";
 import Header from "../../../utils/OrderComponents/Header";
 import Modal from 'react-native-modal';
 import { selectUser } from "../../../redux/reducers/userSlice";
+import { refetchUser } from "../../../redux/actions/userAction";
 
 type RootStackParamList = {
   OrderFinalScreen: {
@@ -96,21 +97,32 @@ const OrderFinalScreen = () => {
     setIsLoading(true);
     const imageResponse = images ? await dispatch(uploadFile(images, "neworderInfo_image")) : null;
     const imageResponse2 = selectedImageUri ? await dispatch(uploadFile(selectedImageUri, "neworderPickup_image")) : null;
-
+  
     await dispatch(neworderCompleteHandler(
-      name, orderDetails, parseInt(priceOffer.replace("원", "").replace(",", "")),
-      parseInt(deliveryFee.replace("원", "").replace(",", "")), riderRequest,
-      imageResponse || "", imageResponse2 || "", lat?.toString() || "", lng?.toString() || "",
-      deliveryAddress, deliveryMethod, startTime.getTime(), endTime.getTime(), selectedFloor, resolvedAddress
+      name,
+      orderDetails,
+      parseInt(priceOffer.replace("원", "").replace(",", "")),
+      parseInt(deliveryFee.replace("원", "").replace(",", "")),
+      riderRequest,
+      imageResponse || "",
+      imageResponse2 || "",
+      lat?.toString() || "",
+      lng?.toString() || "",
+      deliveryAddress,
+      deliveryMethod,
+      startTime.getTime(),
+      endTime.getTime(),
+      selectedFloor,
+      resolvedAddress,
+      usedPoints // 포인트 사용량 추가
     ));
-
+    await dispatch(refetchUser()); // point 감소 반영 떄매
     dispatch(setIsOngoingOrder(true));
     setTimeout(() => {
       setIsLoading(false);
       navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
     }, 1000);
   };
-
   const handleImagePicker = async () => {
     const options: ImageLibraryOptions = { mediaType: "photo", includeBase64: true, selectionLimit: 1 };
     const response: ImagePickerResponse = await launchImageLibrary(options);

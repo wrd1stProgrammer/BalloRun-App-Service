@@ -23,9 +23,6 @@ const NewOrderSchema = new mongoose.Schema(
       ref: 'OrderCancellation',
       required: false, // 취소 데이터가 있을 경우 참조
     },
-    
-
-
     startTime: { type: Date, required: true }, // 픽업 시간
     deliveryAddress: { type: String, required: true }, // 배달 상세 주소
     endTime: { type: Date, required: true }, // 픽업 시간 표시
@@ -54,6 +51,11 @@ const NewOrderSchema = new mongoose.Schema(
     isRated: {
       type: Boolean,
       default: false, // 별점이 평가되었는지 여부
+    },
+    usedPoints: { // 포인트 사용량 필드 추가
+      type: Number,
+      default: 0,
+      min: 0
     },
   },
   {

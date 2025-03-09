@@ -1,7 +1,8 @@
-const NewOrder =require("../../models/NewOrder");
+
+const NewOrder = require("../../models/NewOrder");
 const User = require("../../models/User");
 const amqp = require("amqplib");
-const {connectRabbitMQ} = require("../../config/rabbitMQ");
+const { connectRabbitMQ } = require("../../config/rabbitMQ");
 
 const newOrderCreate = async (req, res) => {
   const {
@@ -15,16 +16,27 @@ const newOrderCreate = async (req, res) => {
     lat,
     lng,
     deliveryAddress,
-    deliveryMethod, // direct, nonContact
+    deliveryMethod,
     startTime,
     endTime,
     selectedFloor,
-    resolvedAddress
+    resolvedAddress,
+    usedPoints  
   } = req.body;
 
-  const userId = req.user.userId; // authMiddleWare 에서 가져옴.
+  const userId = req.user.userId;
 
   try {
+    // 포인트 사용 시 유저 포인트 감소
+    if (usedPoints > 0) {
+      const user = await User.findById(userId);
+      if (!user || user.point < usedPoints) {
+        return res.status(400).json({ message: "포인트가 부족합니다." });
+      }
+      user.point -= usedPoints;
+      await user.save();
+    }
+
     // RabbitMQ 연결
     const { channel, connection } = await connectRabbitMQ();
     const queue = "new_order_queue";
@@ -44,20 +56,18 @@ const newOrderCreate = async (req, res) => {
       deliveryAddress,
       deliveryMethod,
       startTime,
-      endTime, // 끝
+      endTime,
       selectedFloor,
-      resolvedAddress
+      resolvedAddress,
+      usedPoints // 메시지에 포함
     });
 
-    // 메시지 큐에 전송
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
     console.log("큐에 전달-새로운 주문:", message);
 
-    // 클라이언트에 즉시 응답
     res.status(201).json({ message: "Order received and being processed." });
 
-    // 연결 종료
     setTimeout(() => {
       channel.close();
     }, 1000);
