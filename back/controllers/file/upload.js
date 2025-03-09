@@ -11,7 +11,7 @@ const uploadMedia = async (req, res) => {
 
   try {
     const mediaType = req.body.mediaType;
-
+//
     let folder;
     if (mediaType === "order_image") {
       folder = "order_images";
@@ -25,6 +25,8 @@ const uploadMedia = async (req, res) => {
       folder = "neworderPickup_image";
     } else if (mediaType === "verification_image"){
       folder = "verifiacation_image";
+    } else if (mediaType === "newUserProfile_image"){
+      folder = "newUserProfile_image";
     }
      else {
       throw new BadRequestError("이상한 타입.");

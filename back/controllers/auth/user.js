@@ -28,6 +28,7 @@ const getProfile = async (req, res) => {
         exp:user.exp,
         level:user.level,
         userId: user.userId,
+        nickname: user?.nickname,
         userImage: user?.userImage,
         point: user.point,
         email: user.email,
@@ -239,7 +240,29 @@ const getWithdrawList = async (req, res) => {
   }
 };
 
+const editProfile = async (req, res) => {
+  console.log('editProfile');
+  const userId = req.user.userId;
 
+  // 사용자 조회
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+  const { username, nickname, userImage } = req.body;
+
+  // null이 아닌 경우에만 필드 업데이트
+  if (username !== null && username !== undefined) user.username = username;
+  if (nickname !== null && nickname !== undefined) user.nickname = nickname;
+  if (userImage !== null && userImage !== undefined) user.userImage = userImage;
+
+  await user.save();
+
+  res.status(StatusCodes.OK).json({ 
+    msg: "Profile updated successfully"
+  });
+};
 
 module.exports = {
   getProfile,
@@ -248,4 +271,5 @@ module.exports = {
   registerAccountApi,
   withdrawApi,
   getWithdrawList,
+  editProfile, 
 };

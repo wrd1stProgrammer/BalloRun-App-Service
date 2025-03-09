@@ -20,7 +20,7 @@ const LocationServiceTermsScreen = () => {
           {/* 제1조 (목적) */}
           <Text style={styles.sectionHeader}>제1조 (목적)</Text>
           <Text style={styles.termsText}>
-            본 약관은 회원(본 약관에 동의한 자를 말합니다. 이하 “회원”이라고 합니다)이 주식회사 사우스세른(South Sern, 이하 “회사”)가 제공하는 위치기반서비스(이하 “서비스”)를 이용함에 있어 회사와 회원의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
+            본 약관은 회원(본 약관에 동의한 자를 말합니다. 이하 “회원”이라고 합니다)이 주식회사 세른(Sern, 이하 “회사”)가 제공하는 위치기반서비스(이하 “서비스”)를 이용함에 있어 회사와 회원의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
           </Text>
 
           {/* 제2조 (약관의 효력 및 변경) */}
@@ -132,7 +132,7 @@ const LocationServiceTermsScreen = () => {
             <Text style={styles.bulletItem}>• 회사의 상호, 주소 및 연락처는 아래와 같습니다.</Text>
           </View>
           <View style={[styles.bulletList, { marginLeft: 30 }]}>
-            <Text style={styles.bulletItem}>A. 상호: 주식회사 사우스세른(South Sern)</Text>
+            <Text style={styles.bulletItem}>A. 상호: 주식회사 세른(Sern)</Text>
             <Text style={styles.bulletItem}>B. 주소: 광주광역시 북구 용주로 30번길 88, 205호</Text>
             <Text style={styles.bulletItem}>C. 회사는 개인위치정보를 적절히 관리·보호하고, 개인위치정보주체의 불만을 원활히 처리할 수 있도록 실질적인 책임을 질 수 있는 지위에 있는 자를 위치정보관리책임자로 지정해 운영하고 있으며, 위치정보관리책임자의 성명과 연락처는 아래와 같습니다.</Text>
             <Text style={styles.bulletItem}>D. 성명: 채민식, 박영서</Text>

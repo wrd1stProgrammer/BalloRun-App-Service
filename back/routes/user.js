@@ -5,7 +5,8 @@ const {
   saveVerification,
   registerAccountApi,
   withdrawApi,
-  getWithdrawList
+  getWithdrawList,
+  editProfile,
 } = require("../controllers/auth/user");
 
 const router = express.Router();
@@ -15,4 +16,5 @@ router.post(`/saveVerification`,saveVerification);
 router.post(`/registeraccount`,registerAccountApi);
 router.post(`/withdraw`,withdrawApi);
 router.get(`/getwithdrawlist`,getWithdrawList);
+router.post(`/editprofile`,editProfile);
 module.exports = router;

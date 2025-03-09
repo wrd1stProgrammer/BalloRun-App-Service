@@ -27,14 +27,10 @@ const OrderPageScreen = () => {
   const { name } = route.params;
 
   const [orderDetails, setOrderDetails] = useState("");
-  const [priceOffer, setPriceOffer] = useState("0원");
-  const [deliveryFee, setdeliveryFee] = useState("0원");
-  // const [riderRequest, setriderRequest] = useState("");
-  const [images, setImages] = useState<string | null>(null); // uri만 저장
-
-  const [deliveryMethod, setDeliveryMethod] = useState("direct"); // 배달방식 선택 상태
-  
-
+  const [priceOffer, setPriceOffer] = useState("");
+  const [deliveryFee, setDeliveryFee] = useState("");
+  const [images, setImages] = useState<string | null>(null);
+  const [deliveryMethod, setDeliveryMethod] = useState("direct");
 
   useEffect(() => {
     if (images) {
@@ -46,11 +42,10 @@ const OrderPageScreen = () => {
     navigate("OrderLocationScreen", {
       name,
       orderDetails,
-      priceOffer,
-      deliveryFee,
-      // riderRequest,
-      images: images,
-      deliveryMethod
+      priceOffer: priceOffer || "0", // 빈 값일 경우 0으로 전송
+      deliveryFee: deliveryFee || "0", // 빈 값일 경우 0으로 전송
+      images,
+      deliveryMethod,
     });
   };
 
@@ -60,133 +55,100 @@ const OrderPageScreen = () => {
       selectionLimit: 1,
       includeBase64: true,
     };
-
     const response: ImagePickerResponse = await launchImageLibrary(option);
-
     if (response.didCancel) Alert.alert('취소');
     else if (response.errorMessage) Alert.alert('Error: ' + response.errorMessage);
     else if (response.assets && response.assets.length > 0) {
-      const uri = response.assets[0].uri;
-      setImages(uri || null);
+      setImages(response.assets[0].uri || null);
     }
   };
 
   const handleRemoveImage = () => {
-    setImages(null); // 이미지 상태를 null로 설정하여 제거
+    setImages(null);
   };
 
   const handlePriceChange = (text: string, setter: (value: string) => void) => {
-    const numericValue = text.replace(/[^0-9]/g, "");
-    setter(`${numericValue}원`);
+    const numericValue = text.replace(/[^0-9]/g, ""); // 숫자만 허용
+    setter(numericValue);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Header title={name} />
-
       <View style={styles.content}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>무엇을 요청할까요?</Text>
-          <TouchableOpacity 
-            onPress={images ? handleRemoveImage : handleImagePicker}
-          >
-            <Ionicons 
-              name={images ? "close-circle" : "camera"} 
-              size={24} 
-              color={images ? "red" : "black"} 
-            />
+          <View>
+            <Text style={styles.sectionTitle}>무엇을 요청할까요?</Text>
+            <Text style={styles.sectionSubtitle}>사진을 첨부해주시면 배달원에게 도움이 됩니다</Text>
+          </View>
+          <TouchableOpacity onPress={images ? handleRemoveImage : handleImagePicker}>
+            <Ionicons name={images ? "close" : "camera-outline"} size={24} color="#000" />
           </TouchableOpacity>
         </View>
         <TextInput
           style={styles.textArea}
           placeholder="배달할 품목, 수량 등 입력"
-          placeholderTextColor="#B0B0B0"
+          placeholderTextColor="#999"
           multiline
           value={orderDetails}
           onChangeText={setOrderDetails}
         />
 
         <Text style={styles.sectionTitle}>주문상품 가격</Text>
-        <TextInput
-          style={[styles.input, styles.rightAlignedInput]}
-          placeholder="0원"
-          placeholderTextColor="#B0B0B0"
-          keyboardType="numeric"
-          value={priceOffer}
-          onChangeText={(text) => handlePriceChange(text, setPriceOffer)}
-        />
+        <View style={styles.priceInputContainer}>
+          <TextInput
+            style={styles.priceInput}
+            placeholder="0"
+            placeholderTextColor="#999"
+            keyboardType="numeric"
+            value={priceOffer}
+            onChangeText={(text) => handlePriceChange(text, setPriceOffer)}
+          />
+          <Text style={styles.wonText}>원</Text>
+        </View>
 
         <Text style={styles.sectionTitle}>배달팁</Text>
-        <TextInput
-          style={[styles.input, styles.rightAlignedInput]}
-          placeholder="0원"
-          placeholderTextColor="#B0B0B0"
-          keyboardType="numeric"
-          value={deliveryFee}
-          onChangeText={(text) => handlePriceChange(text, setdeliveryFee)}
-        />
+        <View style={styles.priceInputContainer}>
+          <TextInput
+            style={styles.priceInput}
+            placeholder="0"
+            placeholderTextColor="#999"
+            keyboardType="numeric"
+            value={deliveryFee}
+            onChangeText={(text) => handlePriceChange(text, setDeliveryFee)}
+          />
+          <Text style={styles.wonText}>원</Text>
+        </View>
 
-        {/* <TextInput
-          style={styles.textArea}
-          placeholder="주문 요청사항 입력"
-          placeholderTextColor="#B0B0B0"
-          multiline
-          value={riderRequest}
-          onChangeText={setriderRequest}
-        /> */}
-         <View style={styles.footer}>
-                <View style={styles.deliveryMethodContainer}>
-                  <Text style={styles.deliveryMethodTitle}>
-                    배달방식을 선택해주세요
-                  </Text>
-                  <View style={styles.deliveryButtonsContainer}>
-                    <TouchableOpacity
-                      style={[
-                        styles.deliveryButton,
-                        deliveryMethod === "direct" && styles.selectedButton,
-                      ]}
-                      onPress={() => setDeliveryMethod("direct")}
-                    >
-                      <Text
-                        style={
-                          deliveryMethod === "direct"
-                            ? styles.selectedButtonText
-                            : styles.deliveryButtonText
-                        }
-                      >
-                        직접배달
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.deliveryButton,
-                        deliveryMethod === "cupHolder" && styles.selectedButton,
-                      ]}
-                      onPress={() => setDeliveryMethod("cupHolder")}
-                    >
-                      <Text
-                        style={
-                          deliveryMethod === "cupHolder"
-                            ? styles.selectedButtonText
-                            : styles.deliveryButtonText
-                        }
-                      >
-                        음료보관대
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-
-
+        <View style={styles.deliveryMethodContainer}>
+          <Text style={styles.sectionTitle}>배달 방식</Text>
+          <View style={styles.deliveryButtonsContainer}>
+            <TouchableOpacity
+              style={[styles.deliveryButton, deliveryMethod === "direct" && styles.selectedButton]}
+              onPress={() => setDeliveryMethod("direct")}
+            >
+              <Text style={deliveryMethod === "direct" ? styles.selectedButtonText : styles.buttonText}>
+                직접배달
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.deliveryButton, deliveryMethod === "cupHolder" && styles.selectedButton]}
+              onPress={() => setDeliveryMethod("cupHolder")}
+            >
+              <Text style={deliveryMethod === "cupHolder" ? styles.selectedButtonText : styles.buttonText}>
+                음료보관대
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
       <TouchableOpacity
-        style={[styles.button, orderDetails ? styles.buttonActive : styles.buttonInactive]}
+        style={[styles.nextButton, !orderDetails && styles.nextButtonInactive]}
         disabled={!orderDetails}
         onPress={handleNextPress}
       >
-        <Text style={styles.buttonText}>다음</Text>
+        <Text style={styles.nextButtonText}>다음</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -198,113 +160,102 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  customerCenterText: {
-    fontSize: 14,
-    color: "#555",
-  },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingTop: 24,
   },
   sectionHeader: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    alignItems: "center",
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
+    fontWeight: "600",
+    color: "#000",
+    marginBottom: 8,
   },
-  footer: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
+  sectionSubtitle: {
+    fontSize: 12,
+    color: "#999",
   },
   textArea: {
-    height: 150,
-    borderColor: "#D0D0D0",
+    height: 120,
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 20,
+    borderColor: "#eee",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 24,
     textAlignVertical: "top",
+    fontSize: 16,
+    color: "#000",
   },
-  input: {
-    height: 50,
-    borderColor: "#D0D0D0",
+  priceInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 20,
+    borderColor: "#eee",
+    borderRadius: 8,
+    marginBottom: 24,
+    paddingHorizontal: 12,
   },
-  rightAlignedInput: {
+  priceInput: {
+    flex: 1,
+    height: 48,
+    fontSize: 16,
+    color: "#000",
     textAlign: "right",
   },
-  button: {
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  buttonActive: {
-    backgroundColor: "#000",
-  },
-  buttonInactive: {
-    backgroundColor: "#D3D3D3",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+  wonText: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
+    marginLeft: 8,
   },
   deliveryMethodContainer: {
-    marginBottom: 16,
-  },
-  deliveryMethodTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 24,
   },
   deliveryButtonsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    gap: 8,
   },
   deliveryButton: {
     flex: 1,
-    padding: 12,
+    paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f5f5f5",
     alignItems: "center",
-    marginHorizontal: 4,
   },
   selectedButton: {
-    backgroundColor: "#d0a6f3",
+    backgroundColor: "#007aff",
   },
-  deliveryButtonText: {
+  buttonText: {
     fontSize: 14,
     color: "#666",
+    fontWeight: "500",
   },
   selectedButtonText: {
     fontSize: 14,
     color: "#fff",
+    fontWeight: "500",
+  },
+  nextButton: {
+    backgroundColor: "#000",
+    paddingVertical: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  nextButtonInactive: {
+    backgroundColor: "#ccc",
+  },
+  nextButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 

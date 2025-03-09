@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Image, StyleSheet, Platform, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, TextInput, Image, StyleSheet, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import { goBack } from '../../../navigation/NavigationUtils';
-import Icon from 'react-native-vector-icons/Ionicons'; // Ionicons 라이브러리 사용
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useAppSelector } from '../../../redux/config/reduxHook';
 import { selectUser } from '../../../redux/reducers/userSlice';
-// 라우트 파라미터 타입 정의
+import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
+import { useAppDispatch } from '../../../redux/config/reduxHook';
+import { uploadFile } from '../../../redux/actions/fileAction';
+import { editProfileAction, refetchUser } from '../../../redux/actions/userAction';
+
 interface RouteParams {
   userImage: string | undefined;
   nickname: string;
@@ -13,73 +17,166 @@ interface RouteParams {
 
 const EditProfileScreen = () => {
   const user = useAppSelector(selectUser);
+  const [nickname, setNickname] = useState(user?.nickname || '');
+  const [username, setUsername] = useState(user?.username || '');
+  const [images, setImages] = useState<string | null>(null);
+  const [nicknameError, setNicknameError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const dispatch = useAppDispatch();
 
-  // 상태 관리
-  const [nickname, setNickname] = useState(user?.nickname);
-  const [username, setUsername] = useState(user?.username);
+  const handleSaveProfile = async () => {
+    // 닉네임 유효성 검사
+    if (!nickname) {
+      setNicknameError('올바른 닉네임을 입력하세요');
+      return;
+    }
 
-  // 프로필 수정 완료 함수 (사용자가 작성할 부분)
-  const handleSaveProfile = () => {
-    console.log('프로필 수정 완료:', { nickname, username });
-    goBack();
+    if (nickname.length < 2 || nickname.length > 12) {
+      setNicknameError('올바른 닉네임을 입력하세요 (2~12자)');
+      return;
+    }
+
+    const specialCharRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+    if (specialCharRegex.test(nickname)) {
+      setNicknameError('올바른 닉네임을 입력하세요 (특수문자 불가)');
+      return;
+    }
+
+    if (/\s/.test(nickname)) {
+      setNicknameError('올바른 닉네임을 입력하세요 (공백 불가)');
+      return;
+    }
+
+    const numberOnlyRegex = /^[0-9]+$/;
+    if (numberOnlyRegex.test(nickname)) {
+      setNicknameError('올바른 닉네임을 입력하세요 (숫자만 불가)');
+      return;
+    }
+
+    const consonantOnlyRegex = /^[ㄱ-ㅎ]+$/;
+    if (consonantOnlyRegex.test(nickname)) {
+      setNicknameError('올바른 닉네임을 입력하세요 (자음만 불가)');
+      return;
+    }
+
+    setIsLoading(true); // 로딩 시작
+    try {
+      const userImage = images ? await dispatch(uploadFile(images, "newUserProfile_image")) : null;
+      await dispatch(editProfileAction(username, nickname, userImage));
+      await dispatch(refetchUser()); // user info update
+      console.log('프로필 수정 완료:', { nickname, username });
+      goBack();
+    } catch (error) {
+      Alert.alert('오류', '프로필 수정 중 문제가 발생했습니다.');
+      console.error(error);
+    } finally {
+      setIsLoading(false); // 로딩 종료
+    }
   };
 
-  // 프로필 이미지 터치 더미 로직
-  const handleImagePress = () => {
+  useEffect(() => {
+    if (images) {
+      console.log(images, 'images 정보');
+    }
+  }, [images]);
 
+  const handleImagePress = async () => {
+    if (images) {
+      setImages(null);
+    } else {
+      const option: ImageLibraryOptions = {
+        mediaType: "photo",
+        selectionLimit: 1,
+        includeBase64: true,
+      };
+  
+      const response: ImagePickerResponse = await launchImageLibrary(option);
+  
+      if (response.didCancel) Alert.alert('취소');
+      else if (response.errorMessage) Alert.alert('Error: ' + response.errorMessage);
+      else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        setImages(uri || null);
+      }
+    }
   };
 
   return (
     <View style={styles.container}>
-      {/* 상단 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => goBack()} style={styles.headerButton}>
           <Icon name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>프로필 수정</Text>
-        <TouchableOpacity onPress={handleSaveProfile} style={styles.headerButton}>
-          <Text style={styles.saveButton}>완료</Text>
+        <TouchableOpacity 
+          onPress={handleSaveProfile} 
+          style={styles.headerButton} 
+          disabled={isLoading} // 로딩 중에는 버튼 비활성화
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#000" />
+          ) : (
+            <Text style={styles.saveButton}>완료</Text>
+          )}
         </TouchableOpacity>
       </View>
 
-      {/* 내용 */}
       <View style={styles.content}>
-        {/* 프로필 사진 */}
         <TouchableOpacity style={styles.profileImageContainer} onPress={handleImagePress}>
-          {user?.userImage ? (
-            <Image source={{ uri: user?.userImage}} style={styles.profileImage} />
+          {images ? (
+            <Image source={{ uri: images }} style={styles.profileImage} />
+          ) : user?.userImage ? (
+            <Image source={{ uri: user?.userImage }} style={styles.profileImage} />
           ) : (
             <View style={styles.defaultProfileImage}>
               <Text style={styles.smiley}>☺</Text>
             </View>
           )}
           <View style={styles.cameraIconContainer}>
-            <Icon name="camera" size={20} color="#000" />
+            <Icon 
+              name={images ? "close" : "camera"} 
+              size={20} 
+              color="#000" 
+            />
           </View>
         </TouchableOpacity>
 
-        {/* 닉네임 입력 필드 */}
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>닉네임</Text>
+          <View style={styles.labelContainer}>
+            <Text style={styles.label}>닉네임</Text>
+            {nicknameError && (
+              <Text style={styles.errorText}>{nicknameError}</Text>
+            )}
+          </View>
           <TextInput
             style={styles.input}
-            value={user?.nickname}
-            onChangeText={setNickname}
-            placeholder="아직 계정 내 닉네임 필드 없어서"
+            value={nickname}
+            onChangeText={(text) => {
+              setNickname(text);
+              setNicknameError(null);
+            }}
+            placeholder="2~12자, 특수문자/공백/자음만 불가"
+            editable={!isLoading} // 로딩 중에는 입력 비활성화
           />
         </View>
 
-        {/* username 입력 필드 */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>사용자 이름</Text>
           <TextInput
             style={styles.input}
-            value={user?.username}
+            value={username}
             onChangeText={setUsername}
             placeholder="username"
+            editable={!isLoading} // 로딩 중에는 입력 비활성화
           />
         </View>
       </View>
+
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )}
     </View>
   );
 };
@@ -88,7 +185,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'ios' ? 40 : StatusBar.currentHeight, // iOS와 Android의 상태바 높이 고려
+    paddingTop: Platform.OS === 'ios' ? 40 : StatusBar.currentHeight,
   },
   header: {
     flexDirection: 'row',
@@ -152,10 +249,15 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 20,
   },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   label: {
     fontSize: 16,
     color: '#000',
-    marginBottom: 5,
+    marginRight: 8,
   },
   input: {
     borderWidth: 1,
@@ -164,6 +266,16 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
     color: '#000',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', // 반투명 배경
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

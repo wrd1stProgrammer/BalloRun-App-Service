@@ -184,3 +184,16 @@ export const getWithdrawList = () => async (dispatch: any) => {
     console.log('account register ERROR ->', error);
   }
 }; // ap
+
+export const editProfileAction = (nickname:string,username:string,userImage?:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/user/editprofile',{
+      username,
+      nickname,
+      userImage,
+    });
+    return res.data;
+  } catch (error: any) {
+    console.log('editProfile ERROR ->', error);
+  }
+}; 
