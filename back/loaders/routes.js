@@ -8,6 +8,8 @@ const riderRouter = require("../routes/rider");
 const fileRouter = require("../routes/file");
 const chatRouter = require("../routes/chat");
 const newOrderRouter = require("../routes/neworder");
+const address = require("../routes/address");
+
 
 module.exports = async (app) => {
     const router = express.Router();
@@ -25,6 +27,7 @@ module.exports = async (app) => {
     app.use("/file",authMiddleware,fileRouter);
     app.use("/chat",authMiddleware,chatRouter);
     app.use("/neworder",authMiddleware,newOrderRouter);
+    app.use("/address",authMiddleware,address);
 
     console.log('라우트 설정 OK');
 };

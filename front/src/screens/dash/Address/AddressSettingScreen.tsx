@@ -1,26 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Pressable, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../../utils/OrderComponents/Header';
 import { navigate } from '../../../navigation/NavigationUtils';
+import { useAppSelector } from '../../../redux/config/reduxHook';
+import { selectUser } from '../../../redux/reducers/userSlice';
+import { appAxios } from '../../../redux/config/apiConfig';
 
 interface Address {
-    id: string;
-    name: string;
-    details: string;
+    _id: string;
+    address: string;
+    detail: string;
 }
 
-const addressList: Address[] = [
-    { id: '1', name: '우리집', details: '광주 북구 용봉동 ' },
-    { id: '2', name: '회사', details: '광주 서구 대남대로 ' },
-    { id: '3', name: '강원 원성군 ', details: '둔내면 고원로 ' },
-    { id: '4', name: '전남 목포시 ', details: '해안로' },
-    { id: '5', name: '광주 북구 용봉로 ', details: '용봉로 77 백도 1층' },
-    { id: '6', name: '양산시 덕천장로 ', details: '덕천장로 ' },
-];
-
 const AddressSettingScreen = () => {
-    const [selectedAddress, setSelectedAddress] = useState<string | null>('1');
+    const user = useAppSelector(selectUser); // Get logged-in user info
+    const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+    const [addressList, setAddressList] = useState<Address[]>([]);
+
+    useEffect(() => {
+        if (!user?._id) return; // Ensure user is logged in before fetching data
+
+        const fetchAddresses = async () => {
+            try {
+                const response = await appAxios.get(`/address/list/${user._id}`); // Fetch addresses from the backend
+                setAddressList(response.data);
+            } catch (error) {
+                console.error('❌ Failed to fetch addresses:', error);
+            }
+        };
+
+        fetchAddresses();
+    }, [user]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -29,7 +40,6 @@ const AddressSettingScreen = () => {
 
                 <TouchableOpacity onPress={() => navigate('AddressSearchScreen')} style={styles.searchBar}>
                     <Ionicons name="search" size={20} color="black" />
-
                     <Text style={styles.buttonText}>지번, 도로명, 건물명으로 검색</Text>
                 </TouchableOpacity>
                 <Pressable style={styles.locationButton} onPress={() => alert('현재 위치 찾기')}>
@@ -39,17 +49,17 @@ const AddressSettingScreen = () => {
 
                 <FlatList
                     data={addressList}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
                         <Pressable
                             style={styles.addressItem}
-                            onPress={() => setSelectedAddress(item.id)}
+                            onPress={() => setSelectedAddress(item._id)}
                         >
                             <View>
-                                <Text style={styles.addressName}>{item.name}</Text>
-                                <Text style={styles.addressDetails}>{item.details}</Text>
+                                <Text style={styles.addressName}>{item.address}</Text>
+                                <Text style={styles.addressDetails}>{item.detail}</Text>
                             </View>
-                            {selectedAddress === item.id && <Ionicons name="checkmark" size={20} color="blue" />}
+                            {selectedAddress === item._id && <Ionicons name="checkmark" size={20} color="blue" />}
                         </Pressable>
                     )}
                 />
@@ -57,6 +67,7 @@ const AddressSettingScreen = () => {
         </SafeAreaView>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
