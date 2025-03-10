@@ -112,8 +112,10 @@ export const onNotificationOpenedApp = () => {
 
 //  딥링크 핸들러 --> 알림 터치시 로직 data type 에 따라 다른 로직 설정
 const handleNotificationAction = (data: any) => {
-  if (data?.type === 'chat') {
-    navigate('ChatRoom', { roomId: data.roomId });
+  if (data?.type === 'order_accepted') {
+    navigate('HomeScreen', { orderId: data.orderId }); //  screen다시
+  }else if(data?.type === 'chat'){
+    navigate('ChatRoom', {orderId:data.chatRoomId});
   }
 };
 

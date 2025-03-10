@@ -3,6 +3,7 @@ const NewOrder = require("../../models/NewOrder");
 const User = require("../../models/User");
 const OrderCancellation = require("../../models/OrderCancellation");
 const { invalidateOnGoingOrdersCache,invalidateCompletedOrdersCache } = require("../../utils/deleteRedisCache");
+const sendPushNotification = require("../../utils/sendPushNotification");
 
 const getOrderDataForCancelApi = async (req, res) => {
     try {
@@ -100,7 +101,7 @@ const getOrderDataForCancelApi = async (req, res) => {
     }
   };
 
-
+  //주문자가 취소
   const orderCancelApi = async (req, res) => {
     try {
       // 1. 요청 데이터 추출
@@ -164,7 +165,20 @@ const getOrderDataForCancelApi = async (req, res) => {
         console.log(riderUser,'Rideruser 찾음??');
         riderUser.isDelivering = false;
         await riderUser.save(); // 라이더는 refetch 강제 해야 + 알림 ?
-
+      // 7. 라이더에게 푸시 알림 전송
+      if (riderUser.fcmToken) {
+        const notificationPayload = {
+          title: "주문이 취소되었습니다.",
+          body: `고객이 주문을 취소하였습니다.`,
+          data: { type: "order_cancel", orderId: orderId },
+        };
+        //await sendPushNotification(riderUser.fcmToken, notificationPayload);
+        console.log(`라이더 ${order.riderId}에게 알림 전송 성공`);
+        //cancellation.riderNotified = true; // 알림 전송 성공 시 상태 업데이트
+        await cancellation.save();
+      } else {
+        console.log(`라이더 ${order.riderId}의 FCM 토큰이 없습니다.`);
+      }
         console.log(`라이더 ${order.riderId}에게 알림 전송 준비: 주문 ${orderId} 취소`);
       }else{
         //진행 중인 주문 레디스 삭제.

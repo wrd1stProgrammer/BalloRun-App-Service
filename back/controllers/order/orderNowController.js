@@ -9,7 +9,7 @@ const orderNowDirectCreate = async (req, res) => {
   const { items, lat, lng,resolvedAddress, isMatch, deliveryFee, deliveryType,startTime,endTime,riderRequest,selectedFloor,price,quantity,selectedImageUri } = req.body;
 
   const userId = req.user.userId; // authMiddleWare 에서 가져옴.
-
+  
   
   try {
     // 배달 타입이 'direct'인지 확인

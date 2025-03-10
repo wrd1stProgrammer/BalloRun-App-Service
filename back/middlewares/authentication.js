@@ -28,12 +28,16 @@ const auth = async (req, res, next) => {
     // req.user = { userid: payload.userid, username: payload.username };
 
     // const user = await User.findById(payload.userid);
-    req.user = { userId: payload.userId };  // payload.id를 사용하여 req.user에 할당
+    //req.user = { userId: payload.userId };  // payload.id를 사용하여 req.user에 할당
     //console.log("req.user after setting:", req.user); // req.user 로그 추가
 
     const user = await User.findById(payload.userId);  // payload.id를 사용하여 사용자 조회
     //console.log("user found:", user); // user 로그 추가
-
+    // req.user에 userId와 전체 user 객체 할당
+    req.user = {
+      userId: payload.userId,
+      user: user // user 객체 전체를 추가
+    };  
 
     if (!user) {
       throw new NotFoundError("User not found");

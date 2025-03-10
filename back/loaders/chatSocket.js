@@ -206,6 +206,17 @@ module.exports = (chatIo) => {
       );
     }*/
   
+    // 4. 상대방 정보 조회 (username, userImage, nickname) -> ChatRoom 때문에..
+    const otherUser = await User.findById(otherUserId).select('username userImage nickname').lean();
+    if (!otherUser) {
+      console.log(`User with ID ${otherUserId} not found`);
+    } else {
+      console.log('Other User Info:', {
+        username: otherUser.username,
+        userImage: otherUser.userImage,
+        nickname: otherUser.nickname
+      });
+    }
           //  3. 해당 채팅방의 모든 사용자에게 메시지 전송
           // 1.실시간 x 
           chatIo.to(chatRoomId).emit("chatMessage", {
@@ -234,7 +245,7 @@ module.exports = (chatIo) => {
               body: `${message}`,
               data: {type:"chat", orderId:chatRoomId},
             }
-            if (user.fcmToken) {
+            if (user.fcmToken) {//otherUser로 바꿔야함.
               //await sendPushNotification(user.fcmToken, notipayload); //임시로 나애게 보내
               console.log('ios APNs 설정 안되서 일단 주석');
             } else {

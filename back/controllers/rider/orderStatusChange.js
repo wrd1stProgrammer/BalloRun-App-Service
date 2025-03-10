@@ -147,6 +147,25 @@ const completeOrderHandler = async (req, res) => {
 
     emitOrderStatus(req, order, "delivered");
 
+    // 주문자 정보 조회 및 푸시 알림 전송
+    const orderUser = await User.findById(order.userId).select('fcmToken').lean();
+    if (orderUser && orderUser.fcmToken) {
+      const notificationPayload = {
+        title: "주문이 완료되었습니다!",
+        body: `주문 ${orderId}이(가) 성공적으로 배달 완료되었습니다.`,
+        data: { type: "order_complete", orderId: orderId },
+      };
+
+      try {
+        //await sendPushNotification(orderUser.fcmToken, notificationPayload);
+        console.log(`주문자 ${order.userId}에게 알림 전송 성공`);
+      } catch (notificationError) {
+        console.error(`주문자 ${order.userId}에게 알림 전송 실패:`, notificationError);
+      }
+    } else {
+      console.log(`주문자 ${order.userId}의 FCM 토큰이 없습니다.`);
+    }
+
     res.status(200).json({ message: "Order status updated to delivered" });
   } catch (error) {
     console.error("Error in completeOrderHandler:", error);
