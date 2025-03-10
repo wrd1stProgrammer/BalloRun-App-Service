@@ -52,6 +52,7 @@ import EditProfileScreen from "../screens/dash/Profile/EditProfileScreen";
 import AddressSettingScreen from "../screens/dash/Address/AddressSettingScreen";
 import AddressSearchScreen from "../screens/dash/Address/AddressSearchScreen";
 import AddressDetailScreen from "../screens/dash/Address/AddressDetailScreen";
+import NoticeScreen from "../screens/dash/NoticeScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -249,6 +250,10 @@ export const orderStack = [
   {
     name:"EditProfileScreen",
     component: EditProfileScreen,
+  },
+  {
+    name:"NoticeScreen",
+    component:NoticeScreen,
   }
 ];
 

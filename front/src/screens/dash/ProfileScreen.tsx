@@ -6,10 +6,27 @@ import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
 import { selectUser } from '../../redux/reducers/userSlice';
 import { Logout } from '../../redux/actions/userAction';
 import { navigate } from '../../navigation/NavigationUtils';
+import NoticeScreen from './NoticeScreen';
 
 const ProfileScreen = () => {
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
+
+  // 캐리어 인증 상태 한글 매핑
+  const getVerificationStatusText = (status:string) => {
+    switch (status) {
+      case 'pending':
+        return '심사 중';
+      case 'verified':
+        return '인증 완료';
+      case 'rejected':
+        return '인증 거절';
+      case 'notSubmitted':
+        return '미제출';
+      default:
+        return '미제출';
+    }
+  };
 
   const handleAccountCheck = () => {
     if (!user?.account || Object.keys(user?.account || {}).length === 0) {
@@ -29,6 +46,10 @@ const ProfileScreen = () => {
 
   const handleEditProfile = () => {
     navigate('EditProfileScreen', { user });
+  };
+
+  const renderNoti = () => {
+    navigate('NoticeScreen');
   };
 
   // 경험치 퍼센트 계산 함수
@@ -71,18 +92,20 @@ const ProfileScreen = () => {
                 </TouchableOpacity>
               )}
             </View>
-            <Text style={styles.status}>캐리어 인증상태 : {user?.verificationStatus || '미인증'}</Text>
+            <Text style={styles.status}>
+              캐리어 인증상태 : {getVerificationStatusText(user?.verificationStatus)}
+            </Text>
           </View>
         </View>
 
-        {/* 프로필 수정 버튼 (너비 90%로, 회색 배경) */}
+        {/* 프로필 수정 버튼 */}
         <TouchableOpacity style={styles.editButton} onPress={handleEditProfile} activeOpacity={0.7}>
           <Ionicons name="pencil-outline" size={20} color="#333" />
           <Text style={styles.editButtonText}>프로필 수정</Text>
         </TouchableOpacity>
 
-{/* 레벨 및 경험치 섹션 */}
-<View style={styles.levelSection}>
+        {/* 레벨 및 경험치 섹션 */}
+        <View style={styles.levelSection}>
           <Text style={styles.gradeTitle}>등급 혜택</Text>
           <View style={styles.expRow}>
             <Text style={styles.expText}>Lv.{user?.level || 1}</Text>
@@ -100,22 +123,17 @@ const ProfileScreen = () => {
         <View style={styles.menuSection}>
           {/* 이용안내 섹션 */}
           <Text style={styles.sectionTitle}>이용안내</Text>
-          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('공지사항')} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.menuItem} onPress={renderNoti} activeOpacity={0.7}>
             <Ionicons name="volume-high" size={22} color="#333" />
             <Text style={styles.menuText}>공지사항</Text>
             {true && <View style={styles.notificationDot} />}
           </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('자주 하는 질문')} activeOpacity={0.7}>
-            <Ionicons name="help-circle-outline" size={22} color="#333" />
-            <Text style={styles.menuText}>자주 하는 질문</Text>
-          </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem} onPress={() => console.log('설정')} activeOpacity={0.7}>
             <Ionicons name="settings-outline" size={22} color="#333" />
             <Text style={styles.menuText}>설정</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem} onPress={() => navigate('LawScreen')} activeOpacity={0.7}>
             <Ionicons name="document-text-outline" size={22} color="#333" />
             <Text style={styles.menuText}>약관 및 정책</Text>
@@ -127,12 +145,12 @@ const ProfileScreen = () => {
             <Ionicons name="information-circle-outline" size={22} color="#333" />
             <Text style={styles.menuText}>정보 동의 설정</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem} onPress={() => console.log('회원 탈퇴')} activeOpacity={0.7}>
             <Ionicons name="person-remove-outline" size={22} color="#333" />
             <Text style={styles.menuText}>회원 탈퇴</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem} onPress={() => dispatch(Logout())} activeOpacity={0.7}>
             <Ionicons name="log-out-outline" size={22} color="#333" />
             <Text style={styles.menuText}>로그아웃</Text>
@@ -144,10 +162,9 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  
   safeArea: {
-    flex: 0.95,
-    backgroundColor: '#fff', // Unified white background
+    flex: 1,
+    backgroundColor: '#fff', // 배경색 변경
   },
   topBar: {
     flexDirection: 'row',
@@ -170,20 +187,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    backgroundColor: '#fff', // Unified white background for scrollable content
+    paddingBottom: 20,
   },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 16,
+    margin: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 3,
   },
   userImage: {
     width: 90,
@@ -215,7 +232,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
+    borderRadius: 20,
     marginLeft: 30,
   },
   withdrawButtonText: {
@@ -230,33 +247,39 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto',
   },
   editButton: {
-    width: '90%', // Increased width to 90%
+    width: '90%',
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#D3D3D3', // Gray background
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: '#e0e0e0',
+    paddingVertical: 12,
+    borderRadius: 20,
     marginVertical: 10,
   },
   editButtonText: {
     fontSize: 16,
-    color: '#333', // Dark text for readability on gray background
+    color: '#333',
     marginLeft: 8,
     fontFamily: 'Roboto',
     fontWeight: '600',
   },
   levelSection: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    padding: 16,
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 16,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 3,
   },
   gradeTitle: {
+    fontSize: 18,
     fontWeight: '600',
-    marginBottom: 15,
+    marginBottom: 12,
     color: '#333',
   },
   expDetail: {
@@ -279,7 +302,7 @@ const styles = StyleSheet.create({
   },
   expContainer: {
     height: 10,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#e0e0e0',
     borderRadius: 5,
     overflow: 'hidden',
   },
@@ -289,33 +312,37 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   menuSection: {
-    paddingVertical: 10,
     backgroundColor: '#fff',
+    borderRadius: 16,
+    margin: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 3,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginBottom: 10,
-    backgroundColor: '#fff', // Unified white background
-    fontFamily: 'Roboto',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     borderBottomWidth: 0.5,
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#fff',
   },
   menuText: {
     fontSize: 16,
     fontWeight: '400',
     color: '#333',
-    marginLeft: 20,
+    marginLeft: 16,
     fontFamily: 'Roboto',
   },
   notificationDot: {
