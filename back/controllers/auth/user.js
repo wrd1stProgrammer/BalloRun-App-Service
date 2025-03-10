@@ -264,6 +264,33 @@ const editProfile = async (req, res) => {
   });
 };
 
+const updateAddress = async (req, res) => {
+  try {
+      const { address } = req.body;
+      const { id } = req.params; // `req.user.userId` 대신 `req.params.id` 사용
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ message: "잘못된 사용자 ID 형식입니다." });
+      }
+
+      if (!address) {
+          return res.status(400).json({ message: "주소를 입력하세요." });
+      }
+
+      const user = await User.findById(id);
+      if (!user) {
+          return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+      }
+
+      user.address = address;
+      await user.save();
+
+      res.status(200).json({ message: "주소가 업데이트되었습니다.", address: user.address });
+  } catch (error) {
+      console.error("주소 업데이트 오류:", error);
+      res.status(500).json({ message: "서버 오류" });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -272,4 +299,5 @@ module.exports = {
   withdrawApi,
   getWithdrawList,
   editProfile, 
+  updateAddress
 };

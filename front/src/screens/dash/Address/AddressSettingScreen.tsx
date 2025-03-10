@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Pressable, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Pressable, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../../utils/OrderComponents/Header';
 import { navigate } from '../../../navigation/NavigationUtils';
-import { useAppSelector } from '../../../redux/config/reduxHook';
-import { selectUser } from '../../../redux/reducers/userSlice';
+import { useAppSelector, useAppDispatch } from '../../../redux/config/reduxHook';
+import { selectUser, selectUserAddress, setUserAddress, } from '../../../redux/reducers/userSlice';
 import { appAxios } from '../../../redux/config/apiConfig';
 
 interface Address {
@@ -14,16 +14,17 @@ interface Address {
 }
 
 const AddressSettingScreen = () => {
-    const user = useAppSelector(selectUser); // Get logged-in user info
-    const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+    const user = useAppSelector(selectUser);
+    const dispatch = useAppDispatch();
+    const [selectedAddress, setSelectedAddress] = useState<string | null>(user?.address || null);
     const [addressList, setAddressList] = useState<Address[]>([]);
 
     useEffect(() => {
-        if (!user?._id) return; // Ensure user is logged in before fetching data
+        if (!user?._id) return;
 
         const fetchAddresses = async () => {
             try {
-                const response = await appAxios.get(`/address/list/${user._id}`); // Fetch addresses from the backend
+                const response = await appAxios.get(`/address/list/${user._id}`);
                 setAddressList(response.data);
             } catch (error) {
                 console.error('❌ Failed to fetch addresses:', error);
@@ -33,11 +34,21 @@ const AddressSettingScreen = () => {
         fetchAddresses();
     }, [user]);
 
+    const handleSelectAddress = async (addressId: string, address: string) => {
+        try {
+            await appAxios.put(`/user/${user?._id}/update-address`, { address });
+            dispatch(setUserAddress(address));
+            setSelectedAddress(addressId);
+        } catch (error) {
+            console.error("주소 업데이트 실패:", error);
+            Alert.alert("오류", "주소를 설정하는 중 문제가 발생했습니다.");
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <Header title="주소 설정" />
             <View style={styles.container}>
-
                 <TouchableOpacity onPress={() => navigate('AddressSearchScreen')} style={styles.searchBar}>
                     <Ionicons name="search" size={20} color="black" />
                     <Text style={styles.buttonText}>지번, 도로명, 건물명으로 검색</Text>
@@ -53,7 +64,7 @@ const AddressSettingScreen = () => {
                     renderItem={({ item }) => (
                         <Pressable
                             style={styles.addressItem}
-                            onPress={() => setSelectedAddress(item._id)}
+                            onPress={() => handleSelectAddress(item._id, item.address)}
                         >
                             <View>
                                 <Text style={styles.addressName}>{item.address}</Text>

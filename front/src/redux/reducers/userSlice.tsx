@@ -12,6 +12,7 @@ interface OrderStatus {
 interface UserData {
   [key: string]: any;
   isOngoingOrder?: boolean;
+  address?: string;
 }
 
 interface UserState {
@@ -23,6 +24,7 @@ interface UserState {
 const initialState: UserState = {
   user: {
     isOngoingOrder: false,
+    address: '',
   },
   ongoingOrder: null,
   isMatching: false,
@@ -51,6 +53,11 @@ export const userSlice = createSlice({
         state.user.isOngoingOrder = true;
       }
     },
+    setUserAddress: (state, action: PayloadAction<string>) => {  
+      if (state.user) {
+        state.user.address = action.payload;
+      }
+    },
     clearOngoingOrder: (state) => {
       state.ongoingOrder = null;
       state.isMatching = false;
@@ -64,9 +71,10 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUser, setIsOngoingOrder, setOngoingOrder, clearOngoingOrder, setIsMatching } = userSlice.actions;
+export const { setUser, setUserAddress, setIsOngoingOrder, setOngoingOrder, clearOngoingOrder, setIsMatching } = userSlice.actions;
 
 export const selectUser = (state: RootState) => state.user.user;
+export const selectUserAddress = (state: RootState) => state.user.user?.address ?? '';  // ✅ 주소 선택자 추가
 export const selectIsOngoingOrder = (state: RootState) => state.user.user?.isOngoingOrder ?? false;
 export const selectOngoingOrder = (state: RootState) => state.user.ongoingOrder;
 export const selectIsMatching = (state: RootState) => state.user.isMatching;

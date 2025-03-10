@@ -7,6 +7,7 @@ const {
   withdrawApi,
   getWithdrawList,
   editProfile,
+  updateAddress
 } = require("../controllers/auth/user");
 
 const router = express.Router();
@@ -17,4 +18,5 @@ router.post(`/registeraccount`,registerAccountApi);
 router.post(`/withdraw`,withdrawApi);
 router.get(`/getwithdrawlist`,getWithdrawList);
 router.post(`/editprofile`,editProfile);
+router.put('/:id/update-address', updateAddress)
 module.exports = router;
