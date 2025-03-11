@@ -6,7 +6,7 @@ import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
 import { selectUser } from '../../redux/reducers/userSlice';
 import { Logout } from '../../redux/actions/userAction';
 import { navigate } from '../../navigation/NavigationUtils';
-import NoticeScreen from './NoticeScreen';
+import NoticeScreen from './Notice/NoticeScreen';
 
 const ProfileScreen = () => {
   const user = useAppSelector(selectUser);

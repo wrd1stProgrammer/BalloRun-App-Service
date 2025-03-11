@@ -9,7 +9,7 @@ const fileRouter = require("../routes/file");
 const chatRouter = require("../routes/chat");
 const newOrderRouter = require("../routes/neworder");
 const address = require("../routes/address");
-
+const noticeRouter = require("../routes/notice");
 
 module.exports = async (app) => {
     const router = express.Router();
@@ -28,6 +28,7 @@ module.exports = async (app) => {
     app.use("/chat",authMiddleware,chatRouter);
     app.use("/neworder",authMiddleware,newOrderRouter);
     app.use("/address",authMiddleware,address);
+    app.use("/notices",authMiddleware,noticeRouter);
 
     console.log('라우트 설정 OK');
 };

@@ -3,6 +3,10 @@ const jwt = require("jsonwebtoken");
 
 const UserSchema = new mongoose.Schema(
   {
+    admin:{ // 관리자 작업 하기 위해 따로 생성.
+      type:String,
+      default:false,
+    },
     email: {
       type: String,
       required: true,
