@@ -39,9 +39,9 @@ const auth = async (req, res, next) => {
     if (!user.isActive) {
       return res.status(401).json({ error: '계정이 비활성화되었습니다. 다시 가입해주세요.' });
     }
-    
+
     // req.user에 userId와 전체 user 객체 할당
-    console.log(user,'미들웨어 로깅');
+    //console.log(user,'미들웨어 로깅');
     req.user = {
       userId: payload.userId,
       user: user // user 객체 전체를 추가

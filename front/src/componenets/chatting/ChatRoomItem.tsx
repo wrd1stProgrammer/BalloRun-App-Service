@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
+import { useState } from 'react';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Color from '../../constants/Colors';
 import TYPOS from './etc/TYPOS';
@@ -39,11 +40,15 @@ const ChatRoomItem = ({
   unreadCount,
 }: Props) => {
   const chatRoom = useAppSelector((state) => selectChatRoom(state, roomId));
+// 로컬 상태로 isNotificationEnabled 관리
+const [localIsAlarm, setLocalIsAlarm] = useState(isNotificationEnabled);
 
   // 리덕스 값이 있으면 사용, 없으면 초기값 사용
   const latestContent = chatRoom?.lastChat ?? content;
   const latestTimeStamp = chatRoom?.lastChatAt ?? timeStamp;
   const latestUnreadCount = chatRoom?.unreadCount ?? unreadCount;
+
+
 
   const renderRightActions = () => {
     console.log(unreadCount,'안읽은메세지 카운트 더미 로그');

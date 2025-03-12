@@ -1,5 +1,7 @@
 const ChatRoom = require("../../models/ChatRoom"); // ChatRoom 모델 import
+const { BadRequestError,UnauthenticatedError,} = require("../../errors");
 
+const { default: mongoose } = require("mongoose");
 
 const deleteChatRoom = async (req,res) => {
     const {chatRoomId} = req.params;
@@ -42,7 +44,48 @@ const checkChatRoomApi = async (req, res) => {
   }
 };
 
+const toggleChatRoomAlarm = async (req, res) => {
+  try {
+    const { id: chatRoomId } = req.params; // URL에서 chatRoomId 추출
+    const userId = req.user.userId; // auth 미들웨어에서 추출된 사용자 ID
+
+    // 채팅방 존재 여부 확인
+    const chatRoom = await ChatRoom.findById(chatRoomId);
+    if (!chatRoom) {
+      throw new BadRequestError('채팅방을 찾을 수 없습니다.');
+    }
+
+    // 사용자가 채팅방에 속해 있는지 확인
+    if (!chatRoom.users.some((user) => user.toString() === userId)) {
+      throw new UnauthenticatedError('채팅방에 속해 있지 않습니다.');
+    }
+
+    // 사용자별 알림 설정 업데이트
+    const userAlarm = chatRoom.usersAlarm.find((alarm) => alarm.userId.toString() === userId);
+    if (userAlarm) {
+      userAlarm.isAlarm = !userAlarm.isAlarm; // 토글
+    } else {
+      chatRoom.usersAlarm.push({ userId: new mongoose.Types.ObjectId(userId), isAlarm: false });
+    }
+
+    await chatRoom.save();
+
+    console.log(chatRoom,'update chatroom화긴');
+
+
+
+    // res.status(StatusCodes.OK).json({ chatRoomList });
+  } catch (error) {
+    console.error('알림 설정 업데이트 오류:', error);
+    if (error instanceof BadRequestError || error instanceof UnauthenticatedError) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: '서버 오류로 알림 설정에 실패했습니다.' });
+  }
+};
+
 module.exports = {
     deleteChatRoom,
     checkChatRoomApi,
+    toggleChatRoomAlarm,
 }

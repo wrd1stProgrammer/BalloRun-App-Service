@@ -12,6 +12,7 @@ import { token_storage } from '../../redux/config/storage';
 import { chatExitHandler } from '../../redux/actions/chatAction';
 import { setChatRooms } from '../../redux/reducers/chatSlice';
 import { updateLastChat } from '../../redux/reducers/chatSlice';
+import { appAxios } from '../../redux/config/apiConfig';
 // 전부 필수 데이터
 interface RoomData {
   id: string;
@@ -101,10 +102,9 @@ const Chatting: React.FC = () => {
   // 채팅방 알람 끄기 설정 -> api 제작 해야함
   const onToggleNotificationHandler = async (id: string) => {
     try {
-      const {
-        data: { chatRoomList },
-      } = await axios.patch(`/chat/alarm/${id}`);
-      setRooms(chatRoomList);
+      await appAxios.patch(`/chat/alarm/${id}`);
+      console.log('알람 끄기 ㅇㅋ');
+      // setRooms(chatRoomList);
     } catch (error) {
       console.log(error);
     }
