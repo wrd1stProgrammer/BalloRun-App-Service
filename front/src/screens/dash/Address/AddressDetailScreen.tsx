@@ -4,6 +4,7 @@ import Header from '../../../utils/OrderComponents/Header';
 import { useAppSelector } from '../../../redux/config/reduxHook';
 import { selectUser } from '../../../redux/reducers/userSlice';
 import { appAxios } from '../../../redux/config/apiConfig';
+import { navigate } from '../../../navigation/NavigationUtils';
 
 const AddressDetailScreen = ({ route }: any) => {
   const { selectedAddress } = route.params;
@@ -42,6 +43,8 @@ const AddressDetailScreen = ({ route }: any) => {
       } else {
         Alert.alert('오류', result.message);
       }
+
+      navigate("HomeScreen");
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('네트워크 오류', '주소를 등록할 수 없습니다.');
