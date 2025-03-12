@@ -72,7 +72,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ orderId, name, status, createdAt,
   };
 
   const handleReorderPress = () => {
-    resetAndNavigate('BottomTab', { screen: "HomeScreen" });
+    navigate("OrderPageScreen",{name});
   };
 
   const handleReviewPress = () => {

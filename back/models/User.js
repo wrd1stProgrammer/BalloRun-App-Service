@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema(
     username: { // real name
       type: String,
       required: true,
-      match: [/^[a-zA-Z0-9_]{3,30}$/, "Please provide a valid username"],
+      //match: [/^[a-zA-Z0-9_]{3,30}$/, "Please provide a valid username"],
       unique: true,
     },
       nickname: {
@@ -87,6 +87,8 @@ const UserSchema = new mongoose.Schema(
       default: 0, // 기본 경험치 0
       min: 0,
     },
+    isActive: { type: Boolean, default: true },
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

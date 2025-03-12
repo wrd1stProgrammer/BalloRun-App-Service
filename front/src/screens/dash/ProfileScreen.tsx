@@ -13,7 +13,7 @@ const ProfileScreen = () => {
   const dispatch = useAppDispatch();
 
   // 캐리어 인증 상태 한글 매핑
-  const getVerificationStatusText = (status:string) => {
+  const getVerificationStatusText = (status: string) => {
     switch (status) {
       case 'pending':
         return '심사 중';
@@ -52,6 +52,23 @@ const ProfileScreen = () => {
     navigate('NoticeScreen');
   };
 
+  // 로그아웃 확인 함수
+  const handleLogout = () => {
+    Alert.alert(
+      '로그아웃',
+      '정말 로그아웃 하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel', onPress: () => {} },
+        { 
+          text: '예', 
+          onPress: () => dispatch(Logout()), 
+          style: 'destructive' // iOS에서 빨간색으로 표시
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   // 경험치 퍼센트 계산 함수
   const getExpPercentage = () => {
     if (!user?.level || !user?.exp) return 0;
@@ -65,7 +82,7 @@ const ProfileScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       {/* 상단 바 (고정) */}
       <View style={styles.topBar}>
-        <Text style={styles.topBarTitle}>마이배달</Text>
+        <Text style={styles.topBarTitle}>내 정보</Text>
         <View style={styles.topBarIcons}>
           <TouchableOpacity onPress={() => console.log(user)} activeOpacity={0.7}>
             <Ionicons name="notifications-outline" size={24} color="#333" />
@@ -129,7 +146,7 @@ const ProfileScreen = () => {
             {true && <View style={styles.notificationDot} />}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('설정')} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigate("SettingScreen")} activeOpacity={0.7}>
             <Ionicons name="settings-outline" size={22} color="#333" />
             <Text style={styles.menuText}>설정</Text>
           </TouchableOpacity>
@@ -146,12 +163,12 @@ const ProfileScreen = () => {
             <Text style={styles.menuText}>정보 동의 설정</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => console.log('회원 탈퇴')} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigate("TalTaeScreen",{user})} activeOpacity={0.7}>
             <Ionicons name="person-remove-outline" size={22} color="#333" />
             <Text style={styles.menuText}>회원 탈퇴</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => dispatch(Logout())} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleLogout} activeOpacity={0.7}>
             <Ionicons name="log-out-outline" size={22} color="#333" />
             <Text style={styles.menuText}>로그아웃</Text>
           </TouchableOpacity>
@@ -163,7 +180,7 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   safeArea: {
-    flex: 1,
+    flex: 0.98,
     backgroundColor: '#fff', // 배경색 변경
   },
   topBar: {

@@ -21,7 +21,6 @@ import DeliveryImage from "../screens/order/DeliveryRequestListScreenComponents/
 import PayResult from "../screens/dash/KakaoPayApiTest/PayResult";
 // ++ Screen Type ??
 import OrderListSceen from "../screens/order/CafeListScreenComponent/OrderListScreen";
-import Component from "react-native-paper/lib/typescript/components/List/ListItem";
 import OrderLocationScreen from "../screens/order/OrderCategory/OrderLocationScreen";
 import OrderFinalScreen from "../screens/order/OrderCategory/OrderFinalScreen";
 import OrderPageScreen from "../screens/order/OrderCategory/OrderPageScreen copy";
@@ -55,6 +54,8 @@ import AddressDetailScreen from "../screens/dash/Address/AddressDetailScreen";
 import NoticeScreen from "../screens/dash/Notice/NoticeScreen";
 import CreateNoticeScreen from "../screens/dash/Notice/CreateNoticeScreen";
 import NoticeDetail from "../screens/dash/Notice/NoticeDetail";
+import TalTaeScreen from "../screens/dash/Profile/TalTaeScreen";
+import SettingScreen from "../screens/dash/Profile/SettingScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -208,6 +209,10 @@ export const dashboardStack = [
   {
     name:"NoticeDetail",
     component:NoticeDetail,
+  },
+  {
+    name:"SettingScreen",
+    component:SettingScreen,
   }
 ];
 
@@ -264,6 +269,10 @@ export const orderStack = [
   {
     name:"NoticeScreen",
     component:NoticeScreen,
+  },
+  {
+    name:"TalTaeScreen",
+    component:TalTaeScreen,
   }
 ];
 

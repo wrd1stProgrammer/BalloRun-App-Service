@@ -70,6 +70,13 @@ const login = async (req, res) => {
       console.error('로그인 실패: 사용자 아이디 없음');
       return res.status(401).json({ message: '아이디 또는 비밀번호가 잘못되었습니다.' });
     }
+
+    // isActive 체크: 비활성화된 계정 차단
+    if (!user.isActive) {
+      console.error('로그인 실패: 계정 비활성화');
+      return res.status(401).json({ message: '계정이 비활성화되었습니다. 다시 가입해주세요.' });
+    }
+
     // 임시 로직 
     if (!user.userImage) {
       user.userImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s';
@@ -129,6 +136,13 @@ const kakaologin = async (req, res) => {
   try {
     // 1. 이메일로 기존 사용자 조회 -> email 은 유일!! 
     let user = await User.findOne({ email });
+
+    // isActive 체크: 비활성화된 계정 차단
+    if (!user.isActive) {
+      console.error('로그인 실패: 계정 비활성화');
+      return res.status(401).json({ message: '계정이 비활성화되었습니다. 다시 가입해주세요.' });
+    }
+
 
     if (!user) {
       // 2. 존재하지 않는 경우 신규 사용자 생성
@@ -207,7 +221,7 @@ const kakaologin = async (req, res) => {
 
 
 const refreshToken = async (req, res) => {
-  console.log('0');
+  console.log('리프레시토큰');
     const { refresh_token } = req.body;
     if (!refresh_token) {
       console.log('리프레시 토큰',refresh_token);

@@ -59,7 +59,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
 
       setOrders(uniqueOrders);
     } catch (error) {
-      console.error('주문 데이터 불러오기 실패:', error);
+      console.error(' neworderlist 주문데이터 불러오기 실패:', error);
     }
   };
 

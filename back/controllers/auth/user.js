@@ -4,6 +4,8 @@ const { BadRequestError, NotFoundError } = require("../../errors");
 const User = require("../../models/User");
 const Verification = require("../../models/Verification");
 const Withdrawal = require("../../models/Withdrawl");
+const WithdrawalReason = require("../../models/WithdrawlReason");
+
 const { default: mongoose } = require("mongoose");
 
 // Get user profile
@@ -292,6 +294,38 @@ const updateAddress = async (req, res) => {
   }
 };
 
+const taltaeApi = async (req, res) => {
+  try {
+    const user = req.user.user; 
+    const userId = user._id;
+    const { reason } = req.body;
+
+    // 탈퇴 사유 
+    await WithdrawalReason.create({
+      userId,
+      reason,
+      createdAt: new Date(),
+    });
+
+    // username과 nickname을 "탈퇴한 사용자"로 변경
+    user.username = '탈퇴한 사용자';
+    user.nickname = '탈퇴한 사용자';
+    user.isActive = false; // 소프트 삭제 (법때매 실제 삭제아닌 삭제 상태)
+    user.deletedAt = new Date();
+    await user.save();
+
+    // 관련 데이터 삭제 또는 비활성화 -> 미정이
+    // await Post.updateMany({ userId }, { isDeleted: true });
+    // await Chat.updateMany({ userId }, { isDeleted: true });
+
+    // 성공 응답
+    res.status(200).json({ message: '탈퇴가 완료되었습니다.', user: user });
+  } catch (error) {
+    console.error('탈퇴 처리 오류:', error);
+    res.status(500).json({ message: '서버 오류로 탈퇴에 실패했습니다.' });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -300,5 +334,6 @@ module.exports = {
   withdrawApi,
   getWithdrawList,
   editProfile, 
-  updateAddress
+  updateAddress,
+  taltaeApi,
 };

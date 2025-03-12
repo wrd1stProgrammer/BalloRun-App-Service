@@ -197,3 +197,14 @@ export const editProfileAction = (nickname:string,username:string,userImage?:str
     console.log('editProfile ERROR ->', error);
   }
 }; 
+//test 실패 ?
+export const taltaeAction = (reason:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/user/taltae',{
+      reason,
+    });
+    await Logout();
+  } catch (error: any) {
+    console.log('taltae ERROR ->', error);
+  }
+}; 
