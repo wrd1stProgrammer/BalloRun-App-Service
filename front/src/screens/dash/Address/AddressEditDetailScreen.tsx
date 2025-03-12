@@ -41,7 +41,7 @@ const AddressEditDetailScreen = ({ route }: any) => {
       } else {
         Alert.alert('오류', '주소 업데이트에 실패했습니다.');
       }
-      navigate("AddressEditScreen"); // 업데이트 후 편집 목록 화면으로 이동
+      navigate("AddressSettingScreen"); // 업데이트 후 편집 목록 화면으로 이동
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('네트워크 오류', '주소를 업데이트할 수 없습니다.');
