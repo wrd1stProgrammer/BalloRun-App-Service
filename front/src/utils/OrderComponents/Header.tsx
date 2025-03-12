@@ -2,16 +2,23 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../navigation/NavigationUtils";
-
 interface HeaderProps {
   title: string;
   showCart?: boolean;
   cartItemCount?: number;
+  showEdit?: boolean;  // 편집 버튼 표시 여부
+  onEditPress?: () => void;  // 편집 버튼 클릭 시 실행할 함수
 }
 
-const Header: React.FC<HeaderProps> = ({ title, showCart = false, cartItemCount = 0 }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  title, 
+  showCart = false, 
+  cartItemCount = 0, 
+  showEdit = false, 
+  onEditPress 
+}) => {
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}>
       {/* 뒤로 가기 버튼 */}
       <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
         <Ionicons name="arrow-back" size={24} color="black" />
@@ -20,7 +27,14 @@ const Header: React.FC<HeaderProps> = ({ title, showCart = false, cartItemCount 
       {/* 중앙 제목 */}
       <Text style={styles.headerTitle}>{title}</Text>
 
-      {/* 장바구니 아이콘 (없어도 레이아웃 유지) */}
+      {/* 편집 버튼 (옵션) */}
+      {showEdit && (
+        <TouchableOpacity style={styles.editButton} onPress={onEditPress}>
+          <Text style={styles.editText}>편집</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* 장바구니 버튼 (옵션) */}
       {showCart ? (
         <TouchableOpacity style={styles.cartButton} onPress={() => navigate("BasketScreen")}>
           <Ionicons name="cart-outline" size={24} color="white" />
@@ -31,7 +45,6 @@ const Header: React.FC<HeaderProps> = ({ title, showCart = false, cartItemCount 
           )}
         </TouchableOpacity>
       ) : (
-        // 장바구니 버튼이 없을 때 레이아웃 깨짐 방지용 빈 View 추가
         <View style={styles.emptyCartSpace} />
       )}
     </View>
@@ -56,7 +69,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "black",
     textAlign: "center",
-    flex: 1, // 제목을 중앙 정렬하기 위해 flex 적용
+    flexGrow: 1,
   },
   cartButton: {
     position: "relative",
@@ -65,6 +78,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
+  },
+  editButton: {
+    padding: 8,
+    position: "absolute",
+    right: 16,
+  },
+  editText: {
+    fontSize: 16,
+    color: 'black',
+    fontWeight: 'bold',
   },
   cartBadge: {
     position: "absolute",

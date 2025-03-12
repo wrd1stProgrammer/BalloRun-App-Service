@@ -47,7 +47,8 @@ const AddressSettingScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="주소 설정" />
+            <Header title="주소 설정"   showEdit={true} 
+  onEditPress={() => navigate('AddressEditScreen')} />
             <View style={styles.container}>
                 <TouchableOpacity onPress={() => navigate('AddressSearchScreen')} style={styles.searchBar}>
                     <Ionicons name="search" size={20} color="black" />

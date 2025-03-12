@@ -56,6 +56,8 @@ import CreateNoticeScreen from "../screens/dash/Notice/CreateNoticeScreen";
 import NoticeDetail from "../screens/dash/Notice/NoticeDetail";
 import TalTaeScreen from "../screens/dash/Profile/TalTaeScreen";
 import SettingScreen from "../screens/dash/Profile/SettingScreen";
+import AddressEditScreen from "../screens/dash/Address/AddressEditScreen";
+import AddressEditDetailScreen from "../screens/dash/Address/AddressEditDetailScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -201,6 +203,14 @@ export const dashboardStack = [
   {
     name:"AddressDetailScreen",
     component:AddressDetailScreen
+  },
+  {
+    name:"AddressEditScreen",
+    component:AddressEditScreen
+  },
+  {
+    name:"AddressEditDetailScreen",
+    component:AddressEditDetailScreen
   },
   {
     name:"CreateNotice",

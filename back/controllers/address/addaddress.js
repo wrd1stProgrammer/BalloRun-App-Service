@@ -43,8 +43,44 @@ const getUserAddresses = async (req, res) => {
     }
 };
 
+const updateAddress = async (req, res) => {
+    const { addressId } = req.params;
+    const updateData = req.body;
+
+    try {
+        const updatedAddress = await Address.findByIdAndUpdate(addressId, updateData, { new: true });
+
+        if (!updatedAddress) {
+            return res.status(404).json({ message: '주소를 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({ message: '주소 업데이트 완료', updatedAddress });
+    } catch (error) {
+        console.error('❌ 주소 업데이트 중 오류 발생:', error);
+        res.status(500).json({ message: '서버 내부 오류 발생', error: error.message });
+    }
+};
+
+const deleteAddress = async (req, res) => {
+    const { addressId } = req.params;
+
+    try {
+        const deletedAddress = await Address.findByIdAndDelete(addressId);
+
+        if (!deletedAddress) {
+            return res.status(404).json({ message: '주소를 찾을 수 없습니다.' });
+        }
+
+        res.status(200).json({ message: '주소 삭제 완료' });
+    } catch (error) {
+        console.error('❌ 주소 삭제 중 오류 발생:', error);
+        res.status(500).json({ message: '서버 내부 오류 발생', error: error.message });
+    }
+};
 
 module.exports = {
   addAddress,
-  getUserAddresses
+  getUserAddresses,
+  updateAddress,
+  deleteAddress
 };
