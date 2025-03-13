@@ -7,30 +7,25 @@ import {
   SafeAreaView,
   TouchableOpacity,
   StyleSheet,
-  Alert,
-  Modal
+  Modal,
 } from "react-native";
 import { formatDistanceToNow, format } from "date-fns";
-import { id, ko } from "date-fns/locale";
-import { useNavigation } from "@react-navigation/native"; // useNavigation 사용
+import { ko } from "date-fns/locale";
+import { useNavigation } from "@react-navigation/native";
 import { useAppDispatch, useAppSelector } from "../../../redux/config/reduxHook";
-import {
-    getDeliveryListHandler,
-} from "../../../redux/actions/orderAction";
+import { getDeliveryListHandler } from "../../../redux/actions/orderAction";
 import { WebSocketContext } from "../../../utils/sockets/Socket";
 import { navigate } from "../../../navigation/NavigationUtils";
-import {launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions, Asset} from 'react-native-image-picker';
+import Icon from "react-native-vector-icons/MaterialIcons";
 import ChangeStatusPicker from "./DeliveryListComponents.tsx/ChangeStatusPicker";
 import { completeOrderHandler, goToCafeHandler, goToClientHandler, makingMenuHandler } from "../../../redux/actions/riderAction";
 import { clearOngoingOrder, setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import { useLocation } from "../../../utils/Geolocation/LocationContext";
 import { refetchUser } from "../../../redux/actions/userAction";
 
-
-
 interface OrderItem {
   _id: string;
-  userId:string;
+  userId: string;
   items: { cafeName: string; menuName: string }[];
   lat: string;
   lng: string;
@@ -43,441 +38,439 @@ interface OrderItem {
   endTime: string;
   selectedFloor: null | string;
   updatedAt: string;
-  orderType:string;
-  riderId:string
+  orderType: string;
+  riderId: string;
 }
 
 interface OrderListProps {
-    activeTab: "orders" | "deliveries";
-  }
+  activeTab: "orders" | "deliveries";
+}
 
-const DeliveryList: React.FC<OrderListProps> = ({activeTab}) => {
+const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<OrderItem[]>([]);
-  const [allOrders, setAllOrders] = useState<OrderItem[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null); //  선택된 주문 저장
+  const [allOrders, setAllOrders] = useState<OrderItem[]>([]); // 원본 데이터 저장
+  const [filterTab, setFilterTab] = useState("inProgress");
+  const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
 
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
-  const navigation = useNavigation(); // ✅ useNavigation 사용
-
-  const orderSocket = useContext(WebSocketContext); // WebSocketContext에서 소켓 가져오기
+  const orderSocket = useContext(WebSocketContext);
+  const navigation = useNavigation();
   const { location, startTracking, stopTracking } = useLocation();
-  
-
-  const [filterTab, setFilterTab] = useState<any>("inProgress");
-
 
   const fetchOrders = async () => {
     try {
-      const completedOrdersResponse = await dispatch(getDeliveryListHandler());
-      const sortedOrders = completedOrdersResponse.sort(
-        (a: OrderItem, b: OrderItem) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      const response = await dispatch(getDeliveryListHandler());
+      const sortedOrders = response.sort(
+        (a: OrderItem, b: OrderItem) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
-      setOrders(sortedOrders);
-      setAllOrders(sortedOrders);
+      setAllOrders(sortedOrders); // 원본 데이터 저장
+      // 필터링된 데이터 설정
+      if (filterTab === "inProgress") {
+        setOrders(
+          sortedOrders.filter(
+            (item) => item.status !== "delivered" && item.status !== "cancelled"
+          )
+        );
+      } else {
+        setOrders(
+          sortedOrders.filter(
+            (item) => item.status === "delivered" || item.status === "cancelled"
+          )
+        );
+      }
     } catch (error) {
       console.error("주문 데이터 가져오기 실패:", error);
       setOrders([]);
+      setAllOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (activeTab == "deliveries"){
-        socket?.on("emitMatchTest", fetchOrders);
+    if (activeTab === "deliveries") {
+      socket?.on("emitMatchTest", fetchOrders);
+      fetchOrders();
+      return () => {
         fetchOrders();
-    
-        return () => {
-          fetchOrders();
-          socket?.off("emitMatchTest");
-        };
-    }
-    else(console.log("나의 주문 목록 보기가 아님"))
-
-  }, [navigation,socket,activeTab]);
-
-  const handleFilter = (type: string | null) => {
-    if (type) {
-      setOrders(allOrders.filter((item) => item.status === type));
+        socket?.off("emitMatchTest");
+      };
     } else {
-      setOrders(allOrders);
+      console.log("나의 주문 목록 보기가 아님");
+    }
+  }, [navigation, socket, activeTab]);
+
+  const filterOrders = (type: string) => {
+    setFilterTab(type);
+    if (type === "inProgress") {
+      setOrders(
+        allOrders.filter(
+          (item) => item.status !== "delivered" && item.status !== "cancelled"
+        )
+      );
+    } else {
+      setOrders(
+        allOrders.filter(
+          (item) => item.status === "delivered" || item.status === "cancelled"
+        )
+      );
     }
   };
 
-  const handleFilter_1 = (type: string | null) => {
-    if (type) {
-      setOrders(allOrders.filter((item) => item.status !== type));
-    } else {
-      setOrders(allOrders);
-    }
-  };
-
-
-
-
-
-  const ClickStatus = async (selectedStatus:String,orderId:string,orderType:string,userId:string,riderId:string) => {
-    console.log("Selected Status:", selectedStatus, orderId,orderType,userId);
+  const ClickStatus = async (
+    selectedStatus: string,
+    orderId: string,
+    orderType: string,
+    userId: string,
+    riderId: string
+  ) => {
+    console.log("Selected Status:", selectedStatus, orderId, orderType, userId);
     if (selectedStatus === "goTocafe") {
-      await dispatch(goToCafeHandler(orderId,orderType));
-    } else if (selectedStatus === "goToClient") { // 구매하러감
-      await dispatch(goToClientHandler(orderId,orderType));
-    } else if (selectedStatus === "makingMenu") { 
-      await dispatch(makingMenuHandler(orderId,orderType));
+      await dispatch(goToCafeHandler(orderId, orderType));
+    } else if (selectedStatus === "goToClient") {
+      await dispatch(goToClientHandler(orderId, orderType));
+    } else if (selectedStatus === "makingMenu") {
+      await dispatch(makingMenuHandler(orderId, orderType));
     } else if (selectedStatus === "delivered") {
-      await dispatch(completeOrderHandler(orderId,orderType));
+      await dispatch(completeOrderHandler(orderId, orderType));
       await dispatch(refetchUser());
-      dispatch(clearOngoingOrder()); // ✅ 배달자 화면에서 Redux 초기화
+      dispatch(clearOngoingOrder());
       stopTracking();
-      // ✅ 주문자의 userId를 포함하여 소켓으로 배달 완료 이벤트 전송
-      orderSocket?.emit("order_completed", { orderId,userId });
+      orderSocket?.emit("order_completed", { orderId, userId });
     }
-  }
-
+    fetchOrders(); // 상태 변경 후 주문 목록 새로고침
+  };
 
   const renderOrder = ({ item }: { item: OrderItem }) => (
-    <>
     <View style={styles.card}>
-      <View style={styles.rowHeader}>
-        <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
-        <TouchableOpacity>
-          <Text style={styles.moreButton}>...</Text>
-        </TouchableOpacity>
+      {/* 상단: 가게 이름 + 상태 */}
+      <View style={styles.cardHeader}>
+        <View style={styles.cafeInfo}>
+          <Icon name="store" size={20} color="#1A1A1A" />
+          <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
+        </View>
+        <Text
+          style={[
+            styles.status,
+            item.status === "pending"
+              ? styles.pendingStatus
+              : item.status === "inProgress" ||
+                item.status === "accepted" ||
+                item.status === "goToCafe" ||
+                item.status === "goToClient" ||
+                item.status === "makingMenu"
+              ? styles.inProgressStatus
+              : item.status === "delivered"
+              ? styles.completedStatus
+              : item.status === "cancelled"
+              ? styles.cancelledStatus
+              : null,
+          ]}
+        >
+          {item.status === "pending"
+            ? "수락 대기 중"
+            : item.status === "accepted"
+            ? "배달 중"
+            : item.status === "goToCafe"
+            ? "가게로 이동 중"
+            : item.status === "goToClient"
+            ? "고객에게 이동 중"
+            : item.status === "makingMenu"
+            ? "제품 픽업 완료"
+            : item.status === "delivered"
+            ? "배달 완료"
+            : item.status === "cancelled"
+            ? "배달 취소"
+            : "알 수 없음"}
+        </Text>
       </View>
-      {item.deliveryType === "direct" ? (
-        <Text style={styles.address}>{`${item.lat}, ${item.lng}`}</Text>
-      ) : (
-        <Text style={styles.address}>{item.selectedFloor}</Text>
+
+      {/* 중단: 주문 정보 */}
+      <View style={styles.orderInfo}>
+        <Text style={styles.menuName}>{item.items[0]?.menuName}</Text>
+        <Text style={styles.deliveryFee}>{`${item.deliveryFee}원`}</Text>
+        <Text style={styles.time}>
+          {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: ko })}
+        </Text>
+      </View>
+
+      {/* 진행 중일 때 프로그레스 바 */}
+      {item.status !== "delivered" && item.status !== "cancelled" && (
+        <View style={styles.progressBar}>
+          <View
+            style={[
+              styles.progressFill,
+              {
+                backgroundColor:
+                  item.status === "delivered" || item.status === "cancelled"
+                    ? "#006AFF"
+                    : "#34C759",
+              },
+            ]}
+          />
+        </View>
       )}
 
-      <Text
-        style={
-          item.status === "pending"
-            ? styles.pendingStatus
-            : item.status === "inProgress"
-            ? styles.inProgressStatus
-            : styles.completedStatus
-        }
-      >
-        {item.status === "pending"
-          ? "수락 대기 중"
-          : item.status === "accepted"
-          ? "배달중 accepted"
-          : item.status === "goToCafe" 
-          ? "카페로 이동중"
-          : item.status === "goToClient" 
-          ? "고객에게 이동중"
-          : item.status === "makingMenu" 
-          ? "제품 픽업 완료"
-          : item.status === "delivered" 
-          ? "배달완료"
-          : item.status === "cancelled" 
-          ? "배달취소"
-          :"수정"}
-      </Text>
-
-        {item.status !== "delivered" && item.status !== "cancelled" && (
-          <>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setSelectedOrder(item)} // ✅ 선택된 주문만 모달 열기
-            >
-              <Text style={styles.pendingStatus}>배달 상태 변경하기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={
-                () => navigate("DeliveryImage", { item })}
-            >
-              <Text style={styles.buttonText}>배달 완료 사진 업로드하기</Text>
-            </TouchableOpacity>
-            </>)}
-      <View style={styles.rowFooter}>
-        <Text style={styles.deliveryType}>
-          {item.deliveryType === "direct" ? "직접 배달" : "음료 보관함"}
-        </Text>
-        {/* <Text style={styles.timeInfo}>{`${format(new Date(item.startTime), "HH:mm")}`}</Text>
-        <Text style={styles.timeInfo}>{`${format(new Date(item.endTime), "HH:mm")}`}</Text> */}
-
-      </View>
-      <View style={styles.rowFooter}>
-
-        <Text style={styles.deliveryFee}>{`${item.deliveryFee}원`}</Text>
-        <Text style={styles.timeInfo}>주문수락시간:{`${formatDistanceToNow(new Date(item.updatedAt), { addSuffix: true, locale: ko })}`}
-        </Text>
-
-        <Text style={styles.timeInfo}>{item.riderRequest}</Text>
-        <Text style={styles.timeAgo}>
-          {`${formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: ko })}`}
-        </Text>
-      </View>
+      {/* 하단: 버튼 */}
+      {item.status !== "delivered" && item.status !== "cancelled" && (
+        <View style={styles.actionContainer}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => setSelectedOrder(item)}>
+            <Icon name="edit" size={18} color="#FFF" />
+            <Text style={styles.actionText}>상태 변경</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigate("DeliveryImage", { item })}
+          >
+            <Icon name="camera-alt" size={18} color="#FFF" />
+            <Text style={styles.actionText}>사진 업로드</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
-    </>
   );
 
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6200ee" />
+        <ActivityIndicator size="large" color="#006AFF" />
       </SafeAreaView>
     );
   }
 
   return (
-    <>
-      <View style={styles.container}>
-        <Modal
-          visible={selectedOrder !== null} // ✅ 특정 주문이 선택되었을 때만 모달 표시
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setSelectedOrder(null)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <ChangeStatusPicker
-                onClose={() => setSelectedOrder(null)}
-                onConfirm={(selectedStatus) => {
-                  if (selectedOrder) {
-                    ClickStatus(selectedStatus, selectedOrder._id, selectedOrder.orderType, selectedOrder.userId, selectedOrder.riderId);
-                    setSelectedOrder(null)
-                  }
-                }}
-              />
-            </View>
+    <SafeAreaView style={styles.container}>
+      <Modal
+        visible={selectedOrder !== null}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setSelectedOrder(null)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <ChangeStatusPicker
+              onClose={() => setSelectedOrder(null)}
+              onConfirm={(selectedStatus) => {
+                if (selectedOrder) {
+                  ClickStatus(
+                    selectedStatus,
+                    selectedOrder._id,
+                    selectedOrder.orderType,
+                    selectedOrder.userId,
+                    selectedOrder.riderId
+                  );
+                  setSelectedOrder(null);
+                }
+              }}
+            />
           </View>
-        </Modal>
-        {/* <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter_1("delivered")}>
-          <Text style={styles.buttonText}>배달중</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handleFilter("complete")}>
-          <Text style={styles.buttonText}>배달완료 & 배달취소</Text>
-        </TouchableOpacity>
-      </View> */}
-        <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>배달 상태</Text>
-          <View style={styles.deliveryTypeOptions}>
-            {[
-              { type: "inProgress", label: "배달중" },
-              { type: "completed", label: "배달완료 & 취소" },
-            ].map(({ type, label }) => (
-              <TouchableOpacity
-                key={type}
-                style={[styles.filterButton, filterTab === type && styles.activeFilterButton]}
-                onPress={() => {
-                  setFilterTab(type as any);
-                  type === "inProgress" ? handleFilter_1("delivered") : handleFilter("delivered");
-                }}
-              >
-                <Text style={[styles.filterButtonText, filterTab === type && styles.activeFilterText]}>
-                  {label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <View style={styles.divider} />
         </View>
+      </Modal>
 
+      {/* 필터 탭 */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[styles.filterTab, filterTab === "inProgress" && styles.activeFilterTab]}
+          onPress={() => filterOrders("inProgress")}
+        >
+          <Icon
+            name="directions-bike"
+            size={20}
+            color={filterTab === "inProgress" ? "#FFF" : "#666666"}
+          />
+          <Text
+            style={[styles.filterText, filterTab === "inProgress" && styles.activeFilterText]}
+          >
+            배달 중
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterTab, filterTab === "completed" && styles.activeFilterTab]}
+          onPress={() => filterOrders("completed")}
+        >
+          <Icon
+            name="check-circle"
+            size={20}
+            color={filterTab === "completed" ? "#FFF" : "#666666"}
+          />
+          <Text
+            style={[styles.filterText, filterTab === "completed" && styles.activeFilterText]}
+          >
+            완료/취소
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-
+      {/* 주문 리스트 */}
       <FlatList
         data={orders}
-        keyExtractor={(item, index) => item._id ? item._id : `key-${index}`} // ✅ _id가 없으면 index 사용
+        keyExtractor={(item) => item._id}
         renderItem={renderOrder}
-        contentContainerStyle={[styles.listContent, { paddingHorizontal: 5 }]} // 🚀 기존 16에서 10으로 줄임
-        
+        contentContainerStyle={styles.listContent}
       />
-            </View>
-    </>
+    </SafeAreaView>
   );
 };
 
-
-
 const styles = StyleSheet.create({
-  filterContainer: {
-    marginBottom: 0,
-  },
-  filterLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-  filterButton: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: "#E5E7EB",
-    marginHorizontal: 5,
-  },
-  activeFilterButton: {
-    backgroundColor: "#2563EB",
-  },
-  filterButtonText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#374151",
-  },
-  activeFilterText: {
-    color: "#ffffff",
-  },
-
-  deliveryTypeOptions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
-    paddingHorizontal: 16,
+    backgroundColor: "#F7F9FA", // 연한 회색 배경
   },
-  buttonContainer: {
+  filterContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 12,
-    marginHorizontal: 10,
+    padding: 10,
+    backgroundColor: "#FFF",
   },
-  button: {
-    flex: 1, // 버튼 크기를 균일하게 조정
-    backgroundColor: "#8A67F8",
-    paddingVertical: 12,
-    borderRadius: 8,
+  filterTab: {
+    flex: 1,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: 5, // 버튼 사이 간격 추가
+    paddingVertical: 12,
+    marginHorizontal: 5,
+    borderRadius: 10,
+    backgroundColor: "#E8ECEF",
   },
-  activeButton: {
-    backgroundColor: "#6200ee",
+  activeFilterTab: {
+    backgroundColor: "#006AFF",
   },
-  buttonText: {
-    color: "#fff",
+  filterText: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: "#666666",
+    fontWeight: "600",
+  },
+  activeFilterText: {
+    color: "#FFF",
+  },
+  listContent: {
+    padding: 15,
+  },
+  card: {
+    backgroundColor: "#FFF",
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  cafeInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  cafeName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginLeft: 8,
+  },
+  status: {
+    fontSize: 13,
+    fontWeight: "600",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    color: "#FFF",
+  },
+  pendingStatus: {
+    backgroundColor: "#FFD60A", // 더 부드러운 노랑
+  },
+  inProgressStatus: {
+    backgroundColor: "#34C759", // 더 조화로운 초록
+  },
+  completedStatus: {
+    backgroundColor: "#006AFF", // 토스 파랑
+  },
+  cancelledStatus: {
+    backgroundColor: "#B0B0B0", // 더 차분한 회색
+    color: "#FFF",
+  },
+  orderInfo: {
+    marginBottom: 10,
+  },
+  menuName: {
+    fontSize: 16,
+    color: "#1A1A1A",
+  },
+  deliveryFee: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#006AFF",
+    marginTop: 5,
+  },
+  time: {
+    fontSize: 12,
+    color: "#666666",
+    marginTop: 5,
+  },
+  progressBar: {
+    height: 5,
+    backgroundColor: "#E8ECEF",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  progressFill: {
+    width: "50%",
+    height: "100%",
+    borderRadius: 5,
+  },
+  actionContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#006AFF",
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginHorizontal: 5,
+  },
+  actionText: {
+    color: "#FFF",
     fontSize: 14,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: "600",
+    marginLeft: 8,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  listContent: {
-    padding: 16,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#D1D5DB",
-    marginVertical: 12,
-    width: "100%",
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12, // 모서리 둥글게 조정
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.15, // 그림자 강조
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3, // 안드로이드 그림자 적용
-  },
-  rowHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  cafeName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  moreButton: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#ccc",
-  },
-  address: {
-    fontSize: 14,
-    color: "#666",
-    marginVertical: 8,
-  },
-  pendingStatus: {
-    fontSize: 14,
-    color: "#ff9800",
-    fontWeight: "bold",
-  },
-  inProgressStatus: {
-    fontSize: 14,
-    color: "#4caf50",
-    fontWeight: "bold",
-  },
-  completedStatus: {
-    fontSize: 14,
-    color: "#6200ee",
-    fontWeight: "bold",
-  },
-  rowFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 8,
-  },
-  deliveryType: {
-    fontSize: 14,
-    color: "#333",
-  },
-  timeInfo: {
-    fontSize: 14,
-    color: "#666",
-  },
-  deliveryFee: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#6200ee",
-  },
-  timeAgo: {
-    fontSize: 12,
-    color: "#999",
-  },
-  deliveryContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  deliveryText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
+    backgroundColor: "#F7F9FA",
   },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
   modalContent: {
-    width: "80%",
-    backgroundColor: "#fff",
+    width: "85%",
+    backgroundColor: "#FFFFFF",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 16,
     alignItems: "center",
-  },
-  closeButton: {
-    marginTop: 10,
-    backgroundColor: "#8A67F8",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 5,
   },
 });
 
 export default DeliveryList;
-

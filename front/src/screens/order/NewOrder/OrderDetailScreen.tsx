@@ -1,11 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions, Platform, SafeAreaView } from 'react-native';
-import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
-import { showOrderDetails } from '../../../redux/actions/orderAction';
-import { useAppDispatch } from '../../../redux/config/reduxHook';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+  SafeAreaView,
+} from "react-native";
+import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
+import { showOrderDetails } from "../../../redux/actions/orderAction";
+import { useAppDispatch } from "../../../redux/config/reduxHook";
+import { Ionicons } from "@expo/vector-icons";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 const isSmallScreen = width < 360; // 작은 화면 기준 (예: iPhone SE)
 
 type RootStackParamList = {
@@ -15,7 +26,7 @@ type RootStackParamList = {
   };
 };
 
-type OrderDetailRouteProp = RouteProp<RootStackParamList, 'OrderDetail'>;
+type OrderDetailRouteProp = RouteProp<RootStackParamList, "OrderDetail">;
 
 interface OrderDetails {
   userId: string;
@@ -47,13 +58,33 @@ const OrderDetailScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const dispatch = useAppDispatch();
 
+  // status를 한글로 변환하는 함수
+  const getStatusMessage = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "수락 대기 중";
+      case "goToCafe":
+        return "카페로 이동 중";
+      case "makingMenu":
+        return "메뉴 준비 중";
+      case "goToClient":
+        return "배달 중";
+      case "delivered":
+        return "배달 완료";
+      case "cancelled":
+        return "주문 취소됨";
+      default:
+        return "진행 중";
+    }
+  };
+
   useEffect(() => {
     const loadOrderDetails = async () => {
       try {
         const data = await dispatch(showOrderDetails(orderId, orderType));
         setOrder(data);
       } catch (error) {
-        console.error('Failed to fetch order details:', error);
+        console.error("Failed to fetch order details:", error);
       } finally {
         setLoading(false);
       }
@@ -65,7 +96,7 @@ const OrderDetailScreen: React.FC = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0066ff" />
+        <ActivityIndicator size="large" color="#006AFF" />
         <Text style={styles.loadingText}>불러오는 중...</Text>
       </SafeAreaView>
     );
@@ -86,16 +117,23 @@ const OrderDetailScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={isSmallScreen ? 24 : 26} color="#1a1a1a" />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="chevron-back" size={isSmallScreen ? 24 : 26} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>주문 상세</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* 가게 정보 */}
+        {/* 가게 정보 및 상태 */}
         <View style={styles.section}>
-          <Text style={styles.storeName}>{order.name}</Text>
+          <View style={styles.storeInfo}>
+            <Text style={styles.storeName}>{order.name}</Text>
+            <Text style={styles.status}>{getStatusMessage(order.status)}</Text>
+          </View>
           <Text style={styles.orderType}>{orderType}</Text>
         </View>
 
@@ -130,9 +168,9 @@ const OrderDetailScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* 주문 내역 */}
+        {/* 요청 내용 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>주문 내역</Text>
+          <Text style={styles.sectionTitle}>요청 내용</Text>
           <Text style={styles.orderDetails}>{order.orderDetails}</Text>
         </View>
 
@@ -149,14 +187,8 @@ const OrderDetailScreen: React.FC = () => {
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.label}>배달 방식</Text>
-            <Text style={styles.value}>{order.deliveryType === 'direct' ? '직접 전달' : '비대면'}</Text>
+            <Text style={styles.value}>{order.deliveryType === "direct" ? "직접 전달" : "비대면"}</Text>
           </View>
-        </View>
-
-        {/* 상태 */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>현재 상태</Text>
-          <Text style={styles.status}>{order.status}</Text>
         </View>
 
         {/* 이미지 */}
@@ -166,13 +198,21 @@ const OrderDetailScreen: React.FC = () => {
             <View style={styles.imageContainer}>
               {order.images && (
                 <View style={styles.imageWrapper}>
-                  <Image source={{ uri: order.images }} style={styles.image} resizeMode="cover" />
+                  <Image
+                    source={{ uri: order.images }}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
                   <Text style={styles.imageLabel}>상품</Text>
                 </View>
               )}
               {order.orderImages && (
                 <View style={styles.imageWrapper}>
-                  <Image source={{ uri: order.orderImages }} style={styles.image} resizeMode="cover" />
+                  <Image
+                    source={{ uri: order.orderImages }}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
                   <Text style={styles.imageLabel}>픽업 위치</Text>
                 </View>
               )}
@@ -187,164 +227,173 @@ const OrderDetailScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f6f5',
+    backgroundColor: "#F7F9FA", // 토스 스타일 연한 회색 배경
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: Platform.OS === 'ios' ? 12 : 16,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    paddingVertical: Platform.OS === "ios" ? 12 : 16,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e8ecef',
-    paddingTop: Platform.OS === 'android' ? 10 : 0, // Android 상태바 고려
+    borderBottomColor: "#E8ECEF",
+    paddingTop: Platform.OS === "android" ? 10 : 0,
   },
   backButton: {
-    padding: 4,
+    padding: 6,
+    borderRadius: 20,
+    //backgroundColor: "#F0F2F5", // 터치 피드백 배경
   },
   headerTitle: {
     fontSize: isSmallScreen ? 18 : 20,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginLeft: 8,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginLeft: 12,
   },
   scrollContainer: {
-    paddingHorizontal: width * 0.05, // 화면 너비의 5%로 동적 패딩
-    paddingVertical: height * 0.02, // 화면 높이의 2%로 동적 패딩
-    paddingBottom: height * 0.05, // 하단 여백
+    paddingHorizontal: width * 0.04,
+    paddingVertical: height * 0.015,
+    paddingBottom: height * 0.05,
   },
   section: {
-    backgroundColor: '#fff',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    padding: width * 0.05, // 동적 패딩
-    marginBottom: height * 0.02, // 동적 마진
-    shadowColor: '#000',
+    padding: width * 0.04,
+    marginBottom: height * 0.015,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 3,
   },
-  storeName: {
-    fontSize: isSmallScreen ? 22 : 24,
-    fontWeight: '700',
-    color: '#1a1a1a',
+  storeInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 4,
   },
-  orderType: {
-    fontSize: isSmallScreen ? 13 : 14,
-    color: '#8e9199',
-  },
-  sectionTitle: {
-    fontSize: isSmallScreen ? 16 : 18,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  paymentRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  paymentLabel: {
-    fontSize: isSmallScreen ? 14 : 16,
-    fontWeight: '600',
-    color: '#6b7280',
-  },
-  finalAmount: {
-    fontSize: isSmallScreen ? 22 : 24,
-    fontWeight: '700',
-    color: '#0066ff',
-  },
-  paymentDetails: {
-    paddingLeft: width * 0.04, // 동적 들여쓰기
-  },
-  paymentDetailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  detailLabel: {
-    fontSize: isSmallScreen ? 13 : 14,
-    color: '#6b7280',
-  },
-  detailValue: {
-    fontSize: isSmallScreen ? 13 : 14,
-    color: '#1a1a1a',
-  },
-  discountValue: {
-    fontSize: isSmallScreen ? 13 : 14,
-    color: '#00a86b',
-  },
-  originalValue: {
-    fontSize: isSmallScreen ? 13 : 14,
-    color: '#8e9199',
-    textDecorationLine: 'line-through',
-  },
-  orderDetails: {
-    fontSize: isSmallScreen ? 15 : 16,
-    color: '#1a1a1a',
-    lineHeight: isSmallScreen ? 22 : 24,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: isSmallScreen ? 13 : 14,
-    fontWeight: '600',
-    color: '#6b7280',
-    width: '30%',
-  },
-  value: {
-    fontSize: isSmallScreen ? 13 : 14,
-    color: '#1a1a1a',
-    flex: 1,
-    textAlign: 'right',
+  storeName: {
+    fontSize: isSmallScreen ? 20 : 22,
+    fontWeight: "700",
+    color: "#1A1A1A",
   },
   status: {
-    fontSize: isSmallScreen ? 16 : 18,
-    fontWeight: '700',
-    color: '#00a86b',
+    fontSize: isSmallScreen ? 14 : 15,
+    fontWeight: "600",
+    color: "#006AFF",
+  },
+  orderType: {
+    fontSize: isSmallScreen ? 12 : 13,
+    color: "#8E9199",
+    fontWeight: "500",
+  },
+  sectionTitle: {
+    fontSize: isSmallScreen ? 15 : 16,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 10,
+  },
+  paymentRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  paymentLabel: {
+    fontSize: isSmallScreen ? 13 : 14,
+    fontWeight: "500",
+    color: "#6B7280",
+  },
+  finalAmount: {
+    fontSize: isSmallScreen ? 20 : 22,
+    fontWeight: "700",
+    color: "#006AFF",
+  },
+  paymentDetails: {
+    paddingLeft: width * 0.03,
+  },
+  paymentDetailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  detailLabel: {
+    fontSize: isSmallScreen ? 12 : 13,
+    color: "#6B7280",
+  },
+  detailValue: {
+    fontSize: isSmallScreen ? 12 : 13,
+    color: "#1A1A1A",
+  },
+  discountValue: {
+    fontSize: isSmallScreen ? 12 : 13,
+    color: "#00A86B",
+  },
+  originalValue: {
+    fontSize: isSmallScreen ? 12 : 13,
+    color: "#8E9199",
+    textDecorationLine: "line-through",
+  },
+  orderDetails: {
+    fontSize: isSmallScreen ? 14 : 15,
+    color: "#1A1A1A",
+    lineHeight: isSmallScreen ? 20 : 22,
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: isSmallScreen ? 12 : 13,
+    fontWeight: "500",
+    color: "#6B7280",
+    width: "30%",
+  },
+  value: {
+    fontSize: isSmallScreen ? 12 : 13,
+    color: "#1A1A1A",
+    flex: 1,
+    textAlign: "right",
   },
   imageContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap', // 작은 화면에서 이미지 줄바꿈 허용
-    justifyContent: 'flex-start',
-    gap: width * 0.04, // 동적 간격
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    gap: width * 0.03,
   },
   imageWrapper: {
-    alignItems: 'center',
-    width: width * 0.42, // 화면 크기에 따라 동적 조정
+    alignItems: "center",
+    width: width * 0.4,
+    marginBottom: 10,
   },
   image: {
-    width: '100%',
-    height: width * 0.42, // 정사각형 유지
+    width: "100%",
+    height: width * 0.4,
     borderRadius: 10,
-    backgroundColor: '#e8ecef',
+    backgroundColor: "#E8ECEF",
   },
   imageLabel: {
-    fontSize: isSmallScreen ? 11 : 12,
-    color: '#6b7280',
-    marginTop: 8,
+    fontSize: isSmallScreen ? 10 : 11,
+    color: "#6B7280",
+    marginTop: 6,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f6f5',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F7F9FA",
   },
   loadingText: {
-    fontSize: isSmallScreen ? 14 : 16,
-    color: '#6b7280',
-    marginTop: 8,
+    fontSize: isSmallScreen ? 13 : 14,
+    color: "#6B7280",
+    marginTop: 10,
   },
   errorText: {
-    fontSize: isSmallScreen ? 16 : 18,
-    color: '#ff3b30',
-    textAlign: 'center',
+    fontSize: isSmallScreen ? 15 : 16,
+    color: "#FF3B30",
+    textAlign: "center",
     marginTop: 20,
   },
 });

@@ -1,6 +1,9 @@
-import { Picker } from '@react-native-picker/picker';
-import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, View, TouchableOpacity, Text, Platform, Dimensions } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+
+// 화면 크기 가져오기
+const { height } = Dimensions.get("window");
 
 // Props 타입 정의
 interface ChangeStatusPickerProps {
@@ -9,88 +12,110 @@ interface ChangeStatusPickerProps {
 }
 
 const ChangeStatusPicker: React.FC<ChangeStatusPickerProps> = ({ onClose, onConfirm }) => {
-  const [selectedStatus, setSelectedStatus] = useState<string>("movingToCafe"); // 기본 선택 값 설정
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
 
   return (
-    <View style={styles.pickerContainer}>
-      {/* 피커 컨테이너 추가 */}
+    <View style={styles.container}>
+      {/* 헤더 */}
+      <Text style={styles.header}>배달 상태 변경</Text>
+
+      {/* 피커 컨테이너 */}
       <View style={styles.pickerWrapper}>
         <Picker
           selectedValue={selectedStatus}
           onValueChange={(itemValue: string) => setSelectedStatus(itemValue)}
-          style={styles.picker} // ✅ 스타일 추가
+          style={styles.picker}
+          dropdownIconColor="#006AFF"
         >
-          <Picker.Item label="배달 상태 선택" value="" />
-          <Picker.Item label="상품 구매하러 이동중" value="goTocafe" />
-          <Picker.Item label="고객에게 이동중" value="goToClient" />
+          <Picker.Item label="배달 상태를 선택하세요" value="" enabled={false} />
+          <Picker.Item label="가게로 이동 중" value="goTocafe" />
+          <Picker.Item label="고객에게 이동 중" value="goToClient" />
           <Picker.Item label="제품 픽업 완료" value="makingMenu" />
           <Picker.Item label="배달 완료" value="delivered" />
-
         </Picker>
       </View>
 
-      {/* 확인 버튼 */}
-      <TouchableOpacity 
-        style={styles.confirmButton} 
-        onPress={() => {
-          if (selectedStatus) {
-            onConfirm(selectedStatus);
-            
-          }
-          
-        }}
-      >
-        <Text style={styles.confirmButtonText}>확인</Text>
-      </TouchableOpacity>
-
-      {/* 닫기 버튼 */}
-      <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>닫기</Text>
-      </TouchableOpacity>
+      {/* 버튼 컨테이너 */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+          <Text style={styles.buttonText}>취소</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.confirmButton,
+            !selectedStatus && styles.confirmButtonDisabled,
+          ]}
+          onPress={() => {
+            if (selectedStatus) {
+              onConfirm(selectedStatus);
+            }
+          }}
+          disabled={!selectedStatus}
+        >
+          <Text style={styles.buttonText}>확인</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  pickerContainer: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
+  container: {
+    backgroundColor: "#FFFFFF",
+    padding: 24,
+    borderRadius: 16,
     alignItems: "center",
-    width: "100%", // ✅ 전체 너비 사용
+    width: "100%", // 전체 너비의 85%
+    height: height * 0.4, // 화면 높이의 50%로 세로 길이 확장
+
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 26, // 헤더와 Picker 간 여백 증가
   },
   pickerWrapper: {
-    width: "100%", // ✅ Picker를 더 넓게 표시
-    backgroundColor: "#f2f2f2",
-    borderRadius: 5,
-    marginBottom: 10,
+    width: "100%",
+    backgroundColor: "#F7F9FA",
+    borderRadius: 10,
+    marginBottom: 32, // Picker와 버튼 간 여백 증가
+    borderWidth: 1,
+    borderColor: "#E8ECEF",
+    height: Platform.OS === "ios" ? 200 : 150, // Picker 높이 확장
   },
   picker: {
-    width: "100%", // ✅ Picker를 전체 너비로 설정
+    width: "100%",
+    height: Platform.OS === "ios" ? 200 : 50, // iOS는 더 길게, Android는 드롭다운 스타일
+    color: "#1A1A1A",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    gap: 12,
   },
   confirmButton: {
-    marginTop: 10,
-    backgroundColor: "#8A67F8",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    flex: 1,
+    backgroundColor: "#006AFF",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
   },
-  confirmButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
+  confirmButtonDisabled: {
+    backgroundColor: "#E8ECEF",
   },
-  closeButton: {
-    marginTop: 10,
-    backgroundColor: "#E57373",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+  cancelButton: {
+    flex: 1,
+    backgroundColor: "#E8ECEF",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
   },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 
