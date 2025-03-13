@@ -15,6 +15,8 @@ import { goBack, navigate } from "../../../navigation/NavigationUtils";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
 import Header from "../../../utils/OrderComponents/Header";
+import { useAppSelector } from "../../../redux/config/reduxHook";
+import { selectUser } from "../../../redux/reducers/userSlice";
 
 type RootStackParamList = {
   OrderPageScreen: { name: string };
@@ -23,6 +25,8 @@ type RootStackParamList = {
 type OrderPageScreenRouteProp = RouteProp<RootStackParamList, "OrderPageScreen">;
 
 const OrderPageScreen = () => {
+  const user = useAppSelector(selectUser);
+  
   const route = useRoute<OrderPageScreenRouteProp>();
   const { name } = route.params;
 
@@ -39,7 +43,13 @@ const OrderPageScreen = () => {
   }, [images]);
 
   const handleNextPress = () => {
-    navigate("OrderLocationScreen", {
+  if (deliveryMethod === "direct") {
+    if (!user?.address) {
+      Alert.alert("주소 설정 필요", "홈에서 배달 주소를 지정해주세요.");
+      return;
+    }
+  }
+    navigate(deliveryMethod === "direct" ? "OrderFinalScreen" : "OrderCupHolderLocationScreen", {
       name,
       orderDetails,
       priceOffer: priceOffer || "0", // 빈 값일 경우 0으로 전송
@@ -140,6 +150,9 @@ const OrderPageScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
+          <Text style={deliveryMethod === "cupHolder" ? styles.selectedButtonText : styles.buttonText}>
+                {user?.address || "주소를 설정하세요"}
+              </Text>
         </View>
       </View>
 

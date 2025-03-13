@@ -58,6 +58,8 @@ import TalTaeScreen from "../screens/dash/Profile/TalTaeScreen";
 import SettingScreen from "../screens/dash/Profile/SettingScreen";
 import AddressEditScreen from "../screens/dash/Address/AddressEditScreen";
 import AddressEditDetailScreen from "../screens/dash/Address/AddressEditDetailScreen";
+import OrderDirectLocationScreen from "../screens/order/OrderCategory/OrderDirectLocationScreen";
+import OrderCupHolderLocationScreen from "../screens/order/OrderCategory/OrderCupHolderLocationScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -251,7 +253,14 @@ export const orderStack = [
     name: "OrderListScreen",
     component: OrderListSceen,
   },
-  
+  {
+    name: "OrderDirectLocationScreen",
+    component: OrderDirectLocationScreen,
+  },
+  {
+    name: "OrderCupHolderLocationScreen",
+    component: OrderCupHolderLocationScreen,
+  },
   {
     name: "NewLocationBottom",
     component: NewLocationBottom,
