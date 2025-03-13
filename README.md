@@ -38,66 +38,41 @@
  - Docker
  - Xcode
 
-## 사용 기술 
+## 사용 기술
 
-![java](https://img.shields.io/badge/Java-11-DEB887?style=flat)&nbsp;![springboot](https://img.shields.io/badge/SpringBoot-2.7.2-3CB371?style=flat&logo=springboot)&nbsp;![spriongsecurity](https://img.shields.io/badge/SpringSecurity-5-3CB371?style=flat&logo=springsecurity)&nbsp;![spriongsecurity](https://img.shields.io/badge/Solidity-^0.8.0-c5ac00?style=flat&logo=solidity)
+### 백엔드
+- Node.js
+- Express.js
+- JavaScript
 
-![spriongsecurity](https://img.shields.io/badge/Html5-C0C0C0?style=flat&logo=HTML5)&nbsp; ![spriongsecurity](https://img.shields.io/badge/CSS3-blue?style=flat&logo=css3)&nbsp; ![spriongsecurity](https://img.shields.io/badge/Thymeleaf-green?style=flat&logo=thymeleaf)&nbsp; ![spriongsecurity](https://img.shields.io/badge/BootStrap5-purple?style=flat&logo=Bootstrap)
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js) ![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat&logo=express) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript)
 
-![gradle](https://img.shields.io/badge/Gradle-7.5-skyblue?style=flat&logo=gradle)
+### 프론트엔드
+- React Native
+- TypeScript
+- Redux
+- MMKV
 
-![mysql](https://img.shields.io/badge/MySQL-8.0.28-FFA07A?style=flat&logo=mysql)
+![React Native](https://img.shields.io/badge/React_Native-61DAFB?style=flat&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript) ![Redux](https://img.shields.io/badge/Redux-764ABC?style=flat&logo=redux) ![MMKV](https://img.shields.io/badge/MMKV-000000?style=flat&logo=mmkv)
 
-![ec2](https://img.shields.io/badge/AWS-ec2-FF8C00?style=flat&logo=amazonec2)&nbsp;![s3](https://img.shields.io/badge/AWS-s3-FF8C00?style=flat&logo=amazons3)&nbsp;![alb](https://img.shields.io/badge/AWS-alb-FF8C00?style=flat&logo=JFrogBintray)&nbsp;![route53](https://img.shields.io/badge/AWS-RDS-FF8C00?style=flat&logo=amazonrds)&nbsp;![rds](https://img.shields.io/badge/AWS-Route53-FF8C00?style=flat&logo=ray)
+### 빌드 툴
+- Expo CLI
 
-**백엔드**
-  - Java 11
-  - SpringBoot 2.7.2
-  - Spring Security5
-  - Spring Data JPA
-  - QueryDsl 5.0.0
-  - Lombok
+![Expo CLI](https://img.shields.io/badge/Expo_CLI-000020?style=flat&logo=expo)
 
-**프론트엔드**
- -   Html5/css3
- -   Javascript
- -   Thymeleaf
- -   Bootstrap 5
- 
-**빌드 툴**
- - Gradle 7.5
+### 데이터베이스
+- MongoDB
+- Cloudinary
 
-**데이터베이스**
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb) ![Cloudinary](https://img.shields.io/badge/Cloudinary-0F1419?style=flat&logo=cloudinary)
 
- - Mysql
+### 인프라
+- AWS EC2
+- GitHub Actions
+- Docker
+- DockerHub
 
-**인프라** 
--   AWS EC2
--   AWS S3
--   AWS Route53
--   AWS RDS
--   AWS ALB
--   Github Actions
--  Docker
--  DockerHub
-
-**블록체인**
-- goerli network
-- solidity
-- Meta Mask
-
-**라이브러리**
-
- - [web3.js](https://web3js.readthedocs.io/en/v1.8.0/getting-started.html)
- - [openzeppelin-ERC20](https://docs.openzeppelin.com/contracts/4.x/erc20)
- - [tippy.js](https://atomiks.github.io/tippyjs/v6/getting-started/)
- - [toastui-editor](https://ui.toast.com/tui-editor)
- - [tagify](https://yaireo.github.io/tagify/)
- - [xeicon](http://xpressengine.github.io/XEIcon/started.html)
- - [fabric](http://fabricjs.com/docs/)
- - [copy-down](https://github.com/furstenheim/copy-down)
- - [kakaoMaps Api](https://apis.map.kakao.com/)
- - [java smtp](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail/1.2.0.RELEASE)
+![AWS EC2](https://img.shields.io/badge/AWS_EC2-FF8C00?style=flat&logo=amazonec2) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions) ![Docker](https://img.shields.io/badge/Docker-ADD8E6?style=flat&logo=docker) ![DockerHub](https://img.shields.io/badge/DockerHub-0DB7ED?style=flat&logo=docker)
 
  
 
