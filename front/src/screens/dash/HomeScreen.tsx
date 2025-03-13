@@ -133,6 +133,8 @@ const HomeScreen: React.FC = () => {
           <View style={styles.greetingContainer}>
             <TouchableOpacity onPress={() => navigate('AddressSettingScreen')}>
               <Text style={styles.userName}>{user?.address || "주소를 설정하세요"}</Text>
+              <Text style={styles.userName}>{user?.riderNote|| "주소를 설정하세요"}</Text>
+
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>

@@ -49,11 +49,13 @@ type OrderFinalScreenRouteProp = RouteProp<RootStackParamList, "OrderFinalScreen
 const OrderFinalScreen = () => {
   const route = useRoute<OrderFinalScreenRouteProp>();
   const { name, orderDetails, priceOffer, deliveryFee, images, lat, lng, deliveryMethod, selectedMarker } = route.params;
+  
+  const user = useAppSelector(selectUser);
 
-  const [deliveryAddress, setDeliveryAddress] = useState("없음");
+  const [deliveryAddress, setDeliveryAddress] = useState(user?.detail||"없음");
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [riderRequest, setRiderRequest] = useState("");
+  const [riderRequest, setRiderRequest] = useState(user.riderNote ||"");
   const [floor, setFloorState] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [startTime, setStartTimeLocal] = useState(new Date());
@@ -61,12 +63,11 @@ const OrderFinalScreen = () => {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [reservationChecked, setReservationChecked] = useState(false);
-  const [resolvedAddress, setResolvedAddress] = useState("");
+  const [resolvedAddress, setResolvedAddress] = useState(user?.address || "");
   const [points, setPoints] = useState(0); // 초기값을 0으로 설정
   const [usedPoints, setUsedPoints] = useState(0);
 
   const dispatch = useAppDispatch();
-  const user = useAppSelector(selectUser);
 
   // user.point가 변경될 때 points 상태 업데이트
   useEffect(() => {

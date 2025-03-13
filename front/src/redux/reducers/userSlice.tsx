@@ -13,6 +13,9 @@ interface UserData {
   [key: string]: any;
   isOngoingOrder?: boolean;
   address?: string;
+  detail?: string;
+  postalCode?: string;
+  addressType?: string;
 }
 
 interface UserState {
@@ -25,6 +28,10 @@ const initialState: UserState = {
   user: {
     isOngoingOrder: false,
     address: '',
+    detail: '',
+    postalCode: '',
+    addressType: '',
+    riderNote: ''
   },
   ongoingOrder: null,
   isMatching: false,
@@ -53,11 +60,16 @@ export const userSlice = createSlice({
         state.user.isOngoingOrder = true;
       }
     },
-    setUserAddress: (state, action: PayloadAction<string>) => {  
+    setUserAddress: (state, action: PayloadAction<{ address: string; detail?: string; postalCode?: string; addressType?: string; riderNote?: string }>) => {  
       if (state.user) {
-        state.user.address = action.payload;
+          state.user.address = action.payload.address;
+          state.user.detail = action.payload.detail;
+          state.user.postalCode = action.payload.postalCode;
+          state.user.addressType = action.payload.addressType;
+          state.user.riderNote = action.payload.riderNote;
+
       }
-    },
+  },
     clearOngoingOrder: (state) => {
       state.ongoingOrder = null;
       state.isMatching = false;

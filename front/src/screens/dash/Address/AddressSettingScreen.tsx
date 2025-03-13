@@ -11,6 +11,9 @@ interface Address {
     _id: string;
     address: string;
     detail: string;
+    postalCode?: string;
+    addressType?: string;
+    riderNote?: string;
 }
 
 const AddressSettingScreen = () => {
@@ -34,11 +37,11 @@ const AddressSettingScreen = () => {
         fetchAddresses();
     }, [user]);
 
-    const handleSelectAddress = async (addressId: string, address: string) => {
+    const handleSelectAddress = async (item: Address ) => {
         try {
-            await appAxios.put(`/user/${user?._id}/update-address`, { address });
-            dispatch(setUserAddress(address));
-            setSelectedAddress(addressId);
+            await appAxios.put(`/user/${user?._id}/update-address`, { address: item.address });
+            dispatch(setUserAddress({ address: item.address, detail: item.detail, postalCode: item.postalCode, addressType: item.addressType, riderNote: item.riderNote }));
+            setSelectedAddress(item._id);
         } catch (error) {
             console.error("주소 업데이트 실패:", error);
             Alert.alert("오류", "주소를 설정하는 중 문제가 발생했습니다.");
@@ -65,7 +68,7 @@ const AddressSettingScreen = () => {
                     renderItem={({ item }) => (
                         <Pressable
                             style={styles.addressItem}
-                            onPress={() => handleSelectAddress(item._id, item.address)}
+                    onPress={() => handleSelectAddress(item)}
                         >
                             <View>
                                 <Text style={styles.addressName}>{item.address}</Text>
