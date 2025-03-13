@@ -1,7 +1,7 @@
 
 <br><br> 
 임시 이미지.
-![logo](https://user-images.githubusercontent.com/103496262/197355772-f4df931e-10fb-43e5-843f-04d33a04df64.JPG](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8p1vW3pwuQKJuxp6d6pw0j4fyibaNzX40Ag&s))
+![logo](https://user-images.githubusercontent.com/103496262/197355772-f4df931e-10fb-43e5-843f-04d33a04df64.JPG](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8p1vW3pwuQKJuxp6d6pw0j4fyibaNzX40Ag&s)
 
 # 발로뛰어, 심부름하고 용돈 벌자!
 
