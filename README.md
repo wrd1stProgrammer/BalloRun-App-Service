@@ -1,7 +1,7 @@
 
 <br><br> 
 임시 이미지.
-![logo](https://img.freepik.com/free-vector/vector-running-human-icon-silhouette-with-shadow-isolated-white_1284-42615.jpg?t=st=1741851820~exp=1741855420~hmac=52f5fe7e5a784e4a0458b938807a934e39da43212c42aa05cabd8bd4b47a6d9e&w=1380)
+![logo](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8p1vW3pwuQKJuxp6d6pw0j4fyibaNzX40Ag&s)
 
 # 발로뛰어, 심부름하고 용돈 벌자!
 
