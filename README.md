@@ -15,6 +15,7 @@
  - [개요](#개요) 
  - [개발 환경](#개발-환경)
  - [사용 기술](#사용-기술)
+ - [기술적 선택](#기술적-선택)
  - [아키텍처](#시스템-아키텍처) 
  - [프로젝트 목적](#프로젝트-목적)
  - [화면 구성](#화면-구성)
@@ -76,6 +77,9 @@
 - RabbitMQ
 
 ![AWS EC2](https://img.shields.io/badge/AWS_EC2-FF8C00?style=flat&logo=amazonec2) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions) ![Docker](https://img.shields.io/badge/Docker-ADD8E6?style=flat&logo=docker) ![DockerHub](https://img.shields.io/badge/DockerHub-0DB7ED?style=flat&logo=docker) ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=flat&logo=rabbitmq)
+
+
+## 기술적 선택
 
 
 ## 시스템 아키텍처
