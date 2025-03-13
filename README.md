@@ -25,19 +25,18 @@
 
 
 ## 📃개요
-**MoCo**는 스터디를 위한 게시판 웹 애플리케이션으로 마크다운 에디터를 이용한 게시판입니다.<br> 
-일반적인 서버 - 클라이언트 구조의 아키텍처에 일부 컨텐츠를 이더리움 네트워크와 연동하였습니다. 
+**발로뛰어**는 심부름 배달을 위한 앱 애플리케이션 입니다.<br> 
+
 
 ## 개발 환경
 
-![IntelliJ](https://img.shields.io/badge/macOS-M1-black?style=flat&logo=macos)&nbsp;![IntelliJ](https://img.shields.io/badge/intellJ-ffa4c4?style=flat&logo=IntelliJIDEA)&nbsp;![IntelliJ](https://img.shields.io/badge/github-606060?style=fat&logo=github)&nbsp;![IntelliJ](https://img.shields.io/badge/vscode-blue?style=flat&logo=VisualStudioCode)&nbsp;![IntelliJ](https://img.shields.io/badge/Docker-ADD8E6?style=flat&logo=docker)&nbsp;![IntelliJ](https://img.shields.io/badge/DBeaver-blue?style=flat)
+![MacOS](https://img.shields.io/badge/macOS-M4-black?style=flat&logo=macos) ![VSCode](https://img.shields.io/badge/vscode-blue?style=flat&logo=VisualStudioCode) ![GitHub](https://img.shields.io/badge/github-606060?style=flat&logo=github) ![Docker](https://img.shields.io/badge/Docker-ADD8E6?style=flat&logo=docker) ![Xcode](https://img.shields.io/badge/Xcode-147EFB?style=flat&logo=xcode)
 
- - MacOS M1
- - IntelliJ 
+ - MacOS M4
  - Visual Studio Code
  - GitHub
  - Docker
- - DBeaver
+ - Xcode
 
 ## 사용 기술 
 
