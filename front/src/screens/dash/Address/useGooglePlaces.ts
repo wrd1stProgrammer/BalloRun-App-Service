@@ -26,4 +26,22 @@ const useGooglePlaces = () => {
     return { predictions, fetchPlaces };
 };
 
+export const getPlaceDetails = async (placeId: string) => {
+    try {
+        const response = await fetch(
+            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${API_KEY}&language=ko`
+        );
+        const data = await response.json();
+        if (data.result) {
+            return {
+                lat: data.result.geometry.location.lat,
+                lng: data.result.geometry.location.lng
+            };
+        }
+    } catch (error) {
+        console.error('Error fetching place details:', error);
+    }
+    return null;
+};
+
 export default useGooglePlaces;

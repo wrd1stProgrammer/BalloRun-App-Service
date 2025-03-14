@@ -2,13 +2,24 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, FlatList, StyleSheet, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../../utils/OrderComponents/Header';
-import useGooglePlaces from './useGooglePlaces';
+import useGooglePlaces, { getPlaceDetails } from './useGooglePlaces';
 import { navigate } from '../../../navigation/NavigationUtils';
 
 const AddressSearchScreen = () => {
   const [query, setQuery] = useState('');
   const { predictions, fetchPlaces } = useGooglePlaces();
 
+  const handleAddressSelect = async (item: any) => {
+    const placeDetails = await getPlaceDetails(item.place_id);
+    if (placeDetails) {
+        navigate('AddressDetailScreen', { 
+            selectedAddress: item.description, 
+            lat: placeDetails.lat, 
+            lng: placeDetails.lng 
+        });
+    }
+};
+  
   return (
     <SafeAreaView style={styles.container}>
       <Header title="주소 검색" />
@@ -33,8 +44,7 @@ const AddressSearchScreen = () => {
           data={predictions}
           keyExtractor={(item) => item.place_id}
           renderItem={({ item }) => (
-            <Pressable style={styles.resultItem} onPress={() => navigate('AddressDetailScreen', { selectedAddress: item.description })
-        }>
+            <Pressable style={styles.resultItem} onPress={() => handleAddressSelect(item)}>
               <Text style={styles.resultText}>{item.description}</Text>
             </Pressable>
           )}

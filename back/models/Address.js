@@ -9,7 +9,9 @@ const AddressSchema = new mongoose.Schema({
   riderNote: { type: String },
   entranceCode: { type: String },
   directions: { type: String },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  lat: { type: Number, required: true },
+  lng: { type: Number, required: true },
 });
 
 module.exports = mongoose.model('Address', AddressSchema);

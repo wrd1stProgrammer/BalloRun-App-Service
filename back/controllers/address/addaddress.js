@@ -2,7 +2,7 @@ const Address = require('../../models/Address');
 const User = require('../../models/User');
 
 const addAddress = async (req, res) => {
-    const { userId, address, detail, postalCode, addressType, riderNote, entranceCode, directions } = req.body;
+    const { userId, address, detail, postalCode, addressType, riderNote, entranceCode, directions,lat,lng } = req.body;
 
     console.log('📌 요청된 데이터:', req.body); // 🔥 요청 데이터 출력
 
@@ -21,6 +21,8 @@ const addAddress = async (req, res) => {
         riderNote,
         entranceCode,
         directions,
+        lat,
+        lng
       });
 
       await User.findByIdAndUpdate(userId, { $push: { addresses: newAddress._id } });

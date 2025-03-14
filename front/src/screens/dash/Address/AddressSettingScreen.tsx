@@ -14,6 +14,8 @@ interface Address {
     postalCode?: string;
     addressType?: string;
     riderNote?: string;
+    lat?: number;
+    lng?: number;
 }
 
 const AddressSettingScreen = () => {
@@ -40,7 +42,7 @@ const AddressSettingScreen = () => {
     const handleSelectAddress = async (item: Address ) => {
         try {
             await appAxios.put(`/user/${user?._id}/update-address`, { address: item.address });
-            dispatch(setUserAddress({ address: item.address, detail: item.detail, postalCode: item.postalCode, addressType: item.addressType, riderNote: item.riderNote }));
+            dispatch(setUserAddress({ address: item.address, detail: item.detail, postalCode: item.postalCode, addressType: item.addressType, riderNote: item.riderNote, lat: item.lat, lng: item.lng }));
             setSelectedAddress(item._id);
         } catch (error) {
             console.error("주소 업데이트 실패:", error);

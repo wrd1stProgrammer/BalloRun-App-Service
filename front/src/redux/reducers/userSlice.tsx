@@ -31,7 +31,9 @@ const initialState: UserState = {
     detail: '',
     postalCode: '',
     addressType: '',
-    riderNote: ''
+    riderNote: '',
+    lat: 0,
+    lng: 0
   },
   ongoingOrder: null,
   isMatching: false,
@@ -60,14 +62,15 @@ export const userSlice = createSlice({
         state.user.isOngoingOrder = true;
       }
     },
-    setUserAddress: (state, action: PayloadAction<{ address: string; detail?: string; postalCode?: string; addressType?: string; riderNote?: string }>) => {  
+    setUserAddress: (state, action: PayloadAction<{ address: string; detail?: string; postalCode?: string; addressType?: string; riderNote?: string; lat?: number; lng?: number }>) => {  
       if (state.user) {
           state.user.address = action.payload.address;
           state.user.detail = action.payload.detail;
           state.user.postalCode = action.payload.postalCode;
           state.user.addressType = action.payload.addressType;
           state.user.riderNote = action.payload.riderNote;
-
+          state.user.lat = action.payload.lat;
+          state.user.lng = action.payload.lng;
       }
   },
     clearOngoingOrder: (state) => {

@@ -62,6 +62,7 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    
     const fetchOrders = async () => {
       //await dispatch(clearOngoingOrder());
       await dispatch(refetchUser());
@@ -86,6 +87,7 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
+
     if (!orderSocket) {
       console.log("orderSocket error");
       return;

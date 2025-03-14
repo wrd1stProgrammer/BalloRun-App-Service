@@ -7,7 +7,7 @@ import { appAxios } from '../../../redux/config/apiConfig';
 import { navigate } from '../../../navigation/NavigationUtils';
 
 const AddressDetailScreen = ({ route }: any) => {
-  const { selectedAddress } = route.params;
+  const { selectedAddress,lat,lng } = route.params;
   
   const [detail, setDetail] = useState('');
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -16,7 +16,6 @@ const AddressDetailScreen = ({ route }: any) => {
   const [directions, setDirections] = useState('');
 
   const user = useAppSelector(selectUser); // Get logged-in user info
-
 
   const handleRegisterAddress = async () => {
     if (!detail || !selectedType) {
@@ -33,6 +32,8 @@ const AddressDetailScreen = ({ route }: any) => {
       riderNote,
       entranceCode,
       directions,
+      lat: lat, // 추가된 lat
+      lng: lng   // 추가된 lng
     };
 
     try {
@@ -49,7 +50,7 @@ const AddressDetailScreen = ({ route }: any) => {
       console.error('Error:', error);
       Alert.alert('네트워크 오류', '주소를 등록할 수 없습니다.');
     }
-  };
+};
 
   return (
     <SafeAreaView style={styles.container}>

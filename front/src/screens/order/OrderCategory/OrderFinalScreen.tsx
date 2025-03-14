@@ -48,9 +48,15 @@ type OrderFinalScreenRouteProp = RouteProp<RootStackParamList, "OrderFinalScreen
 
 const OrderFinalScreen = () => {
   const route = useRoute<OrderFinalScreenRouteProp>();
-  const { name, orderDetails, priceOffer, deliveryFee, images, lat, lng, deliveryMethod, selectedMarker } = route.params;
+  const { name, orderDetails, priceOffer, deliveryFee, images, deliveryMethod, selectedMarker } = route.params;
+  
+
+  
   
   const user = useAppSelector(selectUser);
+
+  const lat = user.lat;
+  const lng = user.lng;  
 
   const [deliveryAddress, setDeliveryAddress] = useState(user?.detail||"없음");
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
