@@ -64,7 +64,7 @@ const HomeScreen: React.FC = () => {
   useEffect(() => {
     
     const fetchOrders = async () => {
-      //await dispatch(clearOngoingOrder());
+      await dispatch(clearOngoingOrder());
       await dispatch(refetchUser());
       console.log("🚀 배달 상태 확인 중...");
 

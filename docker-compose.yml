@@ -1,4 +1,3 @@
-
 services:
   back:
     image: eighteen-back:latest  # 수동으로 빌드한 이미지 사용
@@ -10,17 +9,14 @@ services:
     volumes:
       - ./back:/app
       - /app/node_modules
+      - /etc/localtime:/etc/localtime:ro  # 맥 시간대 공유
     environment:
       - MONGO_PW=PAD0MzMGKxsDGwsR
       - REDIS_HOST=redis-14438.c281.us-east-1-2.ec2.redns.redis-cloud.com
       - REDIS_PORT=14438
       - REDIS_USERNAME=default
       - REDIS_PASSWORD=AoWvAXv3JTPRBrgwxRX58G9AVxFhQzpj
-      # REDIS_HOST=redis  # Redis Docker 서비스 이름으로 연결
-      # REDIS_PORT=6379   # Redis 기본 포트
-      # REDIS_USERNAME=default
-      # REDIS_PASSWORD=yourpassword  # Redis 비밀번호
-      #- RABBITMQ_URL=amqp://rabbitmq:5672
+      - TZ=Asia/Seoul  # KST 시간대 설정
     depends_on:
       - redis  # Redis 컨테이너가 먼저 실행되도록 설정
       - rabbitmq # RabbitMQ 컨테이너가 먼저 실행되도록 설정
@@ -34,9 +30,12 @@ services:
     ports:
       - "5672:5672" # RabbitMQ AMQP 포트
       - "15672:15672" # RabbitMQ 관리 UI 포트
+    volumes:
+      - /etc/localtime:/etc/localtime:ro  # 맥 시간대 공유
     environment:
-      RABBITMQ_DEFAULT_USER: guest # RabbitMQ 기본 사용자 이름
-      RABBITMQ_DEFAULT_PASS: guest # RabbitMQ 기본 비밀번호
+      - RABBITMQ_DEFAULT_USER=guest # RabbitMQ 기본 사용자 이름
+      - RABBITMQ_DEFAULT_PASS=guest # RabbitMQ 기본 비밀번호
+      - TZ=Asia/Seoul  # KST 시간대 설정
     networks:
       - app_network
 
@@ -45,10 +44,13 @@ services:
     container_name: redis
     ports:
       - "6379:6379"  # Redis 기본 포트
+    volumes:
+      - /etc/localtime:/etc/localtime:ro  # 맥 시간대 공유
+    environment:
+      - TZ=Asia/Seoul  # KST 시간대 설정
     command: ["redis-server", "--requirepass", "yourpassword", "--notify-keyspace-events", "KEA"]
     networks:
       - app_network
-
 
 networks:
   app_network:

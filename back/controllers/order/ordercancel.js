@@ -172,7 +172,7 @@ const getOrderDataForCancelApi = async (req, res) => {
           body: `고객이 주문을 취소하였습니다.`,
           data: { type: "order_cancel", orderId: orderId },
         };
-        //await sendPushNotification(riderUser.fcmToken, notificationPayload);
+        await sendPushNotification(riderUser.fcmToken, notificationPayload);
         console.log(`라이더 ${order.riderId}에게 알림 전송 성공`);
         //cancellation.riderNotified = true; // 알림 전송 성공 시 상태 업데이트
         await cancellation.save();

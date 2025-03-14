@@ -157,7 +157,7 @@ const completeOrderHandler = async (req, res) => {
       };
 
       try {
-        //await sendPushNotification(orderUser.fcmToken, notificationPayload);
+        await sendPushNotification(orderUser.fcmToken, notificationPayload);
         console.log(`주문자 ${order.userId}에게 알림 전송 성공`);
       } catch (notificationError) {
         console.error(`주문자 ${order.userId}에게 알림 전송 실패:`, notificationError);

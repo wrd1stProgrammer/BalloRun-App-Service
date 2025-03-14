@@ -89,7 +89,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
 
           if (orderUser?.fcmToken) {
             // orderUser.fcmToken로 변경해야 함
-            //await sendPushNotification(orderUser.fcmToken, notipayload);
+            await sendPushNotification(orderUser.fcmToken, notipayload);
           } else {
             console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
           }

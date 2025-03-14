@@ -243,7 +243,7 @@ module.exports = (chatIo) => {
             body: `${message}`,
             data: { type: 'chat', orderId: chatRoomId },
           };
-          // await sendPushNotification(otherUser.fcmToken, notipayload);
+           await sendPushNotification(otherUser.fcmToken, notipayload);
           console.log('ios APNs 설정 안되서 일단 주석');
         } else {
           console.log(
@@ -321,7 +321,7 @@ module.exports = (chatIo) => {
             body: `사진을 보냈습니다.`,
             data: { type: 'chat', orderId: chatRoomId },
           };
-          // await sendPushNotification(otherUser.fcmToken, notipayload);
+          await sendPushNotification(otherUser.fcmToken, notipayload);
           console.log('ios APNs 설정 안되서 일단 주석');
         } else {
           console.log(
