@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const serviceAccount = require('../campuscoffee-83cbf-firebase-adminsdk-fbsvc-3d73a4c60e.json');
+const serviceAccount = require('../campuscoffee-83cbf-firebase-adminsdk-fbsvc-e5332e6c2f.json');
 
 const fcmConnect = async () => {
   let firebase;
