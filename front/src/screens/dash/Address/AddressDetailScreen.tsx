@@ -45,7 +45,7 @@ const AddressDetailScreen = ({ route }: any) => {
         Alert.alert('오류', result.message);
       }
 
-      navigate("HomeScreen");
+      navigate("BottomTab");
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('네트워크 오류', '주소를 등록할 수 없습니다.');
