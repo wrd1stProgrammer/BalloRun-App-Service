@@ -164,7 +164,7 @@ const getOrderDataForCancelApi = async (req, res) => {
         const riderUser = await User.findById(order.riderId);
         console.log(riderUser,'Rideruser 찾음??');
         riderUser.isDelivering = false;
-        await riderUser.save(); // 라이더는 refetch 강제 해야 + 알림 ?
+        await riderUser.save(); // 라이더는 refetch 강 해야 + 알림 ?
       // 7. 라이더에게 푸시 알림 전송
       if (riderUser.fcmToken) {
         const notificationPayload = {
