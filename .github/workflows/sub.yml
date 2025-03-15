@@ -47,10 +47,9 @@ jobs:
             cd /home/ubuntu/eighteen || { echo "Directory not found"; exit 1; }
             # 기존 컨테이너 및 네트워크 정리
             sudo docker-compose down || { echo "docker-compose down failed"; exit 1; }
-            # 이미지 pull
-            sudo docker pull sikgates/eighteen-back:latest || { echo "pull eighteen-back failed"; exit 1; }
-            sudo docker pull heidiks/rabbitmq-delayed-message-exchange:4.0.2-management || { echo "pull rabbitmq failed"; exit 1; }
-            sudo docker pull redis:7.4.2 || { echo "pull redis failed"; exit 1; }
+            sudo docker-compose rm -f
+            sudo docker rmi sikgates/eighteen-back:latest
+            sudo docker-compose pull
             # 컨테이너 재실행
             sudo docker-compose up -d || { echo "docker-compose up failed"; exit 1; }
             echo "Deployment completed successfully."
