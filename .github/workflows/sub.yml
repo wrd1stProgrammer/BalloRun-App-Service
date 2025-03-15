@@ -42,15 +42,15 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           debug: true  # 디버깅 활성화
-        script: |
-          # 디렉토리 이동 (파일 위치 확인 필요)
-          cd /home/ubuntu/eighteen || { echo "Directory not found"; exit 1; }
-          # 기존 컨테이너 및 네트워크 정리
-          sudo docker-compose down || { echo "docker-compose down failed"; exit 1; }
-          # 이미지 pull
-          sudo docker pull sikgates/eighteen-back:latest || { echo "pull eighteen-back failed"; exit 1; }
-          sudo docker pull heidiks/rabbitmq-delayed-message-exchange:4.0.2-management || { echo "pull rabbitmq failed"; exit 1; }
-          sudo docker pull redis:7.4.2 || { echo "pull redis failed"; exit 1; }
-          # 컨테이너 재실행
-          sudo docker-compose up -d || { echo "docker-compose up failed"; exit 1; }
-          echo "Deployment completed successfully."
+          script: |
+            # 디렉토리 이동 (파일 위치 확인 필요)
+            cd /home/ubuntu/eighteen || { echo "Directory not found"; exit 1; }
+            # 기존 컨테이너 및 네트워크 정리
+            sudo docker-compose down || { echo "docker-compose down failed"; exit 1; }
+            # 이미지 pull
+            sudo docker pull sikgates/eighteen-back:latest || { echo "pull eighteen-back failed"; exit 1; }
+            sudo docker pull heidiks/rabbitmq-delayed-message-exchange:4.0.2-management || { echo "pull rabbitmq failed"; exit 1; }
+            sudo docker pull redis:7.4.2 || { echo "pull redis failed"; exit 1; }
+            # 컨테이너 재실행
+            sudo docker-compose up -d || { echo "docker-compose up failed"; exit 1; }
+            echo "Deployment completed successfully."
