@@ -1,53 +1,51 @@
+version: '3'
 services:
   back:
-    image: eighteen-back:latest  # 수동으로 빌드한 이미지 사용
-    build:
-      context: ./back
-      dockerfile: Dockerfile
+    image: sikgates/eighteen-back:latest  # Docker Hub에서 가져오기
     ports:
-      - "5001:5001"  # Express 서버 포트
+      - "5001:5001"
     volumes:
       - ./back:/app
       - /app/node_modules
-      - /etc/localtime:/etc/localtime:ro  # 맥 시간대 공유
+      - /etc/localtime:/etc/localtime:ro
     environment:
       - MONGO_PW=PAD0MzMGKxsDGwsR
       - REDIS_HOST=redis-14438.c281.us-east-1-2.ec2.redns.redis-cloud.com
       - REDIS_PORT=14438
       - REDIS_USERNAME=default
       - REDIS_PASSWORD=AoWvAXv3JTPRBrgwxRX58G9AVxFhQzpj
-      - TZ=Asia/Seoul  # KST 시간대 설정
+      - TZ=Asia/Seoul
     depends_on:
-      - redis  # Redis 컨테이너가 먼저 실행되도록 설정
-      - rabbitmq # RabbitMQ 컨테이너가 먼저 실행되도록 설정
+      - redis
+      - rabbitmq
     command: node app.js
     networks:
       - app_network
 
-  rabbitmq: # RabbitMQ 서비스
+  rabbitmq:
     image: heidiks/rabbitmq-delayed-message-exchange:4.0.2-management
     container_name: rabbitmq
     ports:
-      - "5672:5672" # RabbitMQ AMQP 포트
-      - "15672:15672" # RabbitMQ 관리 UI 포트
+      - "5672:5672"
+      - "15672:15672"
     volumes:
-      - /etc/localtime:/etc/localtime:ro  # 맥 시간대 공유
+      - /etc/localtime:/etc/localtime:ro
     environment:
-      - RABBITMQ_DEFAULT_USER=guest # RabbitMQ 기본 사용자 이름
-      - RABBITMQ_DEFAULT_PASS=guest # RabbitMQ 기본 비밀번호
-      - TZ=Asia/Seoul  # KST 시간대 설정
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - TZ=Asia/Seoul
     networks:
       - app_network
 
-  redis: # Redis 서비스
+  redis:
     image: redis:7.4.2
     container_name: redis
     ports:
-      - "6379:6379"  # Redis 기본 포트
+      - "6379:6379"
     volumes:
-      - /etc/localtime:/etc/localtime:ro  # 맥 시간대 공유
+      - /etc/localtime:/etc/localtime:ro
     environment:
-      - TZ=Asia/Seoul  # KST 시간대 설정
+      - TZ=Asia/Seoul
     command: ["redis-server", "--requirepass", "yourpassword", "--notify-keyspace-events", "KEA"]
     networks:
       - app_network
