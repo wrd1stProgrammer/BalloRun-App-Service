@@ -41,7 +41,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          debug: true  # 디버깅 활성화
+          #debug: true  # 디버깅 활성화
           script: |
             # 디렉토리 이동 (파일 위치 확인 필요)
             cd /home/ubuntu/eighteen || { echo "Directory not found"; exit 1; }
