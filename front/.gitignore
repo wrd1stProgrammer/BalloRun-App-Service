@@ -36,4 +36,4 @@ yarn-error.*
 *.tsbuildinfo
 
 # Firebase service account file
-back/campuscoffee-83cbf-firebase-adminsdk-fbsvc-e5332e6c2f.json
+#back/campuscoffee-83cbf-firebase-adminsdk-fbsvc-e5332e6c2f.json
