@@ -218,8 +218,8 @@ const styles = StyleSheet.create({
     bottom: -2, // 살짝 아래로 위치 조정
     left: 0,
     width: "50%",
-    height: 4,
-    backgroundColor: "#6C63FF",
+    height: 2,
+    backgroundColor: "black",
   },
   gpsButton: {
     position: 'absolute',

@@ -16,6 +16,8 @@ import { PERMISSIONS, request, check, RESULTS } from "react-native-permissions";
 import Geolocation from "react-native-geolocation-service";
 import { LocationProvider } from "./src/utils/Geolocation/LocationContext";
 import { initializeAdMob } from "./src/screens/dash/AdMob/ConfigureAdMob";
+import initializeNotifications from "./src/utils/fcm/notification";
+import KeyboardDismissWrapper from "./src/utils/KeyboardDismissWrapper";
 
 
 const App: React.FC = () => {
@@ -50,10 +52,11 @@ const App: React.FC = () => {
     }
   };
 
-  // ✅ 앱 시작 시 권한 요청
+  // 앱 시작 
   useEffect(() => {
     requestLocationPermission();
     initializeAdMob();
+    initializeNotifications();
   }, []);
 
   return (
@@ -66,9 +69,11 @@ const App: React.FC = () => {
               <MapSocketContainer>
                 <ChatSocketContainer>
                   <LocationProvider>
+                    <KeyboardDismissWrapper>
                   <PersistGate loading={null} persistor={persistor}>
                     <Navigation />
                   </PersistGate>
+                  </KeyboardDismissWrapper>
                   </LocationProvider>
                 </ChatSocketContainer>
               </MapSocketContainer>

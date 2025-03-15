@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
 import { selectUser, selectIsOngoingOrder, setOngoingOrder, setIsMatching, selectIsMatching, selectOngoingOrder, clearOngoingOrder, setIsOngoingOrder} from '../../redux/reducers/userSlice';
-import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "../.././../src/utils/fcm/FcmHandler";
+//import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "../.././../src/utils/fcm/FcmHandler";
 import { MapSocketContext } from '../../utils/sockets/MapSocket';
 import { getDeliveryListHandler } from '../../redux/actions/orderAction';
 import Geolocation from 'react-native-geolocation-service';
@@ -51,15 +51,7 @@ const HomeScreen: React.FC = () => {
 
   const { location, startTracking, stopTracking } = useLocation();
 
-  // 🔥 FCM 알림 리스너 설정
-  useEffect(() => {
-    const foregroundListener = setupForegroundNotifications();
-    setupBackgroundNotifications();
-    onNotificationOpenedApp();
-    return () => {
-      foregroundListener();
-    };
-  }, []);
+
 
   useEffect(() => {
     

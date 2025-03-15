@@ -51,9 +51,6 @@ const consumeMessages = async (emitCancel, redisCli) => {
 
             await invalidateOnGoingOrdersCache(order.userId,redisCli);
 
-            // 소켓 전송
-            //showOrderData(orderData);
-            //emitCancel(orderData)
 
             await channel.publish(
               delayedExchange,

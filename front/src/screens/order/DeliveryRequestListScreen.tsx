@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
     bottom: -2, // ✅ 조금 아래로 위치 조정
     left: 0,
     width: "50%",
-    height: 4,
-    backgroundColor: "#007AFF",
+    height: 2,
+    backgroundColor: "black",
   },
 });
 

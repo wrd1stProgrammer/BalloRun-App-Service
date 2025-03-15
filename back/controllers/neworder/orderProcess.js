@@ -3,6 +3,7 @@ const NewOrder = require("../../models/NewOrder");
 const User = require("../../models/User");
 const amqp = require("amqplib");
 const { connectRabbitMQ } = require("../../config/rabbitMQ");
+const { sendPushNotification } = require("../../utils/sendPushNotification");
 
 const newOrderCreate = async (req, res) => {
   const {
@@ -27,9 +28,10 @@ const newOrderCreate = async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    const user = await User.findById(userId);
     // 포인트 사용 시 유저 포인트 감소
     if (usedPoints > 0) {
-      const user = await User.findById(userId);
+      //const user = await User.findById(userId);
       if (!user || user.point < usedPoints) {
         return res.status(400).json({ message: "포인트가 부족합니다." });
       }
@@ -65,6 +67,20 @@ const newOrderCreate = async (req, res) => {
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
     console.log("큐에 전달-새로운 주문:", message);
+
+          // 푸쉬알림 테스트
+          const notipayload = {
+            title: `배달요청이 완료되었습니다.`,
+            body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
+            data: { type: "order_accepted", orderId: userId },
+          };
+          // 주문한 사용자의 토큰.
+          if (user?.fcmToken) {
+            // orderUser.fcmToken로 변경해야 함
+            await sendPushNotification(user.fcmToken, notipayload);
+          } else {
+            console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+          }
 
     res.status(201).json({ message: "Order received and being processed." });
 

@@ -11,6 +11,7 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.4",
     "@gorhom/bottom-sheet": "^4.6.4",
+    "@notifee/react-native": "^9.1.8",
     "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-native-community/datetimepicker": "^8.2.0",
     "@react-native-firebase/app": "^21.7.1",
@@ -28,6 +29,7 @@
     "date-fns": "^4.1.0",
     "expo": "~52.0.18",
     "expo-location": "^18.0.4",
+    "expo-modules-core": "~2.2.3",
     "expo-status-bar": "~2.0.0",
     "install": "^0.13.0",
     "jwt-decode": "^4.0.0",
@@ -62,8 +64,7 @@
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
-    "socket.io-client": "^4.8.1",
-    "expo-modules-core": "~2.2.3"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -1800,6 +1800,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNNotifee (9.1.8):
+    - React-Core
+    - RNNotifee/NotifeeCore (= 9.1.8)
+  - RNNotifee/NotifeeCore (9.1.8):
+    - React-Core
   - RNPermissions (5.2.5):
     - React-Core
   - RNReanimated (3.16.7):
@@ -2007,6 +2012,7 @@ DEPENDENCIES:
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNGoogleMobileAds (from `../node_modules/react-native-google-mobile-ads`)
+  - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -2216,6 +2222,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleMobileAds:
     :path: "../node_modules/react-native-google-mobile-ads"
+  RNNotifee:
+    :path: "../node_modules/@notifee/react-native"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNReanimated:
@@ -2338,6 +2346,7 @@ SPEC CHECKSUMS:
   RNFBMessaging: e485940b19e3cff5eeb0f7f095d480576cbab505
   RNGestureHandler: f6a6630e6bde1a49d1e3fec73b6711f718813538
   RNGoogleMobileAds: 994b21c5e04dcc6707c7e996e4ccf54588739fea
+  RNNotifee: 4a6ee5c7deaf00e005050052d73ee6315dff7ec9
   RNPermissions: ff7ae9a55398e2f9ae99809a8c5ba7a89bbdd32f
   RNReanimated: ba079c678c27818176985f1c35400d4b923bbff3
   RNScreens: 1d383f9ba1866fe58836ac3a8d138918e1f0ffbd

@@ -2,53 +2,64 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 const FixedOrderStatusBanner: React.FC = () => {
+  // 남은 시간 예시 (실제로는 props나 상태로 동적 전달 가능)
+  const remainingTime = "10분";
+
   return (
-    <View style={fixedStyles.container}>
-      <Text style={fixedStyles.message}>주문 요청이 완료 되었습니다.</Text>
-      <View style={fixedStyles.timeContainer}>
+    <View style={styles.wrapper}>
+      <View style={styles.container}>
+        <Text style={styles.message}>주문 요청이 완료되었습니다</Text>
+        <View style={styles.timeContainer}>
+          <Text style={styles.timeText}>남은 시간: </Text>
+          <Text style={styles.timeValue}>{remainingTime}</Text>
+        </View>
       </View>
     </View>
   );
 };
 
-const fixedStyles = StyleSheet.create({
-  container: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // 투명하면서 살짝 어두운 검정색 (투명도 0.7)
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    position: 'absolute', // 화면에 고정
-    bottom: 90, // 하단 탭 바(70~80px) 위에 위치 (BottomTab의 tabBar 높이 고려)
-    left: 15,
-    right: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    elevation: 3, // 안드로이드 그림자
+const styles = StyleSheet.create({
+  wrapper: {
+    position: 'absolute',
+    bottom: 90, // 하단 탭 바 위에 고정
+    left: 16,
+    right: 16,
     zIndex: 1000, // 다른 요소 위에 표시
   },
+  container: {
+    backgroundColor: '#2563EB', // 단일 파란색 배경
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 16, // 부드러운 모서리
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5, // 안드로이드 그림자
+  },
   message: {
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: '600',
     color: '#FFFFFF', // 흰색 텍스트
-    fontWeight: 'bold',
     textAlign: 'center',
+    letterSpacing: 0.5, // 세련된 텍스트 간격
   },
   timeContainer: {
-    flexDirection: 'row', // 남은 시간과 더미 텍스트를 가로로 나열
-    justifyContent: 'center', // 중앙 정렬
-    alignItems: 'center', // 세로 중앙 정렬
-    marginTop: 4,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 6,
   },
-  time: {
-    fontSize: 12,
-    color: '#FFFFFF', // 흰색 텍스트
-    textAlign: 'center',
+  timeText: {
+    fontSize: 13,
+    color: '#E5E7EB', // 밝은 회색
+    fontWeight: '500',
   },
-  dummyTime: {
-    fontSize: 12,
-    color: '#FFFFFF', // 흰색 텍스트
-    fontWeight: 'bold', // 강조를 위해 볼드 처리
-    marginLeft: 5, // "남은 시간:"과 "몇 분" 사이 간격
+  timeValue: {
+    fontSize: 13,
+    color: '#FFFFFF',
+    fontWeight: '700',
+    marginLeft: 4,
   },
 });
 

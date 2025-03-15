@@ -145,6 +145,10 @@ const OrderItem: React.FC<OrderItemProps> = ({
     }
   };
 
+  const handleLocationPress = () => {
+    navigate("LiveMap", { orderId, status });
+  };
+
   const handleStarPress = (selectedRating: number) => {
     setRating(selectedRating);
   };
@@ -183,12 +187,16 @@ const OrderItem: React.FC<OrderItemProps> = ({
   const renderActionButton = () => {
     switch (status) {
       case "pending":
+      case "goToCafe":
+      case "makingMenu":
+      case "goToClient":
+      case "complete":
         return (
           <TouchableOpacity
             style={[styles.actionButton, styles.buttonSpacing]}
-            onPress={handlerOrderCancel}
+            onPress={handleLocationPress}
           >
-            <Text style={styles.actionButtonText}>주문 취소</Text>
+            <Text style={styles.actionButtonText}>위치 보기</Text>
           </TouchableOpacity>
         );
       case "delivered":
@@ -235,9 +243,16 @@ const OrderItem: React.FC<OrderItemProps> = ({
       <View style={styles.card}>
         <View style={styles.header}>
           <Text style={styles.status}>{getStatusMessage(status)}</Text>
-          <TouchableOpacity onPress={showOrderDetails}>
-            <Text style={styles.detailButton}>주문 상세</Text>
-          </TouchableOpacity>
+          <View style={styles.headerRight}>
+            <TouchableOpacity onPress={showOrderDetails}>
+              <Text style={styles.detailsButton}>주문 상세</Text>
+            </TouchableOpacity>
+            {status !== "cancelled" && status !== "delivered" && (
+              <TouchableOpacity onPress={handlerOrderCancel}>
+                <Text style={styles.cancelButton}>주문 취소</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         <View style={styles.content}>
@@ -287,7 +302,6 @@ const OrderItem: React.FC<OrderItemProps> = ({
   );
 };
 
-export default OrderItem;
 
 const styles = StyleSheet.create({
   buttonContainer: {
@@ -353,8 +367,22 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#555",
   },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   detailButton: {
     color: "#3366FF",
+    fontWeight: "bold",
+    marginRight: 10, // "주문 취소"와의 간격
+  },
+  detailsButton: {
+    color: "#000000",
+    fontWeight: "bold",
+    marginRight: 10, // "주문 취소"와의 간격
+  },
+  cancelButton: {
+    color: "#000000", // 검정색으로 변경
     fontWeight: "bold",
   },
   content: {
@@ -424,3 +452,5 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
 });
+
+export default OrderItem;

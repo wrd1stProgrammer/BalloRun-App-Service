@@ -12,8 +12,12 @@ const sendPushNotification = async (fcmToken, payload) => {
       apns: {
         payload: {
           aps: {
+            contentAvailable: true, // 백그라운드 알림 활성화 (true는 1로 변환됨)
             sound: 'default',
-            badge: 1,
+            alert: {
+              title: payload.title, // 수정: payload.title 명시
+              body: payload.body,   // 수정: payload.body 명시
+            },
           },
         },
       },
@@ -29,7 +33,6 @@ const sendPushNotification = async (fcmToken, payload) => {
     await admin.messaging().send(message);
     console.log(`알림 전송 성공: ${fcmToken}`);
   } catch (error) {
-    // 무효한 토큰 에러처리 추가하자 언젠가
     console.error('알림 전송 실패:', error);
     throw new Error('Failed to send push notification');
   }
