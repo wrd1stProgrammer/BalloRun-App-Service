@@ -62,7 +62,7 @@ async function startServer() {
 
   // RabbitMQ 소비자 실행 (7초 딜레이)
   setTimeout(() => {
-    console.log("10초 후에 RabbitMQ 소비자 실행 시작!");
+    console.log("10초 후에 RabbitMQ 소비자 실행 시작!!");
     consumeMessages(emitCancel, redisCli);
     consumeDelayedMessages(emitCancel,redisCli);
     consumeOrderAcceptQueue(redisCli);
