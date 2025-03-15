@@ -16,7 +16,7 @@ RUN npm install
 # 애플리케이션 코드 복사
 COPY . .
 
-COPY back/campuscoffee-83cbf-firebase-adminsdk-fbsvc-e5332e6c2f.json /app/
+#COPY back/campuscoffee-83cbf-firebase-adminsdk-fbsvc-e5332e6c2f.json /app/
 
 # .env 파일을 Docker 컨테이너에서도 사용할 수 있게 설정
 COPY .env .env
