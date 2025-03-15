@@ -6,7 +6,7 @@ const {storeOrderInRedis, removeOrderFromRedis} = require("./storeOrderInRedis")
 const {connectRabbitMQ} = require("../../config/rabbitMQ");
 const {invalidateOnGoingOrdersCache, invalidateCompletedOrdersCache} = require("../../utils/deleteRedisCache");
 const {sendPushNotification} = require("../../utils/sendPushNotification");
-const { consumeNewOrderMessages } = require("./consumeNeworder");
+const { consumeNewOrderMessages } = require("./consumeOrder");
 
 
 
