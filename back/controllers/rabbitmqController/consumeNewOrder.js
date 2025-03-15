@@ -18,7 +18,7 @@ const consumeNewOrderMessages = async (redisCli) => {
       durable: true,
       arguments: { "x-delayed-type": "direct" }
     });
-    console.log(`New Waiting for messages in ${queue}`);
+    console.log(`New Waiting for messagges in ${queue}`);
 
     channel.consume(
       queue,
