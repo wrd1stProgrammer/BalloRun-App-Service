@@ -22,7 +22,6 @@
  -  [핵심 기능](#핵심-기능)
     - [로그인](#로그인)
  - [CI/CD](#cicd)
-    - [무중단 배포](#무중단-배포)
 
 
 ## 📃개요
@@ -194,18 +193,6 @@
 
 ### CI/CD
 ![CI/CD](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/_cicd.drawio.png)
-
-### 무중단 배포
-
-nginx를 도입하여 무중단 배포 환경을 구현하였습니다.
-- 새로운 버전의 애플리케이션이 배포되면 사용하지 않는 포트를 확인하여 docker로 구동시킵니다.
-    - ex)  8080포트가 사용중이면 8081 / 8081번 포트가 사용중이면 8080으로 구동시킵니다.
-- 구동된 앱의 health 를 체크하여 서버의 상태를 확인합니다.
--  정상 배포가 확인되면 nginx의 리버스 프록시 대상을 신규 버전의 앱의 포트로 변경합니다.
--  사용중이던 컨테이너와 이미지를 삭제 하여 서버 교체를 마무리 합니다.
-
-scipt 예시 (작성예정)
-[배포 스크립트](https://github.com/JaeJinByun/MoCo/blob/a4cada0878e963cb8260effbf357f7eaced211cc/.github/workflows/gradle.yml#L59-L111)
 
 
 ---
