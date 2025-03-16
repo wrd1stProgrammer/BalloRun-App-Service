@@ -18,6 +18,7 @@ const NewOrderSchema = new mongoose.Schema(
       enum: ['direct', 'cupHolder'], // 배달 방법 (직접, 비대면)
       required: true,
     },
+    selectedFloor: { type: String, required: false }, // 선택된 층 (컵홀더 배달일 경우)
     cancellation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'OrderCancellation',

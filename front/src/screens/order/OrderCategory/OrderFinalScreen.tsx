@@ -55,9 +55,6 @@ const OrderFinalScreen = () => {
   
   const user = useAppSelector(selectUser);
 
-  const lat = user.lat;
-  const lng = user.lng;  
-
   const [deliveryAddress, setDeliveryAddress] = useState(user?.detail||"없음");
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,6 +69,9 @@ const OrderFinalScreen = () => {
   const [resolvedAddress, setResolvedAddress] = useState(user?.address || "");
   const [points, setPoints] = useState(0); // 초기값을 0으로 설정
   const [usedPoints, setUsedPoints] = useState(0);
+
+  const lat = user.lat;
+  const lng = user.lng;  
 
   const dispatch = useAppDispatch();
 
@@ -91,6 +91,12 @@ const OrderFinalScreen = () => {
     };
     fetchAddress();
   }, [lat, lng]);
+
+
+
+  const finalLat = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.latitude : user.lat;
+  const finalLng = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.longitude : user.lng;
+  const finalAddress = deliveryMethod === "cupHolder" ? selectedMarker.title : deliveryAddress;
 
   useEffect(() => {
     if (!reservationChecked) setStartTimeLocal(new Date());
@@ -113,15 +119,15 @@ const OrderFinalScreen = () => {
       riderRequest,
       imageResponse || "",
       imageResponse2 || "",
-      lat?.toString() || "",
-      lng?.toString() || "",
-      deliveryAddress,
+      finalLat?.toString() || "",
+      finalLng?.toString() || "",
+      finalAddress,
       deliveryMethod,
       startTime.getTime(),
       endTime.getTime(),
       selectedFloor,
       resolvedAddress,
-      usedPoints // 포인트 사용량 추가
+      usedPoints
     ));
     await dispatch(refetchUser()); // point 감소 반영 떄매
     dispatch(setIsOngoingOrder(true));
