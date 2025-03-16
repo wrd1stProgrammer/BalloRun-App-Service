@@ -7,8 +7,10 @@ services:
     volumes:
       - ./back:/app
       - /app/node_modules
+      - /etc/localtime:/etc/localtime:ro  # EC2 시간 동기화
+
     environment:
-     # - TZ=UTC
+      - TZ=UTC
       - MONGO_PW=PAD0MzMGKxsDGwsR
       - REDIS_HOST=redis-14438.c281.us-east-1-2.ec2.redns.redis-cloud.com
       - REDIS_PORT=14438
@@ -29,11 +31,11 @@ services:
       - "5672:5672"
       - "15672:15672"
     volumes:
-     # - /etc/localtime:/etc/localtime:ro
+      - /etc/localtime:/etc/localtime:ro
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-    #  - TZ=Asia/Seoul
+      - TZ=UTC
     networks:
       - app_network
 
@@ -43,9 +45,9 @@ services:
     ports:
       - "6379:6379"
     volumes:
-     # - /etc/localtime:/etc/localtime:ro
+      - /etc/localtime:/etc/localtime:ro  # EC2 시간 동기화
     environment:
-    #  - TZ=Asia/Seoul
+      - TZ=UTC
     command: ["redis-server", "--requirepass", "yourpassword", "--notify-keyspace-events", "KEA"]
     networks:
       - app_network

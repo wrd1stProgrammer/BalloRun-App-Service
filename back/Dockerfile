@@ -21,7 +21,7 @@ COPY . .
 # .env 파일을 Docker 컨테이너에서도 사용할 수 있게 설정
 COPY .env .env
 
-#ENV TZ=UTC
+ENV TZ=UTC
 
 # Express 서버 포트 노출 (5000번 사용)
 EXPOSE 5001
