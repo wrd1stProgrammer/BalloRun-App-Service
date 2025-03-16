@@ -1,7 +1,7 @@
 version: '3'
 services:
   back:
-    image: sikgates/eighteen-back:latest  # Docker Hub에서 가져오기
+    image: sikgates/eighteen-back:utc  # Docker Hub에서 가져오기
     ports:
       - "5001:5001"
     volumes:
