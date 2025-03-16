@@ -29,6 +29,9 @@ import { token_storage } from '../../redux/config/storage';
 import { requestUserPermission } from '../../utils/fcm/fcmToken';
 import { setUser } from '../../redux/reducers/userSlice';
 import { resetAndNavigate } from '../../navigation/NavigationUtils';
+import { BASE_URL } from '../../redux/config/API';
+
+
 /**
  * [설명]
  * 1) "로그인" 버튼을 처음 누르면 아이디/비밀번호 입력 영역이 애니메이션으로 펼쳐지고,
@@ -46,6 +49,7 @@ const LoginScreen: React.FC = () => {
 
   const signInWithKakao = async (): Promise<void> => {
     try {
+      console.log(BASE_URL,'baseurl')
       const token = await login();
       const profile = await getKakaoProfile();
       const email = profile.email;
