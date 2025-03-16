@@ -100,7 +100,7 @@
 - **사용 사례:**  
   - **주문 수락 처리:** 새 주문이 생성되면 주문 정보를 RabbitMQ 큐에 추가하고, 여러 워커가 큐를 순차적으로 소비하여 충돌을 방지하고 많은 요청을 효율적으로 처리가능.  
   - **동시 주문 부하 분산:** 피크 타임에 다수 주문이 발생 시, 큐에 요청을 쌓아 백엔드 서버가 순차적으로 처리하도록 하여 과부하를 방지합니다.  
-https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/rabbitmq.jpeg
+![rabbitMQ 아키텍쳐](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/rabbitmq.jpeg)
 
 ## 시스템 아키텍처
 ![시스템 아키텍처](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/archi.drawio.png)
