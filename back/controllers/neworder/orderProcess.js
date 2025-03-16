@@ -76,7 +76,7 @@ const newOrderCreate = async (req, res) => {
           };
           // 주문한 사용자의 토큰.
           if (user?.fcmToken) {
-            // orderUser.fcmToken로 변경해야 함
+            console.log('수정로그');
             await sendPushNotification(user.fcmToken, notipayload);
           } else {
             console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);

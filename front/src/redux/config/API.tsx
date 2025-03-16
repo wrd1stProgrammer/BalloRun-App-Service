@@ -3,7 +3,7 @@ import {Platform} from 'react-native';
 
 // FOR LOCAL
 
-export const BASE_URL = `http://${IPV4}:${PORT}`;
+export const BASE_URL = `http://54.253.197.14:5001`;
 
   // Platform.OS === 'android'
   //   ? `http://10.0.2.2:${PORT}`

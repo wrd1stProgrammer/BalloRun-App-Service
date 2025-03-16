@@ -1,5 +1,5 @@
 const storeOrderInRedis = async (redisCli, orderData) => {
-    console.log("저장",orderData);
+    console.log("저장ㅇ",orderData);
     const orderKey = `order:${orderData.userId}`;
     try {
       await redisCli.set(orderKey, JSON.stringify(orderData), { EX: 300 }); // 5분 TTL 설정

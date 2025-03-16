@@ -5,8 +5,12 @@ FROM node:20
 #RUN apt-get update && apt-get install -y make g++ python3
 
 # 작업 디렉토리 설정
-WORKDIR /app
+WORKDIR /back
 
+RUN apt-get update && apt-get install -y tzdata
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN dpkg-reconfigure -f noninteractive tzdata
 # package.json과 lock 파일 복사
 COPY package.json package-lock.json ./
 
@@ -15,8 +19,6 @@ RUN npm install
 
 # 애플리케이션 코드 복사
 COPY . .
-
-#COPY back/campuscoffee-83cbf-firebase-adminsdk-fbsvc-e5332e6c2f.json /app/
 
 # .env 파일을 Docker 컨테이너에서도 사용할 수 있게 설정
 COPY .env .env
