@@ -119,14 +119,7 @@
 
 
 ### CI/CD
-반복적인 프로세스를 줄이고 유지보수의 편리함을 위해 지속적 통합과 지속적 배포 파이프라인을 구축하였습니다.
-
-깃 허브액션이 master 브랜치로 push된 code를 감지하여 생성한 스크립트 설정파일에 따라 jar 파일로 빌드후 도커 이미지화 시킵니다.
-
-도커 이미지화된 도커파일은 도커 이미지 저장소인 도커 허브로 push 됩니다.
-
-push가 완료되면 ec2 인스턴스가 해당 도커 파일을 pull 하게 되며 실행중이었던 node.js 도커파일을
-정지 -> 컨테이너 삭제 -> 새로 내려받은 도커파일 실행 순으로 작업을 진행합니다.
+![CI/CD](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/_cicd.drawio.png)
 
 ### 무중단 배포
 
