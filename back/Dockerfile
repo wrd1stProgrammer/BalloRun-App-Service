@@ -5,7 +5,7 @@ FROM node:20
 #RUN apt-get update && apt-get install -y make g++ python3
 
 # 작업 디렉토리 설정
-WORKDIR /app
+WORKDIR /back
 
 # package.json과 lock 파일 복사
 COPY package.json package-lock.json ./
