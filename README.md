@@ -83,19 +83,7 @@
 
 
 ## 시스템 아키텍처
-임시
 ![시스템 아키텍처](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/archi.drawio.png)
-
-
-
-## Server 아키텍처 
-임시
-![아키텍처](https://user-images.githubusercontent.com/103496262/197343496-40279a8a-7ee3-4360-b1e5-679379bacd90.JPG)
-
-
-## E-R 다이어그램
-비관계형이라 필요없음 대안 찾아봄
-
 
 
 ## 프로젝트 목적
