@@ -11,8 +11,7 @@ WORKDIR /back
 
 # package.json과 lock 파일 복사
 COPY package.json package-lock.json ./
-# 시간대 설정을 위한 패키지 설치
-RUN apt-get update && apt-get install -y tzdata
+
 
 # 의존성 설치
 RUN npm install
@@ -22,11 +21,6 @@ COPY . .
 
 # .env 파일을 Docker 컨테이너에서도 사용할 수 있게 설정
 COPY .env .env
-
-ENV TZ=UTC
-# 시간대 적용 (시스템 수준에서 UTC 강제 설정)
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN dpkg-reconfigure -f noninteractive tzdata
 
 # Express 서버 포트 노출 (5000번 사용)
 EXPOSE 5001
