@@ -5,8 +5,8 @@ services:
     ports:
       - "5001:5001"
     volumes:
-     # - ./back:/app
-     #- /app/node_modules
+      - ./back:/app
+      - /app/node_modules
      # - /etc/localtime:/etc/localtime:ro
     environment:
       - MONGO_PW=PAD0MzMGKxsDGwsR
