@@ -11,6 +11,8 @@ WORKDIR /back
 
 # package.json과 lock 파일 복사
 COPY package.json package-lock.json ./
+# 시간대 설정을 위한 패키지 설치
+RUN apt-get update && apt-get install -y tzdata
 
 # 의존성 설치
 RUN npm install
