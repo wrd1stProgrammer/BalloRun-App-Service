@@ -22,6 +22,9 @@ COPY . .
 COPY .env .env
 
 ENV TZ=UTC
+# 시간대 적용 (시스템 수준에서 UTC 강제 설정)
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN dpkg-reconfigure -f noninteractive tzdata
 
 # Express 서버 포트 노출 (5000번 사용)
 EXPOSE 5001
