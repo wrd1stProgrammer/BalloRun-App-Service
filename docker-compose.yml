@@ -7,11 +7,8 @@ services:
     volumes:
       - ./back:/app
       - /app/node_modules
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-     # - /etc/localtime:/etc/localtime:ro
     environment:
-      - TZ=UTC
+     # - TZ=UTC
       - MONGO_PW=PAD0MzMGKxsDGwsR
       - REDIS_HOST=redis-14438.c281.us-east-1-2.ec2.redns.redis-cloud.com
       - REDIS_PORT=14438
