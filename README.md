@@ -1,7 +1,7 @@
 
 <br><br> 
-임시 이미지.
-![logo](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8p1vW3pwuQKJuxp6d6pw0j4fyibaNzX40Ag&s)
+
+![logo](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/logo_final.png)
 
 # 발로뛰어, 심부름하고 용돈 벌자!
 
