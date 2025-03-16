@@ -1,7 +1,7 @@
 
 <br><br> 
 
-![logo](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/logo_final.png)
+![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/001.jpg)
 
 # 발로뛰어, 심부름하고 용돈 벌자!
 
@@ -10,6 +10,7 @@
 <br><br>
 ## [🚀발로뛰어 다운로드](https://)
 <br>
+<img src="https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/logo_final.png" width="200">
 
 # 📖 목차 
  - [개요](#개요) 
@@ -112,6 +113,10 @@
 
 
 ## 화면 구성💻
+![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/006.jpg)
+![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/007.jpg)
+![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/008.jpg)
+![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/009.jpg)
 
 
 ## 핵심 기능⭐
