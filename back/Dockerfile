@@ -7,6 +7,10 @@ FROM node:20
 # 작업 디렉토리 설정
 WORKDIR /back
 
+ENV TZ=UTC
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # package.json과 lock 파일 복사
 COPY package.json package-lock.json ./
 
