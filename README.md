@@ -1,6 +1,8 @@
 
 <br><br> 
 
+이미지 로드 실패시 새로고침을 해보세요 ! !
+
 ![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/001.jpg)
 
 # 발로뛰어, 심부름하고 용돈 벌자!
