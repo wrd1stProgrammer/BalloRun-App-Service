@@ -10,7 +10,7 @@
 걸어서 배달을 해보세요!
 +설명 추가..
 <br><br>
-## [🚀발로뛰어 다운로드](https://drive.google.com/file/d/1NFQEJV6HkrnbkrUlP5UF8hXC9aGJMdUn/view?usp=drive_link)
+## [🚀발로뛰어 다운로드](https://drive.google.com/file/d/1uBQsr30guslfm38HbrAQWMXV6wStFYUm/view?usp=drive_link)
 !!dev 서버 디버그용 apk Link
 
 <br>
