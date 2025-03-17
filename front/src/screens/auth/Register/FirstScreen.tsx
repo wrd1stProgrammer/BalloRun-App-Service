@@ -89,7 +89,7 @@ const FirstScreen = () => {
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={goBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#1C2526" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>본인정보 입력</Text>
         </View>
@@ -139,7 +139,7 @@ const FirstScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: '#fff', // 화면 배경과 동일한 흰색으로 설정
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -148,9 +148,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#007AFF',
-
+    borderBottomColor: '#fff', // 화면 배경과 동일한 흰색으로 설정
     justifyContent: 'center',
   },
   backButton: {
@@ -161,7 +159,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#000000',
     textAlign: 'center',
   },
   inputContainer: {

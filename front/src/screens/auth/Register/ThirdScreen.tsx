@@ -92,7 +92,7 @@ const ThirdScreen = () => {
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={goBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#007AFF" />
+            <Ionicons name="arrow-back" size={24} color="#1C2526" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>본인정보 입력</Text>
         </View>
@@ -153,7 +153,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    borderBottomWidth: 1,
     borderBottomColor: '#007AFF',
     justifyContent: 'center',
   },
@@ -165,7 +164,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#1C2526',
     textAlign: 'center',
   },
   inputContainer: {

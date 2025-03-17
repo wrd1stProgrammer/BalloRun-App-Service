@@ -146,17 +146,15 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
         ))}
       </View>
 
-      <View style={styles.bannerContainer}>
-          <AdMobBanner/>
-        </View>
-
-
-
       {/* 배달하기 버튼 */}
       <TouchableOpacity style={styles.deliveryButton} onPress={handleDeliveryPress}>
         <Ionicons name="bicycle" size={28} color="white" style={styles.deliveryIcon} />
         <Text style={styles.deliveryButtonText}>배달하기</Text>
       </TouchableOpacity>
+
+      <View style={styles.bannerContainer}>
+          <AdMobBanner/>
+        </View>
     </View>
   );
 };
@@ -171,7 +169,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 10,
     width: '100%',
-    height: '70%',
+    height: '43%',
     ...Platform.select({
       ios: {
         shadowColor: '#000',

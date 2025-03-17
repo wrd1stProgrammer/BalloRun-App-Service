@@ -3,7 +3,7 @@ const NewOrder = require("../../models/NewOrder");
 const User = require("../../models/User");
 const OrderCancellation = require("../../models/OrderCancellation");
 const { invalidateOnGoingOrdersCache,invalidateCompletedOrdersCache } = require("../../utils/deleteRedisCache");
-const sendPushNotification = require("../../utils/sendPushNotification");
+const {sendPushNotification} = require("../../utils/sendPushNotification");
 
 const getOrderDataForCancelApi = async (req, res) => {
     try {

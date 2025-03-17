@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { goBack, navigate, resetAndNavigate } from '../../../../navigation/NavigationUtils';
@@ -21,7 +22,7 @@ import { clearOngoingOrder } from '../../../../redux/reducers/userSlice';
 interface OrderData {
   orderId: string;
   orderType: 'Order' | 'NewOrder';
-  price: number | number[]; // Order는 배열, NewOrder는 숫자
+  price: number | number[];
   deliveryFee: number;
   penaltyAmount: number;
   refundAmount: number;
@@ -43,7 +44,7 @@ const CancelOrderScreen: React.FC<{ route: { params: RouteParams } }> = ({ route
   const [cancelReason, setCancelReason] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const timerRef = useRef<NodeJS.Timeout | null>(null); // 타이머 참조
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 주문 데이터 가져오기 함수
   const loadOrderData = async () => {
@@ -55,13 +56,11 @@ const CancelOrderScreen: React.FC<{ route: { params: RouteParams } }> = ({ route
   useEffect(() => {
     loadOrderData();
 
-    // 3분 타이머 설정
     timerRef.current = setTimeout(() => {
       console.log('3분 경과, 데이터 리로딩');
-      loadOrderData(); // 3분 후 리로딩
-    }, 180000); // 180초 = 3분
+      loadOrderData();
+    }, 180000);
 
-    // 컴포넌트 언마운트 시 타이머 정리
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -80,19 +79,19 @@ const CancelOrderScreen: React.FC<{ route: { params: RouteParams } }> = ({ route
     try {
       console.log('주문 취소 요청:', { orderId, orderType, cancelReason });
 
-      // 타이머 초기화
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
-      await dispatch(cancelOrderAction(orderId,orderType,cancelReason,orderData?.refundAmount,orderData?.penaltyAmount));
-
-      // status = cancelled, client clear, 라이더 유무에 따라 isDelivering ,
-      // 푸시알림으로 라이더에게 알림 -> isDelivering, refetch 하자.
-      await dispatch(clearOngoingOrder()); // 주문자 상태 클리어
+      await dispatch(cancelOrderAction(orderId, orderType, cancelReason, orderData?.refundAmount, orderData?.penaltyAmount));
+      await dispatch(clearOngoingOrder());
       Alert.alert('성공', '주문이 취소되었습니다.', [
-        { text: '확인', onPress: () => resetAndNavigate('BottomTab',{
-            screen: "DeliveryRequestListScreen"
-        }) },
+        {
+          text: '확인',
+          onPress: () =>
+            resetAndNavigate('BottomTab', {
+              screen: 'DeliveryRequestListScreen',
+            }),
+        },
       ]);
     } catch (error) {
       Alert.alert('오류', '주문 취소 중 문제가 발생했습니다.');
@@ -114,70 +113,73 @@ const CancelOrderScreen: React.FC<{ route: { params: RouteParams } }> = ({ route
     : orderData.price + orderData.deliveryFee;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-    >
-      {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>주문 취소</Text>
-      </View>
+    <SafeAreaView style={styles.safeContainer}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 20}
+      >
+        {/* 헤더 */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={28} color="#1C2526" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>주문 취소</Text>
+        </View>
 
-      {/* 주문 정보 */}
-      <View style={styles.orderInfo}>
-        <Text style={styles.sectionTitle}>주문 정보</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>주문 ID</Text>
-          <Text style={styles.infoValue}>{orderId}</Text>
+        {/* 주문 정보 */}
+        <View style={styles.orderInfo}>
+          <Text style={styles.sectionTitle}>주문 정보</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>결제 금액</Text>
+            <Text style={styles.infoValue}>{totalAmount.toLocaleString()}원</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>환불 금액</Text>
+            <Text style={styles.infoValue}>{orderData.refundAmount.toLocaleString()}원</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>패널티 금액</Text>
+            <Text style={styles.infoValue}>{orderData.penaltyAmount.toLocaleString()}원</Text>
+          </View>
         </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>결제 금액</Text>
-          <Text style={styles.infoValue}>{totalAmount.toLocaleString()}원</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>환불 금액</Text>
-          <Text style={styles.infoValue}>{orderData.refundAmount.toLocaleString()}원</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>패널티 금액</Text>
-          <Text style={styles.infoValue}>{orderData.penaltyAmount.toLocaleString()}원</Text>
-        </View>
-      </View>
 
-      {/* 취소 사유 입력 */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.sectionTitle}>취소 사유</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="취소 사유를 입력해주세요"
-          value={cancelReason}
-          onChangeText={setCancelReason}
-          multiline
-          placeholderTextColor="#999"
-        />
-      </View>
+        {/* 취소 사유 입력 */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.sectionTitle}>취소 사유</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="취소 사유를 입력해주세요 (최대 100자)"
+            value={cancelReason}
+            onChangeText={setCancelReason}
+            multiline
+            placeholderTextColor="#999"
+            maxLength={100}
+          />
+        </View>
 
-      {/* 취소 버튼 */}
-      <View style={styles.buttonContainer}>
-        <Button
-          mode="contained"
-          onPress={handleCancelOrder}
-          disabled={loading}
-          style={styles.cancelButton}
-          labelStyle={styles.buttonLabel}
-        >
-          {loading ? '처리 중...' : '취소 확인'}
-        </Button>
-      </View>
-    </KeyboardAvoidingView>
+        {/* 취소 버튼 (하단 고정) */}
+        <View style={styles.buttonContainer}>
+          <Button
+            mode="contained"
+            onPress={handleCancelOrder}
+            disabled={loading}
+            style={styles.cancelButton}
+            labelStyle={styles.buttonLabel}
+          >
+            {loading ? '처리 중...' : '취소 확인'}
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -187,8 +189,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomWidth: 0,
+    backgroundColor: '#fff',
+
   },
   backButton: {
     padding: 5,
@@ -202,9 +205,24 @@ const styles = StyleSheet.create({
   orderInfo: {
     paddingHorizontal: 20,
     paddingVertical: 20,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    marginHorizontal: 20,
+    marginVertical: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#000',
     marginBottom: 15,
@@ -225,31 +243,38 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     paddingHorizontal: 20,
-    flex: 1,
+    paddingVertical: 10,
+    flex: 1, // 입력란을 상단에 유연하게 유지
   },
   input: {
-    flex: 1,
+    height: 120,
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    borderRadius: 8,
+    borderRadius: 10,
     padding: 15,
     fontSize: 16,
     color: '#000',
     textAlignVertical: 'top',
-    backgroundColor: '#fafafa',
+    backgroundColor: '#fff',
   },
   buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    paddingVertical: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+
   },
   cancelButton: {
     backgroundColor: '#0066ff',
-    borderRadius: 8,
-    paddingVertical: 5,
+    borderRadius: 10,
+    paddingVertical: 10, // 버튼 높이 약간 증가
   },
   buttonLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#fff',
   },

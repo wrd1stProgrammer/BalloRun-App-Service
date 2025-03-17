@@ -145,9 +145,11 @@ export const refetchUser = () => async (dispatch: any) => {
 
 export const Logout = () => async (dispatch: any) => {
   console.log("로그아웃 액션 동작");
+  resetAndNavigate('LoginScreen');
   await token_storage.clearAll();
   await persistor.purge();
-  resetAndNavigate('LoginScreen');
+  dispatch({ type: 'RESET_STATE' }); // 상태 리셋 추가
+  
 };
 
 

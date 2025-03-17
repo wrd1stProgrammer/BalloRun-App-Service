@@ -3,8 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView } from 'rea
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
-import { selectUser, selectIsOngoingOrder, setOngoingOrder, setIsMatching, selectIsMatching, selectOngoingOrder, clearOngoingOrder, setIsOngoingOrder} from '../../redux/reducers/userSlice';
-//import { setupBackgroundNotifications, setupForegroundNotifications, onNotificationOpenedApp } from "../.././../src/utils/fcm/FcmHandler";
+import { selectUser, selectIsOngoingOrder, setOngoingOrder, setIsMatching, selectIsMatching, selectOngoingOrder, clearOngoingOrder, setIsOngoingOrder } from '../../redux/reducers/userSlice';
 import { MapSocketContext } from '../../utils/sockets/MapSocket';
 import { getDeliveryListHandler } from '../../redux/actions/orderAction';
 import Geolocation from 'react-native-geolocation-service';
@@ -51,10 +50,7 @@ const HomeScreen: React.FC = () => {
 
   const { location, startTracking, stopTracking } = useLocation();
 
-
-
   useEffect(() => {
-    
     const fetchOrders = async () => {
       await dispatch(clearOngoingOrder());
       await dispatch(refetchUser());
@@ -79,7 +75,6 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-
     if (!orderSocket) {
       console.log("orderSocket error");
       return;
@@ -102,11 +97,8 @@ const HomeScreen: React.FC = () => {
       console.log(`주문자 화면: 배달 캔슬 감지 -> 주문 ID: ${orderId}`);
       console.log(`주문 취소 사유: ${message}`);
 
-      // includes로 배열 체크
-        dispatch(clearOngoingOrder());
-        alert(`주문이 취소되었습니다.\n주문 ID: ${orderId}\n사유: ${message}`);
-        
-
+      dispatch(clearOngoingOrder());
+      alert(`주문이 취소되었습니다.\n주문 ID: ${orderId}\n사유: ${message}`);
     });
 
     return () => {
@@ -141,6 +133,19 @@ const HomeScreen: React.FC = () => {
           <Banner />
         </View>
         <OrderListComponent user={user} />
+
+        {/* 추가된 텍스트 섹션 */}
+        <View style={styles.footerTextContainer}>
+          <Text style={styles.footerText}>
+            SERN | 사업자등록번호 418-11-83101
+          </Text>
+          <Text style={styles.footerText}>
+            전자금융분쟁처리 Tel 1600-0987(유료), 080-849-0987(무료)
+          </Text>
+          <Text style={styles.footerText}>
+            발로뛰어는 통신판매중개자로 거래 당사자가 아니므로, 소비자가 등록한 상품 정보 및 거래에 대해 발로뛰어는 책임을 지지 않습니다.
+          </Text>
+        </View>
       </ScrollView>
 
       {isOngoingOrder && !isMatching && <FixedOrderStatusBanner />}
@@ -193,5 +198,17 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     marginTop: 15,
     alignItems: 'center',
+  },
+  footerTextContainer: {
+    
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 5,
+    textAlign: 'center',
   },
 });
