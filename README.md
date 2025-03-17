@@ -10,7 +10,9 @@
 걸어서 배달을 해보세요!
 +설명 추가..
 <br><br>
-## [🚀발로뛰어 다운로드](https://)
+## [🚀발로뛰어 다운로드](https://drive.google.com/file/d/1NFQEJV6HkrnbkrUlP5UF8hXC9aGJMdUn/view?usp=drive_link)
+!!dev 서버 디버그용 apk Link
+
 <br>
 <img src="https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/logo_final.png" width="200">
 
