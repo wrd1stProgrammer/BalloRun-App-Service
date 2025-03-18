@@ -174,11 +174,11 @@ const styles = StyleSheet.create({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.07,
         shadowRadius: 6,
       },
       android: {
-        elevation: 6,
+        elevation: 4,
       },
     }),
   },

@@ -139,6 +139,7 @@ const FirstScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
     borderBottomColor: '#fff', // 화면 배경과 동일한 흰색으로 설정
   },
   keyboardAvoidingView: {
@@ -168,12 +169,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#0064FF',
     marginBottom: 10,
   },
   input: {
     borderBottomWidth: 1,
-    borderBottomColor: '#007AFF',
+    borderBottomColor: '#0064FF',
     marginBottom: 30,
     padding: 10,
     fontSize: 24,
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   nextButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0064FF',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
