@@ -204,5 +204,32 @@
 ![CI/CD](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/_cicd.drawio.png)
 
 
+### 팀원
+<table width="800">
+<thead>
+<tr>
+<th width="100" align="center">이름</th>
+<th width="250" align="center">역할</th>
+<th width="150" align="center">Github 계정</th>
+</tr> 
+</thead>
+
+<tr>
+<td width="100" align="center">채민식</td>
+<td width="250" align="center">BE, FE, DB, DevOps</td>
+<td width="150" align="center">	
+	<a href="https://github.com/wrd1stProgrammer" target="_blank"><img src="https://img.shields.io/badge/minsik-655ced?style=social&logo=github"/></a>
+</td>
+</tr>
+
+<tbody>
+<tr>
+<td width="100" align="center">박영서</td>
+<td width="250" align="center">BE,FE </td>
+<td width="150" align="center">
+  <a href="https://github.com/yew0n12" target="_blank"><img src="https://img.shields.io/badge/yew0n12-655ced?style=social&logo=github"></a></td>
+</tr>
+
+</tbody>
 ---
 
