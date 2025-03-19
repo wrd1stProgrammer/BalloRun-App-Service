@@ -243,52 +243,96 @@ const OrderFinalScreen = () => {
               </TouchableOpacity>
             </View>
 
-            <Modal isVisible={showStartPicker && reservationChecked} onBackdropPress={() => setShowStartPicker(false)}>
-              <View style={styles.timePickerModal}>
-                <Text style={styles.timePickerTitle}>시작 시간 선택</Text>
-                <DateTimePicker
-                  value={startTime}
-                  mode="time"
-                  is24Hour={true}
-                  display="spinner"
-                  onChange={(event, selectedDate) => {
-                    setShowStartPicker(false);
-                    if (selectedDate) {
-                      if (selectedDate < new Date()) {
-                        Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
-                        return;
+              {showStartPicker && reservationChecked && (
+                Platform.OS === 'ios' ? (
+                  <Modal isVisible={true} onBackdropPress={() => setShowStartPicker(false)}>
+                    <View style={styles.timePickerModal}>
+                      <Text style={styles.timePickerTitle}>시작 시간 선택</Text>
+                      <DateTimePicker
+                        value={startTime}
+                        mode="time"
+                        is24Hour={true}
+                        display="spinner"
+                        onChange={(event, selectedDate) => {
+                          if (selectedDate) {
+                            setShowStartPicker(false);
+                            if (selectedDate < new Date()) {
+                              Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
+                              return;
+                            }
+                            setStartTimeLocal(selectedDate);
+                            if (selectedDate >= endTime) {
+                              setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+                            }
+                          }
+                        }}
+                      />
+                    </View>
+                  </Modal>
+                ) : (
+                  <DateTimePicker
+                    value={startTime}
+                    mode="time"
+                    is24Hour={true}
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowStartPicker(false);
+                      if (selectedDate) {
+                        if (selectedDate < new Date()) {
+                          Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
+                          return;
+                        }
+                        setStartTimeLocal(selectedDate);
+                        if (selectedDate >= endTime) {
+                          setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+                        }
                       }
-                      setStartTimeLocal(selectedDate);
-                      if (selectedDate >= endTime) {
-                        setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+                    }}
+                  />
+                )
+              )}
+              {showEndPicker && (
+                Platform.OS === 'ios' ? (
+                  <Modal isVisible={true} onBackdropPress={() => setShowEndPicker(false)}>
+                    <View style={styles.timePickerModal}>
+                      <Text style={styles.timePickerTitle}>종료 시간 선택</Text>
+                      <DateTimePicker
+                        value={endTime}
+                        mode="time"
+                        is24Hour={true}
+                        display="spinner"
+                        onChange={(event, selectedDate) => {
+                          if (selectedDate) {
+                            setShowEndPicker(false);
+                            if (selectedDate <= startTime) {
+                              Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
+                              return;
+                            }
+                            setEndTimeLocal(selectedDate);
+                          }
+                        }}
+                      />
+                    </View>
+                  </Modal>
+                ) : (
+                  <DateTimePicker
+                    value={endTime}
+                    mode="time"
+                    is24Hour={true}
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowEndPicker(false);
+                      if (selectedDate) {
+                        if (selectedDate <= startTime) {
+                          Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
+                          return;
+                        }
+                        setEndTimeLocal(selectedDate);
                       }
-                    }
-                  }}
-                />
-              </View>
-            </Modal>
-
-            <Modal isVisible={showEndPicker} onBackdropPress={() => setShowEndPicker(false)}>
-              <View style={styles.timePickerModal}>
-                <Text style={styles.timePickerTitle}>종료 시간 선택</Text>
-                <DateTimePicker
-                  value={endTime}
-                  mode="time"
-                  is24Hour={true}
-                  display="spinner"
-                  onChange={(event, selectedDate) => {
-                    setShowEndPicker(false);
-                    if (selectedDate) {
-                      if (selectedDate <= startTime) {
-                        Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
-                        return;
-                      }
-                      setEndTimeLocal(selectedDate);
-                    }
-                  }}
-                />
-              </View>
-            </Modal>
+                    }}
+                  />
+                )
+              )}
 
             <Text style={styles.sectionTitle}>주문 요청사항</Text>
             <TextInput
