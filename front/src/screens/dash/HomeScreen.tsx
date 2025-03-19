@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native'; // SafeAreaView 추가
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
@@ -20,25 +20,6 @@ import { useCallback } from 'react';
 import AdMobBanner from './AdMob/AdMobBanner';
 import { refetchUser } from '../../redux/actions/userAction';
 
-type DeliveryItem = {
-  _id: string;
-  items: { menuName: string; quantity: number; cafeName: string }[];
-  address: string;
-  deliveryType: string;
-  startTime: string;
-  deliveryFee: number;
-  cafeLogo: string;
-  createdAt: string;
-  endTime: string;
-  status: string;
-};
-
-interface OrderStatus {
-  orderId: string;
-  status: string;
-  createdAt: string;
-}
-
 const HomeScreen: React.FC = () => {
   const user = useAppSelector(selectUser);
   const isOngoingOrder = useAppSelector(selectIsOngoingOrder);
@@ -47,7 +28,6 @@ const HomeScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const orderSocket = useContext(WebSocketContext);
   const socket = useContext(MapSocketContext);
-
   const { location, startTracking, stopTracking } = useLocation();
 
   useEffect(() => {
@@ -110,64 +90,72 @@ const HomeScreen: React.FC = () => {
   }, [orderSocket, user?._id]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={{ alignContent: 'center' }}
-      >
-        <View style={styles.headerContainer}>
-          <View style={styles.greetingContainer}>
-            <TouchableOpacity onPress={() => navigate('AddressSettingScreen')}>
-              <Text style={styles.userName}>{user?.address || "주소를 설정하세요"}</Text>
+    <SafeAreaView style={styles.safeContainer}>
+      <View style={{ flex: 1 }}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={{ alignContent: 'center' }}
+        >
+          <View style={styles.headerContainer}>
+            <View style={styles.greetingContainer}>
+              <TouchableOpacity onPress={() => navigate('AddressSettingScreen')}>
+              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
+                {user?.address?.length > 20 ? `${user.address.slice(0, 20)}...` : user?.address || "주소를 설정하세요"} ▼
+              </Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>
+              <Ionicons name="person-circle" size={36} color="#999" />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>
-            <Ionicons name="person-circle" size={36} color="#999" />
-          </TouchableOpacity>
-        </View>
 
-        <View style={styles.bannerContainer}>
-          <MyAdBanner />
-        </View>
-        <View style={styles.bannerContainer}>
-          <Banner />
-        </View>
-        <OrderListComponent user={user} />
+          <View style={styles.bannerContainer}>
+            <MyAdBanner />
+          </View>
+          <View style={styles.bannerContainer}>
+            <Banner />
+          </View>
+          <OrderListComponent user={user} />
 
-        {/* 추가된 텍스트 섹션 */}
-        <View style={styles.footerTextContainer}>
-          <Text style={styles.footerText}>
-            SERN | 사업자등록번호 418-11-83101
-          </Text>
-          <Text style={styles.footerText}>
-            전자금융분쟁처리 Tel 1600-0987(유료), 080-849-0987(무료)
-          </Text>
-          <Text style={styles.footerText}>
-            발로뛰어는 통신판매중개자로 거래 당사자가 아니므로, 소비자가 등록한 상품 정보 및 거래에 대해 발로뛰어는 책임을 지지 않습니다.
-          </Text>
-        </View>
-      </ScrollView>
+          {/* 추가된 텍스트 섹션 */}
+          <View style={styles.footerTextContainer}>
+            <Text style={styles.footerText}>
+              SERN | 사업자등록번호 418-11-83101
+            </Text>
+            <Text style={styles.footerText}>
+              전자금융분쟁처리 Tel 1600-0987(유료), 080-849-0987(무료)
+            </Text>
+            <Text style={styles.footerText}>
+              발로뛰어는 통신판매중개자로 거래 당사자가 아니므로, 소비자가 등록한 상품 정보 및 거래에 대해 발로뛰어는 책임을 지지 않습니다.
+            </Text>
+          </View>
+        </ScrollView>
 
-      {isOngoingOrder && !isMatching && <FixedOrderStatusBanner />}
-      {isOngoingOrder && isMatching && ongoingOrder && (
-        console.log("NewFixedOrderStatusBanner 렌더링"),
-        <NewFixedOrderStatusBanner 
-          order={ongoingOrder} 
-          isOngoingOrder={isOngoingOrder} 
-          isMatching={isMatching} 
-        />
-      )}
-    </View>
+        {isOngoingOrder && !isMatching && <FixedOrderStatusBanner />}
+        {isOngoingOrder && isMatching && ongoingOrder && (
+          console.log("NewFixedOrderStatusBanner 렌더링"),
+          <NewFixedOrderStatusBanner 
+            order={ongoingOrder} 
+            isOngoingOrder={isOngoingOrder} 
+            isMatching={isMatching} 
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: '#FFF',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: 50,
+    paddingTop: 0, // 기존 50에서 0으로 변경하여 SafeAreaView가 자동 조정
   },
   headerContainer: {
     flexDirection: 'row',
@@ -200,7 +188,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerTextContainer: {
-    
     paddingVertical: 15,
     paddingHorizontal: 20,
     marginBottom: 20,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
@@ -7,8 +7,11 @@ import { selectUser } from '../../redux/reducers/userSlice';
 import { Logout } from '../../redux/actions/userAction';
 import { navigate } from '../../navigation/NavigationUtils';
 import NoticeScreen from './Notice/NoticeScreen';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const ProfileScreen = () => {
+  const insets = useSafeAreaInsets();
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
 
@@ -91,7 +94,7 @@ const ProfileScreen = () => {
       </View>
 
       {/* 스크롤 가능한 전체 콘텐츠 */}
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={{ paddingBottom: Platform.OS === 'android' ? 60 : 40 }}>
         {/* 프로필 섹션 */}
         <View style={styles.profileSection}>
           <Image source={{ uri: user?.userImage }} style={styles.userImage} />
