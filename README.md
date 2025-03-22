@@ -1,7 +1,7 @@
 
 <br><br> 
 
-이미지 로드 실패시 새로고침을 해보세요 ! !
+Sern의 첫 앱 서비스 '발로뛰어' 입니다.
 
 ![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/001.jpg)
 
