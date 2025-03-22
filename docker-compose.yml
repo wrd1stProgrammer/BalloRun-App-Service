@@ -8,6 +8,7 @@ services:
       - ./back:/app
       - /app/node_modules
     environment:
+      - TZ=Etc/UTC
       - MONGO_PW=PAD0MzMGKxsDGwsR
       - REDIS_HOST=redis-14438.c281.us-east-1-2.ec2.redns.redis-cloud.com
       - REDIS_PORT=14438
@@ -28,6 +29,7 @@ services:
       - "15672:15672"
     volumes:
     environment:
+      - TZ=Etc/UTC
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     networks:
@@ -40,6 +42,7 @@ services:
       - "6379:6379"
     volumes:
     environment:
+      - TZ=Etc/UTC
     command: ["redis-server", "--requirepass", "yourpassword", "--notify-keyspace-events", "KEA"]
     networks:
       - app_network
