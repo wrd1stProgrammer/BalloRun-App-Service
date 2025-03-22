@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0064FF',
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -236,11 +236,11 @@ const styles = StyleSheet.create({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
       },
       android: {
-        elevation: 4,
+        elevation: 2,
       },
     }),
   },

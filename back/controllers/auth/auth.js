@@ -222,33 +222,41 @@ const kakaologin = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   console.log('리프레시토큰');
-    const { refresh_token } = req.body;
-    if (!refresh_token) {
-      console.log('리프레시 토큰',refresh_token);
-      throw new BadRequestError("Refresh token is required");
-    }
-  
-    try {
-      const payload = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET);
-      const user = await User.findById(payload.userId);
-  
-      if (!user) {
-        throw new UnauthenticatedError("Invalid refresh token");
-      }
-  
-      const newAccessToken = user.createAccessToken();
-      const newRefreshToken = user.createRefreshToken();
+  const { refresh_token } = req.body;
 
-      console.log('리프레시에서 뉴 토큰', newAccessToken,newRefreshToken);
-  
-      res.status(StatusCodes.OK).json({
-        tokens: { access_token: newAccessToken, refresh_token: newRefreshToken },
+  // 리프레시 토큰이 없는 경우
+  if (!refresh_token) {
+    console.log('리프레시 토큰', refresh_token);
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      error: "Refresh token is required",
+    });
+  }
+
+  try {
+    const payload = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(payload.userId);
+
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        error: "Invalid refresh token",
       });
-    } catch (error) {
-      console.error(error);
-      throw new UnauthenticatedError("Invalid refresh token");
     }
-  };
+
+    const newAccessToken = user.createAccessToken();
+    const newRefreshToken = user.createRefreshToken();
+
+    console.log('리프레시에서 뉴 토큰', newAccessToken, newRefreshToken);
+
+    return res.status(StatusCodes.OK).json({
+      tokens: { access_token: newAccessToken, refresh_token: newRefreshToken },
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error.message);
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      error: "Invalid refresh token",
+    });
+  }
+};
 
   const resetPassword = async (req, res) => {
     const { email, password } = req.body;

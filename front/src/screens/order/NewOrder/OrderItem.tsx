@@ -322,13 +322,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   chatButtonText: {
-    color: "#000",
+    color: "#202632",
     fontWeight: "bold",
     textAlign: "center",
   },
   actionButton: {
     flex: 1,
-    backgroundColor: "#3366FF",
+    backgroundColor: "#0064FF",
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 8,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#555",
+    color: "#202632",
   },
   headerRight: {
     flexDirection: "row",
@@ -377,12 +377,12 @@ const styles = StyleSheet.create({
     marginRight: 10, // "주문 취소"와의 간격
   },
   detailsButton: {
-    color: "#000000",
+    color: "#202632",
     fontWeight: "bold",
     marginRight: 10, // "주문 취소"와의 간격
   },
   cancelButton: {
-    color: "#000000", // 검정색으로 변경
+    color: "#202632", // 검정색으로 변경
     fontWeight: "bold",
   },
   content: {

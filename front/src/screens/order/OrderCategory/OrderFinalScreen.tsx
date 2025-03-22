@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
   pointsAllButton: {
     paddingVertical: 12,
     paddingHorizontal: 20,
-    backgroundColor: "#007aff",
+    backgroundColor: "#0064FF",
     borderRadius: 10,
   },
   pointsAllButtonText: {
@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
   paymentTotal: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#007aff",
+    color: "#0064FF",
   },
   paymentSubLabel: {
     fontSize: 14,

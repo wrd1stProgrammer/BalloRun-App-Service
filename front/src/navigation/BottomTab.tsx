@@ -25,7 +25,7 @@ const BottomTab: FC = () => {
         tabBarHideOnKeyboard: true,
         // 공통 스타일
         tabBarStyle: styles.tabBar, 
-        tabBarActiveTintColor: '#007AFF', // 아이콘 활성 색 (예시)
+        tabBarActiveTintColor: '#0064FF', // 아이콘 활성 색 (예시)
         tabBarInactiveTintColor: '#999',  // 아이콘 비활성 색
         headerShadowVisible: false,
         tabBarShowLabel: false,

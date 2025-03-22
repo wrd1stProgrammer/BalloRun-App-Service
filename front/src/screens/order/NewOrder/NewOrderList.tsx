@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { useDispatch } from 'react-redux';
-import OrderItem from './OrderItem'; // OrderItem 컴포넌트
-import localImage from '../../../assets/cafeData/menuImage/image-2.png'; // 로컬 이미지
+import OrderItem from './OrderItem';
+import localImage from '../../../assets/cafeData/menuImage/image-2.png';
 import { getOngoingNewOrdersHandler, getCompletedNewOrdersHandler } from '../../../redux/actions/orderAction';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { WebSocketContext } from '../../../utils/sockets/Socket';
@@ -16,13 +16,12 @@ interface OrderItemProps {
     priceOffer: number;
     deliveryFee: number;
     orderType: string;
-    imageUrl: any; // 로컬 이미지 경로
+    imageUrl: any;
     roomId: string;
-    riderUsername:string;
-    riderNickname:string;
-    riderUserImage:string;
-    isRated:boolean;
-
+    riderUsername: string;
+    riderNickname: string;
+    riderUserImage: string;
+    isRated: boolean;
 }
 
 interface OrderListProps {
@@ -33,6 +32,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
   const [orders, setOrders] = useState<OrderItemProps[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (activeTab === "orders") {
@@ -47,6 +47,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
   }, [activeTab]);
 
   const fetchOrders = async () => {
+    setIsLoading(true);
     try {
       const ongoingOrders = await dispatch(getOngoingNewOrdersHandler());
       const completedOrders = await dispatch(getCompletedNewOrdersHandler());
@@ -59,9 +60,29 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
 
       setOrders(uniqueOrders);
     } catch (error) {
-      console.error(' neworderlist 주문데이터 불러오기 실패:', error);
+      console.error('neworderlist 주문데이터 불러오기 실패:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Render loading state
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0064FF" />
+      </View>
+    );
+  }
+
+  // Render no data state
+  if (orders.length === 0) {
+    return (
+      <View style={styles.noDataContainer}>
+        <Text style={styles.noDataText}>주문 데이터가 없습니다.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -77,7 +98,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
             orderDetails={item.orderDetails}
             priceOffer={item.priceOffer}
             deliveryFee={item.deliveryFee}
-            imageUrl={localImage} // 로컬 이미지 사용
+            imageUrl={localImage}
             orderType={item.orderType}
             roomId={item.roomId}
             username={item.riderUsername}
@@ -86,7 +107,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
             isRated={item.isRated}
           />
         )}
-        contentContainerStyle={styles.listContainer} // 스타일 적용
+        contentContainerStyle={styles.listContainer}
       />
     </View>
   );
@@ -97,10 +118,32 @@ export default NewOrderList;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9F9F9", // 스크린샷의 배경색과 통일
+    backgroundColor: "#F9F9F9",
   },
   listContainer: {
     paddingHorizontal: 16,
     paddingBottom: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F9F9F9",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#202632",
+  },
+  noDataContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F9F9F9",
+  },
+  noDataText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
   },
 });
