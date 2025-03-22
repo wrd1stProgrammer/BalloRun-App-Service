@@ -59,7 +59,7 @@ const goToCafeHandler = async (req, res) => {
 
     emitOrderStatus(req, order, "goToCafe");
 
-    res.status(200).json({ message: "Order status updated to goToCafe" });
+    res.status(200).json({ message: "Order sstatus updated to goToCafe" });
   } catch (error) {
     console.error("Error in goToCafeHandler:", error);
     res.status(500).json({ message: "Server error" });
