@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: Platform.OS === 'android' ? 70 : 80,
+    height: Platform.OS === 'android' ? 80 : 80,
     paddingTop: Platform.OS === 'ios' ? RFValue(5) : 0,
     paddingBottom: Platform.OS === 'ios' ? 20 : 10,
 

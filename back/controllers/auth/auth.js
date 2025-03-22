@@ -227,7 +227,7 @@ const refreshToken = async (req, res) => {
   // 리프레시 토큰이 없는 경우
   if (!refresh_token) {
     console.log('리프레시 토큰', refresh_token);
-    return res.status(StatusCodes.BAD_REQUEST).json({
+    return res.status(400).json({
       error: "Refresh token is required",
     });
   }
@@ -237,7 +237,7 @@ const refreshToken = async (req, res) => {
     const user = await User.findById(payload.userId);
 
     if (!user) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
+      return res.status(401).json({
         error: "Invalid refresh token",
       });
     }
@@ -247,12 +247,12 @@ const refreshToken = async (req, res) => {
 
     console.log('리프레시에서 뉴 토큰', newAccessToken, newRefreshToken);
 
-    return res.status(StatusCodes.OK).json({
+    return res.status(200).json({
       tokens: { access_token: newAccessToken, refresh_token: newRefreshToken },
     });
   } catch (error) {
     console.error('Refresh token error:', error.message);
-    return res.status(StatusCodes.UNAUTHORIZED).json({
+    return res.status(401).json({
       error: "Invalid refresh token",
     });
   }
