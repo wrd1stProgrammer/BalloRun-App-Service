@@ -13,7 +13,7 @@ module.exports = (chatIo) => {
 
   // 채팅 소켓 연결 미들웨어 (토큰 인증)
   chatIo.use(async (socket, next) => {
-    console.log('[ChatSocket] Middleware 실행 중...');
+    console.log('[ChatSocket] Middleware 실행 중...!');
     const token = socket.handshake.auth.token;
     if (!token) {
       return next(new Error('토큰이 없습니다.'));
