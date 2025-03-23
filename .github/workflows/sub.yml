@@ -24,12 +24,12 @@ jobs:
       # 3. Docker 이미지 빌드
       - name: Build Docker Image
         run: |
-          docker build -t sikgates/devimage:utc ./back
+          docker build -t sikgates/newimage:latest ./back
 
       # 4. Docker Hub에 푸시
       - name: Push Docker Image
         run: |
-          docker push sikgates/devimage:utc
+          docker push sikgates/newimage:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -62,7 +62,7 @@ jobs:
             sudo docker-compose down || { echo "docker-compose down failed"; exit 1; }
             sudo docker-compose rm -f
             # 기존 이미지 삭제
-            sudo docker rmi -f sikgates/eighteen-back:latest
+            sudo docker rmi -f sikgates/newimage:latest
             sudo docker rmi -f sikgates/devimage:utc  # 기존 이미지 삭제
             sudo docker-compose pull
             # 컨테이너 재실행
