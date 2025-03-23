@@ -49,6 +49,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
   },
+   phone:{
+      type: Number,
+      required:false,
+   },
     fcmToken:{
       type:String,
       required: false, 

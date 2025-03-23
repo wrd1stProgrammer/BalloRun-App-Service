@@ -66,13 +66,15 @@ export const kakaoLogin = (email:string) => async (dispatch: any) => {
 
 
 
-export const register = (email:string, userId:string, password:string, username:string) => async (dispatch: any) => {
+export const register = (name:string, nickname:string, id:string, email:string, password:string, phone:number) => async (dispatch: any) => {
   try {
     const res = await appAxios.post('/auth/register',{
-      email:email, 
-      userId:userId,
+      username: name,
+      nickname: nickname,
+      userId: id,
+      email: email,
       password:password,
-      username:username,
+      phone: phone,
     });
     resetAndNavigate('LoginScreen');
     
@@ -124,7 +126,7 @@ export const verifyEmail = (email:string) => async (dispatch: any) => {
     const res = await appAxios.post('/auth/verifyEmail',{
       email:email, 
     });
-    console.log(res);
+    //console.log(res);
     return res.data.verificationCode; // 6자리 난수 리턴. 이걸로 검증
     
   } catch (error: any) {

@@ -71,7 +71,7 @@ const FirstScreen = () => {
       } else {
         const isNicknameAvailable = await checkNicknameDuplicate(nickname);
         if (isNicknameAvailable) {
-          navigate('SecondScreen'); // 중복 없으면 이동
+          navigate('SecondScreen',{name,nickname}); // 중복 없으면 이동
         } else {
           setNicknameError('이미 사용 중인 닉네임입니다');
         }

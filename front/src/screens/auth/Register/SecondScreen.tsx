@@ -4,8 +4,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { navigate, goBack } from '../../../navigation/NavigationUtils';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { checkUserIdDuplicateAction, checkEmailDuplicateAction } from '../../../redux/actions/userAction';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const SecondScreen = () => {
+type RootStackParamList = {
+  SecondScreen: { name: string; nickname: string }; // 전달받을 파라미터 타입
+};
+
+// SecondScreen의 props 타입 정의
+type SecondScreenProps = NativeStackScreenProps<RootStackParamList, 'SecondScreen'>;
+
+const SecondScreen = ({route}: SecondScreenProps) => {
+  const { name, nickname } = route.params; // params에서 name과 nickname 추출
+
   const [id, setId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -97,7 +107,7 @@ const SecondScreen = () => {
       } else if (password !== confirmPassword) {
         setPasswordMatch('비밀번호가 일치하지 않습니다');
       } else {
-        navigate('ThirdScreen');
+        navigate('ThirdScreen',{name,nickname,id,email,password});
       }
     }
   };

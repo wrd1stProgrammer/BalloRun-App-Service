@@ -8,11 +8,23 @@ import {
   Modal,
   SafeAreaView,
   Platform,
+  Alert, // Alert 추가
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { goBack, resetAndNavigate } from '../../../navigation/NavigationUtils';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useAppDispatch } from '../../../redux/config/reduxHook';
+import { register } from '../../../redux/actions/userAction';
 
-const FourthScreen = () => {
+type RootStackParamList = {
+  FourthScreen: { name: string; nickname: string; id: string; password: string; email: string; phone: string };
+};
+
+type FourthScreenProps = NativeStackScreenProps<RootStackParamList, 'FourthScreen'>;
+
+const FourthScreen = ({ route }: FourthScreenProps) => {
+  const { name, nickname, id, email, password, phone } = route.params;
+  const dispatch = useAppDispatch();
   const [allAgreed, setAllAgreed] = useState(false);
   const [terms, setTerms] = useState({
     terms1: false,
@@ -24,7 +36,6 @@ const FourthScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState('');
 
-  // 전체 동의 토글
   const toggleAll = () => {
     const newValue = !allAgreed;
     setAllAgreed(newValue);
@@ -37,29 +48,45 @@ const FourthScreen = () => {
     });
   };
 
-  // 개별 약관 토글
-  const toggleTerm = (key) => {
+  const toggleTerm = (key: string) => {
     const newTerms = { ...terms, [key]: !terms[key] };
     setTerms(newTerms);
     setAllAgreed(Object.values(newTerms).every((term) => term));
   };
 
-  // 약관 모달 열기
-  const openModal = (term) => {
+  const openModal = (term: string) => {
     setSelectedTerm(term);
     setModalVisible(true);
   };
 
-  // 다음 버튼 핸들러
-  const handleNext = () => {
+  const handleNext = async () => {
     if (allAgreed) {
-      resetAndNavigate('LoginScreen');
+      try {
+        // register 액션 호출 및 결과 기다리기
+        const result = await dispatch(register(name, nickname, id, email, password, phone)).unwrap();
+        
+        // 회원가입 성공 시 Alert 띄우기
+        Alert.alert(
+          '회원가입 완료',
+          '회원가입이 성공적으로 완료되었습니다!',
+          [
+            {
+              text: '확인',
+              onPress: () => resetAndNavigate('LoginScreen'), // 확인 시 LoginScreen으로 이동
+            },
+          ],
+          { cancelable: false }
+        );
+      } catch (error) {
+        // 회원가입 실패 시 에러 처리 (선택 사항)
+        Alert.alert('오류', '회원가입에 실패했습니다. 다시 시도해주세요.');
+        console.error('Register failed:', error);
+      }
     }
   };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
-      {/* 뒤로가기 버튼 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={goBack}>
           <Ionicons name="chevron-back" size={24} color="#202632" />
@@ -67,7 +94,6 @@ const FourthScreen = () => {
         <Text style={styles.headerTitle}>고객센터</Text>
       </View>
 
-      {/* 약관 동의 섹션 */}
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.section}>
           <Text style={styles.title}>약관 동의</Text>
@@ -122,7 +148,6 @@ const FourthScreen = () => {
         </View>
       </ScrollView>
 
-      {/* 다음 버튼 */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.nextButton, !allAgreed && styles.disabledButton]}
@@ -133,7 +158,6 @@ const FourthScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* 약관 모달 */}
       <Modal
         animationType="slide"
         transparent={false}
@@ -149,7 +173,6 @@ const FourthScreen = () => {
             <View style={{ width: 24 }} />
           </View>
           <ScrollView style={styles.modalContent}>
-            {/* 약관 내용은 비워둠 */}
             <Text style={styles.modalText}>약관 내용이 여기에 표시됩니다.</Text>
           </ScrollView>
         </SafeAreaView>
@@ -159,6 +182,7 @@ const FourthScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  // 스타일은 그대로 유지
   safeContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -192,7 +216,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   contentContainer: {
-    paddingBottom: 100, // 버튼 공간 확보
+    paddingBottom: 100,
   },
   section: {
     padding: 20,
@@ -202,11 +226,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#202632',
     marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#202632',
-    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,

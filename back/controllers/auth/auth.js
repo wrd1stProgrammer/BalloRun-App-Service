@@ -10,7 +10,7 @@ const jwt = require("jsonwebtoken");
 const bcryptjs = require('bcryptjs');
 
 const register = async (req, res) => {
-  const { email, userId, password, username } = req.body;
+  const { username,nickname,userId,email,password,phone, } = req.body;
 
   try {
     // 이메일이 이미 존재하는지 확인
@@ -37,10 +37,13 @@ const register = async (req, res) => {
     // 새로운 사용자 생성
     const newUser = new User({
       email,
+      nickname,
+      phone,
       userId,
       password: hashedPassword,
       username,
       loginProvider: "user",
+      userImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s',
     });
 
     await newUser.save();
@@ -56,7 +59,7 @@ const register = async (req, res) => {
     res.status(201).json({ newRefreshToken });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server error');
+    res.status(500).send('register ERROR!!');
   }
 };
 
@@ -117,6 +120,7 @@ const login = async (req, res) => {
         nickname: user?.nickname,
         userId: user.userId,
         userImage: user?.userImage,
+        phone:user?.phone,
         email: user.email,
         point: user.point,
         isDelivering: user.isDelivering,
@@ -204,6 +208,7 @@ const kakaologin = async (req, res) => {
         userId: user.userId,
         userImage: user?.userImage,
         email: user.email,
+        phone:user?.phone,
         point: user.point,
         isDelivering: user.isDelivering,
         verificationStatus: user.verificationStatus,

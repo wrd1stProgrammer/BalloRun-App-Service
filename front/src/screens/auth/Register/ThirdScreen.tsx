@@ -3,8 +3,21 @@ import { View, TextInput, TouchableOpacity, Text, KeyboardAvoidingView, Platform
 import { Ionicons } from '@expo/vector-icons';
 import { navigate, goBack } from '../../../navigation/NavigationUtils';
 import auth from '@react-native-firebase/auth';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const ThirdScreen = () => {
+
+type RootStackParamList = {
+  ThirdScreen: { name: string; nickname: string; id:string; password:string; email:string }; // 전달받을 파라미터 타입
+};
+
+// SecondScreen의 props 타입 정의
+type ThirdScreenProps = NativeStackScreenProps<RootStackParamList, 'ThirdScreen'>;
+
+
+const ThirdScreen = ({route}:ThirdScreenProps) => {
+  const { name, nickname,id,email,password } = route.params; // params에서 name과 nickname 추출
+
+
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [showCode, setShowCode] = useState(false);
@@ -54,7 +67,7 @@ const ThirdScreen = () => {
       console.log('인증번호 확인:', code);
       const data = await confirm.confirm(code);
       console.log('[인증 성공]', data);
-      navigate('FourthScreen');
+      navigate('FourthScreen',{name,nickname,id,email,password,phone});
     } catch (error:any) {
       console.error('인증번호 확인 오류:', error.code, error.message);
       setError('인증번호가 잘못되었습니다');
