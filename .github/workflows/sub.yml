@@ -48,7 +48,9 @@ jobs:
             # 기존 컨테이너 및 네트워크 정리
             sudo docker-compose down || { echo "docker-compose down failed"; exit 1; }
             sudo docker-compose rm -f
-            sudo docker rmi -f sikgates/eighteen-back:latest  # 기존 이미지 삭제
+            # 기존 이미지 삭제
+            sudo docker rmi -f sikgates/eighteen-back:latest
+            sudo docker rmi -f sikgates/devimage:utc  # 기존 이미지 삭제
             sudo docker-compose pull
             # 컨테이너 재실행
             sudo docker-compose up -d || { echo "docker-compose up failed"; exit 1; }
