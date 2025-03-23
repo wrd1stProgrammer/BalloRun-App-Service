@@ -30,8 +30,6 @@ const UserSchema = new mongoose.Schema(
 
     userId: {
       type: String,
-      maxlength: 50,
-      minlength: 5,
       unique: true, // kakao 면 이메일 앞을 따서 저장하자
     },
     password: {

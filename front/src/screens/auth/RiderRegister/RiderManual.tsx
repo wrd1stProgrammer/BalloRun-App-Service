@@ -16,7 +16,7 @@ const RiderManual: React.FC = () => {
       </TouchableOpacity>
 
       <View style={authStyles.headerContainer}>
-        <Text style={authStyles.title}>편한 심부름 편부름</Text>
+        <Text style={authStyles.title}>발로뛰어 !</Text>
       </View>
 
       <View style={authStyles.iconContainer}>

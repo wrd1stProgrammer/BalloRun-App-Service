@@ -17,7 +17,7 @@ import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { register } from '../../../redux/actions/userAction';
 
 type RootStackParamList = {
-  FourthScreen: { name: string; nickname: string; id: string; password: string; email: string; phone: string };
+  FourthScreen: { name: string; nickname: string; id: string; password: string; email: string; phone: number};
 };
 
 type FourthScreenProps = NativeStackScreenProps<RootStackParamList, 'FourthScreen'>;
@@ -63,7 +63,7 @@ const FourthScreen = ({ route }: FourthScreenProps) => {
     if (allAgreed) {
       try {
         // register 액션 호출 및 결과 기다리기
-        const result = await dispatch(register(name, nickname, id, email, password, phone)).unwrap();
+        await dispatch(register(name, nickname, id, email, password, phone));
         
         // 회원가입 성공 시 Alert 띄우기
         Alert.alert(

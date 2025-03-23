@@ -125,7 +125,7 @@ const RegisterScreen: React.FC = () => {
     setLoading(true);
 
     try {
-      await dispatch(register(email, userId, password, username));
+      //await dispatch(register(email, userId, password, username));
       Alert.alert('회원가입 성공', '회원가입이 완료되었습니다!');
       resetAndNavigate('LoginScreen');
     } catch (error) {
