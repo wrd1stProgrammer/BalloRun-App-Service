@@ -27,7 +27,6 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    volumes:
     environment:
       - TZ=Etc/UTC
       - RABBITMQ_DEFAULT_USER=guest
@@ -40,7 +39,6 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-    volumes:
     environment:
       - TZ=Etc/UTC
     command: ["redis-server", "--requirepass", "yourpassword", "--notify-keyspace-events", "KEA"]
