@@ -22,8 +22,8 @@ COPY . .
 # .env 파일을 Docker 컨테이너에서도 사용할 수 있게 설정
 COPY .env .env
 
-ENV TZ=Etc/UTC
-RUN ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && echo "Etc/UTC" > /etc/timezone
+#ENV TZ=Etc/UTC
+#RUN ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && echo "Etc/UTC" > /etc/timezone
 
 # Express 서버 포트 노출 (5000번 사용)
 EXPOSE 5001
