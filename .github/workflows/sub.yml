@@ -51,7 +51,7 @@ jobs:
             # 기존 이미지 삭제
             sudo docker rmi -f sikgates/eighteen-back:latest
             sudo docker rmi -f sikgates/devimage:utc  # 기존 이미지 삭제
-            sudo docker-compose pull
+            sudo docker-compose pull back
             # 컨테이너 재실행
             sudo docker-compose up -d || { echo "docker-compose up failed"; exit 1; }
             echo "Deployment completed successfully."
