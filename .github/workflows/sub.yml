@@ -16,8 +16,18 @@ jobs:
 
       - name: Create service account key file
         run: |
-          echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" > back/campuscoffee-83cbf-74f467acc07d.json
+          echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 -d > back/campuscoffee-83cbf-74f467acc07d.json
+        shell: bash
 
+      - name: Verify service account key file
+        run: |
+          cat back/campuscoffee-83cbf-74f467acc07d.json
+          if ! jq . back/campuscoffee-83cbf-74f467acc07d.json >/dev/null 2>&1; then
+            echo "Invalid JSON in service account key file"
+            exit 1
+          fi
+        shell: bash
+        
       # 2. Docker 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v2
