@@ -14,6 +14,7 @@ services:
       - REDIS_PORT=14438
       - REDIS_USERNAME=default
       - REDIS_PASSWORD=AoWvAXv3JTPRBrgwxRX58G9AVxFhQzpj
+      - GOOGLE_APPLICATION_CREDENTIALS=/back/campuscoffee-83cbf-74f467acc07d.json
     depends_on:
       - redis
       - rabbitmq

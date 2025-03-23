@@ -28,5 +28,7 @@ COPY .env .env
 # Express 서버 포트 노출 (5000번 사용)
 EXPOSE 5001
 
+COPY campuscoffee-83cbf-74f467acc07d.json /app/campuscoffee-83cbf-74f467acc07d.json
+
 # 서버 실행 명령어
 CMD ["npm", "start"]
