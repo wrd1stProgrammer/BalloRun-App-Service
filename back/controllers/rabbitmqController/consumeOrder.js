@@ -1,3 +1,11 @@
+const amqp = require("amqplib");
+const NewOrder = require("../../models/NewOrder");
+const { storeOrderInRedis } = require("./storeOrderInRedis");
+const { connectRabbitMQ } = require("../../config/rabbitMQ");
+const { invalidateOnGoingOrdersCache } = require("../../utils/deleteRedisCache");
+const { sendPushNotification } = require("../../utils/sendPushNotification");
+
+
 const consumeNewOrderMessages = async (redisCli) => {
     try {
       const { channel } = await connectRabbitMQ();
@@ -104,4 +112,9 @@ const consumeNewOrderMessages = async (redisCli) => {
     } catch (error) {
       console.error("New order consumer error:", error);
     }
+  };
+
+
+  module.exports = {
+    consumeNewOrderMessages,
   };
