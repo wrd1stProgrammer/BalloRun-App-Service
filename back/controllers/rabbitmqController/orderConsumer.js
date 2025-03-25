@@ -55,6 +55,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           const riderUser = await User.findById(riderId); // 알람 일단 보려고 임시
           console.log('수락에서 riderUser', riderUser);
           riderUser.isDelivering = true;
+          riderUser.exp = (riderUser.exp || 0) + 10;
           
           await riderUser.save();
           console.log('riderUser UPdate',riderUser);
@@ -107,6 +108,26 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           channel.ack(msg);
         } catch (error) {
           console.error("❌ 주문 처리 중 오류 발생:", error);
+
+          // 라이더에게 푸시 알림 전송
+          try {
+            const riderUser = await User.findById(riderId);
+            if (riderUser?.fcmToken) {
+              const notipayload = {
+                title: "주문 수락 처리 실패",
+                body: "주문 수락 처리에 실패했습니다. 다시 시도해주세요.",
+                data: { type: "order_accept_failed", orderId: orderId || "unknown" },
+              };
+              await sendPushNotification(riderUser.fcmToken, notipayload);
+              console.log(`라이더 ${riderId}에게 주문 수락 실패 알림 전송 완료`);
+            } else {
+              console.log(`라이더 ${riderId}의 FCM 토큰이 없습니다.`);
+            }
+          } catch (notificationError) {
+            console.error("푸시 알림 전송 실패:", notificationError);
+          }
+
+          channel.nack(msg, false, false); // 실패한 메시지를 DLX로 이동
         }
       }
     });

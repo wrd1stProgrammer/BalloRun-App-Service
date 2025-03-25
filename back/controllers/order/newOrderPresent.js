@@ -291,7 +291,7 @@ const fetchOrderDetails = async (req, res) => {
     const redisClient = req.app.get("redisClient");
     const redisCli = redisClient.v4;
   
-    
+    // 입력값 검증
     if (!orderId || rating === undefined) {
       return res.status(400).json({ message: 'orderId와 rating은 필수입니다.' });
     }
@@ -300,23 +300,35 @@ const fetchOrderDetails = async (req, res) => {
     }
   
     try {
-      // NewOrder
+      // NewOrder 조회
       const order = await NewOrder.findById(orderId);
       if (!order) {
         return res.status(404).json({ message: '주문을 찾을 수 없습니다.' });
       }
   
-
+      // 주문 상태 확인
       if (order.status !== 'delivered') {
         return res.status(400).json({ message: '배달 완료된 주문만 평가할 수 있습니다.' });
       }
   
-
+      // 이미 평가된 주문인지 확인
       if (order.isRated) {
         return res.status(400).json({ message: '이미 평가된 주문입니다.' });
       }
   
-
+      // 라이더 조회
+      const rider = await User.findById(order.riderId);
+      if (!rider) {
+        return res.status(404).json({ message: '라이더를 찾을 수 없습니다.' });
+      }
+  
+      // 고객 조회
+      const customer = await User.findById(order.userId);
+      if (!customer) {
+        return res.status(404).json({ message: '고객을 찾을 수 없습니다.' });
+      }
+  
+      // 경험치 및 포인트 맵
       const expMap = {
         1: 5,
         2: 7,
@@ -324,24 +336,33 @@ const fetchOrderDetails = async (req, res) => {
         4: 15,
         5: 20,
       };
+      const riderPointMap = {
+        1: 0,
+        2: 0,
+        3: 50,
+        4: 100,
+        5: 150,
+      };
+  
+      // 라이더 경험치 및 포인트 추가
       const experienceToAdd = expMap[rating] || 0;
-  
-      const rider = await User.findById(order.riderId);
-      if (!rider) {
-        return res.status(404).json({ message: '라이더를 찾을 수 없습니다.' });
-      }
-  
-      // 경험치 추가 및 레벨업 (pre-save 미들웨어가 처리)
+      const riderPointsToAdd = riderPointMap[rating] || 0;
       rider.exp += experienceToAdd;
+      rider.point = (rider.point || 0) + riderPointsToAdd;
   
+      // 고객 경험치 및 포인트 추가
+      customer.exp = (customer.exp || 0) + 5; // 고객 경험치 5 증가
+      customer.point = (customer.point || 0) + 100; // 고객 포인트 100 증가
+  
+      // 주문 상태 업데이트
       order.rating = rating;
       order.isRated = true;
   
-      // 트랜잭션으로 두 모델 동시 저장
-      await Promise.all([order.save(), rider.save()]);
+      // 트랜잭션으로 세 모델 동시 저장
+      await Promise.all([order.save(), rider.save(), customer.save()]);
   
       // 캐시 무효화
-      invalidateCompletedOrdersCache(order.userId, redisCli);
+      await invalidateCompletedOrdersCache(order.userId, redisCli);
   
       res.status(200).json({
         success: true,

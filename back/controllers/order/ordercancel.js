@@ -125,15 +125,14 @@ const getOrderDataForCancelApi = async (req, res) => {
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
-      //redis 객체 가져오깅
+  
+      // redis 객체 가져오기
       const redisClient = req.app.get("redisClient");
       const redisCli = redisClient.v4;
-    
-
+  
       order.status = "cancelled";
       await order.save();
-      
-
+  
       // 3. 결제 금액 계산 (price와 deliveryFee 합산)
       const paymentAmount = (orderType === "Order" ? order.price : order.priceOffer) + order.deliveryFee;
   
@@ -155,44 +154,55 @@ const getOrderDataForCancelApi = async (req, res) => {
       order.cancellation = cancellation._id;
       await order.save();
   
-      // 6. 매칭 여부 확인 및 처리
+      // 6. 사용된 포인트 환불 처리
+      const usedPoints = order.usedPoints || 0; // 주문에서 사용된 포인트 가져오기 (없으면 0으로 처리)
+      if (usedPoints > 0) {
+        const user = await User.findById(order.userId); // 주문한 사용자 조회
+        if (!user) {
+          return res.status(404).json({ error: "User not found" });
+        }
+        user.point = (user.point || 0) + usedPoints; // 사용자 포인트에 사용된 포인트 추가
+        await user.save();
+        console.log(`사용자 ${user._id}에게 ${usedPoints} 포인트 환불 완료`);
+      }
+  
+      // 7. 매칭 여부 확인 및 처리
       const isMatched = !!order.riderId;
       if (isMatched) {
-        // 매칭되면 라이더에게 알람. 
-        // isDelivering 상태 업뎃.
+        // 매칭되면 라이더에게 알람 및 isDelivering 상태 업데이트
         console.log('라이더 있는 부분 주문취소');
         const riderUser = await User.findById(order.riderId);
-        console.log(riderUser,'Rideruser 찾음??');
+        console.log(riderUser, 'Rideruser 찾음??');
         riderUser.isDelivering = false;
-        await riderUser.save(); // 라이더는 refetch 강 해야 + 알림 ?
-      // 7. 라이더에게 푸시 알림 전송
-      if (riderUser.fcmToken) {
-        const notificationPayload = {
-          title: "주문이 취소되었습니다.",
-          body: `고객이 주문을 취소하였습니다.`,
-          data: { type: "order_cancel", orderId: orderId },
-        };
-        await sendPushNotification(riderUser.fcmToken, notificationPayload);
-        console.log(`라이더 ${order.riderId}에게 알림 전송 성공`);
-        //cancellation.riderNotified = true; // 알림 전송 성공 시 상태 업데이트
-        await cancellation.save();
-      } else {
-        console.log(`라이더 ${order.riderId}의 FCM 토큰이 없습니다.`);
-      }
+        await riderUser.save(); // 라이더는 refetch 강제 + 알림
+  
+        // 8. 라이더에게 푸시 알림 전송
+        if (riderUser.fcmToken) {
+          const notificationPayload = {
+            title: "주문이 취소되었습니다.",
+            body: `고객이 주문을 취소하였습니다.`,
+            data: { type: "order_cancel", orderId: orderId },
+          };
+          await sendPushNotification(riderUser.fcmToken, notificationPayload);
+          console.log(`라이더 ${order.riderId}에게 알림 전송 성공`);
+          // cancellation.riderNotified = true; // 알림 전송 성공 시 상태 업데이트
+          await cancellation.save();
+        } else {
+          console.log(`라이더 ${order.riderId}의 FCM 토큰이 없습니다.`);
+        }
         console.log(`라이더 ${order.riderId}에게 알림 전송 준비: 주문 ${orderId} 취소`);
-      }else{
-        //진행 중인 주문 레디스 삭제.
+      } else {
+        // 진행 중인 주문 레디스 삭제
         const cacheKey = "activeOrders";
         let redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
         redisOrders = redisOrders.filter((order) => order._id.toString() !== orderId);
         await redisCli.set(cacheKey, JSON.stringify(redisOrders));
-    
       }
-      
-      await invalidateOnGoingOrdersCache(order.userId, redisCli);
-      await invalidateCompletedOrdersCache(order.userId,redisCli);
   
-      // 7. 성공 응답
+      await invalidateOnGoingOrdersCache(order.userId, redisCli);
+      await invalidateCompletedOrdersCache(order.userId, redisCli);
+  
+      // 9. 성공 응답
       return res.status(200).json({
         message: "주문 취소 요청이 성공적으로 처리되었습니다.",
         cancellationId: cancellation._id.toString(),

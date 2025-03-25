@@ -15,14 +15,12 @@ const acceptNewOrder = async (req, res) => {
   try {
 
 
-    //1. Redis 락 설정 
-    // (동시 수락 방지)
+    // Redis 락 설정 (10초 TTL)
     const lockAcquired = await redisCli.set(lockKey, riderId, { NX: true, EX: 10 });
-
-
     if (!lockAcquired) {
       return res.status(400).json({ message: "다른 배달자가 이미 주문을 수락하였습니다!!" });
     }
+
 
     await redisCli.expire(lockKey, 10); // 10초 후 락 자동 해제
 
