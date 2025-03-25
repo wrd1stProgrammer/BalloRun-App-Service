@@ -56,7 +56,7 @@ const newOrderCreate = async (req, res) => {
     }
 
     // 주문 생성
-    const newOrder = new NewOrder({
+    const message = JSON.stringify({
       userId,
       name,
       orderDetails,
@@ -73,9 +73,8 @@ const newOrderCreate = async (req, res) => {
       endTime,
       selectedFloor,
       resolvedAddress,
-      usedPoints,
+      usedPoints // 메시지에 포함
     });
-    await newOrder.save({ session });
 
     // RabbitMQ 메시지 전송
     const { channel } = await connectRabbitMQ();
@@ -87,8 +86,7 @@ const newOrderCreate = async (req, res) => {
         "x-dead-letter-routing-key": "dead_letter_queue",
       },
     });
-    const message = JSON.stringify(newOrder.toObject());
-    delete message._id;
+
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
     console.log(`큐에 전달-새로운 주문: ${newOrder._id}`);
 
