@@ -45,8 +45,13 @@ const acceptNewOrder = async (req, res) => {
     const {channel,connection} = await connectRabbitMQ();
     
     const queue = "order_accept_queue";
-
-    await channel.assertQueue(queue, { durable: true });
+    await channel.assertQueue(queue, {
+      durable: true,
+      arguments: {
+        "x-dead-letter-exchange": "dead_letter_exchange",
+        "x-dead-letter-routing-key": "dead_letter_queue",
+      },
+    });
 
     const message = JSON.stringify({ orderId, riderId,status: "accepted" ,orderType:"NewOrder" });
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });

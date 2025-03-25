@@ -80,7 +80,13 @@ const newOrderCreate = async (req, res) => {
     // RabbitMQ 메시지 전송
     const { channel } = await connectRabbitMQ();
     const queue = "new_order_queue";
-    await channel.assertQueue(queue, { durable: true });
+    await channel.assertQueue(queue, {
+      durable: true,
+      arguments: {
+        "x-dead-letter-exchange": "dead_letter_exchange",
+        "x-dead-letter-routing-key": "dead_letter_queue",
+      },
+    });
     const message = JSON.stringify(newOrder.toObject());
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
     console.log(`큐에 전달-새로운 주문: ${newOrder._id}`);
