@@ -1,5 +1,6 @@
 const amqp = require("amqplib");
 const NewOrder = require("../../models/NewOrder");
+const User = require("../../models/User");
 const { storeOrderInRedis } = require("./storeOrderInRedis");
 const { connectRabbitMQ } = require("../../config/rabbitMQ");
 const { invalidateOnGoingOrdersCache } = require("../../utils/deleteRedisCache");
