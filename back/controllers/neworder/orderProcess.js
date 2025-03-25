@@ -95,22 +95,30 @@ const newOrderCreate = async (req, res) => {
     session.endSession();
 
     // 푸시 알림 전송
-    const notipayload = {
-      title: `배달요청이 완료되었습니다.`,
-      body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
-      data: { type: "order_accepted", orderId: newOrder._id },
-    };
-    if (user.fcmToken) {
-      await sendPushNotification(user.fcmToken, notipayload);
-      console.log(`사용자 ${userId}에게 푸시 알림 전송 완료`);
-    } else {
-      console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+    try {
+      const notipayload = {
+        title: `배달요청이 완료되었습니다.`,
+        body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
+        data: { type: "order_accepted", orderId: userId },
+      };
+      if (user.fcmToken) {
+        await sendPushNotification(user.fcmToken, notipayload);
+        console.log(`사용자 ${userId}에게 푸시 알림 전송 완료`);
+      } else {
+        console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+      }
+    } catch (error) {
+        console.error("푸시 알림 전송 실패:", error);
     }
 
     res.status(201).json({ message: "Order received and being processed." });
   } catch (error) {
-    await session.abortTransaction();
+    // 트랜잭션이 아직 커밋되지 않은 경우에만 abort 호출
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     session.endSession();
+
     if (error.name === "ValidationError") {
       return res.status(400).json({ message: error.message });
     }
