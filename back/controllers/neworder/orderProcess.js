@@ -88,7 +88,7 @@ const newOrderCreate = async (req, res) => {
     });
 
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
-    console.log(`큐에 전달-새로운 주문: ${newOrder._id}`);
+
 
     await session.commitTransaction();
     session.endSession();
