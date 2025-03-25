@@ -11,8 +11,14 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
   try {
     const { channel } = await connectRabbitMQ();
     const queue = "order_accept_queue";
-
-    await channel.assertQueue(queue, { durable: true });
+    // 동일한 설정으로 큐 선언
+    await channel.assertQueue(queue, {
+      durable: true,
+      arguments: {
+        "x-dead-letter-exchange": "dead_letter_exchange",
+        "x-dead-letter-routing-key": "dead_letter_queue",
+      },
+    });
     console.log("orderConsumer 대기 중...");
 
     channel.consume(queue, async (msg) => {

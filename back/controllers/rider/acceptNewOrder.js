@@ -22,7 +22,6 @@ const acceptNewOrder = async (req, res) => {
     }
 
 
-    await redisCli.expire(lockKey, 10); // 10초 후 락 자동 해제
 
     // 2. MongoDB에서 주문 상태 변경 (`pending` → `accepted`)
     const order = await NewOrder.findOneAndUpdate(
