@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Image, View, Text } from 'react-native';
+import React from "react";
+import { StyleSheet, Image, View, Text } from "react-native";
 
 interface CustomMarkerProps {
   marker: {
@@ -7,7 +7,7 @@ interface CustomMarkerProps {
     title: string;
     id: string;
   };
-  isSelected: boolean; // 선택된 마커인지 여부 추가
+  isSelected: boolean;
 }
 
 const CustomMarker: React.FC<CustomMarkerProps> = React.memo(({ marker, isSelected }) => (
@@ -23,38 +23,44 @@ const CustomMarker: React.FC<CustomMarkerProps> = React.memo(({ marker, isSelect
 
 const styles = StyleSheet.create({
   customMarker: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   markerContainer: {
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
     borderRadius: 10,
+    width: 70,
+    height: 80,
     padding: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,
-    borderColor: 'gray', // 기본 색상
+    borderColor: "gray",
   },
   selectedMarker: {
-    borderColor: 'red', // 선택된 마커는 빨간색 테두리
-    backgroundColor: '#ffe6e6', // 선택된 마커의 배경 색상 변경
+    borderColor: "red",
+    backgroundColor: "#ffe6e6",
   },
   markerImage: {
     width: 40,
     height: 40,
-    resizeMode: 'contain',
+    resizeMode: "cover",
+    borderRadius: 20,
+    overflow: "hidden",
     marginBottom: 5,
   },
   markerText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
   },
   selectedText: {
-    color: 'red', // 선택된 마커의 텍스트 색상 변경
+    color: "red",
   },
 });
 
