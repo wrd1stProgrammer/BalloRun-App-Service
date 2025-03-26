@@ -7,6 +7,7 @@ const {
   NotFoundError,
 } = require("../../errors");
 const jwt = require("jsonwebtoken");
+const jwksClient = require('jwks-rsa');
 const bcryptjs = require('bcryptjs');
 
 const register = async (req, res) => {
@@ -134,6 +135,118 @@ const login = async (req, res) => {
   }
 };
 
+const applelogin = async (req, res) => {
+  const { identityToken } = req.body;
+
+  try {
+    // 1. identityToken 검증
+    const client = jwksClient({
+      jwksUri: 'https://appleid.apple.com/auth/keys',
+    });
+
+    const getKey = (header, callback) => {
+      client.getSigningKey(header.kid, (err, key) => {
+        const signingKey = key?.getPublicKey();
+        callback(null, signingKey);
+      });
+    };
+
+    const decoded = await new Promise((resolve, reject) => {
+      jwt.verify(identityToken, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
+        if (err) reject(err);
+        else resolve(decoded);
+      });
+    });
+
+    const { sub: appleUserId, email } = decoded;
+
+    // 2. 이메일로 기존 사용자 조회
+    let user = await User.findOne({ email });
+
+    // isActive 체크: 비활성화된 계정 차단
+    if (user && !user.isActive) {
+      console.error('로그인 실패: 계정 비활성화');
+      return res.status(401).json({ message: '계정이 비활성화되었습니다. 다시 가입해주세요.' });
+    }
+
+    if (!user) {
+      // 3. 존재하지 않는 경우 신규 사용자 생성
+      let userId = email.split('@')[0];
+      let username = userId;
+      let nickname = userId;
+
+      // 3-1. userId 중복 확인 및 중복 방지 로직
+      let isUserIdUnique = false;
+      while (!isUserIdUnique) {
+        const existingUser = await User.findOne({ userId });
+        if (!existingUser) {
+          isUserIdUnique = true;
+        } else {
+          const randomSuffix = Math.floor(Math.random() * 90) + 10; // 10 ~ 99 사이의 숫자 생성
+          userId = `${userId}${randomSuffix}`;
+        }
+      }
+
+      // 3-2. 랜덤 패스워드 생성
+      const randomPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcryptjs.hash(randomPassword, 10);
+
+      // 3-3. 사용자 생성
+      user = new User({
+        email,
+        appleUserId, // 애플 고유 ID 추가 저장
+        userId,
+        nickname,
+        username,
+        password: hashedPassword,
+        userImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s',
+        loginProvider: 'apple', // 로그인 제공자 기록
+      });
+      await user.save();
+    }
+
+    // 4. 토큰 생성
+    const newAccessToken = user.createAccessToken();
+    const newRefreshToken = user.createRefreshToken();
+
+    // 5. 리프레시 토큰 저장
+    await Token.findOneAndUpdate(
+      { email: user.email },
+      { token: newRefreshToken },
+      { upsert: true }
+    );
+
+    // 6. 응답 반환
+    res.status(200).json({
+      tokens: {
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken,
+      },
+      user: {
+        _id: user._id,
+        exp: user.exp,
+        level: user.level,
+        admin: user.admin,
+        username: user.username,
+        nickname: user?.nickname,
+        userId: user.userId,
+        userImage: user?.userImage,
+        email: user.email,
+        phone: user?.phone,
+        point: user.point,
+        isDelivering: user.isDelivering,
+        verificationStatus: user.verificationStatus,
+        account: user.account ?? null, // account가 undefined일 경우 null로 처리
+      },
+    });
+  } catch (error) {
+    console.error('애플 로그인 에러:', error);
+    res.status(500).json({ 
+      message: error.message || '애플 로그인 중 문제가 발생했습니다.' 
+    });
+  }
+};
+
 const kakaologin = async (req, res) => {
   const { email, loginProvider } = req.body;
 
@@ -152,6 +265,7 @@ const kakaologin = async (req, res) => {
       // 2. 존재하지 않는 경우 신규 사용자 생성
       let userId = email.split('@')[0];
       let username = userId;
+      let nickname = userId;
 
       // 2-1. userId 중복 확인 및 중복 방지 로직
       let isUserIdUnique = false;
@@ -328,4 +442,5 @@ const refreshToken = async (req, res) => {
     resetPassword,
     saveFcmToken,
     kakaologin,
+    applelogin,
   };

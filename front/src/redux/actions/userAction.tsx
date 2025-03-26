@@ -64,6 +64,30 @@ export const kakaoLogin = (email:string) => async (dispatch: any) => {
   }
 };
 
+export const appleLogin = (identityToken:string) => async (dispatch: any) => {
+  try {
+    const res:any = await appAxios.post('/auth/applelogin', {
+      identityToken,
+      loginProvider:"kakao",
+    });
+    // 로그인 성공 시 처리 
+    await handleSignInSuccess(res, dispatch);
+    
+    return res.data;
+    
+  } catch (error: any) {
+    // 서버 에러 메시지 처리
+    if (error.response) {
+      console.error('apple 로그인 실패:', error.response.data.message || error.response.data);
+      Alert.alert('로그인 실패', error.response.data.message || '로그인에 실패했습니다.');
+    } else {
+      console.error('네트워크 에러:', error.message);
+      Alert.alert('네트워크 오류', '서버와 연결되지 않았습니다. 나중에 다시 시도해주세요.');
+    }
+  }
+};
+
+
 
 
 export const register = (name:string, nickname:string, id:string, email:string, password:string, phone:number) => async (dispatch: any) => {

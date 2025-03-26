@@ -6,6 +6,7 @@ const {
     resetPassword,
     saveFcmToken,
     kakaologin,
+    applelogin,
     
 } = require("../controllers/auth/auth");
 const router = express.Router();
@@ -20,6 +21,7 @@ router.post("/login", login);
 router.post("/resetPw", resetPassword);
 router.post("/saveFcmToken",saveFcmToken);
 router.post("/kakaologin",kakaologin);
+router.post("/applelogin",applelogin);
 
 //mail router 
 router.post("/verifyEmail",sendEmail);

@@ -22,6 +22,7 @@ import { token_storage } from '../../redux/config/storage';
 import { requestUserPermission } from '../../utils/fcm/fcmToken';
 import { setUser } from '../../redux/reducers/userSlice';
 import { BASE_URL } from '../../redux/config/API';
+import AppleLoginButton from './AppleLoginButton';
 
 const LoginScreen: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -107,9 +108,7 @@ const LoginScreen: React.FC = () => {
           </Pressable>
 
           {/* {Platform.OS === 'ios' && AppleAuthentication.isSupported && (*/}
-            <Pressable style={styles.appleButton}>
-              <Text style={styles.buttonText}>애플 로그인</Text>
-            </Pressable>
+          <AppleLoginButton />
           
 
           {/* 사용자 로그인 버튼 (파란색 버튼) */}
