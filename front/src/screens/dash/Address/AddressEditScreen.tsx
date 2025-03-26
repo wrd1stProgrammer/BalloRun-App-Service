@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        padding: 16,
+        padding: 5,
     },
     addressItem: {
         padding: 12,
