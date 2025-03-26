@@ -60,6 +60,8 @@ import AddressEditScreen from "../screens/dash/Address/AddressEditScreen";
 import AddressEditDetailScreen from "../screens/dash/Address/AddressEditDetailScreen";
 import OrderDirectLocationScreen from "../screens/order/OrderCategory/OrderDirectLocationScreen";
 import OrderCupHolderLocationScreen from "../screens/order/OrderCategory/OrderCupHolderLocationScreen";
+import Component from "react-native-paper/lib/typescript/components/List/ListItem";
+import FindMap from "../screens/dash/Address/Map/FindMap";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -197,6 +199,10 @@ export const dashboardStack = [
   {
     name:"AddressSettingScreen",
     component:AddressSettingScreen
+  },
+  {
+    name: "FindMap",
+    component: FindMap
   },
   {
     name:"AddressSearchScreen",

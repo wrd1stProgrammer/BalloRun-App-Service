@@ -59,7 +59,7 @@ const AddressSettingScreen = () => {
                     <Ionicons name="search" size={20} color="black" />
                     <Text style={styles.buttonText}>지번, 도로명, 건물명으로 검색</Text>
                 </TouchableOpacity>
-                <Pressable style={styles.locationButton} onPress={() => alert('현재 위치 찾기')}>
+                <Pressable style={styles.locationButton} onPress={() => navigate("FindMap")}>
                     <Ionicons name="locate" size={20} color="white" />
                     <Text style={styles.locationButtonText}>현재 위치로 찾기</Text>
                 </Pressable>
