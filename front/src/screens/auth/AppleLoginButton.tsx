@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform } from 'react-native';
 import appleAuth, { AppleButton } from '@invertase/react-native-apple-authentication';
 import { useAppDispatch } from '../../redux/config/reduxHook';
+import { appleLogin } from '../../redux/actions/userAction';
 
 
 const AppleLoginButton: React.FC = () => {
@@ -19,11 +20,9 @@ const AppleLoginButton: React.FC = () => {
       if (credentialState === appleAuth.State.AUTHORIZED) {
         // user is authenticated
             const { identityToken, email, user } = appleAuthRequestResponse;
-            console.log('identityToken', identityToken);
-            console.log('email', email);
-            console.log('user', user);
+            await dispatch(appleLogin(identityToken));
       }
-      
+
     } catch (error) {
       console.error('Apple sign-in error:', error);
     }
