@@ -154,8 +154,8 @@ const OrderCupHolderLocationScreen = () => {
                   mapRef.current?.animateToRegion({
                     latitude: marker.coordinate.latitude,
                     longitude: marker.coordinate.longitude,
-                    latitudeDelta: 0.002,
-                    longitudeDelta: 0.001,
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.002,
                   });
                 }}
               >

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Animated,
+  ListRenderItem,
 } from "react-native";
 import { MapSocketContext } from "../../../utils/sockets/MapSocket";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
@@ -17,6 +17,8 @@ import { useLocation } from "../../../utils/Geolocation/LocationContext";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import Cafe from "../../../assets/Icon/icon-coffee.png";
 import Noodle from "../../../assets/Icon/icon-noodles.png";
+
+const SCREEN_WIDTH = 360;
 
 type DeliveryItem = {
   _id: string;
@@ -44,38 +46,51 @@ type DeliveryCustomListProps = {
 };
 
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371; // 지구 반지름 (km)
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // 거리 (km)
+  return R * c;
 }
 
 const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, userLat, userLng }) => {
   const [sortedItems, setSortedItems] = useState<DeliveryItem[]>([]);
   const [sortCriteria, setSortCriteria] = useState<"distance" | "price">("distance");
   const [selectedDeliveryType, setSelectedDeliveryType] = useState<"all" | "direct" | "cupHolder">("all");
+  const [showSortOptions, setShowSortOptions] = useState(false);
   const [selectedItem, setSelectedItem] = useState<DeliveryItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [tabAnimation] = useState(new Animated.Value(0)); // 슬라이딩 애니메이션
+  const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
 
   const socket = useContext(MapSocketContext);
   const dispatch = useAppDispatch();
   const { startTracking } = useLocation();
-  const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
 
-  // 탭 슬라이딩 애니메이션
-  const animateTab = (index: number) => {
-    Animated.spring(tabAnimation, {
-      toValue: index * (SCREEN_WIDTH / 3), // 3개의 탭
-      useNativeDriver: true,
-    }).start();
+  useEffect(() => {
+    let filtered = [...deliveryItems];
+    if (selectedDeliveryType !== "all") {
+      filtered = filtered.filter((item) => item.deliveryType === selectedDeliveryType);
+    }
+    if (sortCriteria === "distance") {
+      filtered.sort((a, b) =>
+        getDistance(userLat, userLng, parseFloat(a.lat), parseFloat(a.lng)) -
+        getDistance(userLat, userLng, parseFloat(b.lat), parseFloat(b.lng))
+      );
+    } else {
+      filtered.sort((a, b) => b.deliveryFee - a.deliveryFee);
+    }
+    setSortedItems(filtered);
+  }, [sortCriteria, selectedDeliveryType, deliveryItems, userLat, userLng]);
+
+  const toggleSortOptions = () => {
+    setShowSortOptions((prev) => !prev);
   };
-
-  const SCREEN_WIDTH = 360; // 예시 값, 실제 디바이스 폭에 맞게 조정 가능
 
   const openModal = (item: DeliveryItem) => {
     setSelectedItem(item);
@@ -100,7 +115,6 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
       dispatch(setIsOngoingOrder(true));
       socket?.emit("start_tracking", { orderId });
       startTracking(orderId);
-
       setTimeout(() => {
         navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
       }, 1500);
@@ -109,31 +123,17 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
     }
   };
 
-  useEffect(() => {
-    let filteredItems = [...deliveryItems];
-
-    if (selectedDeliveryType !== "all") {
-      filteredItems = filteredItems.filter((item) => item.deliveryType === selectedDeliveryType);
-    }
-
-    if (sortCriteria === "distance") {
-      filteredItems.sort((a, b) =>
-        getDistance(userLat, userLng, parseFloat(a.lat), parseFloat(b.lng)) -
-        getDistance(userLat, userLng, parseFloat(b.lat), parseFloat(b.lng))
-      );
-    } else if (sortCriteria === "price") {
-      filteredItems.sort((a, b) => b.deliveryFee - a.deliveryFee);
-    }
-
-    setSortedItems(filteredItems);
-  }, [sortCriteria, selectedDeliveryType, deliveryItems, userLat, userLng]);
-
-  const renderItem = ({ item }: { item: DeliveryItem }) => {
+  const renderItem: ListRenderItem<DeliveryItem> = ({ item }) => {
     const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
     const now = new Date();
     const endTime = new Date(item.endTime);
     const diff = endTime.getTime() - now.getTime();
-    const timeRemaining = diff <= 0 ? "종료됨" : `${Math.floor(diff / (1000 * 60 * 60))}시간 ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))}분 남음`;
+    const timeRemaining =
+      diff <= 0
+        ? "종료됨"
+        : `${Math.floor(diff / (1000 * 60 * 60))}시간 ${Math.floor(
+            (diff % (1000 * 60 * 60)) / (1000 * 60)
+          )}분 남음`;
     const isCafe = item.items[0].cafeName === "편의점";
 
     return (
@@ -167,50 +167,69 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
 
   return (
     <View style={styles.container}>
-      {/* 슬라이딩 탭 */}
-      <View style={styles.tabContainer}>
-        {["all", "direct", "cupHolder"].map((type, index) => (
+      <View style={styles.filterContainer}>
+        {/* 기본순 */}
+        <View style={{ position: "relative" }}>
+          <TouchableOpacity
+            style={[styles.filterButton, styles.activeFilterButton]}
+            onPress={toggleSortOptions}
+          >
+            <Text style={[styles.filterButtonText, styles.activeFilterText]}>
+              기본순 ▼ ({sortCriteria === "distance" ? "거리순" : "가격순"})
+            </Text>
+          </TouchableOpacity>
+          {showSortOptions && (
+            <View style={styles.sortDropdown}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSortCriteria("distance");
+                  setShowSortOptions(false);
+                }}
+                style={styles.dropdownOption}
+              >
+                <Text style={styles.dropdownText}>거리순</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setSortCriteria("price");
+                  setShowSortOptions(false);
+                }}
+                style={styles.dropdownOption}
+              >
+                <Text style={styles.dropdownText}>가격순</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {/* 필터 */}
+        {["all", "direct", "cupHolder"].map((type) => (
           <TouchableOpacity
             key={type}
-            style={styles.tabButton}
-            onPress={() => {
-              setSelectedDeliveryType(type as "all" | "direct" | "cupHolder");
-              animateTab(index);
-            }}
+            style={[styles.filterButton, selectedDeliveryType === type && styles.activeFilterButton]}
+            onPress={() => setSelectedDeliveryType(type as "all" | "direct" | "cupHolder")}
           >
-            <Text style={[styles.tabText, selectedDeliveryType === type && styles.activeTabText]}>
+            <Text style={[styles.filterButtonText, selectedDeliveryType === type && styles.activeFilterText]}>
               {type === "all" ? "전체" : type === "direct" ? "직접" : "컵홀더"}
             </Text>
           </TouchableOpacity>
         ))}
-        <Animated.View style={[styles.tabIndicator, { transform: [{ translateX: tabAnimation }] }]} />
       </View>
 
-      {/* 정렬 옵션 */}
-      <View style={styles.sortContainer}>
-        <TouchableOpacity
-          style={[styles.sortButton, sortCriteria === "distance" && styles.activeSortButton]}
-          onPress={() => setSortCriteria("distance")}
-        >
-          <Text style={[styles.sortText, sortCriteria === "distance" && styles.activeSortText]}>거리순</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.sortButton, sortCriteria === "price" && styles.activeSortButton]}
-          onPress={() => setSortCriteria("price")}
-        >
-          <Text style={[styles.sortText, sortCriteria === "price" && styles.activeSortText]}>가격순</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 리스트 */}
       <FlatList
         data={sortedItems}
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         ListEmptyComponent={renderEmptyList}
-        contentContainerStyle={sortedItems.length === 0 ? { flex: 1 } : null}
+        contentContainerStyle={sortedItems.length === 0 ? { flex: 1 } : undefined}
       />
-      <DeliveryDetailModal visible={modalVisible} onClose={closeModal} onAccept={handleAccept} deliveryItem={selectedItem} />
+
+      <DeliveryDetailModal
+        visible={modalVisible}
+        onClose={closeModal}
+        onAccept={handleAccept}
+        deliveryItem={selectedItem}
+      />
     </View>
   );
 };
@@ -220,64 +239,53 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F7F9FC",
     paddingHorizontal: 16,
-    paddingTop: 1,
+    paddingTop: 12,
   },
-  // 탭 스타일
-  tabContainer: {
+  filterContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 12,
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#6B7280",
-  },
-  activeTabText: {
-    color: "#2563EB",
-  },
-  tabIndicator: {
-    position: "absolute",
-    bottom: 4,
-    left: 4,
-    width: "31%", // 3개 탭이므로 1/3 폭
-    height: 2,
-    backgroundColor: "#2563EB",
-    borderRadius: 1,
-  },
-  // 정렬 스타일
-  sortContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
+    flexWrap: "wrap",
     gap: 8,
     marginBottom: 12,
   },
-  sortButton: {
+  filterButton: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     borderRadius: 20,
     backgroundColor: "#E5E7EB",
   },
-  activeSortButton: {
-    backgroundColor: "#2563EB",
+  activeFilterButton: {
+    backgroundColor: "#111827",
   },
-  sortText: {
+  filterButtonText: {
     fontSize: 14,
     fontWeight: "500",
     color: "#6B7280",
   },
-  activeSortText: {
+  activeFilterText: {
     color: "#FFFFFF",
   },
-  // 리스트 아이템 스타일
+  sortDropdown: {
+    position: "absolute",
+    top: 42,
+    left: 0,
+    backgroundColor: "#FFF",
+    borderRadius: 8,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    zIndex: 10,
+    width: 100,
+  },
+  dropdownOption: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  dropdownText: {
+    fontSize: 14,
+    color: "#111827",
+  },
   itemContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -337,7 +345,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
-  // 빈 리스트 스타일
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
