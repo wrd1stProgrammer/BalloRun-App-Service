@@ -179,6 +179,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5, // 안드로이드 그림자
+    marginBottom: 20, // Added for Android safe spacing
   },
   header: {
     fontSize: 20,
