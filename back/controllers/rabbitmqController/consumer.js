@@ -116,11 +116,22 @@ const consumeDelayedMessages = async (emitCancel,redisCli) => {
               order.status = "cancelled";
               await order.save();
               userId = order.userId;
+              const user = await User.findById(userId);
               await invalidateOnGoingOrdersCache(userId, redisCli);
               await invalidateCompletedOrdersCache(order.userId, redisCli);
 
               console.log(` Order ${orderId} cancelled automatically`);
 
+              if(user?.fcmToken){
+                const notipayload = {
+                  title: `자동 주문 취소`,
+                  body: `지정한 시간이 지나 주문이 자동 취소 되었습니다.`,
+                  data: {type: "order_auto_cancelled", orderId: userId},
+                };
+                await sendPushNotification(user.fcmToken, notipayload);
+              }else{
+                console.log("자동 주문 취소 알림 전송 오류");
+              }
               // 주문 취소 시 emitCancel 실행
               emitCancel({
                 orderId: orderId,
@@ -128,6 +139,7 @@ const consumeDelayedMessages = async (emitCancel,redisCli) => {
                 status: "cancelled",
                 message: "주문 예약 시간이 지나서 취소"
               });
+
             }
 
             channel.ack(msg);

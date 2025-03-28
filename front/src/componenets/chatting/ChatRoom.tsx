@@ -146,7 +146,7 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
         style={styles.container}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <AppBar onBackPress={() => navigation.goBack()} username={username} nickname={nickname} />
+        <AppBar onBackPress={() => navigation.goBack()} username={username} nickname={nickname} roomId={roomId} />
         <ScrollView
           ref={scrollViewRef}
           contentContainerStyle={styles.scrollViewContent}

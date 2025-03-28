@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Text, View, SafeAreaView, Alert } from 'react-native'; // Alert 추가
+import { FlatList, Text, View, SafeAreaView, Alert, ActivityIndicator } from 'react-native'; // ActivityIndicator 추가
 import TYPOS from '../../componenets/chatting/etc/TYPOS';
 import ChatRoomItem from '../../componenets/chatting/ChatRoomItem';
 import Color from '../../constants/Colors';
@@ -7,12 +7,12 @@ import EmptyList from '../../componenets/chatting/EmptyList';
 import { ChatSocketContext } from '../../utils/sockets/ChatSocket';
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import { setUser } from '../../redux/reducers/userSlice';
-import axios from 'axios';
 import { token_storage } from '../../redux/config/storage';
 import { chatExitHandler } from '../../redux/actions/chatAction';
 import { setChatRooms } from '../../redux/reducers/chatSlice';
 import { updateLastChat } from '../../redux/reducers/chatSlice';
 import { appAxios } from '../../redux/config/apiConfig';
+
 // 전부 필수 데이터
 interface RoomData {
   id: string;
@@ -21,13 +21,14 @@ interface RoomData {
   lastChatAt: string;
   isAlarm: boolean;
   userImage: string;
-  username:string;
-  nickname:string;
+  username: string;
+  nickname: string;
   unreadCount: number;
 }
 
 const Chatting: React.FC = () => {
   const [rooms, setRooms] = useState<RoomData[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
   const socket = useContext(ChatSocketContext);
   const access_token = token_storage.getString('access_token');
   const dispatch = useAppDispatch();
@@ -36,6 +37,7 @@ const Chatting: React.FC = () => {
     if (!socket) return;
 
     const handleGetChatList = () => {
+      setIsLoading(true); // 데이터 요청 시작 시 로딩 상태 활성화
       socket.emit('room-list', { token: access_token });
       socket.on('room-list', ({ data: { chatRoomList } }) => {
         // 리덕스에 마지막 메시지와 시간 저장
@@ -50,8 +52,10 @@ const Chatting: React.FC = () => {
           )
         );
         setRooms(chatRoomList);
+        setIsLoading(false); // 데이터 로딩 완료 시 로딩 상태 비활성화
       });
     };
+
     const handleRoomUpdated = (data: { roomId: string; lastMessage: string; lastMessageAt: string; unreadCount: number }) => {
       const { roomId, lastMessage, lastMessageAt, unreadCount } = data;
       dispatch(updateLastChat({ roomId, lastChat: lastMessage, lastChatAt: lastMessageAt, unreadCount }));
@@ -69,6 +73,7 @@ const Chatting: React.FC = () => {
     return () => {
       socket.off('room-list');
       socket.off('room-updated');
+      setIsLoading(false); // 컴포넌트 언마운트 시 로딩 상태 초기화
     };
   }, [socket, dispatch]);
 
@@ -85,8 +90,7 @@ const Chatting: React.FC = () => {
           text: '나가기',
           onPress: async () => {
             const isExit = await dispatch(chatExitHandler(id)); // 채팅방 나가기 액션 실행
-            //console.log(isExit,"이게 뭐냐");
-            if (isExit=="true") {
+            if (isExit == "true") {
               // isExit가 true이면 해당 채팅방을 목록에서 제거
               setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
             } else {
@@ -109,6 +113,16 @@ const Chatting: React.FC = () => {
       console.log(error);
     }
   };
+
+  // 로딩 중일 때 표시할 UI
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: Color.white, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color='#202632' />
+
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Color.white }}>

@@ -1,4 +1,5 @@
 const ChatRoom = require("../../models/ChatRoom"); // ChatRoom 모델 import
+const Report = require("../../models/Report");
 const { BadRequestError,UnauthenticatedError,} = require("../../errors");
 
 const { default: mongoose } = require("mongoose");
@@ -84,8 +85,51 @@ const toggleChatRoomAlarm = async (req, res) => {
   }
 };
 
+const reportChatApi = async (req, res) => {
+  const { reason, username, chatRoomId } = req.body;
+  const reporter = req.user.userId; // 요청한 사용자 ID (인증 미들웨어에서 제공된다고 가정)
+
+  try {
+    // reporter가 없는 경우 (인증되지 않은 사용자)
+    if (!reporter) {
+      return res.status(401).json({ message: '인증되지 않은 사용자입니다.' });
+    }
+
+    // 채팅방 존재 여부 확인
+    const chatRoom = await ChatRoom.findById(chatRoomId);
+    if (!chatRoom) {
+      return res.status(404).json({ message: '채팅방을 찾을 수 없습니다.' });
+    }
+
+    // 중복 신고 여부 확인
+    const existingReport = await Report.findOne({
+      reporter,
+      chatRoomId,
+    });
+    if (existingReport) {
+      return res.status(409).json({ message: '이미 이 채팅방을 신고하셨습니다.' });
+    }
+
+    // 신고 데이터 저장
+    const report = new Report({
+      reason,
+      reportedUser: username, // 신고 당한 사람
+      chatRoomId,
+      reporter, // 신고한 사람
+      reportedAt: new Date(),
+    });
+    await report.save();
+
+    res.status(200).json({ message: '신고가 접수되었습니다.' });
+  } catch (error) {
+    console.error('신고 처리 중 오류:', error);
+    res.status(500).json({ message: '신고 처리 중 오류가 발생했습니다.' });
+  }
+};
+
 module.exports = {
     deleteChatRoom,
     checkChatRoomApi,
     toggleChatRoomAlarm,
+    reportChatApi,
 }

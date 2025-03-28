@@ -27,3 +27,18 @@ export const chatExitHandler =(chatRoomId:string) => async(dispatch:any) => {
       throw error;
     }
   }
+
+  export const reportChatAction =(selectedOption:string, username:string,roomId:string) => async(dispatch:any) => {
+    try {
+      const res = await appAxios.post(`/chat/reportchat`,{
+        reason: selectedOption,
+        username: username,
+        chatRoomId:roomId,
+      });
+      //console.log(res);
+      return res.data;
+    } catch (error) {
+      console.error(':', error);
+      throw error;
+    }
+  }
