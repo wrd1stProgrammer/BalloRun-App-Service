@@ -411,10 +411,11 @@ const OrderFinalScreen = () => {
               </TouchableWithoutFeedback>
             </ScrollView>
 
-            <TouchableOpacity style={styles.kakaoPayButton} onPress={handleNextPress}>
+
+          </KeyboardAvoidingView>
+          <TouchableOpacity style={styles.kakaoPayButton} onPress={handleNextPress}>
               <Text style={styles.kakaoPayButtonText}>{finalAmount.toLocaleString()}원 카카오페이 결제</Text>
             </TouchableOpacity>
-          </KeyboardAvoidingView>
         </>
       )}
     </SafeAreaView>

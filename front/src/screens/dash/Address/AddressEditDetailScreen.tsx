@@ -14,6 +14,7 @@ const AddressEditDetailScreen = ({ route }: any) => {
   const [riderNote, setRiderNote] = useState('');
   const [entranceCode, setEntranceCode] = useState('');
   const [directions, setDirections] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const user = useAppSelector(selectUser); // 현재 로그인된 사용자 정보 가져오기
 
@@ -22,6 +23,9 @@ const AddressEditDetailScreen = ({ route }: any) => {
       Alert.alert('입력 오류', '주소 상세 정보와 유형을 선택해주세요.');
       return;
     }
+    
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     const addressData = {
       userId: user?._id,
@@ -42,8 +46,10 @@ const AddressEditDetailScreen = ({ route }: any) => {
         Alert.alert('오류', '주소 업데이트에 실패했습니다.');
       }
       navigate("AddressSettingScreen"); // 업데이트 후 편집 목록 화면으로 이동
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Error:', error);
+      setIsSubmitting(false);
       Alert.alert('네트워크 오류', '주소를 업데이트할 수 없습니다.');
     }
   };
@@ -104,7 +110,7 @@ const AddressEditDetailScreen = ({ route }: any) => {
           onChangeText={setDirections}
         />
 
-        <Pressable style={styles.registerButton} onPress={handleUpdateAddress}> 
+        <Pressable style={[styles.registerButton, { opacity: isSubmitting ? 0.6 : 1 }]} onPress={handleUpdateAddress} disabled={isSubmitting}> 
           <Text style={styles.registerButtonText}>주소 저장</Text>
         </Pressable>
       </View>

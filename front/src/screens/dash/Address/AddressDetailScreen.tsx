@@ -7,13 +7,14 @@ import { appAxios } from '../../../redux/config/apiConfig';
 import { navigate } from '../../../navigation/NavigationUtils';
 
 const AddressDetailScreen = ({ route }: any) => {
-  const { selectedAddress,lat,lng } = route.params;
+  const { selectedAddress, lat, lng } = route.params;
   
   const [detail, setDetail] = useState('');
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [riderNote, setRiderNote] = useState('');
   const [entranceCode, setEntranceCode] = useState('');
   const [directions, setDirections] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const user = useAppSelector(selectUser); // Get logged-in user info
 
@@ -22,6 +23,9 @@ const AddressDetailScreen = ({ route }: any) => {
       Alert.alert('입력 오류', '주소 상세 정보와 유형을 선택해주세요.');
       return;
     }
+
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     const addressData = {
       userId: user?._id,
@@ -46,11 +50,13 @@ const AddressDetailScreen = ({ route }: any) => {
       }
 
       navigate("BottomTab");
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Error:', error);
+      setIsSubmitting(false);
       Alert.alert('네트워크 오류', '주소를 등록할 수 없습니다.');
     }
-};
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -112,7 +118,7 @@ const AddressDetailScreen = ({ route }: any) => {
           * 입력된 공동현관 비밀번호는 원활한 배달을 위해 필요한 정보로, 배달을 진행하는 라이더님과 사장님께 전달됩니다.
         </Text>
 
-        <Pressable style={styles.registerButton} onPress={handleRegisterAddress}> 
+        <Pressable style={[styles.registerButton, { opacity: isSubmitting ? 0.6 : 1 }]} onPress={handleRegisterAddress} disabled={isSubmitting}> 
           <Text style={styles.registerButtonText}>주소 등록</Text>
         </Pressable>
       </View>
