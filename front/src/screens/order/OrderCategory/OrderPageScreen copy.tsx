@@ -9,6 +9,10 @@ import {
   StatusBar,
   SafeAreaView,
   Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../../navigation/NavigationUtils";
@@ -84,85 +88,101 @@ const OrderPageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title={name} />
-      <View style={styles.content}>
-        <View style={styles.sectionHeader}>
-          <View>
-            <Text style={styles.sectionTitle}>무엇을 요청할까요?</Text>
-            <Text style={styles.sectionSubtitle}>사진을 첨부해주시면 배달원에게 도움이 됩니다</Text>
-          </View>
-          <TouchableOpacity onPress={images ? handleRemoveImage : handleImagePicker}>
-            <Ionicons name={images ? "close" : "camera-outline"} size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-        <TextInput
-          style={styles.textArea}
-          placeholder="배달할 품목, 수량 등 입력"
-          placeholderTextColor="#999"
-          multiline
-          value={orderDetails}
-          onChangeText={setOrderDetails}
-        />
-
-        <Text style={styles.sectionTitle}>주문상품 가격</Text>
-        <View style={styles.priceInputContainer}>
-          <TextInput
-            style={styles.priceInput}
-            placeholder="0"
-            placeholderTextColor="#999"
-            keyboardType="numeric"
-            value={priceOffer}
-            onChangeText={(text) => handlePriceChange(text, setPriceOffer)}
-          />
-          <Text style={styles.wonText}>원</Text>
-        </View>
-
-        <Text style={styles.sectionTitle}>배달팁</Text>
-        <View style={styles.priceInputContainer}>
-          <TextInput
-            style={styles.priceInput}
-            placeholder="0"
-            placeholderTextColor="#999"
-            keyboardType="numeric"
-            value={deliveryFee}
-            onChangeText={(text) => handlePriceChange(text, setDeliveryFee)}
-          />
-          <Text style={styles.wonText}>원</Text>
-        </View>
-
-        <View style={styles.deliveryMethodContainer}>
-          <Text style={styles.sectionTitle}>배달 방식</Text>
-          <View style={styles.deliveryButtonsContainer}>
-            <TouchableOpacity
-              style={[styles.deliveryButton, deliveryMethod === "direct" && styles.selectedButton]}
-              onPress={() => setDeliveryMethod("direct")}
-            >
-              <Text style={deliveryMethod === "direct" ? styles.selectedButtonText : styles.buttonText}>
-                직접배달
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.deliveryButton, deliveryMethod === "cupHolder" && styles.selectedButton]}
-              onPress={() => setDeliveryMethod("cupHolder")}
-            >
-              <Text style={deliveryMethod === "cupHolder" ? styles.selectedButtonText : styles.buttonText}>
-                음료보관대
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={deliveryMethod === "cupHolder" ? styles.selectedButtonText : styles.buttonText}>
-                {user?.address || "주소를 설정하세요"}
-              </Text>
-        </View>
-      </View>
-
-      <TouchableOpacity
-        style={[styles.nextButton, !orderDetails && styles.nextButtonInactive]}
-        disabled={!orderDetails}
-        onPress={handleNextPress}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <Text style={styles.nextButtonText}>다음</Text>
-      </TouchableOpacity>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <View style={{ flex: 1 }}>
+              <Header title={name} />
+              <View style={styles.content}>
+                <View style={styles.sectionHeader}>
+                  <View>
+                    <Text style={styles.sectionTitle}>무엇을 요청할까요?</Text>
+                    <Text style={styles.sectionSubtitle}>사진을 첨부해주시면 배달원에게 도움이 됩니다</Text>
+                  </View>
+                  <TouchableOpacity onPress={images ? handleRemoveImage : handleImagePicker}>
+                    <Ionicons name={images ? "close" : "camera-outline"} size={24} color="#000" />
+                  </TouchableOpacity>
+                </View>
+                <TextInput
+                  style={styles.textArea}
+                  placeholder="배달할 품목, 수량 등 입력"
+                  placeholderTextColor="#999"
+                  multiline
+                  value={orderDetails}
+                  onChangeText={setOrderDetails}
+                />
+
+                <Text style={styles.sectionTitle}>주문상품 가격</Text>
+                <View style={styles.priceInputContainer}>
+                  <TextInput
+                    style={styles.priceInput}
+                    placeholder="0"
+                    placeholderTextColor="#999"
+                    keyboardType="numeric"
+                    value={priceOffer}
+                    onChangeText={(text) => handlePriceChange(text, setPriceOffer)}
+                  />
+                  <Text style={styles.wonText}>원</Text>
+                </View>
+
+                <Text style={styles.sectionTitle}>배달팁</Text>
+                <View style={styles.priceInputContainer}>
+                  <TextInput
+                    style={styles.priceInput}
+                    placeholder="0"
+                    placeholderTextColor="#999"
+                    keyboardType="numeric"
+                    value={deliveryFee}
+                    onChangeText={(text) => handlePriceChange(text, setDeliveryFee)}
+                  />
+                  <Text style={styles.wonText}>원</Text>
+                </View>
+
+                <View style={styles.deliveryMethodContainer}>
+                  <Text style={styles.sectionTitle}>배달 방식</Text>
+                  <View style={styles.deliveryButtonsContainer}>
+                    <TouchableOpacity
+                      style={[styles.deliveryButton, deliveryMethod === "direct" && styles.selectedButton]}
+                      onPress={() => setDeliveryMethod("direct")}
+                    >
+                      <Text style={deliveryMethod === "direct" ? styles.selectedButtonText : styles.buttonText}>
+                        직접배달
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.deliveryButton, deliveryMethod === "cupHolder" && styles.selectedButton]}
+                      onPress={() => setDeliveryMethod("cupHolder")}
+                    >
+                      <Text style={deliveryMethod === "cupHolder" ? styles.selectedButtonText : styles.buttonText}>
+                        음료보관대
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={deliveryMethod === "cupHolder" ? styles.selectedButtonText : styles.buttonText}>
+                    {user?.address || "주소를 설정하세요"}
+                  </Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.nextButton, !orderDetails && styles.nextButtonInactive]}
+                disabled={!orderDetails}
+                onPress={handleNextPress}
+              >
+                <Text style={styles.nextButtonText}>다음</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

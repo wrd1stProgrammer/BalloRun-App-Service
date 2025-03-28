@@ -118,7 +118,7 @@ const OrderCupHolderLocationScreen = () => {
     <View style={styles.container}>
       {isMapView && (
         <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="black" />
+<Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
       )}
 

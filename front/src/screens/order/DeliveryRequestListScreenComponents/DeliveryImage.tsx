@@ -183,7 +183,7 @@ const handleSubmit = async () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={24} color="black" />
+        <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
       </TouchableOpacity>
 
       <Text style={styles.title}>배달 완료 사진 업로드</Text>
@@ -209,7 +209,7 @@ const handleSubmit = async () => {
         disabled={isLoading} // 로딩 중 버튼 비활성화
       >
         {isLoading ? (
-          <ActivityIndicator color="#fff" /> // 로딩 스피너 표시
+          <ActivityIndicator color="#000" /> // 로딩 스피너 표시
         ) : (
           <Text style={styles.submitButtonText}>사진 제출하기</Text>
         )}

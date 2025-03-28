@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   submitButton: {
-    backgroundColor: '#FF7043', // 토스 스타일 오렌지 계열
+    backgroundColor: '#0064FF', // 토스 스타일 오렌지 계열
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     elevation: Platform.select({ ios: 2, android: 4 }),
   },
   disabledButton: {
-    backgroundColor: '#FFB4A2', // 비활성화 시 연한 오렌지
+    backgroundColor: '#979797', // 비활성화 시 연한 오렌지
     opacity: 0.7,
   },
   submitButtonText: {

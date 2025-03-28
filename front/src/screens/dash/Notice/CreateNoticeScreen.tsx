@@ -43,7 +43,7 @@ const CreateNoticeScreen: React.FC<{ route: any }> = ({ route }) => {
           onPress={() => goBack()}
           style={styles.backButton}
         >
-          <Ionicons name="chevron-back" size={28} color="#000" />
+          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>공지사항 작성</Text>
         <TouchableOpacity onPress={handleSubmit} style={styles.saveButton}>

@@ -113,7 +113,7 @@ function DeliveryCustomMap({
     <View style={{ flex: 1 }}>
       {/* 뒤로 가기 버튼 */}
       <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
-        <Ionicons name="arrow-back" size={24} color="black" />
+        <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
       </TouchableOpacity>
 
       {/* 지도 */}

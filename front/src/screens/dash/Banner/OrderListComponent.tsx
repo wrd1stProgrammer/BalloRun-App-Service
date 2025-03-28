@@ -1,24 +1,23 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Alert, Image, ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { navigate } from '../../../navigation/NavigationUtils';
-import { useAppSelector } from '../../../redux/config/reduxHook';
-import { selectIsOngoingOrder, setIsOngoingOrder } from '../../../redux/reducers/userSlice';
 import AdMobBanner from '../AdMob/AdMobBanner';
+
 interface OrderListProps {
   user: any;
 }
 
 interface Category {
   name: string;
-  icon: string;
+  icon: string | ImageSourcePropType; // 문자열 또는 이미지 소스
   screen: string;
 }
 
 const categories: Category[] = [
   { name: '커피', icon: 'cafe', screen: 'OrderPageScreen' },
-  { name: '편의점', icon: 'storefront', screen: 'OrderPageScreen' },
-  { name: '마트', icon: 'medical', screen: 'OrderPageScreen' },
+  { name: '편의점', icon: require('../../../assets/Icon/cu.png'), screen: 'OrderPageScreen' },
+  { name: '물품', icon: 'medical', screen: 'OrderPageScreen' },
   { name: '음식', icon: 'fast-food', screen: 'OrderPageScreen' },
   { name: '기타', icon: 'ellipsis-horizontal', screen: 'OrderPageScreen' },
 ];
@@ -139,7 +138,11 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
               style={styles.categoryButton}
               onPress={() => handleCategoryPress(cat.screen, cat.name)}
             >
-              <Ionicons name={cat.icon as any} size={28} color="black" />
+              {typeof cat.icon === 'string' ? (
+                <Ionicons name={cat.icon} size={28} color="black" />
+              ) : (
+                <Image source={cat.icon} style={styles.categoryIcon} />
+              )}
             </TouchableOpacity>
             <Text style={styles.categoryText}>{cat.name}</Text>
           </View>
@@ -153,8 +156,8 @@ const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
       </TouchableOpacity>
 
       <View style={styles.bannerContainer}>
-          <AdMobBanner/>
-        </View>
+        <AdMobBanner />
+      </View>
     </View>
   );
 };
@@ -194,12 +197,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   categoryWrapper: {
-    alignItems: 'center', // 아이콘과 텍스트 중앙 정렬
-    width: '19%', // 5열 유지
+    alignItems: 'center',
+    width: '19%',
   },
   categoryButton: {
-    width: 50, // 고정 너비로 변경
-    height: 50, // 고정 높이로 변경
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
@@ -215,6 +218,10 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
     }),
+  },
+  categoryIcon: {
+    width: 28,
+    height: 28,
   },
   categoryText: {
     marginTop: 6,
@@ -253,9 +260,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   bannerContainer: {
-    marginTop:20,
+    marginTop: 20,
     marginBottom: 15,
-    alignItems: 'center', // 배너를 수평으로 중앙에 정렬
+    alignItems: 'center',
   },
 });
 

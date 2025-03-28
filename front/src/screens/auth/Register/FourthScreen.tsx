@@ -89,7 +89,7 @@ const FourthScreen = ({ route }: FourthScreenProps) => {
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.header}>
         <TouchableOpacity onPress={goBack}>
-          <Ionicons name="chevron-back" size={24} color="#202632" />
+        <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>고객센터</Text>
       </View>

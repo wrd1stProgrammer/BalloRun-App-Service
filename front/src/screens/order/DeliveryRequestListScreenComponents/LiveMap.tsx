@@ -87,7 +87,7 @@ const LiveMap = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
-        <Ionicons name="arrow-back" size={24} color="black" />
+        <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
       </TouchableOpacity>
       
       <MapView

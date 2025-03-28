@@ -236,7 +236,7 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#006AFF" />
+        <ActivityIndicator size="large" color="#000" />
       </SafeAreaView>
     );
   }

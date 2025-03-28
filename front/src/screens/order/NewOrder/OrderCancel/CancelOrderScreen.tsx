@@ -9,6 +9,9 @@ import {
   Platform,
   TouchableOpacity,
   SafeAreaView,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { goBack, navigate, resetAndNavigate } from '../../../../navigation/NavigationUtils';
@@ -105,7 +108,7 @@ const CancelOrderScreen: React.FC<{ route: { params: RouteParams } }> = ({ route
     goBack();
   };
 
-  if (!orderData) return <Text style={styles.loadingText}>Loading...</Text>;
+  if (!orderData) return <Text style={styles.loadingText}>로딩 중 ..</Text>;
 
   // price가 배열인지 숫자인지 확인 후 totalAmount 계산
   const totalAmount = Array.isArray(orderData.price)
@@ -122,41 +125,51 @@ const CancelOrderScreen: React.FC<{ route: { params: RouteParams } }> = ({ route
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color="#1C2526" />
+            <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>주문 취소</Text>
         </View>
 
-        {/* 주문 정보 */}
-        <View style={styles.orderInfo}>
-          <Text style={styles.sectionTitle}>주문 정보</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>결제 금액</Text>
-            <Text style={styles.infoValue}>{totalAmount.toLocaleString()}원</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>환불 금액</Text>
-            <Text style={styles.infoValue}>{orderData.refundAmount.toLocaleString()}원</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>패널티 금액</Text>
-            <Text style={styles.infoValue}>{orderData.penaltyAmount.toLocaleString()}원</Text>
-          </View>
-        </View>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <View style={{ flex: 1 }}>
+              {/* 주문 정보 */}
+              <View style={styles.orderInfo}>
+                <Text style={styles.sectionTitle}>주문 정보</Text>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>결제 금액</Text>
+                  <Text style={styles.infoValue}>{totalAmount.toLocaleString()}원</Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>환불 금액</Text>
+                  <Text style={styles.infoValue}>{orderData.refundAmount.toLocaleString()}원</Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>패널티 금액</Text>
+                  <Text style={styles.infoValue}>{orderData.penaltyAmount.toLocaleString()}원</Text>
+                </View>
+              </View>
 
-        {/* 취소 사유 입력 */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.sectionTitle}>취소 사유</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="취소 사유를 입력해주세요 (최대 100자)"
-            value={cancelReason}
-            onChangeText={setCancelReason}
-            multiline
-            placeholderTextColor="#999"
-            maxLength={100}
-          />
-        </View>
+              {/* 취소 사유 입력 */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.sectionTitle}>취소 사유</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="취소 사유를 입력해주세요 (최대 100자)"
+                  value={cancelReason}
+                  onChangeText={setCancelReason}
+                  multiline
+                  placeholderTextColor="#999"
+                  maxLength={100}
+                />
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
 
         {/* 취소 버튼 (하단 고정) */}
         <View style={styles.buttonContainer}>
@@ -191,7 +204,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomWidth: 0,
     backgroundColor: '#fff',
-
   },
   backButton: {
     padding: 5,
@@ -201,6 +213,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#000',
     marginLeft: 10,
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 100, // 하단 버튼과 겹치지 않도록 여백 추가
   },
   orderInfo: {
     paddingHorizontal: 20,
@@ -266,7 +284,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
-
   },
   cancelButton: {
     backgroundColor: '#0066ff',

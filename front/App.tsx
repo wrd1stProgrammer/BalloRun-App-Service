@@ -69,11 +69,9 @@ const App: React.FC = () => {
               <MapSocketContainer>
                 <ChatSocketContainer>
                   <LocationProvider>
-                    <KeyboardDismissWrapper>
                   <PersistGate loading={null} persistor={persistor}>
                     <Navigation />
                   </PersistGate>
-                  </KeyboardDismissWrapper>
                   </LocationProvider>
                 </ChatSocketContainer>
               </MapSocketContainer>

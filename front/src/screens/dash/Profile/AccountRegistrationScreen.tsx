@@ -39,7 +39,7 @@ const AccountRegistrationScreen: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>계좌 등록</Text>
       </View>

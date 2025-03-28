@@ -42,7 +42,7 @@ const ChatBubble = ({ message, isSentByMe, timeStamp, imageUrl, isLoading, userI
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
-            <ActivityIndicator size="small" color="#0000ff" style={styles.loadingSpinner} />
+            <ActivityIndicator size="small" color="#000" style={styles.loadingSpinner} />
           </View>
         ) : imageUrl ? (
           <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />

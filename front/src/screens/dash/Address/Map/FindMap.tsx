@@ -90,7 +90,7 @@ const FindMap = () => {
   if (loading || !region) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#000" />
         <Text style={{ marginTop: 10 }}>지도를 불러오는 중...</Text>
       </View>
     );
@@ -99,7 +99,7 @@ const FindMap = () => {
   return (
     <View style={styles.container}>
         <TouchableOpacity onPress={goBack} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={24} color="black" />
+          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
       <MapView
         ref={mapRef}
@@ -115,7 +115,7 @@ const FindMap = () => {
       {/* 주소 표시 */}
       <View style={styles.addressBox}>
         {fetchingAddress ? (
-          <ActivityIndicator size="small" color="#007AFF" />
+          <ActivityIndicator size="small" color="#000" />
         ) : (
           <Text style={styles.addressText}>{address}</Text>
         )}

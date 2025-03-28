@@ -9,7 +9,7 @@ const LocationServiceTermsScreen = () => {
       {/* 상단 바 (뒤로 가기 아이콘 포함) */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => goBack()} style={styles.backButton} activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>위치기반서비스 이용약관</Text>
       </View>

@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Image, StyleSheet, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  StyleSheet,
+  Platform,
+  StatusBar,
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import { goBack } from '../../../navigation/NavigationUtils';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAppSelector } from '../../../redux/config/reduxHook';
@@ -8,6 +23,7 @@ import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 're
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { uploadFile } from '../../../redux/actions/fileAction';
 import { editProfileAction, refetchUser } from '../../../redux/actions/userAction';
+import { Ionicons } from '@expo/vector-icons';
 
 interface RouteParams {
   userImage: string | undefined;
@@ -21,11 +37,10 @@ const EditProfileScreen = () => {
   const [username, setUsername] = useState(user?.username || '');
   const [images, setImages] = useState<string | null>(null);
   const [nicknameError, setNicknameError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
 
   const handleSaveProfile = async () => {
-    // 닉네임 유효성 검사
     if (!nickname) {
       setNicknameError('올바른 닉네임을 입력하세요');
       return;
@@ -59,18 +74,18 @@ const EditProfileScreen = () => {
       return;
     }
 
-    setIsLoading(true); // 로딩 시작
+    setIsLoading(true);
     try {
       const userImage = images ? await dispatch(uploadFile(images, "newUserProfile_image")) : null;
       await dispatch(editProfileAction(username, nickname, userImage));
-      await dispatch(refetchUser()); // user info update
+      await dispatch(refetchUser());
       console.log('프로필 수정 완료:', { nickname, username });
       goBack();
     } catch (error) {
       Alert.alert('오류', '프로필 수정 중 문제가 발생했습니다.');
       console.error(error);
     } finally {
-      setIsLoading(false); // 로딩 종료
+      setIsLoading(false);
     }
   };
 
@@ -89,9 +104,9 @@ const EditProfileScreen = () => {
         selectionLimit: 1,
         includeBase64: true,
       };
-  
+
       const response: ImagePickerResponse = await launchImageLibrary(option);
-  
+
       if (response.didCancel) Alert.alert('취소');
       else if (response.errorMessage) Alert.alert('Error: ' + response.errorMessage);
       else if (response.assets && response.assets.length > 0) {
@@ -105,13 +120,13 @@ const EditProfileScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => goBack()} style={styles.headerButton}>
-          <Icon name="arrow-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>프로필 수정</Text>
-        <TouchableOpacity 
-          onPress={handleSaveProfile} 
-          style={styles.headerButton} 
-          disabled={isLoading} // 로딩 중에는 버튼 비활성화
+        <TouchableOpacity
+          onPress={handleSaveProfile}
+          style={styles.headerButton}
+          disabled={isLoading}
         >
           {isLoading ? (
             <ActivityIndicator size="small" color="#000" />
@@ -121,60 +136,74 @@ const EditProfileScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
-        <TouchableOpacity style={styles.profileImageContainer} onPress={handleImagePress}>
-          {images ? (
-            <Image source={{ uri: images }} style={styles.profileImage} />
-          ) : user?.userImage ? (
-            <Image source={{ uri: user?.userImage }} style={styles.profileImage} />
-          ) : (
-            <View style={styles.defaultProfileImage}>
-              <Text style={styles.smiley}>☺</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <View>
+              <TouchableOpacity style={styles.profileImageContainer} onPress={handleImagePress}>
+                {images ? (
+                  <Image source={{ uri: images }} style={styles.profileImage} />
+                ) : user?.userImage ? (
+                  <Image source={{ uri: user?.userImage }} style={styles.profileImage} />
+                ) : (
+                  <View style={styles.defaultProfileImage}>
+                    <Text style={styles.smiley}>☺</Text>
+                  </View>
+                )}
+                <View style={styles.cameraIconContainer}>
+                  <Icon
+                    name={images ? "close" : "camera"}
+                    size={20}
+                    color="#000"
+                  />
+                </View>
+              </TouchableOpacity>
+
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <Text style={styles.label}>닉네임</Text>
+                  {nicknameError && (
+                    <Text style={styles.errorText}>{nicknameError}</Text>
+                  )}
+                </View>
+                <TextInput
+                  style={styles.input}
+                  value={nickname}
+                  onChangeText={(text) => {
+                    setNickname(text);
+                    setNicknameError(null);
+                  }}
+                  placeholder="2~12자, 특수문자/공백/자음만 불가"
+                  editable={!isLoading}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>사용자 이름</Text>
+                <TextInput
+                  style={styles.input}
+                  value={username}
+                  onChangeText={setUsername}
+                  placeholder="username"
+                  editable={!isLoading}
+                />
+              </View>
             </View>
-          )}
-          <View style={styles.cameraIconContainer}>
-            <Icon 
-              name={images ? "close" : "camera"} 
-              size={20} 
-              color="#000" 
-            />
-          </View>
-        </TouchableOpacity>
-
-        <View style={styles.inputContainer}>
-          <View style={styles.labelContainer}>
-            <Text style={styles.label}>닉네임</Text>
-            {nicknameError && (
-              <Text style={styles.errorText}>{nicknameError}</Text>
-            )}
-          </View>
-          <TextInput
-            style={styles.input}
-            value={nickname}
-            onChangeText={(text) => {
-              setNickname(text);
-              setNicknameError(null);
-            }}
-            placeholder="2~12자, 특수문자/공백/자음만 불가"
-            editable={!isLoading} // 로딩 중에는 입력 비활성화
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>사용자 이름</Text>
-          <TextInput
-            style={styles.input}
-            value={username}
-            onChangeText={setUsername}
-            placeholder="username"
-            editable={!isLoading} // 로딩 중에는 입력 비활성화
-          />
-        </View>
-      </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {isLoading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#000" />
         </View>
       )}
     </View>
@@ -214,6 +243,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 15,
     paddingTop: 20,
+  },
+  contentContainer: {
+    paddingBottom: 20, // 하단 여백 추가
   },
   profileImageContainer: {
     alignItems: 'center',
@@ -273,7 +305,7 @@ const styles = StyleSheet.create({
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)', // 반투명 배경
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },

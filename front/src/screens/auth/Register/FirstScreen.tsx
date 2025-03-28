@@ -89,7 +89,7 @@ const FirstScreen = () => {
         {/* 헤더 */}
         <View style={styles.header}>
           <TouchableOpacity onPress={goBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#1C2526" />
+            <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>본인정보 입력</Text>
         </View>

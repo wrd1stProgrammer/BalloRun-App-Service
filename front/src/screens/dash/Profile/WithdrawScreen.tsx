@@ -114,7 +114,7 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>출금</Text>
       </View>

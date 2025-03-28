@@ -12,7 +12,7 @@ const RiderManual: React.FC = () => {
     <View style={authStyles.container}>
       {/* 뒤로가기 버튼 추가 */}
       <TouchableOpacity style={authStyles.backButton} onPress={() => goBack()}>
-        <Ionicons name="arrow-back" size={24} color="#000" />
+      <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
       </TouchableOpacity>
 
       <View style={authStyles.headerContainer}>

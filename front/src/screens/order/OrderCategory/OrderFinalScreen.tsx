@@ -11,6 +11,9 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../../navigation/NavigationUtils";
@@ -49,16 +52,13 @@ type OrderFinalScreenRouteProp = RouteProp<RootStackParamList, "OrderFinalScreen
 const OrderFinalScreen = () => {
   const route = useRoute<OrderFinalScreenRouteProp>();
   const { name, orderDetails, priceOffer, deliveryFee, images, deliveryMethod, selectedMarker } = route.params;
-  
 
-  
-  
   const user = useAppSelector(selectUser);
 
-  const [deliveryAddress, setDeliveryAddress] = useState(user?.detail||"없음");
+  const [deliveryAddress, setDeliveryAddress] = useState(user?.detail || "없음");
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [riderRequest, setRiderRequest] = useState(user.riderNote ||"");
+  const [riderRequest, setRiderRequest] = useState(user.riderNote || "");
   const [floor, setFloorState] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [startTime, setStartTimeLocal] = useState(new Date());
@@ -67,23 +67,22 @@ const OrderFinalScreen = () => {
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [reservationChecked, setReservationChecked] = useState(false);
   const [resolvedAddress, setResolvedAddress] = useState(user?.address || "");
-  const [points, setPoints] = useState(0); // 초기값을 0으로 설정
+  const [points, setPoints] = useState(0);
   const [usedPoints, setUsedPoints] = useState(0);
 
   const lat = user.lat;
-  const lng = user.lng;  
+  const lng = user.lng;
 
   const dispatch = useAppDispatch();
 
-  // user.point가 변경될 때 points 상태 업데이트
   useEffect(() => {
     if (user?.point !== undefined) {
-      setPoints(user.point); // user.point가 유효하면 설정
+      setPoints(user.point);
     }
   }, [user]);
 
   useEffect(() => {
-    const fetchAddress = async () => { 
+    const fetchAddress = async () => {
       if (lat && lng) {
         const fetchedAddress = await reverseGeocode(String(lat), String(lng));
         setResolvedAddress(fetchedAddress);
@@ -91,8 +90,6 @@ const OrderFinalScreen = () => {
     };
     fetchAddress();
   }, [lat, lng]);
-
-
 
   const finalLat = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.latitude : user.lat;
   const finalLng = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.longitude : user.lng;
@@ -110,7 +107,7 @@ const OrderFinalScreen = () => {
     setIsLoading(true);
     const imageResponse = images ? await dispatch(uploadFile(images, "neworderInfo_image")) : null;
     const imageResponse2 = selectedImageUri ? await dispatch(uploadFile(selectedImageUri, "neworderPickup_image")) : null;
-  
+
     await dispatch(neworderCompleteHandler(
       name,
       orderDetails,
@@ -129,13 +126,14 @@ const OrderFinalScreen = () => {
       resolvedAddress,
       usedPoints
     ));
-    await dispatch(refetchUser()); // point 감소 반영 떄매
+    await dispatch(refetchUser());
     dispatch(setIsOngoingOrder(true));
     setTimeout(() => {
       setIsLoading(false);
       navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
     }, 1000);
   };
+
   const handleImagePicker = async () => {
     const options: ImageLibraryOptions = { mediaType: "photo", includeBase64: true, selectionLimit: 1 };
     const response: ImagePickerResponse = await launchImageLibrary(options);
@@ -176,86 +174,116 @@ const OrderFinalScreen = () => {
       ) : (
         <>
           <Header title={name} />
-          <ScrollView 
-            style={styles.content}
-            contentContainerStyle={styles.contentContainer}
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
           >
-            {!floor && (
-              <>
-                <Text style={styles.sectionTitle}>배달 주소</Text>
-                <TextInput style={styles.input} value={resolvedAddress} editable={false} />
-                <Text style={styles.sectionTitle}>상세 배달 주소</Text>
-                <View style={styles.addressInputContainer}>
-                  <TextInput
-                    style={[styles.textArea, styles.addressInput]}
-                    placeholder="상세 배달 주소를 입력해주세요"
-                    placeholderTextColor="#999"
-                    multiline
-                    value={deliveryAddress}
-                    onChangeText={setDeliveryAddress}
-                  />
-                  <TouchableOpacity onPress={selectedImageUri ? handleRemoveImage : handleImagePicker} style={styles.cameraIcon}>
-                    <Ionicons
-                      name={selectedImageUri ? "close-outline" : "camera-outline"}
-                      size={24}
-                      color={selectedImageUri ? "#ff3b30" : "#000"}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
+            <ScrollView
+              style={styles.content}
+              contentContainerStyle={styles.contentContainer}
+              keyboardShouldPersistTaps="handled"
+            >
+              <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+                <View style={{ flex: 1 }}>
+                  {!floor && (
+                    <>
+                      <Text style={styles.sectionTitle}>배달 주소</Text>
+                      <TextInput style={styles.input} value={resolvedAddress} editable={false} />
+                      <Text style={styles.sectionTitle}>상세 배달 주소</Text>
+                      <View style={styles.addressInputContainer}>
+                        <TextInput
+                          style={[styles.textArea, styles.addressInput]}
+                          placeholder="상세 배달 주소를 입력해주세요"
+                          placeholderTextColor="#999"
+                          multiline
+                          value={deliveryAddress}
+                          onChangeText={setDeliveryAddress}
+                        />
+                        <TouchableOpacity onPress={selectedImageUri ? handleRemoveImage : handleImagePicker} style={styles.cameraIcon}>
+                          <Ionicons
+                            name={selectedImageUri ? "close-outline" : "camera-outline"}
+                            size={24}
+                            color={selectedImageUri ? "#ff3b30" : "#000"}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </>
+                  )}
 
-            {floor && selectedMarker && (
-              <>
-                <Text style={styles.sectionTitle}>층 선택</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker selectedValue={selectedFloor} onValueChange={(itemValue) => setSelectedFloor(itemValue)}>
-                    <Picker.Item label="층을 선택해주세요" value="" />
-                    {selectedMarker.floors.map((floor: string) => (
-                      <Picker.Item key={floor} label={floor} value={floor} />
-                    ))}
-                  </Picker>
-                </View>
-              </>
-            )}
+                  {floor && selectedMarker && (
+                    <>
+                      <Text style={styles.sectionTitle}>층 선택</Text>
+                      <View style={styles.pickerContainer}>
+                        <Picker selectedValue={selectedFloor} onValueChange={(itemValue) => setSelectedFloor(itemValue)}>
+                          <Picker.Item label="층을 선택해주세요" value="" />
+                          {selectedMarker.floors.map((floor: string) => (
+                            <Picker.Item key={floor} label={floor} value={floor} />
+                          ))}
+                        </Picker>
+                      </View>
+                    </>
+                  )}
 
-            <Text style={styles.sectionTitle}>배달 요청 시간</Text>
-            <View style={styles.timeContainer}>
-              <TouchableOpacity
-                style={[styles.timeInput, !reservationChecked && styles.disabledTimeInput]}
-                onPress={() => reservationChecked && setShowStartPicker(true)}
-              >
-                <Text style={[styles.timeText, !reservationChecked && styles.disabledText]}>
-                  {formatTime(startTime)}
-                </Text>
-              </TouchableOpacity>
-              <Text style={styles.timeDivider}>~</Text>
-              <TouchableOpacity style={styles.timeInput} onPress={() => setShowEndPicker(true)}>
-                <Text style={styles.timeText}>{formatTime(endTime)}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.toggleButton, reservationChecked && styles.toggleButtonActive]}
-                onPress={() => setReservationChecked(!reservationChecked)}
-              >
-                <Text style={[styles.toggleText, reservationChecked && styles.toggleTextActive]}>
-                  예약
-                </Text>
-              </TouchableOpacity>
-            </View>
+                  <Text style={styles.sectionTitle}>배달 요청 시간</Text>
+                  <View style={styles.timeContainer}>
+                    <TouchableOpacity
+                      style={[styles.timeInput, !reservationChecked && styles.disabledTimeInput]}
+                      onPress={() => reservationChecked && setShowStartPicker(true)}
+                    >
+                      <Text style={[styles.timeText, !reservationChecked && styles.disabledText]}>
+                        {formatTime(startTime)}
+                      </Text>
+                    </TouchableOpacity>
+                    <Text style={styles.timeDivider}>~</Text>
+                    <TouchableOpacity style={styles.timeInput} onPress={() => setShowEndPicker(true)}>
+                      <Text style={styles.timeText}>{formatTime(endTime)}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.toggleButton, reservationChecked && styles.toggleButtonActive]}
+                      onPress={() => setReservationChecked(!reservationChecked)}
+                    >
+                      <Text style={[styles.toggleText, reservationChecked && styles.toggleTextActive]}>
+                        예약
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
 
-              {showStartPicker && reservationChecked && (
-                Platform.OS === 'ios' ? (
-                  <Modal isVisible={true} onBackdropPress={() => setShowStartPicker(false)}>
-                    <View style={styles.timePickerModal}>
-                      <Text style={styles.timePickerTitle}>시작 시간 선택</Text>
+                  {showStartPicker && reservationChecked && (
+                    Platform.OS === 'ios' ? (
+                      <Modal isVisible={true} onBackdropPress={() => setShowStartPicker(false)}>
+                        <View style={styles.timePickerModal}>
+                          <Text style={styles.timePickerTitle}>시작 시간 선택</Text>
+                          <DateTimePicker
+                            value={startTime}
+                            mode="time"
+                            is24Hour={true}
+                            display="spinner"
+                            onChange={(event, selectedDate) => {
+                              if (selectedDate) {
+                                setShowStartPicker(false);
+                                if (selectedDate < new Date()) {
+                                  Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
+                                  return;
+                                }
+                                setStartTimeLocal(selectedDate);
+                                if (selectedDate >= endTime) {
+                                  setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+                                }
+                              }
+                            }}
+                          />
+                        </View>
+                      </Modal>
+                    ) : (
                       <DateTimePicker
                         value={startTime}
                         mode="time"
                         is24Hour={true}
-                        display="spinner"
+                        display="default"
                         onChange={(event, selectedDate) => {
+                          setShowStartPicker(false);
                           if (selectedDate) {
-                            setShowStartPicker(false);
                             if (selectedDate < new Date()) {
                               Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
                               return;
@@ -267,43 +295,40 @@ const OrderFinalScreen = () => {
                           }
                         }}
                       />
-                    </View>
-                  </Modal>
-                ) : (
-                  <DateTimePicker
-                    value={startTime}
-                    mode="time"
-                    is24Hour={true}
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      setShowStartPicker(false);
-                      if (selectedDate) {
-                        if (selectedDate < new Date()) {
-                          Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
-                          return;
-                        }
-                        setStartTimeLocal(selectedDate);
-                        if (selectedDate >= endTime) {
-                          setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
-                        }
-                      }
-                    }}
-                  />
-                )
-              )}
-              {showEndPicker && (
-                Platform.OS === 'ios' ? (
-                  <Modal isVisible={true} onBackdropPress={() => setShowEndPicker(false)}>
-                    <View style={styles.timePickerModal}>
-                      <Text style={styles.timePickerTitle}>종료 시간 선택</Text>
+                    )
+                  )}
+                  {showEndPicker && (
+                    Platform.OS === 'ios' ? (
+                      <Modal isVisible={true} onBackdropPress={() => setShowEndPicker(false)}>
+                        <View style={styles.timePickerModal}>
+                          <Text style={styles.timePickerTitle}>종료 시간 선택</Text>
+                          <DateTimePicker
+                            value={endTime}
+                            mode="time"
+                            is24Hour={true}
+                            display="spinner"
+                            onChange={(event, selectedDate) => {
+                              if (selectedDate) {
+                                setShowEndPicker(false);
+                                if (selectedDate <= startTime) {
+                                  Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
+                                  return;
+                                }
+                                setEndTimeLocal(selectedDate);
+                              }
+                            }}
+                          />
+                        </View>
+                      </Modal>
+                    ) : (
                       <DateTimePicker
                         value={endTime}
                         mode="time"
                         is24Hour={true}
-                        display="spinner"
+                        display="default"
                         onChange={(event, selectedDate) => {
+                          setShowEndPicker(false);
                           if (selectedDate) {
-                            setShowEndPicker(false);
                             if (selectedDate <= startTime) {
                               Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
                               return;
@@ -312,100 +337,84 @@ const OrderFinalScreen = () => {
                           }
                         }}
                       />
-                    </View>
-                  </Modal>
-                ) : (
-                  <DateTimePicker
-                    value={endTime}
-                    mode="time"
-                    is24Hour={true}
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      setShowEndPicker(false);
-                      if (selectedDate) {
-                        if (selectedDate <= startTime) {
-                          Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
-                          return;
-                        }
-                        setEndTimeLocal(selectedDate);
-                      }
-                    }}
+                    )
+                  )}
+
+                  <Text style={styles.sectionTitle}>주문 요청사항</Text>
+                  <TextInput
+                    style={styles.textArea}
+                    placeholder="요청사항을 입력해주세요"
+                    placeholderTextColor="#999"
+                    multiline
+                    value={riderRequest}
+                    onChangeText={setRiderRequest}
                   />
-                )
-              )}
 
-            <Text style={styles.sectionTitle}>주문 요청사항</Text>
-            <TextInput
-              style={styles.textArea}
-              placeholder="요청사항을 입력해주세요"
-              placeholderTextColor="#999"
-              multiline
-              value={riderRequest}
-              onChangeText={setRiderRequest}
-            />
-
-            <View style={styles.pointsContainer}>
-              <Text style={styles.sectionTitle}>포인트 사용</Text>
-              <Text style={styles.pointsBalance}>보유 포인트: {points.toLocaleString()}P</Text>
-              <View style={styles.pointsInputContainer}>
-                <TextInput
-                  style={styles.pointsInput}
-                  placeholder="사용할 포인트를 입력하세요"
-                  placeholderTextColor="#999"
-                  keyboardType="numeric"
-                  value={usedPoints.toString()}
-                  onChangeText={handlePointsChange}
-                />
-                <TouchableOpacity
-                  style={styles.pointsAllButton}
-                  onPress={() => setUsedPoints(Math.min(points, totalAmount))}
-                >
-                  <Text style={styles.pointsAllButtonText}>전액 사용</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.paymentContainer}>
-              <View style={styles.paymentRow}>
-                <Text style={styles.paymentLabel}>결제 금액</Text>
-                <Text style={styles.paymentTotal}>{finalAmount.toLocaleString()}원</Text>
-              </View>
-              <View style={styles.paymentDetail}>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentSubLabel}>총 금액</Text>
-                  <Text style={styles.paymentSubValue}>{totalAmount.toLocaleString()}원</Text>
-                </View>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentSubLabel}>메뉴 금액</Text>
-                  <Text style={styles.paymentSubValue}>{parseInt(priceOffer.replace("원", "").replace(",", "")).toLocaleString()}원</Text>
-                </View>
-                <View style={styles.paymentRow}>
-                  <Text style={styles.paymentSubLabel}>배달팁</Text>
-                  <Text style={styles.paymentSubValue}>{parseInt(deliveryFee.replace("원", "").replace(",", "")).toLocaleString()}원</Text>
-                </View>
-                {usedPoints > 0 && (
-                  <View style={styles.paymentRow}>
-                    <Text style={styles.paymentSubLabel}>포인트 할인</Text>
-                    <Text style={styles.discountValue}>-{usedPoints.toLocaleString()}원</Text>
+                  <View style={styles.pointsContainer}>
+                    <Text style={styles.sectionTitle}>포인트 사용</Text>
+                    <Text style={styles.pointsBalance}>보유 포인트: {points.toLocaleString()}P</Text>
+                    <View style={styles.pointsInputContainer}>
+                      <TextInput
+                        style={styles.pointsInput}
+                        placeholder="사용할 포인트를 입력하세요"
+                        placeholderTextColor="#999"
+                        keyboardType="numeric"
+                        value={usedPoints.toString()}
+                        onChangeText={handlePointsChange}
+                      />
+                      <TouchableOpacity
+                        style={styles.pointsAllButton}
+                        onPress={() => setUsedPoints(Math.min(points, totalAmount))}
+                      >
+                        <Text style={styles.pointsAllButtonText}>전액 사용</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                )}
-              </View>
-            </View>
 
-            <TouchableOpacity style={styles.noticeRow} onPress={() => navigate("DeliveryNoticeScreen")}>
-              <Text style={styles.noticeText}>배달 상품 주의사항 동의</Text>
-              <Ionicons name="chevron-forward" size={16} color="#999" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.noticeRow} onPress={() => navigate("CancelNoticeScreen")}>
-              <Text style={styles.noticeText}>배달 취소 주의사항 동의</Text>
-              <Ionicons name="chevron-forward" size={16} color="#999" />
-            </TouchableOpacity>
-            <Text style={styles.confirmText}>위 내용을 확인하였으며 결제에 동의합니다</Text>
-          </ScrollView>
+                  <View style={styles.paymentContainer}>
+                    <View style={styles.paymentRow}>
+                      <Text style={styles.paymentLabel}>결제 금액</Text>
+                      <Text style={styles.paymentTotal}>{finalAmount.toLocaleString()}원</Text>
+                    </View>
+                    <View style={styles.paymentDetail}>
+                      <View style={styles.paymentRow}>
+                        <Text style={styles.paymentSubLabel}>총 금액</Text>
+                        <Text style={styles.paymentSubValue}>{totalAmount.toLocaleString()}원</Text>
+                      </View>
+                      <View style={styles.paymentRow}>
+                        <Text style={styles.paymentSubLabel}>메뉴 금액</Text>
+                        <Text style={styles.paymentSubValue}>{parseInt(priceOffer.replace("원", "").replace(",", "")).toLocaleString()}원</Text>
+                      </View>
+                      <View style={styles.paymentRow}>
+                        <Text style={styles.paymentSubLabel}>배달팁</Text>
+                        <Text style={styles.paymentSubValue}>{parseInt(deliveryFee.replace("원", "").replace(",", "")).toLocaleString()}원</Text>
+                      </View>
+                      {usedPoints > 0 && (
+                        <View style={styles.paymentRow}>
+                          <Text style={styles.paymentSubLabel}>포인트 할인</Text>
+                          <Text style={styles.discountValue}>-{usedPoints.toLocaleString()}원</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
 
-          <TouchableOpacity style={styles.kakaoPayButton} onPress={handleNextPress}>
-            <Text style={styles.kakaoPayButtonText}>{finalAmount.toLocaleString()}원 카카오페이 결제</Text>
-          </TouchableOpacity>
+                  <TouchableOpacity style={styles.noticeRow} onPress={() => navigate("DeliveryNoticeScreen")}>
+                    <Text style={styles.noticeText}>배달 상품 주의사항 동의</Text>
+                    <Ionicons name="chevron-forward" size={16} color="#999" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.noticeRow} onPress={() => navigate("CancelNoticeScreen")}>
+                    <Text style={styles.noticeText}>배달 취소 주의사항 동의</Text>
+                    <Ionicons name="chevron-forward" size={16} color="#999" />
+                  </TouchableOpacity>
+                  <Text style={styles.confirmText}>위 내용을 확인하였으며 결제에 동의합니다</Text>
+                </View>
+              </TouchableWithoutFeedback>
+            </ScrollView>
+
+            <TouchableOpacity style={styles.kakaoPayButton} onPress={handleNextPress}>
+              <Text style={styles.kakaoPayButtonText}>{finalAmount.toLocaleString()}원 카카오페이 결제</Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
         </>
       )}
     </SafeAreaView>
@@ -424,7 +433,7 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   contentContainer: {
-    paddingBottom: 120, // 하단 버튼과 내용이 겹치지 않도록 여백 확보
+    paddingBottom: 120,
   },
   sectionTitle: {
     fontSize: 16,
