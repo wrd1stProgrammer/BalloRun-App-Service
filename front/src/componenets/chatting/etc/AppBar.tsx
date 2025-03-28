@@ -13,7 +13,7 @@ interface AppBarProps {
   roomId?: string;
 }
 
-const AppBar: React.FC<AppBarProps> = ({ onBackPress, username = '진관', nickname }) => {
+const AppBar: React.FC<AppBarProps> = ({ onBackPress, username = '진관', nickname ,roomId}) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [currentScreen, setCurrentScreen] = useState<'options' | 'details'>('options');
