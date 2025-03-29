@@ -67,6 +67,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
   const [selectedItem, setSelectedItem] = useState<DeliveryItem | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const socket = useContext(MapSocketContext);
   const dispatch = useAppDispatch();
@@ -222,6 +223,13 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
         keyExtractor={(item) => item._id}
         ListEmptyComponent={renderEmptyList}
         contentContainerStyle={sortedItems.length === 0 ? { flex: 1 } : undefined}
+        refreshing={isRefreshing}
+        onRefresh={() => {
+          setIsRefreshing(true);
+          setTimeout(() => {
+            setIsRefreshing(false);
+          }, 1000);
+        }}
       />
 
       <DeliveryDetailModal
