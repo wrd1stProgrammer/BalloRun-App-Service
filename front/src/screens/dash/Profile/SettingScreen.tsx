@@ -36,7 +36,7 @@ const SettingScreen: React.FC = () => {
           <Text style={styles.sectionTitle}>알림 설정</Text>
           <TouchableOpacity
             style={styles.item}
-            onPress={() => handleNavigate('NotificationSettingScreen')}
+            onPress={() => handleNavigate('NotificationSettingsScreen')}
           >
             <Text style={styles.itemText}>알림 수신 설정</Text>
             <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
@@ -55,7 +55,7 @@ const SettingScreen: React.FC = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.item}
-            onPress={() => handleNavigate('BankAccountScreen')}
+            onPress={() => handleNavigate('BankAccountEditScreen')}
           >
             <Text style={styles.itemText}>계좌 정보 관리</Text>
             <Ionicons name="chevron-forward" size={20} color="#8E8E93" />

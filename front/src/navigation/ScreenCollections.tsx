@@ -62,6 +62,9 @@ import OrderDirectLocationScreen from "../screens/order/OrderCategory/OrderDirec
 import OrderCupHolderLocationScreen from "../screens/order/OrderCategory/OrderCupHolderLocationScreen";
 import Component from "react-native-paper/lib/typescript/components/List/ListItem";
 import FindMap from "../screens/dash/Address/Map/FindMap";
+import NotificationSettingsScreen from "../screens/dash/Profile/Settings/NotificationSettingsScreen";
+import AccountManagementScreen from "../screens/dash/Profile/Settings/AccountManagementScreen";
+import BankAccountEditScreen from "../screens/dash/Profile/Settings/BankAccountEditScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -231,6 +234,18 @@ export const dashboardStack = [
   {
     name:"SettingScreen",
     component:SettingScreen,
+  },
+  {
+    name:"NotificationSettingsScreen",
+    component: NotificationSettingsScreen,
+  },
+  {
+    name:"AccountManagementScreen",
+    component: AccountManagementScreen,
+  },
+  {
+    name:"BankAccountEditScreen",
+    component: BankAccountEditScreen,
   }
 ];
 

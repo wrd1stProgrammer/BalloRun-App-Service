@@ -17,7 +17,7 @@ import { useAppDispatch } from "../../../redux/config/reduxHook";
 import { Ionicons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
-const isSmallScreen = width < 360; // 작은 화면 기준 (예: iPhone SE)
+const isSmallScreen = width < 360;
 
 type RootStackParamList = {
   OrderDetail: {
@@ -39,15 +39,17 @@ interface OrderDetails {
   orderImages?: string;
   lat: string;
   lng: string;
-  deliveryType: string;
+  deliveryMethod: string;
   pickupTime: Date;
   deliveryAddress: string;
   pickupTimeDisplay: string;
   status: string;
   isReservation: boolean;
   riderId?: string;
-  createdAt: Date;
+  createdAt: Date;        // Changed to 요청시간
+  endTime?: Date;         // Added 요청 종료시간
   usedPoints?: number;
+  resolvedAddress?: string;
 }
 
 const OrderDetailScreen: React.FC = () => {
@@ -56,25 +58,18 @@ const OrderDetailScreen: React.FC = () => {
   const { orderId, orderType } = route.params;
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedImageType, setSelectedImageType] = useState<"request" | "address" | null>(null);
   const dispatch = useAppDispatch();
 
-  // status를 한글로 변환하는 함수
   const getStatusMessage = (status: string) => {
     switch (status) {
-      case "pending":
-        return "수락 대기 중";
-      case "goToCafe":
-        return "카페로 이동 중";
-      case "makingMenu":
-        return "메뉴 준비 중";
-      case "goToClient":
-        return "배달 중";
-      case "delivered":
-        return "배달 완료";
-      case "cancelled":
-        return "주문 취소됨";
-      default:
-        return "진행 중";
+      case "pending": return "수락 대기 중";
+      case "goToCafe": return "카페로 이동 중";
+      case "makingMenu": return "메뉴 준비 중";
+      case "goToClient": return "배달 중";
+      case "delivered": return "배달 완료";
+      case "cancelled": return "주문 취소됨";
+      default: return "진행 중";
     }
   };
 
@@ -83,13 +78,13 @@ const OrderDetailScreen: React.FC = () => {
       try {
         const data = await dispatch(showOrderDetails(orderId, orderType));
         setOrder(data);
+        setSelectedImageType(data?.images ? "request" : "address");
       } catch (error) {
         console.error("Failed to fetch order details:", error);
       } finally {
         setLoading(false);
       }
     };
-
     loadOrderDetails();
   }, [orderId, orderType]);
 
@@ -115,29 +110,25 @@ const OrderDetailScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-          activeOpacity={0.7}
-        >
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={isSmallScreen ? 24 : 26} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>주문 상세</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* 가게 정보 및 상태 */}
         <View style={styles.section}>
           <View style={styles.storeInfo}>
-            <Text style={styles.storeName}>{order.name}</Text>
-            <Text style={styles.status}>{getStatusMessage(order.status)}</Text>
+            <View>
+              <Text style={styles.storeName}>{order.name}</Text>
+            </View>
+            <View style={styles.statusContainer}>
+              <Text style={styles.status}>{getStatusMessage(order.status)}</Text>
+            </View>
           </View>
-          <Text style={styles.orderType}>{orderType}</Text>
         </View>
 
-        {/* 결제 정보 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>결제 정보</Text>
           <View style={styles.paymentRow}>
@@ -154,71 +145,124 @@ const OrderDetailScreen: React.FC = () => {
               <Text style={styles.detailValue}>₩{order.deliveryFee.toLocaleString()}</Text>
             </View>
             {order.usedPoints > 0 && (
-              <View style={styles.paymentDetailRow}>
-                <Text style={styles.detailLabel}>포인트 할인</Text>
-                <Text style={styles.discountValue}>-₩{order.usedPoints.toLocaleString()}</Text>
-              </View>
-            )}
-            {order.usedPoints > 0 && (
-              <View style={styles.paymentDetailRow}>
-                <Text style={styles.detailLabel}>원래 금액</Text>
-                <Text style={styles.originalValue}>₩{totalAmount.toLocaleString()}</Text>
-              </View>
+              <>
+                <View style={styles.paymentDetailRow}>
+                  <Text style={styles.detailLabel}>포인트 할인</Text>
+                  <Text style={styles.discountValue}>-₩{order.usedPoints.toLocaleString()}</Text>
+                </View>
+                <View style={styles.paymentDetailRow}>
+                  <Text style={styles.detailLabel}>원래 금액</Text>
+                  <Text style={styles.originalValue}>₩{totalAmount.toLocaleString()}</Text>
+                </View>
+              </>
             )}
           </View>
         </View>
 
-        {/* 요청 내용 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>요청 내용</Text>
           <Text style={styles.orderDetails}>{order.orderDetails}</Text>
         </View>
 
-        {/* 배달 정보 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>배달 정보</Text>
           <View style={styles.infoRow}>
             <Text style={styles.label}>주소</Text>
+            <Text style={styles.value}>{order.resolvedAddress}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>상세 주소</Text>
             <Text style={styles.value}>{order.deliveryAddress}</Text>
           </View>
           <View style={styles.infoRow}>
-            <Text style={styles.label}>시간</Text>
+            <Text style={styles.label}>요청 시간</Text>
+            <Text style={styles.value}>{new Date(order.createdAt).toLocaleString()}</Text>
+          </View>
+          {order.endTime && (
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>요청 종료 시간</Text>
+              <Text style={styles.value}>{new Date(order.endTime).toLocaleString()}</Text>
+            </View>
+          )}
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>픽업 시간</Text>
             <Text style={styles.value}>{order.pickupTimeDisplay}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.label}>배달 방식</Text>
-            <Text style={styles.value}>{order.deliveryType === "direct" ? "직접 전달" : "비대면"}</Text>
+            <Text style={styles.value}>
+              {order.deliveryMethod === "direct" ? "직접 전달" : "비대면"}
+            </Text>
           </View>
         </View>
 
-        {/* 이미지 */}
-        {(order.images || order.orderImages) && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>이미지</Text>
-            <View style={styles.imageContainer}>
-              {order.images && (
-                <View style={styles.imageWrapper}>
-                  <Image
-                    source={{ uri: order.images }}
-                    style={styles.image}
-                    resizeMode="cover"
-                  />
-                  <Text style={styles.imageLabel}>상품</Text>
-                </View>
-              )}
-              {order.orderImages && (
-                <View style={styles.imageWrapper}>
-                  <Image
-                    source={{ uri: order.orderImages }}
-                    style={styles.image}
-                    resizeMode="cover"
-                  />
-                  <Text style={styles.imageLabel}>픽업 위치</Text>
-                </View>
-              )}
-            </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>이미지</Text>
+          <View style={styles.imageButtonsContainer}>
+            <TouchableOpacity
+              style={[
+                styles.imageButton,
+                selectedImageType === "request" && styles.activeImageButton,
+              ]}
+              onPress={() => setSelectedImageType("request")}>
+              <Text
+                style={[
+                  styles.imageButtonText,
+                  selectedImageType === "request" && styles.activeImageButtonText,
+                ]}>
+                요청 사진
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.imageButton,
+                selectedImageType === "address" && styles.activeImageButton,
+              ]}
+              onPress={() => setSelectedImageType("address")}>
+              <Text
+                style={[
+                  styles.imageButtonText,
+                  selectedImageType === "address" && styles.activeImageButtonText,
+                ]}>
+                상세 주소 사진
+              </Text>
+            </TouchableOpacity>
           </View>
-        )}
+          
+          {selectedImageType === "request" && (
+            <View style={styles.imageWrapper}>
+              {order.images ? (
+                <Image
+                  source={{ uri: order.images }}
+                  style={styles.image}
+                  resizeMode="contain"
+                />
+              ) : (
+                <View style={styles.emptyImageContainer}>
+                  <Text style={styles.emptyImageText}>이미지가 없습니다</Text>
+                </View>
+              )}
+              <Text style={styles.imageLabel}>요청 사진</Text>
+            </View>
+          )}
+          
+          {selectedImageType === "address" && (
+            <View style={styles.imageWrapper}>
+              {order.orderImages ? (
+                <Image
+                  source={{ uri: order.orderImages }}
+                  style={styles.image}
+                  resizeMode="contain"
+                />
+              ) : (
+                <View style={styles.emptyImageContainer}>
+                  <Text style={styles.emptyImageText}>이미지가 없습니다</Text>
+                </View>
+              )}
+              <Text style={styles.imageLabel}>상세 주소 사진</Text>
+            </View>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -227,39 +271,34 @@ const OrderDetailScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F9FA", // 토스 스타일 연한 회색 배경
+    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: Platform.OS === "ios" ? 12 : 16,
-    paddingHorizontal: 16,
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#E8ECEF",
-    paddingTop: Platform.OS === "android" ? 10 : 0,
   },
   backButton: {
     padding: 6,
     borderRadius: 20,
-    //backgroundColor: "#F0F2F5", // 터치 피드백 배경
   },
   headerTitle: {
-    fontSize: isSmallScreen ? 18 : 20,
+    fontSize: 20,
     fontWeight: "700",
     color: "#1A1A1A",
     marginLeft: 12,
   },
   scrollContainer: {
-    paddingHorizontal: width * 0.04,
-    paddingVertical: height * 0.015,
-    paddingBottom: height * 0.05,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
   section: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    padding: width * 0.04,
-    marginBottom: height * 0.015,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -268,49 +307,59 @@ const styles = StyleSheet.create({
   },
   storeInfo: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 4,
   },
   storeName: {
-    fontSize: isSmallScreen ? 20 : 22,
+    fontSize: 18,
     fontWeight: "700",
     color: "#1A1A1A",
-  },
-  status: {
-    fontSize: isSmallScreen ? 14 : 15,
-    fontWeight: "600",
-    color: "#006AFF",
+    marginBottom: 4,
   },
   orderType: {
-    fontSize: isSmallScreen ? 12 : 13,
+    fontSize: 13,
     color: "#8E9199",
     fontWeight: "500",
   },
+  statusContainer: {
+    backgroundColor: "#E6F0FF",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  status: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#006AFF",
+  },
   sectionTitle: {
-    fontSize: isSmallScreen ? 15 : 16,
+    fontSize: 16,
     fontWeight: "600",
     color: "#1A1A1A",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   paymentRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
+    backgroundColor: "#F7F9FA",
+    borderRadius: 8,
+    padding: 12,
   },
   paymentLabel: {
-    fontSize: isSmallScreen ? 13 : 14,
+    fontSize: 14,
     fontWeight: "500",
     color: "#6B7280",
   },
   finalAmount: {
-    fontSize: isSmallScreen ? 20 : 22,
+    fontSize: 18,
     fontWeight: "700",
     color: "#006AFF",
   },
   paymentDetails: {
-    paddingLeft: width * 0.03,
+    paddingLeft: 8,
   },
   paymentDetailRow: {
     flexDirection: "row",
@@ -318,66 +367,81 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   detailLabel: {
-    fontSize: isSmallScreen ? 12 : 13,
+    fontSize: 13,
     color: "#6B7280",
   },
   detailValue: {
-    fontSize: isSmallScreen ? 12 : 13,
+    fontSize: 13,
     color: "#1A1A1A",
+    fontWeight: "500",
   },
   discountValue: {
-    fontSize: isSmallScreen ? 12 : 13,
+    fontSize: 13,
     color: "#00A86B",
   },
   originalValue: {
-    fontSize: isSmallScreen ? 12 : 13,
+    fontSize: 13,
     color: "#8E9199",
     textDecorationLine: "line-through",
   },
   orderDetails: {
-    fontSize: isSmallScreen ? 14 : 15,
+    fontSize: 15,
     color: "#1A1A1A",
-    lineHeight: isSmallScreen ? 20 : 22,
+    lineHeight: 22,
   },
   infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   label: {
-    fontSize: isSmallScreen ? 12 : 13,
+    fontSize: 13,
     fontWeight: "500",
     color: "#6B7280",
-    width: "30%",
+    marginBottom: 4,
   },
   value: {
-    fontSize: isSmallScreen ? 12 : 13,
+    fontSize: 15,
     color: "#1A1A1A",
-    flex: 1,
-    textAlign: "right",
+    lineHeight: 20,
   },
-  imageContainer: {
+  imageButtonsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    gap: width * 0.03,
+    gap: 8,
+    marginBottom: 12,
+  },
+  imageButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: "#F0F2F5",
+    alignItems: "center",
+  },
+  activeImageButton: {
+    backgroundColor: "#006AFF",
+  },
+  imageButtonText: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  activeImageButtonText: {
+    color: "#FFFFFF",
   },
   imageWrapper: {
-    alignItems: "center",
-    width: width * 0.4,
+    width: "100%",
     marginBottom: 10,
+    
   },
   image: {
     width: "100%",
-    height: width * 0.4,
+    height: 200,
     borderRadius: 10,
-    backgroundColor: "#E8ECEF",
+    backgroundColor: "#FFFFFF",
   },
   imageLabel: {
-    fontSize: isSmallScreen ? 10 : 11,
+    fontSize: 12,
     color: "#6B7280",
     marginTop: 6,
+    textAlign: "center",
   },
   loadingContainer: {
     flex: 1,
@@ -386,15 +450,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7F9FA",
   },
   loadingText: {
-    fontSize: isSmallScreen ? 13 : 14,
+    fontSize: 14,
     color: "#6B7280",
     marginTop: 10,
   },
   errorText: {
-    fontSize: isSmallScreen ? 15 : 16,
+    fontSize: 16,
     color: "#FF3B30",
     textAlign: "center",
     marginTop: 20,
+  },
+  emptyImageContainer: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyImageText: {
+    fontSize: 16,
+    color: "#6B7280",
+    backgroundColor: "#FFFFFF",
+    fontWeight: "500",
   },
 });
 

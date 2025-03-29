@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // useState 추가
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,14 +6,14 @@ import { useAppSelector, useAppDispatch } from '../../redux/config/reduxHook';
 import { selectUser } from '../../redux/reducers/userSlice';
 import { Logout } from '../../redux/actions/userAction';
 import { navigate } from '../../navigation/NavigationUtils';
-import NoticeScreen from './Notice/NoticeScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import Modal from 'react-native-modal'; // 모달 라이브러리 추가
 
 const ProfileScreen = () => {
   const insets = useSafeAreaInsets();
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
+  const [isModalVisible, setModalVisible] = useState(false); // 모달 상태 추가
 
   // 캐리어 인증 상태 한글 매핑
   const getVerificationStatusText = (status: string) => {
@@ -81,6 +81,16 @@ const ProfileScreen = () => {
     return 0;
   };
 
+  // 모달 열기
+  const handleLevelBenefitsPress = () => {
+    setModalVisible(true);
+  };
+
+  // 모달 닫기
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* 상단 바 (고정) */}
@@ -125,8 +135,12 @@ const ProfileScreen = () => {
         </TouchableOpacity>
 
         {/* 레벨 및 경험치 섹션 */}
-        <View style={styles.levelSection}>
-          <Text style={styles.gradeTitle}>등급 혜택</Text>
+        <TouchableOpacity style={styles.levelSection} onPress={handleLevelBenefitsPress} activeOpacity={0.7}>
+          <View style={styles.gradeTitleContainer}>
+            <Text style={styles.gradeTitle}>등급 혜택</Text>
+            <Ionicons name="information-circle-outline" size={18} color="#202632" style={styles.gradeIcon} />
+          </View>
+          <View style={styles.underline} />
           <View style={styles.expRow}>
             <Text style={styles.expText}>Lv.{user?.level || 1}</Text>
             <Text style={styles.expText}>경험치 {getExpPercentage().toFixed(0)}%</Text>
@@ -137,7 +151,7 @@ const ProfileScreen = () => {
           <Text style={styles.expDetail}>
             {user?.exp || 0} / {user?.level === 1 ? 100 : user?.level === 2 ? 300 : '최대'}
           </Text>
-        </View>
+        </TouchableOpacity>
 
         {/* 메뉴 섹션 */}
         <View style={styles.menuSection}>
@@ -154,10 +168,7 @@ const ProfileScreen = () => {
             <Text style={styles.menuText}>설정</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigate('LawScreen')} activeOpacity={0.7}>
-            <Ionicons name="document-text-outline" size={22} color="#333" />
-            <Text style={styles.menuText}>약관 및 정책</Text>
-          </TouchableOpacity>
+
 
           {/* 기타 섹션 */}
           <Text style={styles.sectionTitle}>기타</Text>
@@ -166,9 +177,9 @@ const ProfileScreen = () => {
             <Text style={styles.menuText}>정보 동의 설정</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigate("TalTaeScreen",{user})} activeOpacity={0.7}>
-            <Ionicons name="person-remove-outline" size={22} color="#333" />
-            <Text style={styles.menuText}>회원 탈퇴</Text>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigate('LawScreen')} activeOpacity={0.7}>
+            <Ionicons name="document-text-outline" size={22} color="#333" />
+            <Text style={styles.menuText}>약관 및 정책</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout} activeOpacity={0.7}>
@@ -177,6 +188,34 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* 등급 혜택 모달 */}
+      <Modal
+        isVisible={isModalVisible}
+        onBackdropPress={handleCloseModal}
+        style={styles.modal}
+        animationIn="fadeIn"
+        animationOut="fadeOut"
+      >
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>등급별 혜택</Text>
+          <View style={styles.benefitItem}>
+            <Text style={styles.benefitLevel}>Lv.1</Text>
+            <Text style={styles.benefitText}>출금 수수료 8%</Text>
+          </View>
+          <View style={styles.benefitItem}>
+            <Text style={styles.benefitLevel}>Lv.2</Text>
+            <Text style={styles.benefitText}>출금 수수료 7.5%</Text>
+          </View>
+          <View style={styles.benefitItem}>
+            <Text style={styles.benefitLevel}>Lv.3</Text>
+            <Text style={styles.benefitText}>출금 수수료 7%</Text>
+          </View>
+          <TouchableOpacity style={styles.closeButton} onPress={handleCloseModal}>
+            <Text style={styles.closeButtonText}>닫기</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -184,7 +223,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 0.98,
-    backgroundColor: '#fff', // 배경색 변경
+    backgroundColor: '#fff',
   },
   topBar: {
     flexDirection: 'row',
@@ -296,11 +335,24 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
+  gradeTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 1,
+  },
   gradeTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12,
-    color: '#333',
+    color: '#202632', // 강조 색상
+  },
+  gradeIcon: {
+    marginLeft: 6,
+  },
+  underline: {
+    height: 1,
+    backgroundColor: '#202632', // 밑줄 색상
+    width: 60,
+    marginBottom: 10,
   },
   expDetail: {
     fontSize: 12,
@@ -371,6 +423,57 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: 'red',
     marginLeft: 8,
+  },
+  // 모달 스타일
+  modal: {
+    justifyContent: 'center',
+    margin: 0,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 30,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#2B2B2B',
+    marginBottom: 20,
+    fontFamily: 'Roboto',
+  },
+  benefitItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  benefitLevel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0064FF',
+    fontFamily: 'Roboto',
+  },
+  benefitText: {
+    fontSize: 16,
+    color: '#2B2B2B',
+    fontFamily: 'Roboto',
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: '#0064FF',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
+    fontFamily: 'Roboto',
   },
 });
 

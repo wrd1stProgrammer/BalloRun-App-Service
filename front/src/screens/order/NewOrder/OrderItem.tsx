@@ -12,7 +12,7 @@ import { useAppDispatch } from "../../../redux/config/reduxHook";
 import { checkChatRoomAction } from "../../../redux/actions/chatAction";
 import { rateStarsAction, getCompletedNewOrdersHandler } from "../../../redux/actions/orderAction";
 import { refetchUser } from "../../../redux/actions/userAction";
-import Icon from "react-native-vector-icons/Ionicons"; // Ionicons 사용
+import Icon from "react-native-vector-icons/Ionicons";
 
 interface OrderItemProps {
   orderId: string;
@@ -33,23 +33,22 @@ interface OrderItemProps {
 const getStatusMessage = (status: string) => {
   switch (status) {
     case "pending":
-      return "주문 접수 완료";
+      return { text: "주문 접수 완료", color: "#0064FF" };
     case "goToCafe":
-      return "카페로 이동 중";
+      return { text: "카페로 이동 중", color: "#0064FF" };
     case "makingMenu":
-      return "메뉴 준비 중";
+      return { text: "메뉴 준비 중", color: "#0064FF" };
     case "goToClient":
-      return "배달 중";
+      return { text: "배달 중", color: "#0064FF" };
     case "delivered":
-      return "배달 완료";
+      return { text: "배달 완료", color: "#202632" };
     case "cancelled":
-      return "주문 취소됨";
+      return { text: "주문 취소됨", color: "#FF3B30" };
     default:
-      return "진행 중";
+      return { text: "진행 중", color: "#0064FF" };
   }
 };
 
-// name에 따라 Ionicons 아이콘 매핑 -> 이미지로 리펙토링 ㄱㄱ
 const getIconName = (name: string) => {
   const lowerName = name.toLowerCase();
   if (
@@ -58,28 +57,28 @@ const getIconName = (name: string) => {
     lowerName.includes("cu") ||
     lowerName.includes("세븐일레븐")
   ) {
-    return "business-outline"; // 편의점 (건물 아이콘)
+    return "business-outline";
   } else if (
     lowerName.includes("마트") ||
     lowerName.includes("이마트") ||
     lowerName.includes("홈플러스")
   ) {
-    return "cart-outline"; // 마트 (장바구니)
+    return "cart-outline";
   } else if (
     lowerName.includes("카페") ||
     lowerName.includes("스타벅스") ||
     lowerName.includes("커피")
   ) {
-    return "cafe-outline"; // 카페 (커피)
+    return "cafe-outline";
   } else if (
     lowerName.includes("음식") ||
     lowerName.includes("피자") ||
     lowerName.includes("치킨") ||
     lowerName.includes("버거")
   ) {
-    return "restaurant-outline"; // 음식 (음식점)
+    return "restaurant-outline";
   } else {
-    return "cube-outline"; // 기타 (물품 상자)
+    return "cube-outline";
   }
 };
 
@@ -102,6 +101,8 @@ const OrderItem: React.FC<OrderItemProps> = ({
   const [isReviewModalVisible, setReviewModalVisible] = useState(false);
   const [rating, setRating] = useState(0);
   const [localIsRated, setLocalIsRated] = useState(isRated);
+
+  const statusInfo = getStatusMessage(status);
 
   const checkChatRoom = async () => {
     const isChatRoom = await dispatch(checkChatRoomAction(roomId));
@@ -154,7 +155,13 @@ const OrderItem: React.FC<OrderItemProps> = ({
   };
 
   const handleSubmitReview = async () => {
+    if (rating === 0) {
+      Alert.alert("알림", "별점을 선택해주세요.");
+      return;
+    }
+
     try {
+      setReviewModalVisible(false); // Close modal immediately
       await dispatch(rateStarsAction(orderId, rating));
       await dispatch(refetchUser());
       setLocalIsRated(true);
@@ -162,13 +169,13 @@ const OrderItem: React.FC<OrderItemProps> = ({
         {
           text: "확인",
           onPress: () => {
-            setReviewModalVisible(false);
             dispatch(getCompletedNewOrdersHandler());
           },
         },
       ]);
     } catch (error) {
       Alert.alert("오류", "별점 등록에 실패했습니다.");
+      setReviewModalVisible(true); // Reopen modal if error occurs
     }
   };
 
@@ -242,7 +249,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
     <>
       <View style={styles.card}>
         <View style={styles.header}>
-          <Text style={styles.status}>{getStatusMessage(status)}</Text>
+          <Text style={[styles.status, { color: statusInfo.color }]}>{statusInfo.text}</Text>
           <View style={styles.headerRight}>
             <TouchableOpacity onPress={showOrderDetails}>
               <Text style={styles.detailsButton}>주문 상세</Text>
@@ -301,7 +308,6 @@ const OrderItem: React.FC<OrderItemProps> = ({
     </>
   );
 };
-
 
 const styles = StyleSheet.create({
   buttonContainer: {
@@ -365,7 +371,6 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#202632",
   },
   headerRight: {
     flexDirection: "row",
@@ -374,15 +379,15 @@ const styles = StyleSheet.create({
   detailButton: {
     color: "#3366FF",
     fontWeight: "bold",
-    marginRight: 10, // "주문 취소"와의 간격
+    marginRight: 10,
   },
   detailsButton: {
     color: "#202632",
     fontWeight: "bold",
-    marginRight: 10, // "주문 취소"와의 간격
+    marginRight: 10,
   },
   cancelButton: {
-    color: "#202632", // 검정색으로 변경
+    color: "#202632",
     fontWeight: "bold",
   },
   content: {
