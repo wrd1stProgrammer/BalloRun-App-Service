@@ -64,6 +64,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                 lng: newOrder.lng,
                 resolvedAddress: newOrder.resolvedAddress,
                 deliveryAddress: newOrder.deliveryAddress,
+                selectedFloor: newOrder.selectedFloor,
                 isReservation: newOrder.isReservation,
                 orderType: newOrder.orderType,
                 usedPoints: newOrder.usedPoints,

@@ -73,6 +73,7 @@ setTimeout(() => {
         lng,
         resolvedAddress,
         deliveryAddress,
+        selectedFloor,
         isMatch,
         deliveryFee,
         deliveryType, 

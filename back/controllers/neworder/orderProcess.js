@@ -69,6 +69,7 @@ const newOrderCreate = async (req, res) => {
       lng,
       deliveryAddress,
       deliveryMethod,
+      selectedFloor,
       startTime,
       endTime,
       selectedFloor,
