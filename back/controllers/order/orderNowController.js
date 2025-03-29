@@ -72,6 +72,7 @@ setTimeout(() => {
         lat,
         lng,
         resolvedAddress,
+        deliveryAddress,
         isMatch,
         deliveryFee,
         deliveryType, 

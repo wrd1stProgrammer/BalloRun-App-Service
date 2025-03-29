@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, FlatList, Dimensions } from "react-native";
+import MapView, { Marker } from "react-native-maps";
+
+
+//여기 배달하기에서 수락을 눌렀을때 상세 정보가 나오는 모달창임
 
 const { width } = Dimensions.get("window");
 
@@ -43,7 +47,10 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* 헤더 */}
             <Text style={styles.header}>주문 상세</Text>
-
+            {/* 남은 시간 */}
+            <View style={styles.timeRemaining}>
+              <Text style={styles.timeText}>{getRemainingTime()}</Text>
+            </View>
             {/* 배달 상태 표시 */}
             <View style={[styles.statusBadge, deliveryItem.status === "cancelled" ? styles.statusCancelled : styles.statusActive]}>
               <Text style={styles.statusText}>{deliveryItem.status === "cancelled" ? "취소됨" : "대기 중"}</Text>
@@ -61,10 +68,7 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
                 <Text style={styles.value}>{deliveryItem.items.map(i => `${i.menuName}`).join(", ") || "없음"}</Text>
               </View>
 
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>배달 주소</Text>
-                <Text style={styles.value}>{deliveryItem.resolvedAddress}</Text>
-              </View>
+
 
               <View style={styles.infoRow}>
                 <Text style={styles.label}>배달 유형</Text>
@@ -97,10 +101,48 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
               </View>
             </View>
 
-            {/* 남은 시간 */}
-            <View style={styles.timeRemaining}>
-              <Text style={styles.timeText}>{getRemainingTime()}</Text>
+            <View style={styles.section}>
+              <Text style={styles.mapTitle}>배달 위치</Text>
+              <View style={styles.mapContainer}>
+                <MapView
+                  style={styles.map}
+                  initialRegion={{
+                    latitude: parseFloat(deliveryItem.lat),
+                    longitude: parseFloat(deliveryItem.lng),
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.005,
+                  }}
+                  scrollEnabled={false}
+                  zoomEnabled={false}
+                >
+                  <Marker
+                    coordinate={{
+                      latitude: parseFloat(deliveryItem.lat),
+                      longitude: parseFloat(deliveryItem.lng),
+                    }}
+                    title="배달지"
+                  />
+                </MapView>
+                
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>배달 주소</Text>
+                <Text style={styles.value}>{deliveryItem.resolvedAddress}</Text>
+              </View>
+              {deliveryItem.deliveryType === "direct" ? (
+                <View style={styles.infoRow}>
+                  <Text style={styles.label}>배달 상세 주소</Text>
+                  <Text style={styles.value}>{deliveryItem.deliveryAddress}</Text>
+                </View>
+              ) : (
+                <View style={styles.infoRow}>
+                  <Text style={styles.label}>배달 층</Text>
+                  <Text style={styles.value}>{deliveryItem.selectedFloor || "정보 없음"}</Text>
+                </View>
+              )}
             </View>
+
+ 
 
             {/* 주문 이미지 섹션 (갤러리 스타일) */}
             <View style={styles.imageContainer}>
@@ -321,5 +363,20 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
+  },
+  mapTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 8,
+  },
+  mapContainer: {
+    height: 200,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  map: {
+    width: "100%",
+    height: "100%",
   },
 });
