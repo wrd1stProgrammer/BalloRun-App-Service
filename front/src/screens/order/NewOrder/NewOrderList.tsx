@@ -12,11 +12,11 @@ const NewOrderDetailModal = ({ onClose, onAccept, deliveryItem }) => {
           <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
             <Text style={styles.buttonText}>닫기</Text>
           </TouchableOpacity>
-          {deliveryItem.status !== "cancelled" && (
+          
             <TouchableOpacity style={styles.acceptButton} onPress={onAccept}>
               <Text style={styles.buttonText}>배달하기</Text>
             </TouchableOpacity>
-          )}
+          
         </View>
       </View>
     </View>

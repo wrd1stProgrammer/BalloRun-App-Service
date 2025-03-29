@@ -262,7 +262,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   infoRow1: {
-    flexDirection: 'row',
+    marginTop: 10,
+    flexDirection: 'column',
     justifyContent: 'space-between',
     marginBottom: 10,
   },
