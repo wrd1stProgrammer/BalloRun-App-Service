@@ -267,9 +267,8 @@ export const updateBankAccountAction = (bankInfo: {
   holder: string;
 }) => async (dispatch: any) => {
   try {
-    const res = await appAxios.patch('/user/accountupdate', {
-      bankInfo,
-    });
+    console.log(bankInfo);
+    const res = await appAxios.patch('/user/accountupdate',bankInfo);
 
     // 성공 시 Redux 상태 업데이트
     await dispatch(setUser(res.data.user));

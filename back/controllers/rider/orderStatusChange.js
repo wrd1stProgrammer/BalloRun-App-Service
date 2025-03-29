@@ -59,6 +59,25 @@ const goToCafeHandler = async (req, res) => {
 
     emitOrderStatus(req, order, "goToCafe");
 
+        // 주문자 정보 조회 및 푸시 알림 전송
+    const orderUser = await User.findById(order.userId).select('fcmToken').lean();
+    if (orderUser && orderUser.fcmToken) {
+      const notificationPayload = {
+        title: "캐리어 픽업 중!",
+        body: `배달 상태를 실시간으로 확인해보세요.`,
+        data: { type: "order_goToCafe" },
+      };
+
+      try {
+        await sendPushNotification(orderUser.fcmToken, notificationPayload);
+        console.log(`주문자 ${order.userId}에게 알림 전송 성공`);
+      } catch (notificationError) {
+        console.error(`주문자 ${order.userId}에게 알림 전송 실패:`, notificationError);
+      }
+    } else {
+      console.log(`주문자 ${order.userId}의 FCM 토큰이 없습니다.`);
+    }
+
     res.status(200).json({ message: "Order sstatus updated to goToCafe" });
   } catch (error) {
     console.error("Error in goToCafeHandler:", error);
@@ -113,6 +132,25 @@ const goToClientHandler = async (req, res) => {
 
     emitOrderStatus(req, order, "goToClient");
 
+            // 주문자 정보 조회 및 푸시 알림 전송
+    const orderUser = await User.findById(order.userId).select('fcmToken').lean();
+    if (orderUser && orderUser.fcmToken) {
+      const notificationPayload = {
+        title: "캐리어가 배달을 시작했어요!",
+        body: `배달 상태를 실시간으로 확인해보세요.`,
+        data: { type: "order_goToClient" },
+      };
+
+      try {
+        await sendPushNotification(orderUser.fcmToken, notificationPayload);
+        console.log(`주문자 ${order.userId}에게 알림 전송 성공`);
+      } catch (notificationError) {
+        console.error(`주문자 ${order.userId}에게 알림 전송 실패:`, notificationError);
+      }
+    } else {
+      console.log(`주문자 ${order.userId}의 FCM 토큰이 없습니다.`);
+    }
+
     res.status(200).json({ message: "Order status updated to goToClient" });
   } catch (error) {
     console.error("Error in goToClientHandler:", error);
@@ -151,9 +189,9 @@ const completeOrderHandler = async (req, res) => {
     const orderUser = await User.findById(order.userId).select('fcmToken').lean();
     if (orderUser && orderUser.fcmToken) {
       const notificationPayload = {
-        title: "주문이 완료되었습니다!",
-        body: `주문 ${orderId}이(가) 성공적으로 배달 완료되었습니다.`,
-        data: { type: "order_complete", orderId: orderId },
+        title: "배달이 완료되었습니다!",
+        body: `배달 상태를 확인해 보시고 별점을 남겨주세요!.`,
+        data: { type: "order_complete" },
       };
 
       try {
