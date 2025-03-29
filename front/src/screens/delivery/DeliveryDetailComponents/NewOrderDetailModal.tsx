@@ -5,7 +5,7 @@ import MapView, { Marker } from "react-native-maps";
 
 //여기 배달하기에서 수락을 눌렀을때 상세 정보가 나오는 모달창임
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 type NewOrderDetailModalProps = {
   visible: boolean;
@@ -71,7 +71,7 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
       )}
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
             {/* 헤더 */}
             <Text style={styles.header}>주문 상세</Text>
             {/* 남은 시간 */}
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     padding: 20,
     borderRadius: 16,
-    maxHeight: "78%",
+    maxHeight: height * 0.78,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
