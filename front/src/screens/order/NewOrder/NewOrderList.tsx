@@ -33,6 +33,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
   const socket = useContext(WebSocketContext);
   const [orders, setOrders] = useState<OrderItemProps[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (activeTab === "orders") {
@@ -45,6 +46,12 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
       socket?.off("emitMatchTest");
     };
   }, [activeTab]);
+
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchOrders();
+    setIsRefreshing(false);
+  };
 
   const fetchOrders = async () => {
     setIsLoading(true);
@@ -107,8 +114,10 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
             isRated={item.isRated}
           />
         )}
-        contentContainerStyle={styles.listContainer}
-      />
+      contentContainerStyle={styles.listContainer}
+      refreshing={isRefreshing}
+      onRefresh={onRefresh}
+    />
     </View>
   );
 };

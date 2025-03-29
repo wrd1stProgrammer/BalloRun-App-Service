@@ -52,6 +52,7 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
   const [allOrders, setAllOrders] = useState<OrderItem[]>([]); // 원본 데이터 저장
   const [filterTab, setFilterTab] = useState("inProgress");
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const dispatch = useAppDispatch();
   const socket = useContext(WebSocketContext);
@@ -88,6 +89,12 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchOrders();
+    setIsRefreshing(false);
   };
 
   useEffect(() => {
@@ -310,6 +317,8 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
         keyExtractor={(item) => item._id}
         renderItem={renderOrder}
         contentContainerStyle={styles.listContent}
+        refreshing={isRefreshing}
+        onRefresh={onRefresh}
       />
     </SafeAreaView>
   );
