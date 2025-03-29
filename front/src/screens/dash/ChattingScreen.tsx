@@ -52,6 +52,7 @@ const Chatting: React.FC = () => {
           )
         );
         setRooms(chatRoomList);
+        console.log(rooms);
         setIsLoading(false); // 데이터 로딩 완료 시 로딩 상태 비활성화
       });
     };

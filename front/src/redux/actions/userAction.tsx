@@ -236,3 +236,52 @@ export const taltaeAction = (reason:string) => async (dispatch: any) => {
     console.log('taltae ERROR ->', error);
   }
 }; 
+
+
+//계정/정보 수정 액션인데 수정 뺌 나중에 쓸 수도 있으니 남겨둠.
+export const updateUserProfileAction = (changes: any) => async (dispatch: any) => {
+  try {
+    console.log(changes,'action');
+    const res = await appAxios.patch('/user/profile',{
+      changes,
+    });
+
+    // 성공 시 Redux 상태 업데이트
+    await dispatch(setUser(res.data.user));
+    return res.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error('프로필 업데이트 실패:', error.response.data.message || error.response.data);
+      Alert.alert('업데이트 실패', error.response.data.message || '프로필 업데이트에 실패했습니다.');
+    } else {
+      console.error('네트워크 에러:', error.message);
+      Alert.alert('네트워크 오류', '서버와 연결되지 않았습니다. 나중에 다시 시도해주세요.');
+    }
+    throw error; // 컴포넌트에서 에러를 처리할 수 있도록 throw
+  }
+};
+
+export const updateBankAccountAction = (bankInfo: {
+  bankName: string;
+  accountNumber: string;
+  holder: string;
+}) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.patch('/user/accountupdate', {
+      bankInfo,
+    });
+
+    // 성공 시 Redux 상태 업데이트
+    await dispatch(setUser(res.data.user));
+    return res.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error('계좌 정보 업데이트 실패:', error.response.data.message || error.response.data);
+      Alert.alert('업데이트 실패', error.response.data.message || '계좌 정보 업데이트에 실패했습니다.');
+    } else {
+      console.error('네트워크 에러:', error.message);
+      Alert.alert('네트워크 오류', '서버와 연결되지 않았습니다. 나중에 다시 시도해주세요.');
+    }
+    throw error; // 컴포넌트에서 에러 처리 가능하도록 throw
+  }
+};
