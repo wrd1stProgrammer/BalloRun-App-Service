@@ -117,153 +117,167 @@ const OrderDetailScreen: React.FC = () => {
         <Text style={styles.headerTitle}>주문 상세</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.section}>
-          <View style={styles.storeInfo}>
-            <View>
-              <Text style={styles.storeName}>{order.name}</Text>
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+            <View style={styles.section}>
+              <View style={styles.storeInfo}>
+                <View>
+                  <Text style={styles.storeName}>{order.name}</Text>
+                </View>
+                <View style={styles.statusContainer}>
+                  <Text style={styles.status}>{getStatusMessage(order.status)}</Text>
+                </View>
+              </View>
             </View>
-            <View style={styles.statusContainer}>
-              <Text style={styles.status}>{getStatusMessage(order.status)}</Text>
-            </View>
-          </View>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>결제 정보</Text>
-          <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>최종 결제 금액</Text>
-            <Text style={styles.finalAmount}>₩{finalAmount.toLocaleString()}</Text>
-          </View>
-          <View style={styles.paymentDetails}>
-            <View style={styles.paymentDetailRow}>
-              <Text style={styles.detailLabel}>상품 금액</Text>
-              <Text style={styles.detailValue}>₩{order.priceOffer.toLocaleString()}</Text>
-            </View>
-            <View style={styles.paymentDetailRow}>
-              <Text style={styles.detailLabel}>배달비</Text>
-              <Text style={styles.detailValue}>₩{order.deliveryFee.toLocaleString()}</Text>
-            </View>
-            {order.usedPoints > 0 && (
-              <>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>결제 정보</Text>
+              <View style={styles.paymentRow}>
+                <Text style={styles.paymentLabel}>최종 결제 금액</Text>
+                <Text style={styles.finalAmount}>₩{finalAmount.toLocaleString()}</Text>
+              </View>
+              <View style={styles.paymentDetails}>
                 <View style={styles.paymentDetailRow}>
-                  <Text style={styles.detailLabel}>포인트 할인</Text>
-                  <Text style={styles.discountValue}>-₩{order.usedPoints.toLocaleString()}</Text>
+                  <Text style={styles.detailLabel}>상품 금액</Text>
+                  <Text style={styles.detailValue}>₩{order.priceOffer.toLocaleString()}</Text>
                 </View>
                 <View style={styles.paymentDetailRow}>
-                  <Text style={styles.detailLabel}>원래 금액</Text>
-                  <Text style={styles.originalValue}>₩{totalAmount.toLocaleString()}</Text>
+                  <Text style={styles.detailLabel}>배달비</Text>
+                  <Text style={styles.detailValue}>₩{order.deliveryFee.toLocaleString()}</Text>
                 </View>
-              </>
+                {order.usedPoints > 0 && (
+                  <>
+                    <View style={styles.paymentDetailRow}>
+                      <Text style={styles.detailLabel}>포인트 할인</Text>
+                      <Text style={styles.discountValue}>-₩{order.usedPoints.toLocaleString()}</Text>
+                    </View>
+                    <View style={styles.paymentDetailRow}>
+                      <Text style={styles.detailLabel}>원래 금액</Text>
+                      <Text style={styles.originalValue}>₩{totalAmount.toLocaleString()}</Text>
+                    </View>
+                  </>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>요청 내용</Text>
+              <Text style={styles.orderDetails}>{order.orderDetails}</Text>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>배달 정보</Text>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>주소</Text>
+                <Text style={styles.value}>{order.resolvedAddress}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>상세 주소</Text>
+                <Text style={styles.value}>{order.deliveryAddress}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>요청 시간</Text>
+                <Text style={styles.value}>{new Date(order.createdAt).toLocaleString()}</Text>
+              </View>
+              {order.endTime && (
+                <View style={styles.infoRow}>
+                  <Text style={styles.label}>요청 종료 시간</Text>
+                  <Text style={styles.value}>{new Date(order.endTime).toLocaleString()}</Text>
+                </View>
+              )}
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>픽업 시간</Text>
+                <Text style={styles.value}>{order.pickupTimeDisplay}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>배달 방식</Text>
+                <Text style={styles.value}>
+                  {order.deliveryMethod === "direct" ? "직접 전달" : "비대면"}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>이미지</Text>
+              <View style={styles.imageButtonsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.imageButton,
+                    selectedImageType === "request" && styles.activeImageButton,
+                  ]}
+                  onPress={() => setSelectedImageType("request")}>
+                  <Text
+                    style={[
+                      styles.imageButtonText,
+                      selectedImageType === "request" && styles.activeImageButtonText,
+                    ]}>
+                    요청 사진
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.imageButton,
+                    selectedImageType === "address" && styles.activeImageButton,
+                  ]}
+                  onPress={() => setSelectedImageType("address")}>
+                  <Text
+                    style={[
+                      styles.imageButtonText,
+                      selectedImageType === "address" && styles.activeImageButtonText,
+                    ]}>
+                    상세 주소 사진
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
+              {selectedImageType === "request" && (
+                <View style={styles.imageWrapper}>
+                  {order.images ? (
+                    <Image
+                      source={{ uri: order.images }}
+                      style={styles.image}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <View style={styles.emptyImageContainer}>
+                      <Text style={styles.emptyImageText}>이미지가 없습니다</Text>
+                    </View>
+                  )}
+                  <Text style={styles.imageLabel}>요청 사진</Text>
+                </View>
+              )}
+              
+              {selectedImageType === "address" && (
+                <View style={styles.imageWrapper}>
+                  {order.orderImages ? (
+                    <Image
+                      source={{ uri: order.orderImages }}
+                      style={styles.image}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <View style={styles.emptyImageContainer}>
+                      <Text style={styles.emptyImageText}>이미지가 없습니다</Text>
+                    </View>
+                  )}
+                  <Text style={styles.imageLabel}>상세 주소 사진</Text>
+                </View>
+              )}
+            </View>
+          </ScrollView>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+              <Text style={styles.buttonText}>닫기</Text>
+            </TouchableOpacity>
+            {order.status !== "cancelled" && (
+              <TouchableOpacity style={styles.acceptButton} onPress={() => {}}>
+                <Text style={styles.buttonText}>배달하기</Text>
+              </TouchableOpacity>
             )}
           </View>
         </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>요청 내용</Text>
-          <Text style={styles.orderDetails}>{order.orderDetails}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>배달 정보</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>주소</Text>
-            <Text style={styles.value}>{order.resolvedAddress}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>상세 주소</Text>
-            <Text style={styles.value}>{order.deliveryAddress}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>요청 시간</Text>
-            <Text style={styles.value}>{new Date(order.createdAt).toLocaleString()}</Text>
-          </View>
-          {order.endTime && (
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>요청 종료 시간</Text>
-              <Text style={styles.value}>{new Date(order.endTime).toLocaleString()}</Text>
-            </View>
-          )}
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>픽업 시간</Text>
-            <Text style={styles.value}>{order.pickupTimeDisplay}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>배달 방식</Text>
-            <Text style={styles.value}>
-              {order.deliveryMethod === "direct" ? "직접 전달" : "비대면"}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>이미지</Text>
-          <View style={styles.imageButtonsContainer}>
-            <TouchableOpacity
-              style={[
-                styles.imageButton,
-                selectedImageType === "request" && styles.activeImageButton,
-              ]}
-              onPress={() => setSelectedImageType("request")}>
-              <Text
-                style={[
-                  styles.imageButtonText,
-                  selectedImageType === "request" && styles.activeImageButtonText,
-                ]}>
-                요청 사진
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.imageButton,
-                selectedImageType === "address" && styles.activeImageButton,
-              ]}
-              onPress={() => setSelectedImageType("address")}>
-              <Text
-                style={[
-                  styles.imageButtonText,
-                  selectedImageType === "address" && styles.activeImageButtonText,
-                ]}>
-                상세 주소 사진
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
-          {selectedImageType === "request" && (
-            <View style={styles.imageWrapper}>
-              {order.images ? (
-                <Image
-                  source={{ uri: order.images }}
-                  style={styles.image}
-                  resizeMode="contain"
-                />
-              ) : (
-                <View style={styles.emptyImageContainer}>
-                  <Text style={styles.emptyImageText}>이미지가 없습니다</Text>
-                </View>
-              )}
-              <Text style={styles.imageLabel}>요청 사진</Text>
-            </View>
-          )}
-          
-          {selectedImageType === "address" && (
-            <View style={styles.imageWrapper}>
-              {order.orderImages ? (
-                <Image
-                  source={{ uri: order.orderImages }}
-                  style={styles.image}
-                  resizeMode="contain"
-                />
-              ) : (
-                <View style={styles.emptyImageContainer}>
-                  <Text style={styles.emptyImageText}>이미지가 없습니다</Text>
-                </View>
-              )}
-              <Text style={styles.imageLabel}>상세 주소 사진</Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -289,6 +303,17 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1A1A1A",
     marginLeft: 12,
+  },
+  modalContainer: {
+    flex: 1,
+  },
+  modalContent: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  contentContainer: {
+    flex: 1,
+    paddingBottom: 20,
   },
   scrollContainer: {
     paddingHorizontal: 16,
@@ -473,6 +498,16 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     backgroundColor: "#FFFFFF",
     fontWeight: "500",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 12,
+    paddingTop: 12,
+    paddingBottom: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "#FFFFFF",
+    borderTopWidth: 1,
+    borderTopColor: "#E8ECEF",
   },
 });
 

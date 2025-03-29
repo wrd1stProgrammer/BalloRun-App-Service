@@ -16,6 +16,7 @@ type NewOrderDetailModalProps = {
 
 const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onClose, onAccept, deliveryItem }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isMapFullScreen, setIsMapFullScreen] = useState(false);
 
   if (!deliveryItem) return null;
 
@@ -30,7 +31,7 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-    return `${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 남음`;
+    return `주문 만료까지 ${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 남음`;
   };
 
   // 이미지 스크롤 시 현재 인덱스 업데이트
@@ -42,6 +43,32 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
+      {isMapFullScreen && (
+        <Modal visible={true} animationType="fade" transparent>
+          <View style={styles.fullMapOverlay}>
+            <TouchableOpacity style={styles.closeMapButton} onPress={() => setIsMapFullScreen(false)}>
+              <Text style={styles.closeMapButtonText}>닫기</Text>
+            </TouchableOpacity>
+            <MapView
+              style={styles.fullscreenMap}
+              initialRegion={{
+                latitude: parseFloat(deliveryItem.lat),
+                longitude: parseFloat(deliveryItem.lng),
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+              }}
+            >
+              <Marker
+                coordinate={{
+                  latitude: parseFloat(deliveryItem.lat),
+                  longitude: parseFloat(deliveryItem.lng),
+                }}
+                title="배달지"
+              />
+            </MapView>
+          </View>
+        </Modal>
+      )}
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <ScrollView showsVerticalScrollIndicator={false}>
@@ -104,6 +131,7 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
             <View style={styles.section}>
               <Text style={styles.mapTitle}>배달 위치</Text>
               <View style={styles.mapContainer}>
+              <TouchableOpacity onPress={() => setIsMapFullScreen(true)} activeOpacity={1}>
                 <MapView
                   style={styles.map}
                   initialRegion={{
@@ -123,19 +151,20 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
                     title="배달지"
                   />
                 </MapView>
+              </TouchableOpacity>
                 
               </View>
-              <View style={styles.infoRow}>
+              <View style={styles.infoRow1}>
                 <Text style={styles.label}>배달 주소</Text>
                 <Text style={styles.value}>{deliveryItem.resolvedAddress}</Text>
               </View>
               {deliveryItem.deliveryType === "direct" ? (
-                <View style={styles.infoRow}>
+                <View style={styles.infoRow1}>
                   <Text style={styles.label}>배달 상세 주소</Text>
                   <Text style={styles.value}>{deliveryItem.deliveryAddress}</Text>
                 </View>
               ) : (
-                <View style={styles.infoRow}>
+                <View style={styles.infoRow1}>
                   <Text style={styles.label}>배달 층</Text>
                   <Text style={styles.value}>{deliveryItem.selectedFloor || "정보 없음"}</Text>
                 </View>
@@ -204,6 +233,53 @@ const NewOrderDetailModal: React.FC<NewOrderDetailModalProps> = ({ visible, onCl
 export default NewOrderDetailModal;
 
 const styles = StyleSheet.create({
+  mapTopBanner: {
+    width: '100%',
+    height: 180,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    overflow: 'hidden',
+  },
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: '#1A1A1A',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  infoRow1: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  value: {
+    fontSize: 14,
+    color: '#1A1A1A',
+    fontWeight: '500',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+  },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.6)", // 더 부드러운 오버레이
@@ -215,20 +291,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     padding: 20,
     borderRadius: 16,
-    maxHeight: "88%",
+    maxHeight: "78%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5, // 안드로이드 그림자
-    marginBottom: 20, // Added for Android safe spacing
   },
   header: {
     fontSize: 20,
     fontWeight: "700",
     color: "#1A1A1A",
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: 5,
   },
   statusBadge: {
     alignSelf: "center",
@@ -254,20 +329,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 16,
   },
-  infoRow: {
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 13,
-    color: "#666666",
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  value: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#1A1A1A",
-  },
+
   highlightValue: {
     fontSize: 16,
     fontWeight: "700",
@@ -339,12 +401,7 @@ const styles = StyleSheet.create({
     color: "#666666",
     fontWeight: "500",
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-    gap: 12,
-  },
+
   acceptButton: {
     flex: 1,
     backgroundColor: "#006AFF",
@@ -378,5 +435,27 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: "100%",
+  },
+  fullMapOverlay: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  fullscreenMap: {
+    flex: 1,
+  },
+  closeMapButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  closeMapButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1A1A1A",
   },
 });
