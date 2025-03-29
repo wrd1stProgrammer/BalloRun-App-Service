@@ -91,7 +91,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           const notipayload = {
             title: `배달요청이 수락되었습니다.`,
             body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
-            data: { type: "order_accepted", orderId: orderId },
+            data: { type: "order_accepted" },
           };
 
           if (orderUser?.fcmToken) {
@@ -122,7 +122,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
               const notipayload = {
                 title: "주문 수락 처리 실패",
                 body: "주문 수락 처리에 실패했습니다. 다시 시도해주세요.",
-                data: { type: "order_accept_failed", orderId: orderId || "unknown" },
+                data: { type: "order_accept_failed" },
               };
               await sendPushNotification(riderUser.fcmToken, notipayload);
               console.log(`라이더 ${riderId}에게 주문 수락 실패 알림 전송 완료`);

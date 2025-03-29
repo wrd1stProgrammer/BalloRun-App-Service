@@ -99,7 +99,7 @@ const newOrderCreate = async (req, res) => {
       const notipayload = {
         title: `배달요청이 완료되었습니다.`,
         body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
-        data: { type: "order_accepted", orderId: userId },
+        data: { type: "order_accepted", Id: userId },
       };
       if (user.fcmToken) {
         await sendPushNotification(user.fcmToken, notipayload);

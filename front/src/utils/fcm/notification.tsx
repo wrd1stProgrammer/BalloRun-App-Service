@@ -96,14 +96,44 @@ export const onNotificationOpenedApp = (): void => {
     }
   });
 };
-
+//
 // 알림 클릭 시 딥링크 처리
 const handleNotificationAction = (data: NotificationData): void => {
-  if (data?.type === 'order_accepted' && data.orderId) {
-    navigate('HomeScreen', { orderId: data.orderId });
-  } else if (data?.type === 'chat' && data.chatRoomId) {
-    navigate('ChatRoom', { orderId: data.chatRoomId });
-  }
+  // 주문 요청 완료시 딥링크
+    if (data?.type === 'order_accepted' && data.Id) {
+    navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen"
+    });
+    // 채팅 알림.
+  } else if (data?.type === 'chat' && data.Id) {
+    navigate('ChatRoom', { orderId: data.Id });
+    // 주문자가 취소 -> 라이더가 보는 화면.
+  } else if (data?.type === 'order_cancel' && data.Id){
+    navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen"
+    });
+    // 주문 요청 실패 
+  } else if(data?.type === 'order_failed' && data.Id) {
+    navigate("BottomTab", {
+        screen: "HomeScreen"
+    });
+    // endTime 도달로 자동 주문취소 (지연큐)
+  } else if(data?.type === "order_auto_cancelled") {
+    navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen"
+    });
+    // 배달매칭 완료 (배달이 수락 됨.)
+  } else if(data?.type === "order_accepted") {
+    navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen"
+    });
+    // 라이더가 주문 수락 실패 에러핸들링 도달한 푸쉬알림. -> 뭐 이동 x
+    // 아래가 주문 완료되어 주문자에게 알람.
+  } else if(data?.type === "order_complete" || data?.type === "order_goToCafe" || data?.type === "order_goToClient") {
+    navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen"
+    });
+  } 
 };
 
 // Notifee를 사용한 커스텀 알림 표시

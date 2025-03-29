@@ -126,7 +126,7 @@ const consumeDelayedMessages = async (emitCancel,redisCli) => {
                 const notipayload = {
                   title: `자동 주문 취소`,
                   body: `지정한 시간이 지나 주문이 자동 취소 되었습니다.`,
-                  data: {type: "order_auto_cancelled", orderId: userId},
+                  data: {type: "order_auto_cancelled"},
                 };
                 await sendPushNotification(user.fcmToken, notipayload);
               }else{

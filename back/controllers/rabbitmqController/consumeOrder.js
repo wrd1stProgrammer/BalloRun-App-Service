@@ -95,7 +95,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                     const notipayload = {
                       title: `주문 처리 실패`,
                       body: `주문 처리에 문제가 발생했습니다. 다시 시도해주세요`,
-                      data: { type: "order_failed", orderId: orderData._id},
+                      data: { type: "order_failed", Id: orderData._id},
                     };
                     await sendPushNotification(user.fcmToken, notipayload);
                     console.log(`사용자 ${orderData.userId}에게 주문 처리 실패 알림 전송 완료`);
