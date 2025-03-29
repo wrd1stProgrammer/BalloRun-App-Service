@@ -163,7 +163,7 @@ const ProfileScreen = () => {
             {true && <View style={styles.notificationDot} />}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigate("SettingScreen")} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigate("SettingScreen",{user})} activeOpacity={0.7}>
             <Ionicons name="settings-outline" size={22} color="#333" />
             <Text style={styles.menuText}>설정</Text>
           </TouchableOpacity>

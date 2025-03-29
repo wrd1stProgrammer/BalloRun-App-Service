@@ -1,106 +1,134 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
   SafeAreaView,
   Platform,
-  Alert
+  Alert,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '../../../../redux/config/reduxHook';
+import { updateBankAccountAction } from '../../../../redux/actions/userAction';
+import { selectUser } from '../../../../redux/reducers/userSlice';
 
 const BankAccountEditScreen = () => {
   const navigation = useNavigation();
-  const [bankName, setBankName] = useState('농협');
-  const [accountNumber, setAccountNumber] = useState('3020632143041');
-  const [accountHolder, setAccountHolder] = useState('채민식');
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
 
-  // 은행 선택 함수 (더미)
-  const handleSelectBank = () => {
-    Alert.alert(
-      '은행 선택',
-      '은행 선택 기능이 구현될 예정입니다',
-      [{ text: '확인' }]
-    );
-  };
+  // user.account가 없을 경우 기본값 설정
+  const [bankName, setBankName] = useState(user?.account?.bankName || '');
+  const [accountNumber, setAccountNumber] = useState(user?.account?.accountNumber || '');
+  const [accountHolder, setAccountHolder] = useState(user?.account?.holder || '');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 계좌 정보 저장 함수 (더미)
-  const handleSave = () => {
-    console.log('저장된 계좌 정보:', {
+  // 계좌 정보 저장 함수
+  const handleSave = async () => {
+    const bankInfo = {
       bankName,
       accountNumber,
-      accountHolder
-    });
-    Alert.alert(
-      '저장 완료',
-      '계좌 정보가 업데이트되었습니다',
-      [{ 
-        text: '확인',
-        onPress: () => navigation.goBack()
-      }]
-    );
+      holder: accountHolder,
+    };
+
+    setIsLoading(true);
+    try {
+      await dispatch(updateBankAccountAction(bankInfo));
+      Alert.alert('저장 완료', '계좌 정보가 업데이트되었습니다', [
+        {
+          text: '확인',
+          onPress: () => navigation.goBack(),
+        },
+      ]);
+    } catch (error) {
+      // 에러는 updateBankAccountAction에서 Alert로 처리됨
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 화면 터치 시 키보드 내리기
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="chevron-back" size={24} color="#1A1A1A" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>계좌 정보 수정</Text>
-        <TouchableOpacity onPress={handleSave}>
-          <Text style={styles.saveButton}>저장</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.container}>
-        {/* 은행 선택 */}
-        <TouchableOpacity 
-          style={styles.inputContainer}
-          onPress={handleSelectBank}
-        >
-          <Text style={styles.label}>은행</Text>
-          <View style={styles.inputRow}>
-            <Text style={styles.inputText}>{bankName}</Text>
-            <Icon name="chevron-forward" size={20} color="#888" />
+      {/* 화면 터치 감지 */}
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <View style={{ flex: 1 }}>
+          {/* 헤더 */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Icon name="chevron-back" size={24} color="#1A1A1A" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>계좌 정보 수정</Text>
+            <TouchableOpacity
+              onPress={handleSave}
+              style={[styles.saveButtonContainer, isLoading && styles.saveButtonDisabled]}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#0064FF" />
+              ) : (
+                <Text style={styles.saveButton}>저장</Text>
+              )}
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
 
-        {/* 계좌번호 입력 */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>계좌번호</Text>
-          <TextInput
-            style={styles.input}
-            value={accountNumber}
-            onChangeText={setAccountNumber}
-            placeholder="계좌번호를 입력하세요"
-            keyboardType="number-pad"
-            autoCorrect={false}
-            autoCapitalize="none"
-          />
+          <View style={styles.container}>
+            {/* 은행 입력 */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>은행</Text>
+              <TextInput
+                style={styles.input}
+                value={bankName}
+                onChangeText={setBankName}
+                placeholder="은행 이름을 입력하세요"
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* 계좌번호 입력 */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>계좌번호</Text>
+              <TextInput
+                style={styles.input}
+                value={accountNumber}
+                onChangeText={setAccountNumber}
+                placeholder="계좌번호를 입력하세요"
+                keyboardType="number-pad"
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* 예금주 입력 */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>예금주</Text>
+              <TextInput
+                style={styles.input}
+                value={accountHolder}
+                onChangeText={setAccountHolder}
+                placeholder="예금주 이름을 입력하세요"
+                autoCorrect={false}
+              />
+            </View>
+
+            {/* 설명 텍스트 */}
+            <Text style={styles.description}>
+              ※ 정확한 계좌 정보를 입력해주세요. 입금 시 사용됩니다.
+            </Text>
+          </View>
         </View>
-
-        {/* 예금주 입력 */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>예금주</Text>
-          <TextInput
-            style={styles.input}
-            value={accountHolder}
-            onChangeText={setAccountHolder}
-            placeholder="예금주 이름을 입력하세요"
-            autoCorrect={false}
-          />
-        </View>
-
-        {/* 설명 텍스트 */}
-        <Text style={styles.description}>
-          ※ 정확한 계좌 정보를 입력해주세요. 입금 시 사용됩니다.
-        </Text>
-      </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
@@ -128,10 +156,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1A1A1A',
   },
+  saveButtonContainer: {
+    padding: 4,
+  },
   saveButton: {
     fontSize: 16,
     color: '#0064FF',
     fontWeight: '500',
+  },
+  saveButtonDisabled: {
+    opacity: 0.6,
   },
   container: {
     flex: 1,
@@ -144,18 +178,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginBottom: 8,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
-    paddingVertical: 12,
-  },
-  inputText: {
-    fontSize: 16,
-    color: '#333',
   },
   input: {
     fontSize: 16,

@@ -12,7 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { navigate,goBack } from '../../../navigation/NavigationUtils';
 
 
-const SettingScreen: React.FC = () => {
+const SettingScreen = ({ user }: { user: any }) => {
+
   const handleNavigate = (screen: string) => {
     navigate(screen); // 각 설정 항목으로 이동 (라우터 설정 필요)
   };
