@@ -28,7 +28,7 @@ const completePayment = async (req, res) => {
       if (!orderData) {
         return res.status(404).send('Order not found');
       }
-  
+      console.log('payment: ',payment);
       // 금액 비교
       if (1 === payment.amount.total) {
         switch (payment.status) {
