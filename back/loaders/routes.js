@@ -10,6 +10,7 @@ const chatRouter = require("../routes/chat");
 const newOrderRouter = require("../routes/neworder");
 const address = require("../routes/address");
 const noticeRouter = require("../routes/notice");
+const paymentRouter = require("../routes/payment");
 
 module.exports = async (app) => {
     const router = express.Router();
@@ -29,6 +30,7 @@ module.exports = async (app) => {
     app.use("/neworder",authMiddleware,newOrderRouter);
     app.use("/address",authMiddleware,address);
     app.use("/notices",authMiddleware,noticeRouter);
+    app.use("/payment",authMiddleware,paymentRouter);
 
     console.log('라우트 설정 OK');
 };

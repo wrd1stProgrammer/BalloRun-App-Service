@@ -110,7 +110,8 @@ const OrderItem: React.FC<OrderItemProps> = ({
   };
 
   const showOrderDetails = () => {
-    navigate("OrderDetailScreen", { orderId, orderType });
+    // navigate("OrderDetailScreen", { orderId, orderType });
+    navigate("PortOneSample", { orderId });
   };
 
   const handleChatPress = async () => {
@@ -149,6 +150,9 @@ const OrderItem: React.FC<OrderItemProps> = ({
   const handleLocationPress = () => {
     navigate("LiveMap", { orderId, status });
   };
+
+
+  
 
   const handleStarPress = (selectedRating: number) => {
     setRating(selectedRating);

@@ -65,6 +65,7 @@ import FindMap from "../screens/dash/Address/Map/FindMap";
 import NotificationSettingsScreen from "../screens/dash/Profile/Settings/NotificationSettingsScreen";
 import AccountManagementScreen from "../screens/dash/Profile/Settings/AccountManagementScreen";
 import BankAccountEditScreen from "../screens/dash/Profile/Settings/BankAccountEditScreen";
+import PortOneSample from "../screens/dash/KakaoPayApiTest/PortOne/PortoneSample";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -246,6 +247,10 @@ export const dashboardStack = [
   {
     name:"BankAccountEditScreen",
     component: BankAccountEditScreen,
+  },
+  {
+    name:"PortoneSample",
+    component:PortOneSample,
   }
 ];
 

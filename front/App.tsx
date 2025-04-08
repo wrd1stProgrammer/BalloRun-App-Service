@@ -17,7 +17,7 @@ import Geolocation from "react-native-geolocation-service";
 import { LocationProvider } from "./src/utils/Geolocation/LocationContext";
 import { initializeAdMob } from "./src/screens/dash/AdMob/ConfigureAdMob";
 import initializeNotifications from "./src/utils/fcm/notification";
-import KeyboardDismissWrapper from "./src/utils/KeyboardDismissWrapper";
+// import KeyboardDismissWrapper from "./src/utils/KeyboardDismissWrapper";
 
 
 const App: React.FC = () => {

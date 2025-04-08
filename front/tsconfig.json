@@ -14,5 +14,4 @@
       // "typeRoots": ["./node_modules/@types", "./typings"]
     },
     // "include": ["./src/**/*", "typings.d.ts"]
-  }
-  
+}

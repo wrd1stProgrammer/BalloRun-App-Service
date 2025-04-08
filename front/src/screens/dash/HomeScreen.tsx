@@ -104,7 +104,7 @@ const HomeScreen: React.FC = () => {
               </Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => navigate('KakaoSample')} style={styles.profileIconWrapper}>
+            <TouchableOpacity onPress={() => navigate('PortoneSample')} style={styles.profileIconWrapper}>
               <Ionicons name="person-circle" size={36} color="#999" />
             </TouchableOpacity>
           </View>
