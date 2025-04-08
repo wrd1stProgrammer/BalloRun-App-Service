@@ -4,7 +4,7 @@ import { Alert, BackHandler, SafeAreaView } from 'react-native';
 import { Payment, PortOneController } from '@portone/react-native-sdk';
 import { completePaymentHandler } from '../../../../redux/actions/paymentAction';
 import { useAppDispatch } from '../../../../redux/config/reduxHook';
-
+import { navigate } from '../../../../navigation/NavigationUtils';
 function PortOneSample() {
   const controller = createRef<PortOneController>();
   const dispatch = useAppDispatch();
@@ -29,10 +29,19 @@ function PortOneSample() {
       const response = await dispatch(completePaymentHandler(uid, orderId));
       if (response.message === 'Payment completed') {
         Alert.alert('성공', '주문이 성공적으로 처리되었습니다.');
+        navigate("BottomTab", {
+          screen: "HomeScreen"
+        });
       } else if (response.message === 'Virtual account issued') {
         Alert.alert('가상계좌 발급', '가상계좌가 발급되었습니다.');
+        navigate("BottomTab", {
+          screen: "HomeScreen"
+        });
       } else {
         Alert.alert('오류', response.message);
+        navigate("BottomTab", {
+          screen: "HomeScreen"
+        });
       }
     } catch (error) {
       Alert.alert('서버 오류', '결제 처리 중 문제가 발생했습니다.');
@@ -48,7 +57,7 @@ function PortOneSample() {
           channelKey: 'channel-key-e760a2da-6273-4d91-a47d-322d03bba0f9',
           paymentId: uid,
           orderName: '아이스 아메리카노',
-          totalAmount: 3000,
+          totalAmount: 1,
           currency: 'CURRENCY_KRW',
           payMethod: 'EASY_PAY',
           customer: {

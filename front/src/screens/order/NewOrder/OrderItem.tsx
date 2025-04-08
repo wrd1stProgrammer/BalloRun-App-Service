@@ -108,10 +108,10 @@ const OrderItem: React.FC<OrderItemProps> = ({
     const isChatRoom = await dispatch(checkChatRoomAction(roomId));
     return isChatRoom;
   };
-
+ // 대소문자.
   const showOrderDetails = () => {
     // navigate("OrderDetailScreen", { orderId, orderType });
-    navigate("PortOneSample", { orderId });
+    navigate("PortoneSample", { orderId });
   };
 
   const handleChatPress = async () => {
