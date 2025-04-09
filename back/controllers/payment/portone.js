@@ -30,7 +30,7 @@ const completePayment = async (req, res) => {
       }
       console.log('payment: ',payment);
       // 금액 비교
-      if (1 === payment.amount.total) {
+      if (100 === payment.amount.total) {
         switch (payment.status) {
           case 'VIRTUAL_ACCOUNT_ISSUED':
             return res.status(200).send('Virtual account issued');
