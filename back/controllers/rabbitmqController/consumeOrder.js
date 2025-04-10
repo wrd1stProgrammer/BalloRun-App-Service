@@ -188,7 +188,7 @@ const consumeNewOrderMessages = async (redisCli) => {
         throw new Error("Payment amount mismatch");
       }
     } catch (e) {
-      res.status(500).send(`Server error: ${e.message}`);
+      throw new Error(`Server error: ${e.message}`);
     }
   };
 

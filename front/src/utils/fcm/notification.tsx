@@ -100,7 +100,7 @@ export const onNotificationOpenedApp = (): void => {
 // 알림 클릭 시 딥링크 처리
 const handleNotificationAction = (data: NotificationData): void => {
   // 주문 요청 완료시 딥링크
-    if (data?.type === 'order_accepted' && data.Id) {
+    if (data?.type === 'order_accepted') {
     navigate("BottomTab", {
         screen: "DeliveryRequestListScreen"
     });
