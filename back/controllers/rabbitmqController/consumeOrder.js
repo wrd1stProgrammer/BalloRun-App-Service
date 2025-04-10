@@ -56,6 +56,9 @@ const consumeNewOrderMessages = async (redisCli) => {
               });
               await newOrder.save({ session });
               //await newOrder.save();
+              //트랜잭션 커밋해야 저장이 되니 커밋하고 결제 검증 이럼 디비 저장됨?
+              await session.commitTransaction();
+              console.log('ID맞는지 ',newOrder._id);
 
               // 결제 검증
               const paymentResult = await verifyPayment(paymentId, newOrder._id);
@@ -64,8 +67,8 @@ const consumeNewOrderMessages = async (redisCli) => {
               }
               // 결제 상태에 따라 주문 상태 업데이트
               newOrder.status = paymentResult.status;
-              await newOrder.save({ session });
-  
+              await newOrder.save();
+
               const transformedOrder = {
                 _id: newOrder._id,
                 name: newOrder.name,
@@ -100,7 +103,7 @@ const consumeNewOrderMessages = async (redisCli) => {
               );
 
               
-              await session.commitTransaction();
+              // await session.commitTransaction();
               channel.ack(msg);
             } catch (error) {
                 console.error("Error processing new order:", error);
