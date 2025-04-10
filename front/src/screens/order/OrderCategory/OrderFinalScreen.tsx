@@ -30,9 +30,11 @@ import Header from "../../../utils/OrderComponents/Header";
 import Modal from 'react-native-modal';
 import { selectUser } from "../../../redux/reducers/userSlice";
 import { refetchUser } from "../../../redux/actions/userAction";
+import { Payment, PortOneController } from '@portone/react-native-sdk';
 
 type RootStackParamList = {
   OrderFinalScreen: {
+    paymentId:string;
     name: string;
     orderDetails: string;
     priceOffer: string;
@@ -45,6 +47,13 @@ type RootStackParamList = {
   };
   DeliveryNoticeScreen: undefined;
   CancelNoticeScreen: undefined;
+  PortOneSample: {
+    paymentId: string;
+    orderName: string;
+    totalAmount: number;
+    easyPayProvider: string;
+    orderDetails: any; // 주문 정보 전달
+  };
 };
 
 type OrderFinalScreenRouteProp = RouteProp<RootStackParamList, "OrderFinalScreen">;
@@ -69,11 +78,25 @@ const OrderFinalScreen = () => {
   const [resolvedAddress, setResolvedAddress] = useState(user?.address || "");
   const [points, setPoints] = useState(0);
   const [usedPoints, setUsedPoints] = useState(0);
+  const [paymentId, setPaymentId] = useState(""); // 테스트용 임시
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("EASY_PAY_PROVIDER_KAKAOPAY");
 
   const lat = user.lat;
   const lng = user.lng;
 
   const dispatch = useAppDispatch();
+
+  // paymentId 생성 함수 -> 테스트용 임시임
+  const generatePaymentId = () => {
+    const timestamp = Date.now().toString(36); // 타임스탬프를 36진수로 변환
+    const randomStr = Math.random().toString(36).substring(2, 8); // 랜덤 문자열 (6자리)
+    return `pay_${timestamp}_${randomStr}`; // 예: "pay_kj9p2x_7b4n1m"
+  };
+
+  useEffect(() => {
+    // 컴포넌트 마운트 시 paymentId 생성
+    setPaymentId(generatePaymentId());
+  }, []);
 
   useEffect(() => {
     if (user?.point !== undefined) {
@@ -109,6 +132,7 @@ const OrderFinalScreen = () => {
     const imageResponse2 = selectedImageUri ? await dispatch(uploadFile(selectedImageUri, "neworderPickup_image")) : null;
 
     await dispatch(neworderCompleteHandler(
+      paymentId,
       name,
       orderDetails,
       parseInt(priceOffer.replace("원", "").replace(",", "")),
@@ -162,6 +186,39 @@ const OrderFinalScreen = () => {
     } else {
       setUsedPoints(numericValue);
     }
+  };
+
+  const handlePaymentMethodSelect = (method: string) => {
+    setSelectedPaymentMethod(method);
+  };
+
+  const initiatePayment = () => {
+    const orderDetailsData = {
+      paymentId,
+      name,
+      orderDetails,
+      priceOffer: parseInt(priceOffer.replace("원", "").replace(",", "")),
+      deliveryFee: parseInt(deliveryFee.replace("원", "").replace(",", "")),
+      riderRequest,
+      images,
+      selectedImageUri,
+      finalLat: finalLat?.toString() || "",
+      finalLng: finalLng?.toString() || "",
+      finalAddress,
+      deliveryMethod,
+      startTime: startTime.getTime(),
+      endTime: endTime.getTime(),
+      selectedFloor,
+      resolvedAddress,
+      usedPoints,
+    };
+    navigate("PortoneSample", {
+      paymentId,
+      orderName: name,
+      totalAmount: finalAmount,
+      easyPayProvider: selectedPaymentMethod,
+      orderDetails: orderDetailsData,
+    });
   };
 
   return (
@@ -398,6 +455,29 @@ const OrderFinalScreen = () => {
                     </View>
                   </View>
 
+                  {/* 결제 수단 선택 UI */}
+                  <Text style={styles.sectionTitle}>결제 수단 선택</Text>
+                  <View style={styles.paymentMethodContainer}>
+                    <TouchableOpacity
+                      style={[styles.paymentMethodButton, selectedPaymentMethod === "EASY_PAY_PROVIDER_KAKAOPAY" && styles.selectedPaymentMethod]}
+                      onPress={() => handlePaymentMethodSelect("EASY_PAY_PROVIDER_KAKAOPAY")}
+                    >
+                      <Text style={styles.paymentMethodText}>카카오페이</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.paymentMethodButton, selectedPaymentMethod === "EASY_PAY_PROVIDER_TOSSPAY" && styles.selectedPaymentMethod]}
+                      onPress={() => handlePaymentMethodSelect("EASY_PAY_PROVIDER_TOSSPAY")}
+                    >
+                      <Text style={styles.paymentMethodText}>토스페이</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.paymentMethodButton, selectedPaymentMethod === "EASY_PAY_PROVIDER_NAVERPAY" && styles.selectedPaymentMethod]}
+                      onPress={() => handlePaymentMethodSelect("EASY_PAY_PROVIDER_NAVERPAY")}
+                    >
+                      <Text style={styles.paymentMethodText}>네이버페이</Text>
+                    </TouchableOpacity>
+                  </View>
+
                   <TouchableOpacity style={styles.noticeRow} onPress={() => navigate("DeliveryNoticeScreen")}>
                     <Text style={styles.noticeText}>배달 상품 주의사항 동의</Text>
                     <Ionicons name="chevron-forward" size={16} color="#999" />
@@ -408,14 +488,17 @@ const OrderFinalScreen = () => {
                   </TouchableOpacity>
                   <Text style={styles.confirmText}>위 내용을 확인하였으며 결제에 동의합니다</Text>
                 </View>
+                
               </TouchableWithoutFeedback>
             </ScrollView>
 
 
           </KeyboardAvoidingView>
-          <TouchableOpacity style={styles.kakaoPayButton} onPress={handleNextPress}>
-              <Text style={styles.kakaoPayButtonText}>{finalAmount.toLocaleString()}원 카카오페이 결제</Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.kakaoPayButton} onPress={initiatePayment}>
+            <Text style={styles.kakaoPayButtonText}>
+              {finalAmount.toLocaleString()}원 {selectedPaymentMethod.split('_').pop()} 결제
+            </Text>
+          </TouchableOpacity>
         </>
       )}
     </SafeAreaView>
@@ -658,6 +741,27 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 8,
     fontSize: 16,
+    color: "#333",
+  },
+  paymentMethodContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 20,
+  },
+  paymentMethodButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 10,
+    backgroundColor: "#fff",
+  },
+  selectedPaymentMethod: {
+    borderColor: "#0064FF",
+    backgroundColor: "#f0f8ff",
+  },
+  paymentMethodText: {
+    fontSize: 14,
     color: "#333",
   },
 });

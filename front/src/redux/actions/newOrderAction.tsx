@@ -5,6 +5,7 @@ import { useAppDispatch } from '../config/reduxHook';
 
 
 export const neworderCompleteHandler = (
+  paymentId :string,
   name: string,
   orderDetails: string,
   priceOffer: number,
@@ -24,6 +25,7 @@ export const neworderCompleteHandler = (
 ) => async (dispatch: any) => {
   try {
     const res = await appAxios.post(`/neworder/ordercall`, {
+      paymentId,
       name,
       orderDetails,
       priceOffer,

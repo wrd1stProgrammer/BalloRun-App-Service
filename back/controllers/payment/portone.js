@@ -28,9 +28,11 @@ const completePayment = async (req, res) => {
       if (!orderData) {
         return res.status(404).send('Order not found');
       }
+      
+      let totalPayment = orderData.deliveryFee + orderData.priceOffer;
       console.log('payment: ',payment);
       // 금액 비교
-      if (100 === payment.amount.total) {
+      if (totalPayment === payment.amount.total) {
         switch (payment.status) {
           case 'VIRTUAL_ACCOUNT_ISSUED':
             return res.status(200).send('Virtual account issued');

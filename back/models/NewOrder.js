@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { any } = require('../config/multer');
 
 const NewOrderSchema = new mongoose.Schema(
   {
@@ -58,8 +59,12 @@ const NewOrderSchema = new mongoose.Schema(
       default: 0,
       min: 0
     },
-    paymentStatus: { type: String, default: "pending" }, // pending, completed, failed
+    status: { type: String, default: "PENDING" }, // pending, completed, failed
     paymentDetails: { type: Object }, // 결제 정보 (예: 결제 금액, 결제 수단 등)
+    paymendId: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true, // createdAt, updatedAt 자동 생성

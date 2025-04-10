@@ -6,6 +6,7 @@ const { sendPushNotification } = require("../../utils/sendPushNotification");
 
 const newOrderCreate = async (req, res) => {
   const {
+    paymentId, // 추가: 결제 ID를 클라이언트에서 전달받음
     name,
     orderDetails,
     priceOffer,
@@ -57,6 +58,7 @@ const newOrderCreate = async (req, res) => {
 
     // 주문 생성
     const message = JSON.stringify({
+      paymentId,
       userId,
       name,
       orderDetails,
