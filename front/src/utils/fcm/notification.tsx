@@ -113,7 +113,7 @@ const handleNotificationAction = (data: NotificationData): void => {
         screen: "DeliveryRequestListScreen"
     });
     // 주문 요청 실패 
-  } else if(data?.type === 'order_failed' && data.Id) {
+  } else if(data?.type === 'order_failed') {
     navigate("BottomTab", {
         screen: "HomeScreen"
     });
