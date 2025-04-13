@@ -93,6 +93,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                 isReservation: newOrder.isReservation,
                 orderType: newOrder.orderType,
                 usedPoints: newOrder.usedPoints,
+                status: newOrder.status,
               };
   
               const redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
@@ -187,8 +188,6 @@ const consumeNewOrderMessages = async (redisCli) => {
           case 'VIRTUAL_ACCOUNT_ISSUED':
             throw new Error("VIRTUAL_ACCOUNT_ISSUED ERROR!!");
           case 'PAID':
-            orderData.status = 'PAID'; // 주문 상태 업데이트
-            await orderData.save();
             return { status: payment.status }; // "PAID", "VIRTUAL_ACCOUNT_ISSUED" 등
           default:
             throw new Error("unknow payment default error");
