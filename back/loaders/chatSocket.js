@@ -199,7 +199,7 @@ module.exports = (chatIo) => {
         const otherUserId = chatRoom.users.find((u) => u._id.toString() !== userId)._id.toString();
 
         // 4. 상대방 정보 조회 (username, userImage, nickname)
-        const otherUser = await User.findById(otherUserId).select('username userImage nickname fcmToken').lean();
+        const otherUser = await User.findById(otherUserId).select('username userImage nickname fcmToken allOrderAlarm').lean();
         if (!otherUser) {
           console.log(`User with ID ${otherUserId} not found`);
         } else {
@@ -237,20 +237,22 @@ module.exports = (chatIo) => {
         );
         const shouldSendNotification = otherUserAlarmSetting ? otherUserAlarmSetting.isAlarm : false;
 
-        if (shouldSendNotification && otherUser.fcmToken) {
-          const notipayload = {
-            title: `메세지가 도착하였습니다.`,
-            body: `${message}`,
-            data: { type: 'chat', orderId: chatRoomId },
-          };
-           await sendPushNotification(otherUser.fcmToken, notipayload);
-          console.log('ios APNs 설정 안되서 일단 주석');
-        } else {
-          console.log(
-            shouldSendNotification
-              ? `상대방의 FCM 토큰이 없습니다.`
-              : `상대방이 알림을 꺼놓았습니다.`
-          );
+        if(otherUser.allOrderAlarm){
+          if (shouldSendNotification && otherUser.fcmToken) {
+            const notipayload = {
+              title: `메세지가 도착하였습니다.`,
+              body: `${message}`,
+              data: { type: 'chat', orderId: chatRoomId },
+            };
+             await sendPushNotification(otherUser.fcmToken, notipayload);
+            console.log('ios APNs 설정 안되서 일단 주석');
+          } else {
+            console.log(
+              shouldSendNotification
+                ? `상대방의 FCM 토큰이 없습니다.`
+                : `상대방이 알림을 꺼놓았습니다.`
+            );
+          }
         }
 
         console.log(`[ChatSocket] Message sent in Room ${chatRoomId}: ${message}`);
@@ -309,26 +311,28 @@ module.exports = (chatIo) => {
         });
 
         // 7. 푸시 알림 (상대방 알림 설정 확인)
-        const otherUser = await User.findById(otherUserId).select('fcmToken').lean();
+        const otherUser = await User.findById(otherUserId).select('fcmToken allOrderAlarm').lean();
         const otherUserAlarmSetting = chatRoom.usersAlarm.find(
           (alarm) => alarm.userId.toString() === otherUserId
         );
         const shouldSendNotification = otherUserAlarmSetting ? otherUserAlarmSetting.isAlarm : false;
 
-        if (shouldSendNotification && otherUser.fcmToken) {
-          const notipayload = {
-            title: `사진이 도착하였습니다.`,
-            body: `사진을 보냈습니다.`,
-            data: { type: 'chat', orderId: chatRoomId },
-          };
-          await sendPushNotification(otherUser.fcmToken, notipayload);
-          console.log('ios APNs 설정 안되서 일단 주석');
-        } else {
-          console.log(
-            shouldSendNotification
-              ? `상대방의 FCM 토큰이 없습니다.`
-              : `상대방이 알림을 꺼놓았습니다.`
-          );
+        if(otherUser.allOrderAlarm){
+          if (shouldSendNotification && otherUser.fcmToken) {
+            const notipayload = {
+              title: `사진이 도착하였습니다.`,
+              body: `사진을 보냈습니다.`,
+              data: { type: 'chat', orderId: chatRoomId },
+            };
+            await sendPushNotification(otherUser.fcmToken, notipayload);
+            console.log('ios APNs 설정 안되서 일단 주석');
+          } else {
+            console.log(
+              shouldSendNotification
+                ? `상대방의 FCM 토큰이 없습니다.`
+                : `상대방이 알림을 꺼놓았습니다.`
+            );
+          }
         }
 
         console.log(`[ChatSocket] Image Message sent in Room ${chatRoomId}: ${imageUrl}`);

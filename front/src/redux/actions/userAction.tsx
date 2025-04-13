@@ -284,3 +284,25 @@ export const updateBankAccountAction = (bankInfo: {
     throw error; // 컴포넌트에서 에러 처리 가능하도록 throw
   }
 };
+
+export const updateAlarmState = (chatNotifications:boolean,adNotifications:boolean,orderNotifications:boolean) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/user/updateAllAlarm',{
+      allChatAlarm:chatNotifications,
+      allAdAlarm:adNotifications,
+      allOrderAlarm:orderNotifications,
+    });
+    // 성공 시 Redux 상태 업데이트
+    await dispatch(setUser(res.data.user));
+    return res.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error('알람 상태 정보 업데이트 실패:', error.response.data.message || error.response.data);
+      Alert.alert('업데이트 실패', error.response.data.message || '알람 상태 업데이트에 실패했습니다.');
+    } else {
+      console.error('네트워크 에러:', error.message);
+      Alert.alert('네트워크 오류', '서버와 연결되지 않았습니다. 나중에 다시 시도해주세요.');
+    }
+    throw error; // 컴포넌트에서 에러 처리 가능하도록 throw
+  }
+};

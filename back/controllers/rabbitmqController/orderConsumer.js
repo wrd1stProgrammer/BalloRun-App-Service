@@ -88,17 +88,19 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           }
 
           // 5️⃣ 푸쉬 알림 -> 배달매칭 완료, 채팅방 생성 알림
-          const notipayload = {
-            title: `배달요청이 수락되었습니다.`,
-            body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
-            data: { type: "order_accepted" },
-          };
-
-          if (orderUser?.fcmToken) {
-            // orderUser.fcmToken로 변경해야 함
-            await sendPushNotification(orderUser.fcmToken, notipayload);
-          } else {
-            console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+          if(orderUser.allOrderAlarm){
+            const notipayload = {
+              title: `배달요청이 수락되었습니다.`,
+              body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
+              data: { type: "order_accepted" },
+            };
+  
+            if (orderUser?.fcmToken) {
+              // orderUser.fcmToken로 변경해야 함
+              await sendPushNotification(orderUser.fcmToken, notipayload);
+            } else {
+              console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
+            }
           }
 
           // 6️⃣ Redis에서 해당 주문 제거 (배달이 수락됨)

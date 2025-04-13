@@ -91,6 +91,18 @@ const UserSchema = new mongoose.Schema(
     },
     isActive: { type: Boolean, default: true },
     deletedAt: { type: Date, default: null },
+    allChatAlarm:{
+      type: Boolean,
+      default: true,
+    },
+    allAdAlarm:{
+      type:Boolean,
+      default:true,
+    },
+    allOrderAlarm:{
+      type:Boolean,
+      default:true,
+    }
   },
   { timestamps: true }
 );

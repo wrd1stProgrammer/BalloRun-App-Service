@@ -176,8 +176,8 @@ const getOrderDataForCancelApi = async (req, res) => {
         riderUser.isDelivering = false;
         await riderUser.save(); // 라이더는 refetch 강제 + 알림
   
-        // 8. 라이더에게 푸시 알림 전송
-        if (riderUser.fcmToken) {
+        // 8. 라이더에게 푸시 알림 전송,
+        if (riderUser.fcmToken && riderUser.allOrderAlarm) {
           const notificationPayload = {
             title: "주문이 취소되었습니다.",
             body: `고객이 주문을 취소하였습니다.`,
@@ -188,7 +188,7 @@ const getOrderDataForCancelApi = async (req, res) => {
           // cancellation.riderNotified = true; // 알림 전송 성공 시 상태 업데이트
           await cancellation.save();
         } else {
-          console.log(`라이더 ${order.riderId}의 FCM 토큰이 없습니다.`);
+          console.log(`라이더 ${order.riderId}의 FCM 토큰이 없습니다. 또는 알람 끔${riderUser.allOrderAlarm}`);
         }
         console.log(`라이더 ${order.riderId}에게 알림 전송 준비: 주문 ${orderId} 취소`);
       } else {

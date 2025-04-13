@@ -39,6 +39,9 @@ const getProfile = async (req, res) => {
         isDelivering: user.isDelivering,
         verificationStatus:user.verificationStatus,
         account: user.account ?? null, // account가 undefined일 경우 null로 처리
+        allOrderAlarm: user.allOrderAlarm,
+        allAdAlarm : user.allAdAlarm,
+        allChatAlarm: user.allChatAlarm,
       }, // 임시로 4개만 뿌림.
     });
   } catch (error) {
@@ -366,6 +369,37 @@ const accountUpdate = async(req,res) => {
 
 }
 
+const updateNotificationSettings = async (req, res) => {
+  try {
+    const userId = req.user.userId; // authMiddleware에서 추출된 사용자 ID
+
+    const { allChatAlarm, allAdAlarm, allOrderAlarm } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: 'userId is required' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        allChatAlarm,
+        allAdAlarm,
+        allOrderAlarm,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({ message: 'Notification settings updated', user: updatedUser });
+  } catch (error) {
+    console.error('Error updating notification settings:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -377,4 +411,5 @@ module.exports = {
   updateAddress,
   taltaeApi,
   accountUpdate,
+  updateNotificationSettings
 };

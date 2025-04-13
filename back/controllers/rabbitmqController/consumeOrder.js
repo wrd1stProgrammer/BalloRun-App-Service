@@ -125,7 +125,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                 try {
                   const orderData = JSON.parse(msg.content.toString());
                   const user = await User.findById(orderData.userId);
-                  if (user?.fcmToken) {
+                  if (user?.fcmToken && user.allOrderAlarm) {
                     const notipayload = {
                       title: `주문 처리 실패`,
                       body: `주문 처리에 문제가 발생했습니다. 다시 시도해주세요`,
@@ -134,7 +134,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                     await sendPushNotification(user.fcmToken, notipayload);
                     console.log(`사용자 ${orderData.userId}에게 주문 처리 실패 알림 전송 완료`);
                   } else {
-                    console.log(`사용자 ${orderData.userId}의 FCM 토큰이 없습니다.`);
+                    console.log(`사용자 ${orderData.userId}의 FCM 토큰이 없습니다. 또는 ${user.allOrderAlarm} 상태`);
                   }
                 } catch (notificationError) {
                   console.error("푸시 알림 전송 실패:", notificationError);
