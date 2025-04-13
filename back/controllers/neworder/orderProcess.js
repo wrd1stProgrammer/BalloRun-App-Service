@@ -76,7 +76,8 @@ const newOrderCreate = async (req, res) => {
       endTime,
       selectedFloor,
       resolvedAddress,
-      usedPoints // 메시지에 포함
+      usedPoints, // 메시지에 포함
+      status: "pending", // 수정: 상태를 'pending'으로 초기화
     });
 
     // RabbitMQ 메시지 전송

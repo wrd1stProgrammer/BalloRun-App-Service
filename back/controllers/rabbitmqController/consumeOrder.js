@@ -53,13 +53,15 @@ const consumeNewOrderMessages = async (redisCli) => {
               const newOrder = new NewOrder({
                 ...orderData,
                 usedPoints: orderData.usedPoints || 0,
-                paymentId: orderData.paymentId,
+                status: "pending",
+                paymentId: paymentId,
               });
               await newOrder.save({ session });
+
               //await newOrder.save();
               //트랜잭션 커밋해야 저장이 되니 커밋하고 결제 검증 이럼 디비 저장됨?
               await session.commitTransaction();
-              console.log('ID맞는지 ',newOrder._id);
+              
 
               // 결제 검증
               const paymentResult = await verifyPayment(paymentId, newOrder._id);
@@ -67,7 +69,9 @@ const consumeNewOrderMessages = async (redisCli) => {
                 throw new Error("결제 검증 실패");
               }
               // 결제 상태에 따라 주문 상태 업데이트
-              newOrder.status = paymentResult.status;
+              if (paymentResult.status === "PAID") {
+                newOrder.status = "pending"; // 수정: 'PAID' 대신 'pending' 유지
+              }
               await newOrder.save();
 
               const transformedOrder = {
