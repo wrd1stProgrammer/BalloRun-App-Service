@@ -53,6 +53,7 @@ const consumeNewOrderMessages = async (redisCli) => {
               const newOrder = new NewOrder({
                 ...orderData,
                 usedPoints: orderData.usedPoints || 0,
+                paymentId: orderData.paymentId,
               });
               await newOrder.save({ session });
               //await newOrder.save();
@@ -71,6 +72,7 @@ const consumeNewOrderMessages = async (redisCli) => {
 
               const transformedOrder = {
                 _id: newOrder._id,
+                paymentId: newOrder.paymendId,
                 name: newOrder.name,
                 items: [{ menuName: newOrder.orderDetails, cafeName: newOrder.name }],
                 deliveryType: newOrder.deliveryMethod,
