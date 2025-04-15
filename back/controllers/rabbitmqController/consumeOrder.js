@@ -191,7 +191,7 @@ const consumeNewOrderMessages = async (redisCli) => {
           case 'VIRTUAL_ACCOUNT_ISSUED':
             throw new Error("VIRTUAL_ACCOUNT_ISSUED ERROR!!");
           case 'PAID':
-            return { status: payment.status }; // "PAID", "VIRTUAL_ACCOUNT_ISSUED" 등
+            return payment; // "PAID", "VIRTUAL_ACCOUNT_ISSUED" 등
           default:
             throw new Error("unknow payment default error");
         }
