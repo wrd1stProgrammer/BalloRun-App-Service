@@ -61,7 +61,7 @@ const NewOrderSchema = new mongoose.Schema(
     },
     status: { type: String, default: "PENDING" }, // pending, completed, failed
     paymentDetails: { type: Object }, // 결제 정보 (예: 결제 금액, 결제 수단 등)
-    paymendId: {
+    paymentId: {
       type: String,
       required: false,
     },
