@@ -232,7 +232,7 @@ const getOrderDataForCancelApi = async (req, res) => {
       try {
         const paymentId = order.paymentId;
         if (paymentId) {
-          await cancelPayment(paymentId, refundAmount, cancelReason);
+          await cancelPayment(paymentId, cancelReason);
           console.log(`결제 ${paymentId} 취소 완료`);
         } else {
           console.warn("paymentId가 존재하지 않아 결제 취소를 수행하지 못했습니다.");
