@@ -54,6 +54,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                 ...orderData,
                 usedPoints: orderData.usedPoints || 0,
                 status: "pending",
+                paymentId: orderData.paymendId,
               });
               await newOrder.save({ session });
 
@@ -73,7 +74,7 @@ const consumeNewOrderMessages = async (redisCli) => {
               // 결제 상태에 따라 주문 상태 업데이트
               if (paymentResult.status === "PAID") {
                 newOrder.status = "pending"; // 수정: 'PAID' 대신 'pending' 유지
-                newOrder.paymentId = paymentResult.paymentId; // paymentId 갱신
+                //newOrder.paymentId = paymentResult.paymentId; // paymentId 갱신
               }
               await newOrder.save();
 
