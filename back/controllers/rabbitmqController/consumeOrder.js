@@ -54,7 +54,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                 ...orderData,
                 usedPoints: orderData.usedPoints || 0,
                 status: "pending",
-                paymentId: orderData.paymendId,
+                paymentId: orderData.paymentId,
               });
               await newOrder.save({ session });
 
