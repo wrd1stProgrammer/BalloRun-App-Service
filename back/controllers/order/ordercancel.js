@@ -127,7 +127,7 @@ const getOrderDataForCancelApi = async (req, res) => {
     const response = await fetch(`https://api.portone.io/payments/${paymentId}/cancel`, {
       method: "POST",
       headers: {
-        //Authorization: `PortOne ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
