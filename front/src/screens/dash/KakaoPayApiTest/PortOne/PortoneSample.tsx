@@ -1,7 +1,7 @@
 import { useRoute } from '@react-navigation/native';
 import React, { createRef, useEffect } from 'react';
 import { Alert, BackHandler, SafeAreaView } from 'react-native';
-import { Payment, PortOneController } from '@portone/react-native-sdk';
+import { Payment, PortOneController, } from '@portone/react-native-sdk';
 //import { completePaymentHandler } from '../../../../redux/actions/paymentAction';
 import { useAppDispatch } from '../../../../redux/config/reduxHook';
 import { navigate } from '../../../../navigation/NavigationUtils';

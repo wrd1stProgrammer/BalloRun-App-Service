@@ -4,6 +4,8 @@ const User = require("../../models/User");
 const OrderCancellation = require("../../models/OrderCancellation");
 const { invalidateOnGoingOrdersCache,invalidateCompletedOrdersCache } = require("../../utils/deleteRedisCache");
 const { sendPushNotification } = require("../../utils/sendPushNotification");
+const fetch = require("node-fetch");
+
 
 const getOrderDataForCancelApi = async (req, res) => {
     try {
@@ -101,7 +103,156 @@ const getOrderDataForCancelApi = async (req, res) => {
     }
   };
 
+
+  const getPortOneAccessToken = async () => {
+    const response = await fetch("https://api.portone.io/login/api-secret", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiSecret: process.env.PORTONE_API_SECRET,
+      }),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Failed to retrieve PortOne access token");
+    }
+  
+    const data = await response.json();
+    return data.access_token;
+  };
+  
+  const cancelPayment = async (paymentId, reason) => {
+    const accessToken = await getPortOneAccessToken();
+  
+    const response = await fetch(`https://api.portone.io/payments/${paymentId}/cancel`, {
+      method: "POST",
+      headers: {
+        //Authorization: `PortOne ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        reason,
+      }),
+    });
+  
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Payment cancellation failed: ${JSON.stringify(errorData)}`);
+    }
+  
+    const result = await response.json();
+    return result;
+  };
+  
+  const orderCancelApi = async (req, res) => {
+    try {
+      const { orderId, orderType, cancelReason, refundAmount, penaltyAmount } = req.body;
+  
+      if (!orderId || !orderType || !cancelReason || refundAmount === undefined || penaltyAmount === undefined) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+  
+      let order;
+      if (orderType === "Order") {
+        order = await Order.findById(orderId);
+      } else if (orderType === "NewOrder") {
+        order = await NewOrder.findById(orderId);
+      } else {
+        return res.status(400).json({ error: "Invalid orderType" });
+      }
+  
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+  
+      const redisClient = req.app.get("redisClient");
+      const redisCli = redisClient.v4;
+  
+      order.status = "cancelled";
+      await order.save();
+  
+      const paymentAmount = (orderType === "Order" ? order.price : order.priceOffer) + order.deliveryFee;
+  
+      const cancellation = new OrderCancellation({
+        orderId: order._id,
+        orderType,
+        cancelReason,
+        paymentAmount,
+        refundAmount,
+        penaltyAmount,
+        cancelStatus: "pending",
+        riderNotified: false,
+      });
+  
+      await cancellation.save();
+  
+      order.cancellation = cancellation._id;
+      await order.save();
+  
+      const usedPoints = order.usedPoints || 0;
+      if (usedPoints > 0) {
+        const user = await User.findById(order.userId);
+        if (!user) {
+          return res.status(404).json({ error: "User not found" });
+        }
+        user.point = (user.point || 0) + usedPoints;
+        await user.save();
+        console.log(`사용자 ${user._id}에게 ${usedPoints} 포인트 환불 완료`);
+      }
+  
+      const isMatched = !!order.riderId;
+      if (isMatched) {
+        const riderUser = await User.findById(order.riderId);
+        riderUser.isDelivering = false;
+        await riderUser.save();
+  
+        if (riderUser.fcmToken && riderUser.allOrderAlarm) {
+          const notificationPayload = {
+            title: "주문이 취소되었습니다.",
+            body: `고객이 주문을 취소하였습니다.`,
+            data: { type: "order_cancel", Id: orderId },
+          };
+          await sendPushNotification(riderUser.fcmToken, notificationPayload);
+          console.log(`라이더 ${order.riderId}에게 알림 전송 성공`);
+          await cancellation.save();
+        } else {
+          console.log(`라이더 ${order.riderId}의 FCM 토큰이 없습니다. 또는 알람 끔${riderUser.allOrderAlarm}`);
+        }
+      } else {
+        const cacheKey = "activeOrders";
+        let redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
+        redisOrders = redisOrders.filter((order) => order._id.toString() !== orderId);
+        await redisCli.set(cacheKey, JSON.stringify(redisOrders));
+      }
+  
+      await invalidateOnGoingOrdersCache(order.userId, redisCli);
+      await invalidateCompletedOrdersCache(order.userId, redisCli);
+  
+      // 결제 취소 로직
+      try {
+        const paymentId = order.paymentId;
+        if (paymentId) {
+          await cancelPayment(paymentId, refundAmount, cancelReason);
+          console.log(`결제 ${paymentId} 취소 완료`);
+        } else {
+          console.warn("paymentId가 존재하지 않아 결제 취소를 수행하지 못했습니다.");
+        }
+      } catch (err) {
+        console.error("결제 취소 실패:", err);
+      }
+  
+      return res.status(200).json({
+        message: "주문 취소 요청이 성공적으로 처리되었습니다.",
+        cancellationId: cancellation._id.toString(),
+      });
+    } catch (error) {
+      console.error("Error in orderCancelApi:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  };
+  
   //주문자가 취소
+  /*
   const orderCancelApi = async (req, res) => {
     try {
       // 1. 요청 데이터 추출
@@ -212,4 +363,5 @@ const getOrderDataForCancelApi = async (req, res) => {
       return res.status(500).json({ error: "Internal server error" });
     }
   };
+  */
 module.exports = { getOrderDataForCancelApi,orderCancelApi };
