@@ -47,7 +47,7 @@ const consumeNewOrderMessages = async (redisCli) => {
               let newOrder;
             try {
               const orderData = JSON.parse(msg.content.toString());
-              const { userId, name, orderDetails, priceOffer, deliveryFee, ...rest } = orderData;
+              const {paymentId, userId, name, orderDetails, priceOffer, deliveryFee, ...rest } = orderData;
               console.log(orderData,'orderData검증');
               
               const newOrder = new NewOrder({
@@ -69,7 +69,7 @@ const consumeNewOrderMessages = async (redisCli) => {
               }
 
               console.log(paymentResult,'페이먼트 리절트 로그 확인');
-              
+
               // 결제 상태에 따라 주문 상태 업데이트
               if (paymentResult.status === "PAID") {
                 newOrder.status = "pending"; // 수정: 'PAID' 대신 'pending' 유지
