@@ -123,11 +123,12 @@ const getOrderDataForCancelApi = async (req, res) => {
   
   const cancelPayment = async (paymentId, reason) => {
     const accessToken = await getPortOneAccessToken();
+    console.log(accessToken,'포트원 토큰')
   
-    const response = await fetch(`https://api.portone.io/payments/${paymentId}/cancel`, {
+    const response = await axios(`https://api.portone.io/payments/${paymentId}/cancel`, {
       method: "POST",
       headers: {
-        Authorization: `PortOne ${accessToken}`,
+        Authorization: `PortOne ${process.env.PORTONE_API_SECRET}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

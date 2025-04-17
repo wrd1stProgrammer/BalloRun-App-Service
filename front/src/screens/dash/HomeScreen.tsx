@@ -19,6 +19,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import AdMobBanner from './AdMob/AdMobBanner';
 import { refetchUser } from '../../redux/actions/userAction';
+import IdentityVerificationSample from './KakaoPayApiTest/PortOne/IdentityVerificationSample';
 
 const HomeScreen: React.FC = () => {
   const user = useAppSelector(selectUser);
@@ -29,6 +30,15 @@ const HomeScreen: React.FC = () => {
   const orderSocket = useContext(WebSocketContext);
   const socket = useContext(MapSocketContext);
   const { location, startTracking, stopTracking } = useLocation();
+
+  const handleVerifyComplete = (result: any) => {
+    console.log('✅ 인증 성공:', result);
+    navigate("BottomTab", { screen: "HomeScreen" });
+  };
+
+  const handleVerifyError = (error: any) => {
+    console.log('❌ 인증 실패:', error);
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -107,6 +117,14 @@ const HomeScreen: React.FC = () => {
             <TouchableOpacity onPress={() => navigate('PortoneSample')} style={styles.profileIconWrapper}>
               <Ionicons name="person-circle" size={36} color="#999" />
             </TouchableOpacity>
+        
+            <View style={{ padding: 16 }}>
+      <IdentityVerificationSample
+        onComplete={handleVerifyComplete}
+        onError={handleVerifyError}
+        buttonTitle="본인인증"
+      />
+    </View>
           </View>
 
           <View style={styles.bannerContainer}>

@@ -66,6 +66,7 @@ import NotificationSettingsScreen from "../screens/dash/Profile/Settings/Notific
 import AccountManagementScreen from "../screens/dash/Profile/Settings/AccountManagementScreen";
 import BankAccountEditScreen from "../screens/dash/Profile/Settings/BankAccountEditScreen";
 import PortOneSample from "../screens/dash/KakaoPayApiTest/PortOne/PortoneSample";
+import IdentityVerificationSample from "../screens/dash/KakaoPayApiTest/PortOne/IdentityVerificationSample";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -251,6 +252,10 @@ export const dashboardStack = [
   {
     name:"PortoneSample",
     component:PortOneSample,
+  },
+  {
+    name:"IdentityVerificationSample",
+    component: IdentityVerificationSample,
   }
 ];
 
