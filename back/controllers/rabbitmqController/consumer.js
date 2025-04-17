@@ -7,7 +7,7 @@ const {connectRabbitMQ} = require("../../config/rabbitMQ");
 const {invalidateOnGoingOrdersCache, invalidateCompletedOrdersCache} = require("../../utils/deleteRedisCache");
 const {sendPushNotification} = require("../../utils/sendPushNotification");
 const { consumeNewOrderMessages } = require("./consumeOrder");
-
+const {cancelPayment} = require("../order/ordercancel");
 
 
 // 기본 주문 컨슈머
@@ -121,6 +121,18 @@ const consumeDelayedMessages = async (emitCancel,redisCli) => {
               await invalidateCompletedOrdersCache(order.userId, redisCli);
 
               console.log(` Order ${orderId} cancelled automatically`);
+              
+              //자동 환불
+              try {
+                const paymentId = order.paymentId;
+                if(paymentId){
+                  await cancelPayment(paymentId, "주문 예약 시간이 지나서 자동 취소 및 전액 환불");
+                }else{
+                  console.log('paymentId 없음');
+                }
+              } catch (error) {
+                console.error(`결제 취소 실패 for order ${orderId}:`, err);
+              }
 
               if(user?.fcmToken){
                 const notipayload = {
@@ -128,6 +140,7 @@ const consumeDelayedMessages = async (emitCancel,redisCli) => {
                   body: `지정한 시간이 지나 주문이 자동 취소 되었습니다.`,
                   data: {type: "order_auto_cancelled"},
                 };
+
                 await sendPushNotification(user.fcmToken, notipayload);
               }else{
                 console.log("자동 주문 취소 알림 전송 오류");

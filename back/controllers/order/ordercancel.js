@@ -103,8 +103,9 @@ const getOrderDataForCancelApi = async (req, res) => {
     }
   };
 
-
+    //포트원 토큰 생성기 아직 안 씀.
   const getPortOneAccessToken = async () => {
+
     const response = await fetch("https://api.portone.io/login/api-secret", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -122,8 +123,6 @@ const getOrderDataForCancelApi = async (req, res) => {
   };
   
   const cancelPayment = async (paymentId, reason) => {
-    const accessToken = await getPortOneAccessToken();
-    console.log(accessToken,'포트원 토큰')
   
     const response = await fetch(`https://api.portone.io/payments/${paymentId}/cancel`, {
       method: "POST",
@@ -365,4 +364,4 @@ const getOrderDataForCancelApi = async (req, res) => {
     }
   };
   */
-module.exports = { getOrderDataForCancelApi,orderCancelApi };
+module.exports = { getOrderDataForCancelApi,orderCancelApi,cancelPayment };
