@@ -6,6 +6,7 @@ const { storeOrderInRedis } = require("./storeOrderInRedis");
 const { connectRabbitMQ } = require("../../config/rabbitMQ");
 const { invalidateOnGoingOrdersCache } = require("../../utils/deleteRedisCache");
 const { sendPushNotification } = require("../../utils/sendPushNotification");
+const { notifyNearbyRiders }   = require("../order/calculateDistance");  // ★추가
 
 
 const consumeNewOrderMessages = async (redisCli) => {
@@ -112,6 +113,16 @@ const consumeNewOrderMessages = async (redisCli) => {
                 Buffer.from(JSON.stringify({ orderId: newOrder._id, type: "neworder" })),
                 { headers: { "x-delay": 120000 }, persistent: true }
               );
+
+              const orderLat = parseFloat(newOrder.lat);
+              const orderLng = parseFloat(newOrder.lng);
+              const payload = {
+                title: "새 배달 요청!",
+                body:  "2km 이내, 심부름이 요청이 왔습니다 확인해보세요🚀",
+                data:  {  type: "order_aroundPush" }
+              };
+              // 지금 Id: newOrder._id 생략
+              await notifyNearbyRiders(orderLng, orderLat, payload,orderData.userId);
 
               
               // await session.commitTransaction();

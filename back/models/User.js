@@ -46,7 +46,19 @@ const UserSchema = new mongoose.Schema(
     address: {  // ✅ 기본 주소 추가
       type: String,
       default: "",
-  },
+    },
+    location: {
+      type: {
+        type: String,            // 항상 "Point"
+        enum: ['Point'],         
+        required: true,
+      },
+      coordinates: {
+        type: [Number],          // [경도(lng), 위도(lat)]
+        required: true,
+      }
+    },
+
    phone:{
       type: Number,
       required:false,
@@ -102,7 +114,11 @@ const UserSchema = new mongoose.Schema(
     allOrderAlarm:{
       type:Boolean,
       default:true,
-    }
+    },
+    aroundAlarm : {
+      type:Boolean,
+      default:true,
+    },
   },
   { timestamps: true }
 );

@@ -49,7 +49,7 @@ interface OrderListProps {
 const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<OrderItem[]>([]);
-  const [allOrders, setAllOrders] = useState<OrderItem[]>([]); // 원본 데이터 저장
+  const [allOrders, setAllOrders] = useState<OrderItem[]>([]);
   const [filterTab, setFilterTab] = useState("inProgress");
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -67,8 +67,7 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
         (a: OrderItem, b: OrderItem) =>
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
-      setAllOrders(sortedOrders); // 원본 데이터 저장
-      // 필터링된 데이터 설정
+      setAllOrders(sortedOrders);
       if (filterTab === "inProgress") {
         setOrders(
           sortedOrders.filter(
@@ -148,12 +147,11 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
       stopTracking();
       orderSocket?.emit("order_completed", { orderId, userId });
     }
-    fetchOrders(); // 상태 변경 후 주문 목록 새로고침
+    fetchOrders();
   };
 
   const renderOrder = ({ item }: { item: OrderItem }) => (
     <View style={styles.card}>
-      {/* 상단: 가게 이름 + 상태 */}
       <View style={styles.cardHeader}>
         <View style={styles.cafeInfo}>
           <Icon name="store" size={20} color="#1A1A1A" />
@@ -194,17 +192,16 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
             : "알 수 없음"}
         </Text>
       </View>
-
-      {/* 중단: 주문 정보 */}
       <View style={styles.orderInfo}>
         <Text style={styles.menuName}>{item.items[0]?.menuName}</Text>
         <Text style={styles.deliveryFee}>{`${item.deliveryFee}원`}</Text>
         <Text style={styles.time}>
-          {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: ko })}
+          {formatDistanceToNow(new Date(item.createdAt), {
+            addSuffix: true,
+            locale: ko,
+          })}
         </Text>
       </View>
-
-      {/* 진행 중일 때 프로그레스 바 */}
       {item.status !== "delivered" && item.status !== "cancelled" && (
         <View style={styles.progressBar}>
           <View
@@ -220,11 +217,12 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
           />
         </View>
       )}
-
-      {/* 하단: 버튼 */}
       {item.status !== "delivered" && item.status !== "cancelled" && (
         <View style={styles.actionContainer}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => setSelectedOrder(item)}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => setSelectedOrder(item)}
+          >
             <Icon name="edit" size={18} color="#FFF" />
             <Text style={styles.actionText}>상태 변경</Text>
           </TouchableOpacity>
@@ -276,8 +274,6 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
           </View>
         </View>
       </Modal>
-
-      {/* 필터 탭 */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={[styles.filterTab, filterTab === "inProgress" && styles.activeFilterTab]}
@@ -310,16 +306,20 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
           </Text>
         </TouchableOpacity>
       </View>
-
-      {/* 주문 리스트 */}
-      <FlatList
-        data={orders}
-        keyExtractor={(item) => item._id}
-        renderItem={renderOrder}
-        contentContainerStyle={styles.listContent}
-        refreshing={isRefreshing}
-        onRefresh={onRefresh}
-      />
+      {filterTab === "inProgress" && orders.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>배달 중인 심부름이 없습니다!</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={orders}
+          keyExtractor={(item) => item._id}
+          renderItem={renderOrder}
+          contentContainerStyle={styles.listContent}
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -327,12 +327,12 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F9FA", // 연한 회색 배경
+    backgroundColor: "#F7F9FA",
   },
   filterContainer: {
     flexDirection: "row",
     padding: 10,
-    backgroundColor: "#FFF",
+    backgroundColor: "#F7F9FA", // Changed to white to match bottom nav
   },
   filterTab: {
     flex: 1,
@@ -395,16 +395,16 @@ const styles = StyleSheet.create({
     color: "#FFF",
   },
   pendingStatus: {
-    backgroundColor: "#FFD60A", // 더 부드러운 노랑
+    backgroundColor: "#FFD60A",
   },
   inProgressStatus: {
-    backgroundColor: "#34C759", // 더 조화로운 초록
+    backgroundColor: "#34C759",
   },
   completedStatus: {
-    backgroundColor: "#006AFF", // 토스 파랑
+    backgroundColor: "#006AFF",
   },
   cancelledStatus: {
-    backgroundColor: "#B0B0B0", // 더 차분한 회색
+    backgroundColor: "#B0B0B0",
     color: "#FFF",
   },
   orderInfo: {
@@ -479,6 +479,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
     elevation: 5,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#666666",
+    fontWeight: "600",
   },
 });
 

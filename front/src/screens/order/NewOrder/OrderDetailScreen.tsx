@@ -244,7 +244,6 @@ const OrderDetailScreen: React.FC = () => {
                       <Text style={styles.emptyImageText}>이미지가 없습니다</Text>
                     </View>
                   )}
-                  <Text style={styles.imageLabel}>요청 사진</Text>
                 </View>
               )}
               
@@ -261,21 +260,11 @@ const OrderDetailScreen: React.FC = () => {
                       <Text style={styles.emptyImageText}>이미지가 없습니다</Text>
                     </View>
                   )}
-                  <Text style={styles.imageLabel}>상세 주소 사진</Text>
                 </View>
               )}
             </View>
           </ScrollView>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
-              <Text style={styles.buttonText}>닫기</Text>
-            </TouchableOpacity>
-            {order.status !== "cancelled" && (
-              <TouchableOpacity style={styles.acceptButton} onPress={() => {}}>
-                <Text style={styles.buttonText}>배달하기</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+
         </View>
       </View>
     </SafeAreaView>

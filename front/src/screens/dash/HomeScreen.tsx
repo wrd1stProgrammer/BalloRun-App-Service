@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native'; // SafeAreaView 추가
+import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { navigate } from '../../navigation/NavigationUtils';
@@ -109,22 +109,22 @@ const HomeScreen: React.FC = () => {
           <View style={styles.headerContainer}>
             <View style={styles.greetingContainer}>
               <TouchableOpacity onPress={() => navigate('AddressSettingScreen')}>
-              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
-                {user?.address?.length > 20 ? `${user.address.slice(0, 20)}...` : user?.address || "주소를 설정하세요"} ▼
-              </Text>
+                <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
+                  {user?.address?.length > 10 ? `${user.address.slice(0, 20)}...` : user?.address || "주소를 설정하세요"} ▼
+                </Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => navigate('PortoneSample')} style={styles.profileIconWrapper}>
+            <TouchableOpacity onPress={() => navigate('AccountManagementScreen')} style={styles.profileIconWrapper}>
               <Ionicons name="person-circle" size={36} color="#999" />
             </TouchableOpacity>
         
             <View style={{ padding: 16 }}>
-      <IdentityVerificationSample
-        onComplete={handleVerifyComplete}
-        onError={handleVerifyError}
-        buttonTitle="본인인증"
-      />
-    </View>
+              <IdentityVerificationSample
+                onComplete={handleVerifyComplete}
+                onError={handleVerifyError}
+                buttonTitle="본인인증"
+              />
+            </View>
           </View>
 
           <View style={styles.bannerContainer}>
@@ -135,16 +135,22 @@ const HomeScreen: React.FC = () => {
           </View>
           <OrderListComponent user={user} />
 
-          {/* 추가된 텍스트 섹션 */}
+          {/* 수정된 텍스트 섹션 */}
           <View style={styles.footerTextContainer}>
-            <Text style={styles.footerText}>
-              SERN | 사업자등록번호 418-11-83101
+            <Text style={styles.footerTextt}>
+              상호명 SERN(세른) | 대표 채민식 
             </Text>
             <Text style={styles.footerText}>
-              전자금융분쟁처리 Tel 1600-0987(유료), 080-849-0987(무료)
+              통신판매업 신고 2025-광주북구-0416 | 사업자등록번호 418-11-83101
             </Text>
             <Text style={styles.footerText}>
-              발로뛰어는 통신판매중개자로 거래 당사자가 아니므로, 소비자가 등록한 상품 정보 및 거래에 대해 발로뛰어는 책임을 지지 않습니다.
+              ballorunrun@gmail.com | 광주광역시 용주로 30번길 88,303호
+            </Text>
+            <Text style={styles.footerText}>
+              전자금융분쟁 Tel 010-4128-4177(무료)
+            </Text>
+            <Text style={styles.footerText}>
+              SERN(세른)은 통신판매중개자로 거래 당사자가 아니므로, 판매자가 등록한 상품정보 및 거래 등에 대해 책임을 지지 않습니다.
             </Text>
           </View>
         </ScrollView>
@@ -173,7 +179,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: 0, // 기존 50에서 0으로 변경하여 SafeAreaView가 자동 조정
+    paddingTop: 0,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -206,14 +212,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerTextContainer: {
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    
+    padding: 10, // 상하좌우 패딩
+    marginBottom: 80, // 하단 여백
   },
   footerText: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 5,
-    textAlign: 'center',
+    fontSize: 11, // 작은 폰트 크기
+    color: '#666', // 회색 텍스트
+    textAlign: 'left', // 중앙 정렬
+    marginLeft: 10,
+    marginBottom: 4, // 줄 간격
   },
+  footerTextt: {
+    fontSize: 12, // 작은 폰트 크기
+    fontWeight:'bold',
+    color: '#666', // 회색 텍스트
+    textAlign: 'left', // 중앙 정렬
+    marginLeft: 10,
+    marginBottom: 4, // 줄 간격
+  },
+  
 });

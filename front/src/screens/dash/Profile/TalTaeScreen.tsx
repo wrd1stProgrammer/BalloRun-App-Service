@@ -12,19 +12,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { navigate, goBack } from '../../../navigation/NavigationUtils';
-import { useAppDispatch } from '../../../redux/config/reduxHook';
+import { useAppDispatch,useAppSelector } from '../../../redux/config/reduxHook';
 import { Logout, taltaeAction } from '../../../redux/actions/userAction';
-interface Route {
-    route: {
-      params: {
-        user: any;
-      };
-    };
-  }
+import { selectUser } from '../../../redux/reducers/userSlice';
 
-const TalTaeScreen: React.FC<Route> = ({route}) => {
+const TalTaeScreen: React.FC = () => {
   const [reason, setReason] = useState<string>('');
-  const user = route.params.user;
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
 
 

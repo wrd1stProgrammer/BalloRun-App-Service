@@ -98,7 +98,7 @@ const TermsScreen = () => {
           {/* 10. 취소 및 환불 정책 */}
           <Text style={styles.sectionHeader}>10. 취소 및 환불 정책</Text>
           <Text style={styles.termsText}>
-            - “고객”이란 회사에 개인정보를 제공하여 회원을 등록한 자로서, 회사의 정보를 지속적으로 제공받으며, 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 의미하고, 서비스 요청서를 요청하는 이용자를 말합니다. “송달사”란 회사에 개인정보를 제공하여 “송달사”로 합격한 자로서, 회사의 정보를 지속적으로 제공받으며, 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 의미하고, “고객”이 서비스 요청 시 수락 또는 지원하여 서비스를 수행하는 이용자를 말합니다. 송달사 개인의 사유가 아닌 불가피한 사정으로 서비스를 완료하지 못한 경우, 고객이 서비스를 취소해야 하며, 고객이 서비스 취소 시 과금 여부, 환불 및 취소 수수료는 다음과 같습니다. “서비스 금지 항목에 해당하는 서비스”란 미행, 돈 빌리기, 추천인을 금전으로 사고파는 행위, 서비스 외 광고 등 그 외 법을 위반하는 모든 서비스를 말합니다.
+            - “고객”이란 회사에 개인정보를 제공하여 회원을 등록한 자로서, 회사의 정보를 지속적으로 제공받으며, 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 의미하고, 서비스 요청서를 요청하는 이용자를 말합니다. “캐리어”란 회사에 개인정보를 제공하여 “캐리어”로 합격한 자로서, 회사의 정보를 지속적으로 제공받으며, 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 의미하고, “고객”이 서비스 요청 시 수락 또는 지원하여 서비스를 수행하는 이용자를 말합니다. 캐리어 개인의 사유가 아닌 불가피한 사정으로 서비스를 완료하지 못한 경우, 고객이 서비스를 취소해야 하며, 고객이 서비스 취소 시 과금 여부, 환불 및 취소 수수료는 다음과 같습니다. “서비스 금지 항목에 해당하는 서비스”란 미행, 돈 빌리기, 추천인을 금전으로 사고파는 행위, 서비스 외 광고 등 그 외 법을 위반하는 모든 서비스를 말합니다.
           </Text>
           <View style={styles.bulletList}>
             <Text style={styles.bulletItem}>A. 서비스 금지 항목에 해당하는 서비스의 취소: 전액 환불 불가</Text>
@@ -106,18 +106,23 @@ const TermsScreen = () => {
             <View style={[styles.bulletList, styles.nestedList]}>
               <Text style={styles.bulletItem}>• 캐리어 매칭 전 취소: 과금 안 됨</Text>
               <Text style={styles.bulletItem}>• 캐리어 매칭 후 5분 이내 취소: 전액 환불</Text>
-              <Text style={styles.bulletItem}>• 캐리어 매칭 후 5분 초과 ~ 10분 이내 취소: 200원 과금 후 서비스비 전액 환불</Text>
+              <Text style={styles.bulletItem}>• 캐리어 매칭 후 5분 초과 ~ 10분 이내 취소: 1000원 과금 후 서비스비 전액 환불</Text>
               <Text style={styles.bulletItem}>• 캐리어매칭 후 10분 초과 ~ 20분 이내 취소: 3,000원 과금 후 서비스비 전액 환불</Text>
               <Text style={styles.bulletItem}>• 캐리어 매칭 후 20분 초과 취소: 5,000원 과금 후 서비스 비 전액 환불</Text>
+              <Text style={styles.bulletItem}>• 단, 주문 금액이 패널티 금액을 초과할 시 전액 과금 됨.</Text>
             </View>
             <Text style={styles.bulletItem}>C. 시간 예약 서비스의 경우</Text>
-            <View style={[styles.bulletList, styles.nestedList]}>
-              <Text style={styles.bulletItem}>• 캐리어 매칭 전 취소: 과금 안 됨</Text>
-              <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 1시간 이내 취소: 3,000원 과금 후 서비스 비 전액 환불</Text>
-            </View>
+<View style={[styles.bulletList, styles.nestedList]}>
+  <Text style={styles.bulletItem}>• 캐리어 매칭 전 취소: 과금 없음</Text>
+  <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 기준 2시간 이전 취소: 과금 없음</Text>
+  <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 기준 1시간 ~ 2시간 전 취소: 1,000원 과금 후 서비스비 전액 환불</Text>
+  <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 기준 1시간 이내 취소: 3,000원 과금 후 서비스비 전액 환불</Text>
+  <Text style={styles.bulletItem}>• 서비스 시간 이후 취소 또는 무단 미이용: 전액 과금</Text>
+  <Text style={styles.bulletItem}>• 단, 주문 금액이 패널티 금액을 초과할 시 전액 과금 됨.</Text>
+</View>
           </View>
           <Text style={styles.termsText}>
-            A. 서비스 수행 중 송달사가 서비스 취소 시 - 고객: 전액 환불 - 송달사: 1회 경고 후 2회 경고부터 3일 서비스 이용 제한
+            A. 서비스 수행 중 캐리어가 서비스 취소 시 - 고객: 전액 환불 - 캐리어: 1회 경고 후 2회 경고부터 3일 서비스 이용 제한
           </Text>
 
           {/* 11. 이용계약 해지(서비스 탈퇴) */}

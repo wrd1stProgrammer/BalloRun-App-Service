@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert,ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { navigate, goBack } from '../../../navigation/NavigationUtils';
@@ -161,6 +161,7 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
           ) : (
             <FlatList
               data={withdrawHistory}
+              
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View style={styles.historyItem}>

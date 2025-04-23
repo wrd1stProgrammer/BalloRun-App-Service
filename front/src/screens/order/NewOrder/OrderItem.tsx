@@ -13,6 +13,7 @@ import { checkChatRoomAction } from "../../../redux/actions/chatAction";
 import { rateStarsAction, getCompletedNewOrdersHandler } from "../../../redux/actions/orderAction";
 import { refetchUser } from "../../../redux/actions/userAction";
 import Icon from "react-native-vector-icons/Ionicons";
+import { Image } from "react-native";
 
 interface OrderItemProps {
   orderId: string;
@@ -49,36 +50,18 @@ const getStatusMessage = (status: string) => {
   }
 };
 
-const getIconName = (name: string) => {
-  const lowerName = name.toLowerCase();
-  if (
-    lowerName.includes("편의점") ||
-    lowerName.includes("gs") ||
-    lowerName.includes("cu") ||
-    lowerName.includes("세븐일레븐")
-  ) {
-    return "business-outline";
-  } else if (
-    lowerName.includes("마트") ||
-    lowerName.includes("이마트") ||
-    lowerName.includes("홈플러스")
-  ) {
-    return "cart-outline";
-  } else if (
-    lowerName.includes("카페") ||
-    lowerName.includes("스타벅스") ||
-    lowerName.includes("커피")
-  ) {
-    return "cafe-outline";
-  } else if (
-    lowerName.includes("음식") ||
-    lowerName.includes("피자") ||
-    lowerName.includes("치킨") ||
-    lowerName.includes("버거")
-  ) {
-    return "restaurant-outline";
+const getIconSource = (name: string) => {
+  const lower = name.toLowerCase();
+  if (lower.includes("편의점") || lower.includes("gs") || lower.includes("cu")) {
+    return require("../../../assets/Icon/cu.png");
+  } else if (lower.includes("마트") || lower.includes("이마트")) {
+    return require("../../../assets/Icon/product.png");
+  } else if (lower.includes("카페") || lower.includes("커피")) {
+    return require("../../../assets/Icon/cafe.png");
+  } else if (lower.includes("음식") || lower.includes("버거")) {
+    return require("../../../assets/Icon/food.png");
   } else {
-    return "cube-outline";
+    return require("../../../assets/Icon/etc.png");
   }
 };
 
@@ -110,8 +93,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
   };
  // 대소문자.
   const showOrderDetails = () => {
-    // navigate("OrderDetailScreen", { orderId, orderType });
-    navigate("PortoneSample", { orderId });
+    navigate("OrderDetailScreen", { orderId, orderType });
   };
 
   const handleChatPress = async () => {
@@ -201,7 +183,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
       case "goToCafe":
       case "makingMenu":
       case "goToClient":
-      case "complete":
+      case "complete": 
         return (
           <TouchableOpacity
             style={[styles.actionButton, styles.buttonSpacing]}
@@ -241,9 +223,9 @@ const OrderItem: React.FC<OrderItemProps> = ({
         return (
           <TouchableOpacity
             style={[styles.actionButton, styles.buttonSpacing]}
-            onPress={handlerOrderCancel}
+            onPress={handleLocationPress}
           >
-            <Text style={styles.actionButtonText}>주문 취소</Text>
+            <Text style={styles.actionButtonText}>위치 보기</Text>
           </TouchableOpacity>
         );
     }
@@ -267,13 +249,13 @@ const OrderItem: React.FC<OrderItemProps> = ({
         </View>
 
         <View style={styles.content}>
-          <View style={styles.iconContainer}>
-            <Icon
-              name={getIconName(name)}
-              size={50}
-              color="#1A1A1A"
-            />
-          </View>
+        <View style={styles.iconContainer}>
+  <Image
+    source={getIconSource(name)}
+    style={styles.iconImage}
+    resizeMode="contain"
+  />
+</View>
           <View style={styles.info}>
             <Text style={styles.name}>{name}</Text>
             <Text style={styles.orderDetails}>{orderDetails}</Text>
@@ -459,6 +441,10 @@ const styles = StyleSheet.create({
     textShadowColor: "#000",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  iconImage: {
+    width: 50,
+    height: 50,
   },
 });
 

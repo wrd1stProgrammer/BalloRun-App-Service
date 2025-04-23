@@ -41,7 +41,7 @@ const AddressSettingScreen = () => {
 
     const handleSelectAddress = async (item: Address ) => {
         try {
-            await appAxios.put(`/user/${user?._id}/update-address`, { address: item.address });
+            await appAxios.put(`/user/${user?._id}/update-address`, { address: item.address, lat: item.lat, lng: item.lng });
             dispatch(setUserAddress({ address: item.address, detail: item.detail, postalCode: item.postalCode, addressType: item.addressType, riderNote: item.riderNote, lat: item.lat, lng: item.lng }));
             setSelectedAddress(item._id);
         } catch (error) {

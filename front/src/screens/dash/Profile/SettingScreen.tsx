@@ -9,23 +9,21 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { navigate,goBack } from '../../../navigation/NavigationUtils';
-
+import { navigate, goBack } from '../../../navigation/NavigationUtils';
 
 const SettingScreen = ({ user }: { user: any }) => {
-
   const handleNavigate = (screen: string) => {
-    navigate(screen); // 각 설정 항목으로 이동 (라우터 설정 필요)
+    navigate(screen);
   };
 
   const handleWithdraw = () => {
-    navigate('TalTaeScreen'); // 탈퇴 화면으로 이동
+    navigate('TalTaeScreen');
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+        <TouchableOpacity onPress={goBack} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>설정</Text>
@@ -66,12 +64,9 @@ const SettingScreen = ({ user }: { user: any }) => {
         {/* 기타 섹션 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>기타</Text>
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => handleNavigate('VersionInfoScreen')}
-          >
-            <Text style={styles.itemText}>버전 정보</Text>
-            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+          <TouchableOpacity style={styles.item} onPress={() => {}}>
+            <Text style={styles.itemText}>앱 버전</Text>
+            <Text style={styles.versionInfo}>1.0.0 (20250501)</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item} onPress={handleWithdraw}>
             <Text style={[styles.itemText, styles.withdrawText]}>탈퇴하기</Text>
@@ -81,17 +76,12 @@ const SettingScreen = ({ user }: { user: any }) => {
       </ScrollView>
     </SafeAreaView>
   );
-
-  // goBack 함수 분리
-  function handleGoBack() {
-    goBack();
-  }
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // 토스 스타일 부드러운 배경
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
@@ -101,7 +91,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
-    
   },
   backButton: {
     padding: 4,
@@ -148,8 +137,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#3C3C43',
   },
+  versionInfo: {
+    fontSize: 16,
+    color: '#8E8E93',
+  },
   withdrawText: {
-    color: '#FF7043', // 탈퇴하기 항목 강조
+    color: '#FF7043',
   },
 });
 

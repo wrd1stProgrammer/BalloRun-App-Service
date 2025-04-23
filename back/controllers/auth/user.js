@@ -272,7 +272,7 @@ const editProfile = async (req, res) => {
 
 const updateAddress = async (req, res) => {
   try {
-      const { address } = req.body;
+      const { address, lat, lng } = req.body;      // ★lat,lng 추가
       const { id } = req.params; // `req.user.userId` 대신 `req.params.id` 사용
       if (!mongoose.Types.ObjectId.isValid(id)) {
           return res.status(400).json({ message: "잘못된 사용자 ID 형식입니다." });
@@ -288,6 +288,12 @@ const updateAddress = async (req, res) => {
       }
 
       user.address = address;
+    // GeoJSON 포맷으로 저장
+      user.location = {
+       type: 'Point',
+       coordinates: [lng, lat],
+      };
+
       await user.save();
 
       res.status(200).json({ message: "주소가 업데이트되었습니다.", address: user.address });
