@@ -55,6 +55,7 @@ const UserSchema = new mongoose.Schema(
       },
       coordinates: {
         type: [Number],          // [경도(lng), 위도(lat)]
+        default: [0, 0],
         required: true,
       }
     },
@@ -149,6 +150,8 @@ UserSchema.pre('save', function (next) {
   }
   next();
 });
+
+UserSchema.index({ location: '2dsphere' });
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;

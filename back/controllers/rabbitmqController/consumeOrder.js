@@ -121,8 +121,9 @@ const consumeNewOrderMessages = async (redisCli) => {
                 body:  "2km 이내, 심부름이 요청이 왔습니다 확인해보세요🚀",
                 data:  {  type: "order_aroundPush" }
               };
+              console.log(orderLat,orderLng, '-------------');
               // 지금 Id: newOrder._id 생략
-              await notifyNearbyRiders(orderLng, orderLat, payload,orderData.userId);
+              // await notifyNearbyRiders(orderLng, orderLat, payload,orderData.userId);
 
               
               // await session.commitTransaction();
@@ -135,7 +136,9 @@ const consumeNewOrderMessages = async (redisCli) => {
                   console.log(`주문 ${newOrder._id} 삭제됨 (결제 실패)`);
                 }
     
-                await session.abortTransaction();
+                if (session.transaction.isActive) { // 트랜잭션이 활성화된 경우에만 중단
+                  await session.abortTransaction();
+                }
                 // 사용자에게 푸시 알림 전송
                 try {
                   const orderData = JSON.parse(msg.content.toString());
