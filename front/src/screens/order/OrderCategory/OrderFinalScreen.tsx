@@ -193,6 +193,7 @@ const OrderFinalScreen = () => {
   };
 
   const initiatePayment = () => {
+    
     const orderDetailsData = {
       paymentId,
       name,
@@ -212,13 +213,22 @@ const OrderFinalScreen = () => {
       resolvedAddress,
       usedPoints,
     };
-    navigate("PortoneSample", {
-      paymentId,
-      orderName: name,
-      totalAmount: finalAmount,
-      easyPayProvider: selectedPaymentMethod,
-      orderDetails: orderDetailsData,
-    });
+    if(selectedPaymentMethod === "CARD"){
+      navigate("PortoneCard", {
+        paymentId,
+        orderName: name,
+        totalAmount: finalAmount,
+        orderDetails: orderDetailsData,
+      });
+    }else{
+      navigate("PortoneSample", {
+        paymentId,
+        orderName: name,
+        totalAmount: finalAmount,
+        easyPayProvider: selectedPaymentMethod,
+        orderDetails: orderDetailsData,
+      });
+    }
   };
 
   return (
@@ -475,6 +485,12 @@ const OrderFinalScreen = () => {
                       onPress={() => handlePaymentMethodSelect("EASY_PAY_PROVIDER_NAVERPAY")}
                     >
                       <Text style={styles.paymentMethodText}>네이버페이</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.paymentMethodButton, selectedPaymentMethod === "EASY_PAY_PROVIDER_TOSSPAY" && styles.selectedPaymentMethod]}
+                      onPress={() => handlePaymentMethodSelect("CARD")}
+                    >
+                      <Text style={styles.paymentMethodText}>카드결제</Text>
                     </TouchableOpacity>
                   </View>
 

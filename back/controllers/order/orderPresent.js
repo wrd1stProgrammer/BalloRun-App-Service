@@ -131,6 +131,8 @@ const getDeliveryList = async (req, res) => {
       lat: newOrder.lat,
       lng: newOrder.lng,
       orderType: newOrder.orderType,
+      images: newOrder.images,
+      orderImages: newOrder.orderImages,
     }));
 
 

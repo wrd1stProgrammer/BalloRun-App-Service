@@ -40,6 +40,8 @@ interface OrderItem {
   updatedAt: string;
   orderType: string;
   riderId: string;
+  images: string; // 요청 상품에 대한 이미지
+  orderImages: string; // 배달 위치에 관한 이미지
 }
 
 interface OrderListProps {
@@ -89,6 +91,13 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
       setLoading(false);
     }
   };
+
+  const goDetail = async(item : any)=>{
+    navigate("OrderDetailScreen", { orderId : item._id , orderType : "NewOrder"});
+  }
+
+  
+
 
   const onRefresh = async () => {
     setIsRefreshing(true);
@@ -150,13 +159,18 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
     fetchOrders();
   };
 
+
   const renderOrder = ({ item }: { item: OrderItem }) => (
+    
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.cafeInfo}>
           <Icon name="store" size={20} color="#1A1A1A" />
           <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
         </View>
+        <TouchableOpacity onPress={()=> goDetail(item)}>
+        <Text>주문 상세</Text>
+        </TouchableOpacity>
         <Text
           style={[
             styles.status,
@@ -393,12 +407,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 20,
     color: "#FFF",
+  
   },
   pendingStatus: {
     backgroundColor: "#FFD60A",
   },
   inProgressStatus: {
     backgroundColor: "#34C759",
+    
   },
   completedStatus: {
     backgroundColor: "#006AFF",

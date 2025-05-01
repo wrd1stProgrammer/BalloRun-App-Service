@@ -46,12 +46,16 @@ const TermsScreen = () => {
             <Text style={styles.bulletItem}>• 음란 정보나 저작권 침해 정보 등 공서양속 및 법령에 위반되는 내용의 정보 등을 발송하거나 게시하는 행위</Text>
             <Text style={styles.bulletItem}>• 주류·담배 배달을 요청하거나 수행하는 행위</Text>
             <Text style={styles.bulletItem}>• 약 배달 또는 처방전이 필요한 약품을 대리로 요청하거나 처방받는 행위</Text>
+            <Text style={styles.bulletItem}>• 음란 정보나 저작권 침해 정보 등 공서양속 및 법령에 위반되는 내용의 정보 등을 발송하거나 게시하는 행위</Text>
             <Text style={styles.bulletItem}>• 회사의 동의 없이 회사 서비스 또는 이에 포함된 소프트웨어의 일부를 복사, 수정, 배포, 판매, 양도, 대여, 담보제공하거나 타인에게 그 이용을 허락하는 행위</Text>
             <Text style={styles.bulletItem}>• 소프트웨어를 역설계하거나 소스 코드의 추출을 시도하는 등 회사 서비스를 복제, 분해 또는 모방하거나 기타 변형하는 행위</Text>
             <Text style={styles.bulletItem}>• 관련 법령, 회사의 모든 약관 또는 정책을 준수하지 않는 행위</Text>
             <Text style={styles.bulletItem}>• 카풀 등 여객자동차 운수사업법을 위반한 서비스를 요청하거나 수행하는 행위</Text>
             <Text style={styles.bulletItem}>• 자가용 화물차 등 유상운송을 요청하거나 수행하는 행위 (*유상운송: 영리를 목적으로 요금이나 대가를 받고 피보험 자동차를 반복적으로 사용하거나 빌려주는 행위 / 승객 또는 화물을 운송하는 경우이며, 현행법상 개인 자가용 차량을 이용한 유상운송은 불법행위로 형사처벌의 대상.)</Text>
           </View>
+          <Text style={styles.termsText}>
+            위 내용에서 금지한 심부름 요청 외의 내용은 회사 내부의 판단에 의해서 제제가 가해질 수 있습니다. (불법,위험 물품 모두 검열 대상)
+          </Text>
 
           {/* 3. 개인정보 보호 관련 */}
           <Text style={styles.sectionHeader}>3. 개인정보 보호 관련</Text>

@@ -41,7 +41,7 @@ const IdentityVerificationButton: React.FC<IdentityVerificationButtonProps> = ({
           request={{
             storeId: 'store-68c88836-7529-4771-9a3a-ee81b2552a83',
             identityVerificationId: `identity-verification-${Math.random().toString(36).substring(7)}`,
-            channelKey: 'channel-key-e760a2da-6273-4d91-a47d-322d03bba0f9',
+            channelKey: 'channel-key-98a6d285-9698-4b3d-a8ec-f54baf5834bb',
           }}
           onComplete={handleVerificationComplete}
           onError={handleVerificationError}

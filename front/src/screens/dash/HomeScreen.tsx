@@ -150,7 +150,7 @@ const HomeScreen: React.FC = () => {
               전자금융분쟁 Tel 010-4128-4177(무료)
             </Text>
             <Text style={styles.footerText}>
-              SERN(세른)은 통신판매중개자로 거래 당사자가 아니므로, 판매자가 등록한 상품정보 및 거래 등에 대해 책임을 지지 않습니다.
+              SERN(세른)은 통신판매중개자로 , 판매자가 등록한 상품정보 및 거래 등에 대해 발생한 문제는 SERN(세른)에서 해결해드립니다.
             </Text>
           </View>
         </ScrollView>
