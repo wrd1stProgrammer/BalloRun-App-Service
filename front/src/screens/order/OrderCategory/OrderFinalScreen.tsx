@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
+  
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../../navigation/NavigationUtils";
@@ -31,6 +32,7 @@ import Modal from 'react-native-modal';
 import { selectUser } from "../../../redux/reducers/userSlice";
 import { refetchUser } from "../../../redux/actions/userAction";
 import { Payment, PortOneController } from '@portone/react-native-sdk';
+import { Image } from "react-native";
 
 type RootStackParamList = {
   OrderFinalScreen: {
@@ -81,8 +83,8 @@ const OrderFinalScreen = () => {
   const [paymentId, setPaymentId] = useState(""); // 테스트용 임시
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("EASY_PAY_PROVIDER_KAKAOPAY");
 
-  const lat = user.lat;
-  const lng = user.lng;
+  const lat = user?.lat;
+  const lng = user?.lng;
 
   const dispatch = useAppDispatch();
 
@@ -114,8 +116,8 @@ const OrderFinalScreen = () => {
     fetchAddress();
   }, [lat, lng]);
 
-  const finalLat = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.latitude : user.lat;
-  const finalLng = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.longitude : user.lng;
+  const finalLat = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.latitude : user?.lat;
+  const finalLng = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.longitude : user?.lng;
   const finalAddress = deliveryMethod === "cupHolder" ? selectedMarker.title : deliveryAddress;
 
   useEffect(() => {
@@ -465,33 +467,67 @@ const OrderFinalScreen = () => {
                     </View>
                   </View>
 
-                  {/* 결제 수단 선택 UI */}
+                  {/* ===== 결제 수단 선택 (UI 수정) ===== */}
                   <Text style={styles.sectionTitle}>결제 수단 선택</Text>
-                  <View style={styles.paymentMethodContainer}>
-                    <TouchableOpacity
-                      style={[styles.paymentMethodButton, selectedPaymentMethod === "EASY_PAY_PROVIDER_KAKAOPAY" && styles.selectedPaymentMethod]}
-                      onPress={() => handlePaymentMethodSelect("EASY_PAY_PROVIDER_KAKAOPAY")}
-                    >
-                      <Text style={styles.paymentMethodText}>카카오페이</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.paymentMethodButton, selectedPaymentMethod === "EASY_PAY_PROVIDER_TOSSPAY" && styles.selectedPaymentMethod]}
-                      onPress={() => handlePaymentMethodSelect("EASY_PAY_PROVIDER_TOSSPAY")}
-                    >
-                      <Text style={styles.paymentMethodText}>토스페이</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.paymentMethodButton, selectedPaymentMethod === "EASY_PAY_PROVIDER_NAVERPAY" && styles.selectedPaymentMethod]}
-                      onPress={() => handlePaymentMethodSelect("EASY_PAY_PROVIDER_NAVERPAY")}
-                    >
-                      <Text style={styles.paymentMethodText}>네이버페이</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.paymentMethodButton, selectedPaymentMethod === "EASY_PAY_PROVIDER_TOSSPAY" && styles.selectedPaymentMethod]}
-                      onPress={() => handlePaymentMethodSelect("CARD")}
-                    >
-                      <Text style={styles.paymentMethodText}>카드결제</Text>
-                    </TouchableOpacity>
+                  <View style={styles.paymentListContainer}>
+                    {[
+                      {
+                        key: "EASY_PAY_PROVIDER_NAVERPAY",
+                        label: "네이버페이",
+                        icon: require("../../../assets/Icon/naverpay2.png")
+                      },
+                      
+                      {
+                        key: "EASY_PAY_PROVIDER_TOSSPAY",
+                        label: "토스페이",
+                        icon: require("../../../assets/Icon/tosspay2.jpeg")
+                      },
+                      {
+                        key: "EASY_PAY_PROVIDER_KAKAOPAY",
+                        label: "카카오페이",
+                        icon: require("../../../assets/Icon/kakao.png")
+                      },
+                      { key: "CARD", label: "신용/체크카드",icon: require("../../../assets/Icon/card.png") },
+                    ].map((m) => (
+                      <TouchableOpacity
+                        key={m.key}
+                        style={[
+                          styles.paymentItem,
+                          selectedPaymentMethod === m.key &&
+                            styles.paymentItemSelected,
+                        ]}
+                        onPress={() => handlePaymentMethodSelect(m.key)}
+                        activeOpacity={0.8}
+                      >
+                        {/* 라디오 버튼 */}
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            selectedPaymentMethod === m.key &&
+                              styles.radioOuterSelected,
+                          ]}
+                        >
+                          {selectedPaymentMethod === m.key && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+
+    {/* 아이콘 */}
+                        <Image source={m.icon} style={styles.paymentIcon} resizeMode="contain" />
+
+                        {/* 라벨 + 뱃지 */}
+                        <View style={styles.paymentTextGroup}>
+                          <Text style={styles.paymentLabelText}>{m.label}</Text>
+                          {m.discount && (
+                            <View style={styles.discountBadge}>
+                              <Text style={styles.discountBadgeText}>
+                                {m.discount}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    ))}
                   </View>
 
                   <TouchableOpacity style={styles.noticeRow} onPress={() => navigate("DeliveryNoticeScreen")}>
@@ -780,6 +816,77 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
+
+    /* ===== 결제 수단 리스트용 스타일 ===== */
+    paymentListContainer: {
+      borderWidth: 1,
+      borderColor: "#e0e0e0",
+      borderRadius: 12,
+      marginBottom: 20,
+      backgroundColor: "#fff",
+    },
+    paymentItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 18,
+      paddingHorizontal: 20,
+      borderBottomWidth: 1,
+      borderColor: "#e0e0e0",
+    },
+    paymentItemSelected: {
+      
+    },
+    radioOuter: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      borderWidth: 2,
+      borderColor: "#ccc",
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 14,
+    },
+    radioOuterSelected: {
+      borderColor: "#00C37A",
+    },
+    radioInner: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: "#00C37A",
+    },
+    paymentIconPlaceholder: {
+      width: 28,
+      height: 28,
+      marginRight: 14,
+    },
+    paymentTextGroup: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    paymentLabelText: {
+      fontSize: 16,
+      color: "#1a1a1a",
+      flexShrink: 1,
+    },
+    discountBadge: {
+      marginLeft: 8,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 4,
+      backgroundColor: "#f0f8ff",
+    },
+    discountBadgeText: {
+      fontSize: 12,
+      color: "#0064FF",
+      fontWeight: "600",
+    },
+    paymentIcon: {
+      width: 40,
+      height: 40,
+      marginRight: 10,
+    },
 });
 
 export default OrderFinalScreen;

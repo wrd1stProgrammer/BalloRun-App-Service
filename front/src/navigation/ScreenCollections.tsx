@@ -68,6 +68,7 @@ import BankAccountEditScreen from "../screens/dash/Profile/Settings/BankAccountE
 import PortOneSample from "../screens/dash/KakaoPayApiTest/PortOne/PortoneSample";
 import IdentityVerificationSample from "../screens/dash/KakaoPayApiTest/PortOne/IdentityVerificationSample";
 import PortoneCard from "../screens/dash/KakaoPayApiTest/PortOne/PortoneCard";
+import DeliveryNoticeScreen from "../screens/order/OrderCategory/notice/DeliveryNoticeScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -261,6 +262,10 @@ export const dashboardStack = [
   {
     name:"IdentityVerificationSample",
     component: IdentityVerificationSample,
+  },
+  {
+    name:"DeliveryNoticeScreen",
+    component: DeliveryNoticeScreen,
   }
 ];
 
