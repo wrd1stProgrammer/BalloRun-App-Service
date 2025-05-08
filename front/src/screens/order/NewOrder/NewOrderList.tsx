@@ -38,7 +38,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
   useEffect(() => {
     if (activeTab === "orders") {
       socket?.on("emitMatchTest", fetchOrders);
-      fetchOrders();
+      initFetch();
     }
 
     return () => {
@@ -47,6 +47,12 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
     };
   }, [activeTab]);
 
+  const initFetch = async () => {
+    setIsLoading(true);
+    await fetchOrders();
+    setIsLoading(false);
+  };
+
   const onRefresh = async () => {
     setIsRefreshing(true);
     await fetchOrders();
@@ -54,13 +60,10 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
   };
 
   const fetchOrders = async () => {
-    setIsLoading(true);
     try {
       const ongoingOrders = await dispatch(getOngoingNewOrdersHandler());
       const completedOrders = await dispatch(getCompletedNewOrdersHandler());
       const combinedOrders = [...ongoingOrders, ...completedOrders];
-      console.log(combinedOrders);
-      // 중복 제거 및 최신순 정렬
       const uniqueOrders: OrderItemProps[] = combinedOrders.filter(
         (order, index, self) => index === self.findIndex((o) => o._id === order._id)
       ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -68,8 +71,6 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
       setOrders(uniqueOrders);
     } catch (error) {
       console.error('neworderlist 주문데이터 불러오기 실패:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
