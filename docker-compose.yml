@@ -19,14 +19,6 @@ services:
       - redis
       - rabbitmq
     command: node app.js
-    deploy:  # 리소스 설정 추가
-      resources:
-        limits:
-          cpus: "1.0"  # 최대 1 CPU 코어 사용
-          memory: "1g"  # 최대 1GB 메모리 사용
-        reservations:
-          cpus: "0.5"  # 최소 0.5 CPU 코어 예약
-          memory: "512m"  # 최소 512MB 메모리 예약
     networks:
       - app_network
 
@@ -40,14 +32,6 @@ services:
       - TZ=Etc/UTC
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-    deploy:  # 리소스 설정 추가
-      resources:
-        limits:
-          cpus: "0.5"  # 최대 0.5 CPU 코어 사용
-          memory: "512m"  # 최대 512MB 메모리 사용
-        reservations:
-          cpus: "0.25"  # 최소 0.25 CPU 코어 예약
-          memory: "256m"  # 최소 256MB 메모리 예약
     networks:
       - app_network
 
@@ -59,14 +43,7 @@ services:
     environment:
       - TZ=Etc/UTC
     command: ["redis-server", "--requirepass", "yourpassword", "--notify-keyspace-events", "KEA"]
-    deploy:  # 리소스 설정 추가
-      resources:
-        limits:
-          cpus: "0.5"  # 최대 0.5 CPU 코어 사용
-          memory: "512m"  # 최대 512MB 메모리 사용
-        reservations:
-          cpus: "0.25"  # 최소 0.25 CPU 코어 예약
-          memory: "256m"  # 최소 256MB 메모리 예약
+
     networks:
       - app_network
 
