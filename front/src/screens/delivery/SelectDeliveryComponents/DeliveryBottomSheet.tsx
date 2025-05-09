@@ -75,7 +75,7 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
   const dispatch = useAppDispatch();
   const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
   
-  const { location, startTracking} = useLocation();
+  // const { location, startTracking} = useLocation();
 
   // 위치 추적 ID 저장 (해제할 때 필요)
   const [watchId, setWatchId] = useState<number | null>(null);
@@ -116,8 +116,8 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
 
     // 서버에 트래킹 시작 요청
-    socket?.emit("start_tracking", { orderId });
-    startTracking(orderId);
+    // socket?.emit("start_tracking", { orderId });
+    // startTracking(orderId);
 
 
     // 위치 추적 시작
@@ -137,13 +137,13 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
 
 
   // 위치 추적 정지 (필요한 경우)
-  const stopTracking = () => {
-    if (watchId !== null) {
-      Geolocation.clearWatch(watchId);
-      setWatchId(null);
-      setTracking(false);
-    }
-  };
+  // const stopTracking = () => {
+  //   if (watchId !== null) {
+  //     Geolocation.clearWatch(watchId);
+  //     setWatchId(null);
+  //     setTracking(false);
+  //   }
+  // };
 
   // 배달 아이템 렌더링 함수
 const renderItem = ({ item }) => {

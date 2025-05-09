@@ -28,8 +28,8 @@ const HomeScreen: React.FC = () => {
   const isMatching = useAppSelector(selectIsMatching);
   const dispatch = useAppDispatch();
   const orderSocket = useContext(WebSocketContext);
-  const socket = useContext(MapSocketContext);
-  const { location, startTracking, stopTracking } = useLocation();
+  // const socket = useContext(MapSocketContext);
+  // const { location, startTracking, stopTracking } = useLocation();
 
   const handleVerifyComplete = (result: any) => {
     console.log('✅ 인증 성공:', result);
@@ -46,22 +46,22 @@ const HomeScreen: React.FC = () => {
       await dispatch(refetchUser());
       console.log("🚀 배달 상태 확인 중...");
 
-      if (isOngoingOrder && isMatching && ongoingOrder) {
-        console.log("🔥 배달 추적 시작!");
-        socket?.emit("start_tracking", { orderId: ongoingOrder.orderId });
-        console.log(`📌 Tracking started for order: ${ongoingOrder.orderId}`);
-        startTracking(ongoingOrder.orderId);
-      } else {
-        console.log("⚠️ 배달 중인 주문 없음. 추적 중지.");
-        stopTracking();
-      }
+      // if (isOngoingOrder && isMatching && ongoingOrder) {
+      //   // console.log("🔥 배달 추적 시작!");
+      //   // socket?.emit("start_tracking", { orderId: ongoingOrder.orderId });
+      //   // console.log(`📌 Tracking started for order: ${ongoingOrder.orderId}`);
+      //   // startTracking(ongoingOrder.orderId);
+      // } else {
+      //   console.log("⚠️ 배달 중인 주문 없음. 추적 중지.");
+      //   // stopTracking();
+      // }
     };
 
     fetchOrders();
 
-    return () => {
-      stopTracking();
-    };
+    // return () => {
+    //   stopTracking();
+    // };
   }, []);
 
   useEffect(() => {
@@ -80,7 +80,7 @@ const HomeScreen: React.FC = () => {
     orderSocket.on("order_completed", ({ orderId }) => {
       console.log(`✅ 주문자 화면: 배달 완료 감지 -> 주문 ID: ${orderId}`);
       dispatch(clearOngoingOrder());
-      stopTracking();
+      // stopTracking();
     });
 
     orderSocket.on("emitCancel", ({ orderId, message, status }) => {

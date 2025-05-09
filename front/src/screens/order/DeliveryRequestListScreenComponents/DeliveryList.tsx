@@ -60,7 +60,7 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
   const socket = useContext(WebSocketContext);
   const orderSocket = useContext(WebSocketContext);
   const navigation = useNavigation();
-  const { location, startTracking, stopTracking } = useLocation();
+  // const { location, startTracking, stopTracking } = useLocation();
 
   const fetchOrders = async () => {
     try {
@@ -153,7 +153,7 @@ const DeliveryList: React.FC<OrderListProps> = ({ activeTab }) => {
       await dispatch(completeOrderHandler(orderId, orderType));
       await dispatch(refetchUser());
       dispatch(clearOngoingOrder());
-      stopTracking();
+      // stopTracking();
       orderSocket?.emit("order_completed", { orderId, userId });
     }
     fetchOrders();
