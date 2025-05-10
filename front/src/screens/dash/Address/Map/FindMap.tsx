@@ -10,8 +10,7 @@ import {
   Platform,
 } from "react-native";
 import MapView, { Region } from "react-native-maps";
-import Geolocation from "react-native-geolocation-service";
-import { check, request, PERMISSIONS, RESULTS } from "react-native-permissions";
+import { getCurrentLocation } from "../../../../utils/Geolocation/getCurrentLocation";
 import { getAddressFromCoords } from "../useGooglePlaces"; // 경로 확인
 import { goBack, navigate } from "../../../../navigation/NavigationUtils";
 import { Ionicons } from "@expo/vector-icons";
@@ -26,40 +25,22 @@ const FindMap = () => {
   // ✅ 권한 요청 및 초기 위치 설정
   useEffect(() => {
     const requestPermissionAndLocate = async () => {
-      const permission =
-        Platform.OS === "ios"
-          ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
-          : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
-
-      const result = await check(permission);
-      if (result === RESULTS.DENIED || result === RESULTS.LIMITED) {
-        const reqResult = await request(permission);
-        if (reqResult !== RESULTS.GRANTED) {
-          Alert.alert("위치 권한이 필요합니다.");
-          return;
-        }
+      const location = await getCurrentLocation();
+      if (!location) {
+        setLoading(false);
+        return;
       }
 
-      Geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const newRegion: Region = {
-            latitude,
-            longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          };
-          setRegion(newRegion);
-          setLoading(false);
-          fetchAddress(latitude, longitude);
-        },
-        (error) => {
-          Alert.alert("위치 정보를 불러올 수 없습니다.");
-          console.error(error);
-          setLoading(false);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
+      const { latitude, longitude } = location;
+      const newRegion: Region = {
+        latitude,
+        longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      };
+      setRegion(newRegion);
+      setLoading(false);
+      fetchAddress(latitude, longitude);
     };
 
     requestPermissionAndLocate();
