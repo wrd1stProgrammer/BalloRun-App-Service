@@ -21,8 +21,11 @@ module.exports = async (app) => {
     });
 
     router.get('/health', (req, res) => {
-        res.send('health check success');
-    });
+        res.status(200).send('health check success');
+      });
+    
+      // router 를 먼저 마운트 (헬스체크는 인증 없이 통과)
+    app.use('/', router);
 
     app.use("/auth",authRouter);
     app.use("/user",authMiddleware,userRouter);
