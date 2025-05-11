@@ -20,6 +20,10 @@ module.exports = async (app) => {
         res.send('Hello, World!');
     });
 
+    router.get('/health', (req, res) => {
+        res.send('health check success');
+    });
+
     app.use("/auth",authRouter);
     app.use("/user",authMiddleware,userRouter);
     app.use("/cafe",authMiddleware,cafeRouter);

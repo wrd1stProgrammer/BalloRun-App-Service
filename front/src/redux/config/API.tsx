@@ -3,8 +3,10 @@ import {Platform} from 'react-native';
 
 // FOR LOCAL
 
-export const BASE_URL = `http://54.253.197.14:5001`;
-
+export const BASE_URL = `http://ballorunLoadBalancer-2060290944.ap-northeast-2.elb.amazonaws.com:5001`;
+// ballorunLoadBalancer-2060290944.ap-northeast-2.elb.amazonaws.com
+// 위는 로드밸런서 아래는 데브서버 탄력적ip
+// 54.253.197.14
   // Platform.OS === 'android'
   //   ? `http://10.0.2.2:${PORT}`
   //   : `http://${IPV4}:${PORT}`;
