@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Decode GCP key             # 기존 단계 유지
+      - name: Decode GCP key            
         run: |
           echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 -d > back/key.json
           jq . back/key.json >/dev/null

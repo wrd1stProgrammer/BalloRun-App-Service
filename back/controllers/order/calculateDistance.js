@@ -6,16 +6,22 @@ async function notifyNearbyRiders(orderLng, orderLat, payload,excludeUserId) {
   // 1) 2km 반경 + 인증된 라이더만 조회
   const riders = await User.find({
     isRider: true,
-    aroundAlarm: true,   // 온 오프 만들자.
-    _id: { $ne: excludeUserId }, // 주문자는 제외
-
-    location: {
-      $nearSphere: {
-        $geometry: { type: 'Point', coordinates: [orderLng, orderLat] },
-        $maxDistance: 2000,
-      }
-    }
+    aroundAlarm: true,
+    _id: { $ne: excludeUserId },
+    $and: [
+      { location: { $exists: true, $type: 'object' } },       // 필드·타입 체크
+      {
+        location: {
+          $nearSphere: {
+            $geometry: { type: 'Point', coordinates: [orderLng, orderLat] },
+            $maxDistance: 2000,
+          },
+        },
+      },
+    ],
   }).select('fcmToken');
+
+  
 
   const tokens = riders
     .map(r => r.fcmToken)

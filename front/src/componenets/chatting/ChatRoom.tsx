@@ -44,6 +44,7 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 100);
   };
+  
 
   useEffect(() => {
     scrollToBottom();
