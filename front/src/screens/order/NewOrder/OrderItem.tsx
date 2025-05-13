@@ -130,7 +130,8 @@ const OrderItem: React.FC<OrderItemProps> = ({
   };
 
   const handleLocationPress = () => {
-    navigate("LiveMap", { orderId, status });
+    // navigate("LiveMap", { orderId, status });
+    Alert.alert("알림", "업데이트 예정입니다.");
   };
 
 

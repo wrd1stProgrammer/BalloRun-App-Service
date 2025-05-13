@@ -69,7 +69,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
   const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const socket = useContext(MapSocketContext);
+  // const socket = useContext(MapSocketContext);
   const dispatch = useAppDispatch();
   // const { startTracking } = useLocation();
 
@@ -114,7 +114,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
       await dispatch(acceptActionHandler(orderId, orderType));
       setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
       dispatch(setIsOngoingOrder(true));
-      socket?.emit("start_tracking", { orderId });
+      // socket?.emit("start_tracking", { orderId });
       // startTracking(orderId);
       setTimeout(() => {
         navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
