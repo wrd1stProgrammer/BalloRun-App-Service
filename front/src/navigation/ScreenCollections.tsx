@@ -69,6 +69,7 @@ import PortOneSample from "../screens/dash/KakaoPayApiTest/PortOne/PortoneSample
 import IdentityVerificationSample from "../screens/dash/KakaoPayApiTest/PortOne/IdentityVerificationSample";
 import PortoneCard from "../screens/dash/KakaoPayApiTest/PortOne/PortoneCard";
 import DeliveryNoticeScreen from "../screens/order/OrderCategory/notice/DeliveryNoticeScreen";
+import DeliveryDetail from "../screens/delivery/DeliveryDetailComponents/DeliveryDetail";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -349,6 +350,10 @@ export const deliveryStack = [
     name: "DeliveryImage",
     component: DeliveryImage,
   },
+  {
+    name: "DeliveryDetail",
+    component: DeliveryDetail
+  }
 ];
 
 export const mergedStacks = [...dashboardStack, ...authStack, ...orderStack, ...deliveryStack];

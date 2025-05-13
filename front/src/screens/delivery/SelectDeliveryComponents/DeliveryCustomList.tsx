@@ -12,7 +12,6 @@ import { MapSocketContext } from "../../../utils/sockets/MapSocket";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
 import { acceptActionHandler } from "../../../redux/actions/riderAction";
 import { navigate } from "../../../navigation/NavigationUtils";
-import DeliveryDetailModal from "../DeliveryDetailComponents/DeliveryDetailModal";
 import { useLocation } from "../../../utils/Geolocation/LocationContext";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import Cafe from "../../../assets/Icon/icon-coffee.png";
@@ -64,8 +63,6 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
   const [sortCriteria, setSortCriteria] = useState<"distance" | "price">("distance");
   const [selectedDeliveryType, setSelectedDeliveryType] = useState<"all" | "direct" | "cupHolder">("all");
   const [showSortOptions, setShowSortOptions] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<DeliveryItem | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
   const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -91,22 +88,6 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
 
   const toggleSortOptions = () => {
     setShowSortOptions((prev) => !prev);
-  };
-
-  const openModal = (item: DeliveryItem) => {
-    setSelectedItem(item);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-  const handleAccept = () => {
-    if (selectedItem) {
-      acceptHandler(selectedItem._id, selectedItem.orderType);
-      closeModal();
-    }
   };
 
   const acceptHandler = async (orderId: string, orderType: "Order" | "NewOrder") => {
@@ -150,7 +131,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
           <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
         </View>
         <TouchableOpacity
-          onPress={() => openModal(item)}
+          onPress={() => navigate("DeliveryDetail", { deliveryItem: item })}
           style={[styles.acceptButton, trackingOrders[item._id] && styles.disabledButton]}
           disabled={trackingOrders[item._id]}
         >
@@ -232,12 +213,6 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
         }}
       />
 
-      <DeliveryDetailModal
-        visible={modalVisible}
-        onClose={closeModal}
-        onAccept={handleAccept}
-        deliveryItem={selectedItem}
-      />
     </View>
   );
 };

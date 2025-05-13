@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import MapView from 'react-native-maps';
 import { Dimensions } from 'react-native';
 import { navigate } from "../../../navigation/NavigationUtils";
-import DeliveryDetailModal from '../DeliveryDetailComponents/DeliveryDetailModal';
+import DeliveryDetailModal from '../DeliveryDetailComponents/DeliveryDetail';
 import { useLocation } from '../../../utils/Geolocation/LocationContext';
 import { refetchUser } from '../../../redux/actions/userAction';
 import Cafe from "../../../assets/Icon/icon-coffee.png";
@@ -84,26 +84,8 @@ function DeliveryBottomSheet({ mapRef,deliveryItems, loading, userLat, userLng, 
   const animatedTop = useRef(new Animated.Value(80)).current;
 
   // 배달 수락 함수
-  const [selectedItem, setSelectedItem] = useState<DeliveryItem | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
   
-  const openModal = (item: DeliveryItem) => {
-    setSelectedItem(item);
-    setModalVisible(true);
-  };
   
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-  
-  const handleAccept = () => {
-    if (selectedItem) {
-      acceptHandler(selectedItem._id, selectedItem.orderType);
-      closeModal();
-    }
-  };
-
-
 
 const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") => {
   try {
@@ -176,7 +158,7 @@ const renderItem = ({ item }) => {
         {/* 오른쪽: 수락 버튼 */}
         <View style={styles.rightSection}>
           <TouchableOpacity
-            onPress={() => openModal(item)}
+            onPress={() => navigate("DeliveryDetail", { deliveryItem: item })}
             style={[styles.button, trackingOrders[item._id] && styles.disabledButton]}
             disabled={trackingOrders[item._id]}
           >
@@ -206,7 +188,7 @@ const renderItem = ({ item }) => {
               showsVerticalScrollIndicator={false}
             />
           )}
-          <DeliveryDetailModal visible={modalVisible} onClose={closeModal} onAccept={handleAccept} deliveryItem={selectedItem} />
+          
 
         </View>
       </BottomSheet>
