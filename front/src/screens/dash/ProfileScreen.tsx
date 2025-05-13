@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
   benefitLevel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0064FF',
+    color: '#3384FF',
     fontFamily: 'Roboto',
   },
   benefitText: {
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     marginTop: 20,
-    backgroundColor: '#0064FF',
+    backgroundColor: '#3384FF',
     paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 20,

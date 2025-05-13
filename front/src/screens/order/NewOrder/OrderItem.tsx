@@ -34,19 +34,19 @@ interface OrderItemProps {
 const getStatusMessage = (status: string) => {
   switch (status) {
     case "pending":
-      return { text: "주문 접수 완료", color: "#0064FF" };
+      return { text: "주문 접수 완료", color: "#3384FF" };
     case "goToCafe":
-      return { text: "카페로 이동 중", color: "#0064FF" };
+      return { text: "카페로 이동 중", color: "#3384FF" };
     case "makingMenu":
-      return { text: "메뉴 준비 중", color: "#0064FF" };
+      return { text: "메뉴 준비 중", color: "#3384FF" };
     case "goToClient":
-      return { text: "배달 중", color: "#0064FF" };
+      return { text: "배달 중", color: "#3384FF" };
     case "delivered":
       return { text: "배달 완료", color: "#202632" };
     case "cancelled":
       return { text: "주문 취소됨", color: "#FF3B30" };
     default:
-      return { text: "진행 중", color: "#0064FF" };
+      return { text: "진행 중", color: "#3384FF" };
   }
 };
 
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: "#0064FF",
+    backgroundColor: "#3384FF",
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 8,

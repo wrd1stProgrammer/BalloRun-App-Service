@@ -3,18 +3,19 @@ import React, { createRef, useEffect } from 'react';
 import { Alert, BackHandler, SafeAreaView } from 'react-native';
 import { Payment, PortOneController, } from '@portone/react-native-sdk';
 //import { completePaymentHandler } from '../../../../redux/actions/paymentAction';
-import { useAppDispatch } from '../../../../redux/config/reduxHook';
+import { useAppDispatch,useAppSelector } from '../../../../redux/config/reduxHook';
 import { navigate } from '../../../../navigation/NavigationUtils';
 import { neworderCompleteHandler } from '../../../../redux/actions/newOrderAction';
 import { refetchUser } from '../../../../redux/actions/userAction';
 import { setIsOngoingOrder } from '../../../../redux/reducers/userSlice';
 import { uploadFile } from '../../../../redux/actions/fileAction';
-
+import { selectUser } from '../../../../redux/reducers/userSlice';
 
 function PortOneSample() {
   const controller = createRef<PortOneController>();
   const dispatch = useAppDispatch();
   const route = useRoute();
+  const user = useAppSelector(selectUser);
   const { paymentId, orderName, totalAmount, easyPayProvider, orderDetails } = route.params as any;
 
   useEffect(() => {
@@ -77,9 +78,9 @@ function PortOneSample() {
           currency: 'CURRENCY_KRW',
           payMethod: 'EASY_PAY',
           customer: {
-            fullName: '포트원', // 실제 사용자 정보로 대체 가능
-            phoneNumber: '010-0000-1234',
-            email: 'test@portone.io',
+            fullName: user?.username, // 실제 사용자 정보로 대체 가능
+            phoneNumber: '010-4128-4177', //user?.phone
+            email: user?.email,
           },
           easyPay: {
             easyPayProvider: easyPayProvider,

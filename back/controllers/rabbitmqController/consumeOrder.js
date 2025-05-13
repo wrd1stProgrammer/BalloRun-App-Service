@@ -103,7 +103,7 @@ const consumeNewOrderMessages = async (redisCli) => {
   
               const redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
               redisOrders.push(transformedOrder);
-              await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 120 });
+              await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 12000 });
   
               await invalidateOnGoingOrdersCache(orderData.userId, redisCli);
   
@@ -111,7 +111,7 @@ const consumeNewOrderMessages = async (redisCli) => {
                 delayedExchange,
                 "delayed_route.neworder",
                 Buffer.from(JSON.stringify({ orderId: newOrder._id, type: "neworder" })),
-                { headers: { "x-delay": 120000 }, persistent: true }
+                { headers: { "x-delay": 1200000000 }, persistent: true }
               );
 
               const orderLat = parseFloat(newOrder.lat);

@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
+import { useFocusEffect } from '@react-navigation/native';
 import BannerSection from './BannerSection';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { getNewOrderToBanner } from '../../../redux/actions/orderAction';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { useLocation } from '../../../utils/Geolocation/LocationContext';
 
 const screenWidth = Dimensions.get('window').width;
-const bannerWidth = screenWidth * 0.9;
 
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
-  const R = 6371;
+  const R = 6371; // 지구 반지름 (km)
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLat / 2) ** 2 +
     Math.cos((lat1 * Math.PI) / 180) *
-    Math.cos((lat2 * Math.PI) / 180) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -41,22 +40,28 @@ export default function Banner() {
 
   const fetchData = async () => {
     try {
-      console.log('fetchData 시작');
-      const data = await dispatch(getNewOrderToBanner());
-      console.log(data, 'fetchData');
-      setBannerLists(data.data);
+      console.log('주변 배달 fetchData 시작');
+      const result = await dispatch(getNewOrderToBanner());
+      setBannerLists(result.data);
     } catch (error) {
       console.error('배너 데이터 불러오기 실패:', error);
     }
   };
 
+  // 화면에 포커스될 때마다 fetchData 호출
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
+  // 슬라이드 자동 재생 간격을 1초 → 8초로 늘리는 타이머
   useEffect(() => {
-    fetchData();
-    const autoTimer = setTimeout(() => setSlideTime(8), 1000);
-    return () => clearTimeout(autoTimer);
+    const timer = setTimeout(() => setSlideTime(8), 1000);
+    return () => clearTimeout(timer);
   }, []);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item }: { item: BannerData }) => {
     const distance =
       location && item.lat && item.lng
         ? getDistance(
@@ -75,17 +80,17 @@ export default function Banner() {
         <Carousel
           data={bannerLists}
           renderItem={renderItem}
-          width={screenWidth}
-          height={45}
+          width={screenWidth*0.95}
+          height={50}
           loop
           autoPlay
           autoPlayInterval={slideTime * 1000}
-          vertical // 상하 슬라이드 설정
+          vertical
           style={{ width: screenWidth }}
           mode="parallax"
           modeConfig={{
-            parallaxScrollingScale: 0.9,
-            parallaxScrollingOffset: 45, // 수직 간격 조정
+            parallaxScrollingScale: 0.95,
+            parallaxScrollingOffset: 50,
           }}
         />
       ) : (
@@ -100,13 +105,13 @@ export default function Banner() {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: 45,
+    height: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyContainer: {
     width: '100%',
-    height: 45,
+    height: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -75,7 +75,7 @@ const BankAccountEditScreen = () => {
               disabled={isLoading}
             >
               {isLoading ? (
-                <ActivityIndicator size="small" color="#0064FF" />
+                <ActivityIndicator size="small" color="#3384FF" />
               ) : (
                 <Text style={styles.saveButton}>저장</Text>
               )}
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     fontSize: 16,
-    color: '#0064FF',
+    color: '#3384FF',
     fontWeight: '500',
   },
   saveButtonDisabled: {

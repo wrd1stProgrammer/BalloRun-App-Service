@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
   pointsAllButton: {
     paddingVertical: 12,
     paddingHorizontal: 20,
-    backgroundColor: "#0064FF",
+    backgroundColor: "#3384FF",
     borderRadius: 10,
   },
   pointsAllButtonText: {
@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
   paymentTotal: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#0064FF",
+    color: "#3384FF",
   },
   paymentSubLabel: {
     fontSize: 14,
@@ -809,7 +809,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   selectedPaymentMethod: {
-    borderColor: "#0064FF",
+    borderColor: "#3384FF",
     backgroundColor: "#f0f8ff",
   },
   paymentMethodText: {
@@ -879,7 +879,7 @@ const styles = StyleSheet.create({
     },
     discountBadgeText: {
       fontSize: 12,
-      color: "#0064FF",
+      color: "#3384FF",
       fontWeight: "600",
     },
     paymentIcon: {

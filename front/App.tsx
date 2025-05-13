@@ -38,7 +38,6 @@ const App: React.FC = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }} edges={["top"]}>
         <StatusBar translucent backgroundColor="transparent" />
-    
           <Provider store={store}>
             <WebSocketContainer>
               <MapSocketContainer>

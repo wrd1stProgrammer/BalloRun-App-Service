@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   selectedButton: {
-    backgroundColor: "#0064FF",
+    backgroundColor: "#3384FF",
   },
   buttonText: {
     fontSize: 14,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   nextButton: {
-    backgroundColor: "#0064FF",
+    backgroundColor: "#3384FF",
     paddingVertical: 16,
     marginHorizontal: 16,
     marginBottom: 16,

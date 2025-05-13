@@ -98,7 +98,7 @@ const Step2Content: React.FC = () => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[authStyles.wideEnableButton, { backgroundColor: '#0064FF', marginTop: 30 }]}
+        style={[authStyles.wideEnableButton, { backgroundColor: '#3384FF', marginTop: 30 }]}
         onPress={() => navigate('Step3',{images})}
       >
         <Text style={authStyles.enableButtonText}>Continue</Text>
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 8,
     borderWidth: 1,
-    backgroundColor:'#0064FF',
+    backgroundColor:'#3384FF',
     borderColor: '#FFD700',
     width: '90%',
     marginHorizontal: '5%',

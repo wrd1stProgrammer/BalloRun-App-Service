@@ -169,12 +169,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#0064FF',
+    color: '#3384FF',
     marginBottom: 10,
   },
   input: {
     borderBottomWidth: 1,
-    borderBottomColor: '#0064FF',
+    borderBottomColor: '#3384FF',
     marginBottom: 30,
     padding: 10,
     fontSize: 24,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   nextButton: {
-    backgroundColor: '#0064FF',
+    backgroundColor: '#3384FF',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',

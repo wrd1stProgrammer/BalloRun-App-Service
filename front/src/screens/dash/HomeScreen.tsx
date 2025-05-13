@@ -118,13 +118,6 @@ const HomeScreen: React.FC = () => {
               <Ionicons name="person-circle" size={36} color="#999" />
             </TouchableOpacity>
         
-            <View style={{ padding: 16 }}>
-              <IdentityVerificationSample
-                onComplete={handleVerifyComplete}
-                onError={handleVerifyError}
-                buttonTitle="본인인증"
-              />
-            </View>
           </View>
 
           <View style={styles.bannerContainer}>
@@ -138,7 +131,7 @@ const HomeScreen: React.FC = () => {
           {/* 수정된 텍스트 섹션 */}
           <View style={styles.footerTextContainer}>
             <Text style={styles.footerTextt}>
-              상호명 SERN(세른) | 대표 채민식 
+              상호명 SERN(세른) | 대표 채민식 박영서
             </Text>
             <Text style={styles.footerText}>
               통신판매업 신고 2025-광주북구-0416 | 사업자등록번호 418-11-83101

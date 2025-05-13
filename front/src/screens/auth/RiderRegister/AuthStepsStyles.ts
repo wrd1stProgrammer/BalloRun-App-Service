@@ -47,7 +47,7 @@ export const authStyles = StyleSheet.create({
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#0064FF',
+    backgroundColor: '#3384FF',
     borderRadius: 5,
   },
   title: {
@@ -89,7 +89,7 @@ export const authStyles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   wideEnableButton: {
-    backgroundColor: '#0064FF',
+    backgroundColor: '#3384FF',
     paddingVertical: Platform.OS === 'ios' ? 12 : 10,
     borderRadius: 8,
     alignItems: 'center',

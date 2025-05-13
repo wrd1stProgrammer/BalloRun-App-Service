@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   submitButton: {
-    backgroundColor: '#0064FF', // 토스 스타일 오렌지 계열
+    backgroundColor: '#3384FF', // 토스 스타일 오렌지 계열
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',

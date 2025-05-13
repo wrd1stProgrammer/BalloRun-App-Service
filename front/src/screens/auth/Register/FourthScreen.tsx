@@ -105,7 +105,7 @@ const FourthScreen = ({ route }: FourthScreenProps) => {
               <Ionicons
                 name={allAgreed ? 'checkmark-circle' : 'ellipse-outline'}
                 size={24}
-                color={allAgreed ? '#0064FF' : '#202632'}
+                color={allAgreed ? '#3384FF' : '#202632'}
               />
             </TouchableOpacity>
             <Text style={styles.checkboxText}>필수 약관 모두 체결하기</Text>
@@ -115,7 +115,7 @@ const FourthScreen = ({ route }: FourthScreenProps) => {
               <Ionicons
                 name={terms.terms1 ? 'checkmark-circle' : 'ellipse-outline'}
                 size={24}
-                color={terms.terms1 ? '#0064FF' : '#202632'}
+                color={terms.terms1 ? '#3384FF' : '#202632'}
               />
             </TouchableOpacity>
             <Text style={styles.checkboxText}>선택 약관 모두 체결하기</Text>
@@ -136,7 +136,7 @@ const FourthScreen = ({ route }: FourthScreenProps) => {
                 <Ionicons
                   name={terms[`terms${index + 1}`] ? 'checkmark-circle' : 'ellipse-outline'}
                   size={24}
-                  color={terms[`terms${index + 1}`] ? '#0064FF' : '#202632'}
+                  color={terms[`terms${index + 1}`] ? '#3384FF' : '#202632'}
                 />
               </TouchableOpacity>
               <Text style={styles.checkboxText}>{term}</Text>
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     }),
   },
   nextButton: {
-    backgroundColor: '#0064FF',
+    backgroundColor: '#3384FF',
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',

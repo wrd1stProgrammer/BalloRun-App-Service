@@ -59,7 +59,7 @@ const Step4Content: React.FC<{ images?: string | null }> = ({ images }) => {
 
 
       <TouchableOpacity
-        style={[authStyles.wideEnableButton, { backgroundColor: '#0064FF', marginTop: 30 }]}
+        style={[authStyles.wideEnableButton, { backgroundColor: '#3384FF', marginTop: 30 }]}
         onPress={() => navigate('Step5',{images,faceImage})}
       >
         <Text style={authStyles.enableButtonText}>Continue</Text>

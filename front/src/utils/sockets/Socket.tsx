@@ -20,9 +20,14 @@ const WebSocketContainer = ({ children }: Props) => {
       return;
     }
     // 소켓을 기능별로 나눠서 io 를 관리하자! -> 좀 나중에
-    const socketInstance = io(`http://${IPV4}:${PORT}`, {
+    const socketInstance = io(`https://ballorun.com`, {
       transports: ["websocket"],
       auth: { token: access_token }, // 서버에서 검증하도록 설정
+      reconnection: true,              // 기본값이지만 명시적으로
+      reconnectionAttempts: Infinity,  // 무한 재시도
+      reconnectionDelay: 1000,         // 첫 재시도 1초 후
+      reconnectionDelayMax: 5000,      // 최대 5초 간격
+      timeout: 20000,                  // 연결 시도 타임아웃 20초
     });
 
     socketInstance.on("connect", () => {

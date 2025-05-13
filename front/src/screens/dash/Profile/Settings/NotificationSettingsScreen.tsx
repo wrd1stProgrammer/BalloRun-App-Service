@@ -45,7 +45,7 @@ const NotificationSettingsScreen: React.FC = () => {
             </Text>
           </View>
           <Switch
-            trackColor={{ false: '#d3d3d3', true: '#0064FF' }}
+            trackColor={{ false: '#d3d3d3', true: '#3384FF' }}
             thumbColor="#ffffff"
             ios_backgroundColor="#d3d3d3"
             onValueChange={() => setChatNotifications((prev) => !prev)}
@@ -59,7 +59,7 @@ const NotificationSettingsScreen: React.FC = () => {
             <Text style={styles.description}>앱의 광고 푸쉬알림</Text>
           </View>
           <Switch
-            trackColor={{ false: '#d3d3d3', true: '#0064FF' }}
+            trackColor={{ false: '#d3d3d3', true: '#3384FF' }}
             thumbColor="#ffffff"
             ios_backgroundColor="#d3d3d3"
             onValueChange={() => setAdNotifications((prev) => !prev)}
@@ -75,7 +75,7 @@ const NotificationSettingsScreen: React.FC = () => {
             </Text>
           </View>
           <Switch
-            trackColor={{ false: '#d3d3d3', true: '#0064FF' }}
+            trackColor={{ false: '#d3d3d3', true: '#3384FF' }}
             thumbColor="#ffffff"
             ios_backgroundColor="#d3d3d3"
             onValueChange={() => setOrderNotifications((prev) => !prev)}
