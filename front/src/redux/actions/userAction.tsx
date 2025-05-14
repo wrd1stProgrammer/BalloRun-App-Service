@@ -7,10 +7,13 @@ import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import { Alert } from 'react-native';
 import { requestUserPermission } from '../../utils/fcm/fcmToken';
+import { setTokens } from '../reducers/userSlice';
 
 const handleSignInSuccess = async (res: any, dispatch: any) => {
+  const { access_token, refresh_token } = res.data.tokens;
   token_storage.set('access_token', res.data.tokens.access_token);
   token_storage.set('refresh_token', res.data.tokens.refresh_token);
+  dispatch(setTokens({ accessToken: access_token, refreshToken: refresh_token }));
   await requestUserPermission(res.data.user._id);
   await dispatch(setUser(res.data.user));
   resetAndNavigate('BottomTab');

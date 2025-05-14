@@ -1,7 +1,8 @@
+// src/utils/sockets/ChatSocket.tsx
 import React, { createContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { token_storage } from "../../redux/config/storage";
-import { IPV4, PORT } from "@env";
+import { useAppSelector } from "../../redux/config/reduxHook";
+import { selectAccessToken } from "../../redux/reducers/userSlice";
 
 interface Props {
   children?: React.ReactNode;
@@ -10,41 +11,48 @@ interface Props {
 export const ChatSocketContext = createContext<Socket | null>(null);
 
 const ChatSocketContainer = ({ children }: Props) => {
+  const accessToken = useAppSelector(selectAccessToken);
   const [chatSocket, setChatSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const access_token = token_storage.getString("access_token");
-
-    if (!access_token) {
-      console.warn("[Chat WebSocket] 토큰이 없습니다.");
+    // 토큰이 설정되지 않았으면 연결 안 함
+    if (!accessToken) {
+      // 기존 연결이 있다면 끊어주고
+      if (chatSocket) {
+        chatSocket.disconnect();
+        setChatSocket(null);
+      }
       return;
     }
 
-    // 채팅용 소켓 (`/chat` 네임스페이스 사용)
-    const chatSocketInstance = io(`https://ballorun.com/chat`, {
+    // 이미 연결된 소켓이 있으면 재사용
+    if (chatSocket && chatSocket.connected) return;
+
+    // 토큰이 들어오면 새로 연결
+    const socket = io("https://ballorun.com/chat", {
       transports: ["websocket"],
-      auth: { token: access_token },
-      reconnection: true,              // 기본값이지만 명시적으로
-      reconnectionAttempts: Infinity,  // 무한 재시도
-      reconnectionDelay: 1000,         // 첫 재시도 1초 후
-      reconnectionDelayMax: 5000,      // 최대 5초 간격
-      timeout: 20000,                  // 연결 시도 타임아웃 20초
+      auth: { token: accessToken },
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
     });
 
-    chatSocketInstance.on("connect", () => {
+    socket.on("connect", () => {
       console.log("[Chat WebSocket] Connected!");
     });
-
-    chatSocketInstance.on("disconnect", (reason) => {
+    socket.on("disconnect", (reason) => {
       console.warn("[Chat WebSocket] Disconnected:", reason);
     });
 
-    setChatSocket(chatSocketInstance);
+    setChatSocket(socket);
 
     return () => {
-      chatSocketInstance.disconnect();
+      socket.disconnect();
+      setChatSocket(null);
     };
-  }, []);
+  }, [accessToken]);
 
   return (
     <ChatSocketContext.Provider value={chatSocket}>
