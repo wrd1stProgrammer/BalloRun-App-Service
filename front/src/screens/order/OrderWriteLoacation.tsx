@@ -3,7 +3,7 @@ import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
-import CustomMapView from './OrderWriteLocationComponent/CustomMapView';
+// import CustomMapView from './OrderWriteLocationComponent/CustomMapView';
 import LocationBottomSheet from './OrderWriteLocationComponent/LocationBottomSheet';
 import { Region } from 'react-native-maps';
 import { markers } from '../../componenets/cupholderMarkerLoc';

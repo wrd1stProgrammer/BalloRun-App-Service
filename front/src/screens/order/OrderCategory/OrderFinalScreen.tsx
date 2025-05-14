@@ -26,7 +26,6 @@ import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 're
 import { uploadFile } from "../../../redux/actions/fileAction";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import { Picker } from "@react-native-picker/picker";
-import { reverseGeocode } from "../../../utils/Geolocation/reverseGeocode";
 import Header from "../../../utils/OrderComponents/Header";
 import Modal from 'react-native-modal';
 import { selectUser } from "../../../redux/reducers/userSlice";
@@ -106,15 +105,15 @@ const OrderFinalScreen = () => {
     }
   }, [user]);
 
-  useEffect(() => {
-    const fetchAddress = async () => {
-      if (lat && lng) {
-        const fetchedAddress = await reverseGeocode(String(lat), String(lng));
-        setResolvedAddress(fetchedAddress);
-      }
-    };
-    fetchAddress();
-  }, [lat, lng]);
+  // useEffect(() => {
+  //   const fetchAddress = async () => {
+  //     if (lat && lng) {
+  //       const fetchedAddress = await reverseGeocode(String(lat), String(lng));
+  //       setResolvedAddress(fetchedAddress);
+  //     }
+  //   };
+  //   fetchAddress();
+  // }, [lat, lng]);
 
   const finalLat = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.latitude : user?.lat;
   const finalLng = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.longitude : user?.lng;
@@ -258,7 +257,7 @@ const OrderFinalScreen = () => {
                   {!floor && (
                     <>
                       <Text style={styles.sectionTitle}>배달 주소</Text>
-                      <TextInput style={styles.input} value={resolvedAddress} editable={false} />
+                      <TextInput style={styles.input} value={user?.address} editable={false} />
                       <Text style={styles.sectionTitle}>상세 배달 주소</Text>
                       <View style={styles.addressInputContainer}>
                         <TextInput

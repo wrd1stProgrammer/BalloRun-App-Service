@@ -33,7 +33,7 @@ import Step3 from "../screens/auth/RiderRegister/Steps/Step3";
 import Step4 from "../screens/auth/RiderRegister/Steps/Step4";
 import Step5 from "../screens/auth/RiderRegister/Steps/Step5";
 import Step6 from "../screens/auth/RiderRegister/Steps/Step6";
-import NewLocationBottom from "../screens/order/OrderWriteLocationComponent/NewLocationBottom";
+// import NewLocationBottom from "../screens/order/OrderWriteLocationComponent/NewLocationBottom";
 import LawScreen from "../screens/dash/Profile/LawScreen";
 import TermsScreen from "../screens/dash/Profile/LawScreenChild.tsx/TermsScreen";
 import PrivacyPolicyScreen from "../screens/dash/Profile/LawScreenChild.tsx/PrivacyPolicyScreen";
@@ -303,10 +303,10 @@ export const orderStack = [
     name: "OrderCupHolderLocationScreen",
     component: OrderCupHolderLocationScreen,
   },
-  {
-    name: "NewLocationBottom",
-    component: NewLocationBottom,
-  },
+  // {
+  //   name: "NewLocationBottom",
+  //   component: NewLocationBottom,
+  // },
   {
     name: "OrderPageScreen",
     component: OrderPageScreen,
