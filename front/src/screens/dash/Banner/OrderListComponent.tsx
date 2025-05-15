@@ -15,11 +15,11 @@ interface Category {
 }
 
 const categories: Category[] = [
-  { name: '커피', icon: require('../../../assets/Icon/cafe.png'), screen: 'OrderPageScreen' },
-  { name: '편의점', icon: require('../../../assets/Icon/cu.png'), screen: 'OrderPageScreen' },
+  { name: '커피', icon: require('../../../assets/Icon/cafe24.png'), screen: 'OrderPageScreen' },
+  { name: '편의점', icon: require('../../../assets/Icon/cs32.png'), screen: 'OrderPageScreen' },
   { name: '물품', icon: require('../../../assets/Icon/product.png'), screen: 'OrderPageScreen' },
-  { name: '음식', icon: require('../../../assets/Icon/food.png'), screen: 'OrderPageScreen' },
-  { name: '기타', icon: require('../../../assets/Icon/etc.png'), screen: 'OrderPageScreen' },
+  { name: '음식', icon: require('../../../assets/Icon/food32.png'), screen: 'OrderPageScreen' },
+  { name: '기타', icon: require('../../../assets/Icon/etc32.png'), screen: 'OrderPageScreen' },
 ];
 
 const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {

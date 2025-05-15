@@ -53,15 +53,15 @@ const getStatusMessage = (status: string) => {
 const getIconSource = (name: string) => {
   const lower = name.toLowerCase();
   if (lower.includes("편의점") || lower.includes("gs") || lower.includes("cu")) {
-    return require("../../../assets/Icon/cu.png");
-  } else if (lower.includes("마트") || lower.includes("이마트")) {
-    return require("../../../assets/Icon/product.png");
+    return require("../../../assets/Icon/cs64.png");
+  } else if (lower.includes("물품") || lower.includes("이마트")) {
+    return require("../../../assets/Icon/product64.png");
   } else if (lower.includes("카페") || lower.includes("커피")) {
-    return require("../../../assets/Icon/cafe.png");
+    return require("../../../assets/Icon//cafe64.png");
   } else if (lower.includes("음식") || lower.includes("버거")) {
-    return require("../../../assets/Icon/food.png");
+    return require("../../../assets/Icon/food64.png");
   } else {
-    return require("../../../assets/Icon/etc.png");
+    return require("../../../assets/Icon/etc64.png");
   }
 };
 

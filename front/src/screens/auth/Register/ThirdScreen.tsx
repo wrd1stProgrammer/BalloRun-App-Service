@@ -74,12 +74,15 @@ const ThirdScreen = ({ route }: ThirdScreenProps) => {
   };
 
   const handleNext = async () => {
+    navigate('FourthScreen', { name, nickname, id, email, password, phone });
+    /*
     if (!showCode) {
       auth().settings.appVerificationDisabledForTesting = false;
       await signInWithPhoneNumber();
     } else {
       await confirmCode();
     }
+      */
   };
 
   const handleResend = async () => {

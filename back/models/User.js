@@ -51,12 +51,12 @@ const UserSchema = new mongoose.Schema(
       type: {
         type: String,            // 항상 "Point"
         enum: ['Point'],         
-        required: true,
+        required: false,
       },
       coordinates: {
         type: [Number],          // [경도(lng), 위도(lat)]
         default: [0, 0],
-        required: true,
+        required: false,
       }
     },
 

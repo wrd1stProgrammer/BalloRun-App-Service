@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,144 +6,97 @@ import {
   StyleSheet,
   Image,
   TextInput,
-  Animated,
-  Easing,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Pressable,
 } from 'react-native';
-import { navigate, resetAndNavigate } from '../../navigation/NavigationUtils';
 import { useAppDispatch } from '../../redux/config/reduxHook';
 import { userlogin, kakaoLogin } from '../../redux/actions/userAction';
 import { login as kakaoLoginFn, getProfile as getKakaoProfile } from '@react-native-seoul/kakao-login';
-//import { AppleAuthentication } from '@invertase/react-native-apple-authentication'; // 애플 로그인
-import { token_storage } from '../../redux/config/storage';
-import { requestUserPermission } from '../../utils/fcm/fcmToken';
-import { setUser } from '../../redux/reducers/userSlice';
-import { BASE_URL } from '../../redux/config/API';
+import { navigate } from '../../navigation/NavigationUtils';
 import AppleLoginButton from './AppleLoginButton';
 
 const LoginScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const [showLoginInputs, setShowLoginInputs] = useState(false);
-  const [result, setResult] = useState<string>('');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
 
-  // 높이 애니메이션
-  const animatedHeight = useRef(new Animated.Value(0)).current;
-
-  // 카카오 로그인
-  const checkKakaoUser = async (email: string) => {
-    await dispatch(kakaoLogin(email));
-  };
-
-  const signInWithKakao = async (): Promise<void> => {
+  /* kakao */
+  const onKakao = async () => {
     try {
-      console.log(BASE_URL, 'baseurl');
-      const token = await kakaoLoginFn();
+      const _ = await kakaoLoginFn();
       const profile = await getKakaoProfile();
-      const email = profile.email;
-      await checkKakaoUser(email);
-    } catch (err) {
-      console.error('kakao login err', err);
-    }
+      await dispatch(kakaoLogin(profile.email));
+    } catch (e) { console.error(e); }
   };
 
-  // 애플 로그인
-  /*
-  const signInWithApple = async (): Promise<void> => {
-    try {
-      const response = await AppleAuthentication.signIn({
-        requestedScopes: [AppleAuthentication.Scope.EMAIL, AppleAuthentication.Scope.FULL_NAME],
-      });
-      const email = response.email || 'apple-user@unknown.com';
-      await dispatch(kakaoLogin(email)); // 동일한 액션 재사용 (필요 시 별도 액션 생성)
-    } catch (err) {
-      console.error('apple login err', err);
-    }
-  };
-*/
-  // 사용자 로그인 버튼 핸들러
-  const handlePressLogin = async () => {
-    if (!showLoginInputs) {
-      setShowLoginInputs(true);
-      Animated.timing(animatedHeight, {
-        toValue: 130,
-        duration: 400,
-        easing: Easing.ease,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      await dispatch(userlogin(userId, password));
-    }
+  /* native */
+  const onNative = async () => {
+    if (!userId || !password) return;
+    await dispatch(userlogin(userId, password));
   };
 
-  const goRegister = () => {
-    console.log('회원가입 누름');
-    navigate('FirstScreen');
-  };
+  const onRegister = () => navigate('FirstScreen');
 
-  const loginButtonText = showLoginInputs ? '로그인' : '사용자 로그인';
+  const loginDisabled = !(userId && password);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardAvoidContainer}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 20}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS==='ios'?'padding':'height'}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        {/* logo */}
+        <Image source={require('../../assets/Icon/product.png')} style={styles.logo}/>
+        <Text style={styles.slogan}>발로뛰어와 함께 심부름을 시작하세요!</Text>
 
-
-
-        {/* 하단 영역 */}
-        <View style={styles.bottomContainer}>
-          {/* Sign Up 텍스트 */}
-          <Text style={styles.signUpText}>Sign Up</Text>
-
-          {/* 카카오 로그인 버튼 */}
-          <Pressable style={styles.kakaoButton} onPress={signInWithKakao}>
-            <Text style={styles.buttonText}>카카오톡 로그인</Text>
-          </Pressable>
-
-          {/* {Platform.OS === 'ios' && AppleAuthentication.isSupported && (*/}
-          <AppleLoginButton />
-          
-
-          {/* 사용자 로그인 버튼 (파란색 버튼) */}
-          <TouchableOpacity style={styles.loginButton} onPress={handlePressLogin}>
-            <Text style={styles.loginButtonText}>{loginButtonText}</Text>
-          </TouchableOpacity>
-
-          {/* 펼쳐지는 Animated 영역 (ID/PW) */}
-          <Animated.View
-            style={[styles.animatedInputContainer, { height: animatedHeight }]}
-          >
-            {showLoginInputs && (
-              <View style={styles.innerInputWrapper}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="아이디"
-                  value={userId}
-                  onChangeText={setUserId}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="비밀번호"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
-                />
-              </View>
-            )}
-          </Animated.View>
-
-          {/* 회원가입 버튼 (Sign As Guest 스타일) */}
-          <TouchableOpacity style={styles.guestButton} onPress={goRegister}>
-            <Text style={styles.guestButtonText}>회원 가입</Text>
-          </TouchableOpacity>
+        {/* ID & PW */}
+        <View style={styles.inputWrap}>
+          <Text style={styles.label}>아이디</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="예) ballorunrun@gmail.com"
+            placeholderTextColor="#C5C6CC"
+            autoCapitalize="none"
+            value={userId}
+            onChangeText={setUserId}
+          />
         </View>
+        <View style={styles.inputWrap}>
+          <Text style={styles.label}>비밀번호</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="비밀번호"
+            placeholderTextColor="#C5C6CC"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
+
+        {/* native login */}
+        <TouchableOpacity
+          style={[styles.loginBtn, loginDisabled && styles.loginDisabled]}
+          disabled={loginDisabled}
+          onPress={onNative}
+        >
+          <Text style={styles.loginTxt}>로그인</Text>
+        </TouchableOpacity>
+
+        {/* kakao */}
+        <Pressable style={styles.kakaoBtn} onPress={onKakao} android_ripple={{color:'rgba(0,0,0,0.05)'}}>
+          <Image source={require('../../assets/Icon/kakaologin.png')} style={styles.kakaoImg}/>
+        </Pressable>
+
+        {/* links */}
+        <View style={styles.linkRow}>
+          <TouchableOpacity onPress={onRegister}><Text style={styles.linkTxt}>회원가입</Text></TouchableOpacity>
+          <View style={styles.pipe}/>
+          <Text style={styles.linkTxt}>아이디 찾기</Text>
+          <View style={styles.pipe}/>
+          <Text style={styles.linkTxt}>비밀번호 찾기</Text>
+        </View>
+
+        {/* apple */}
+        <AppleLoginButton style={styles.appleWrap}/>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -151,120 +104,28 @@ const LoginScreen: React.FC = () => {
 
 export default LoginScreen;
 
+/* ---------- styles ---------- */
 const styles = StyleSheet.create({
-  keyboardAvoidContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderWidth: 1, // 전체 테두리 추가
-    borderColor: '#ddd', // 연한 회색 테두리
-  },
-  scrollContainer: {
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 20,
-  },
-  topIllustration: {
-    width: '60%',
-    height: 150,
-    marginBottom: 20,
-  },
-  headingTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 8,
-  },
-  headingSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 40,
-  },
-  bottomContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 100,
-  },
-  signUpText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 20,
-  },
-  kakaoButton: {
-    backgroundColor: '#FEE500',
-    borderRadius: 25,
-    width: '80%',
-    paddingVertical: 12,
-    marginBottom: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1, // 버튼 테두리 추가
-    borderColor: '#ddd',
-  },
-  appleButton: {
-    backgroundColor: '#000',
-    borderRadius: 25,
-    width: '80%',
-    paddingVertical: 12,
-    marginBottom: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1, // 버튼 테두리 추가
-    borderColor: '#ddd',
-  },
-  loginButton: {
-    backgroundColor: '#5A6EF7',
-    borderRadius: 25,
-    width: '80%',
-    paddingVertical: 12,
-    marginBottom: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1, // 버튼 테두리 추가
-    borderColor: '#ddd',
-  },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  animatedInputContainer: {
-    overflow: 'hidden',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    width: '80%',
-    marginBottom: 15,
-    borderWidth: 1, // 입력 영역 테두리 추가
-    borderColor: '#ddd',
-  },
-  innerInputWrapper: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  input: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingVertical: 6,
-    marginBottom: 10,
-    fontSize: 16,
-  },
-  guestButton: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 25,
-    width: '80%',
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  guestButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
+  root: { flex: 1, backgroundColor: '#FFFFFF' },
+  container: { flexGrow: 1, alignItems: 'center', paddingTop: 200, paddingHorizontal: 24, paddingBottom: 140 },
+  logo: { width: 140, height: 40, resizeMode: 'contain', marginBottom: 6 },
+  slogan: { fontSize: 11, letterSpacing: 1, fontWeight: '600', color: '#6A6B71', marginBottom: 32 },
+
+  inputWrap: { width: '100%', marginBottom: 24 },
+  label: { fontSize: 12, fontWeight: '600', color: '#222', marginBottom: 8 },
+  input: { borderBottomWidth: 1, borderBottomColor: '#E5E6EC', paddingVertical: 8, fontSize: 15, color: '#000' },
+
+  loginBtn: { width: '100%', height: 48, borderRadius: 6, backgroundColor: '#3A3A3C', justifyContent: 'center', alignItems: 'center', marginBottom: 14 },
+  loginDisabled: { backgroundColor: '#D1D1D6' },
+  loginTxt: { color: '#fff', fontSize: 15, fontWeight: '600' },
+
+  kakaoBtn: { width: '100%', height: 48, borderRadius: 6, overflow: 'hidden', marginBottom: 24 },
+  kakaoImg: { width: '100%', height: '100%', resizeMode: 'cover' },
+
+  linkRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 28 },
+  linkTxt: { fontSize: 12, color: '#777' },
+  pipe: { width: 1, height: 10, backgroundColor: '#E0E0E0', marginHorizontal: 10 },
+
+  /* Apple 버튼을 화면 하단 고정 */
+  appleWrap: { position: 'absolute', bottom: 24, left: 24, right: 24 },
 });
