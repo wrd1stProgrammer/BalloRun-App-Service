@@ -21,7 +21,7 @@ const PrivacyPolicyScreen = () => {
           {/* 개인정보처리방침 개요 */}
           <Text style={styles.sectionHeader}>개인정보처리방침</Text>
           <Text style={styles.termsText}>
-            세른(Sern (이하 “회사”))은 "정보통신망 이용촉진 및 정보보호에 관한 법률", “개인정보보호법”, "통신비밀보호법", "전기통신사업법" 및 “전자상거래 등에서의 소비자 보호에 관한 법률” 등 정보통신서비스제공자가 준수하여야 할 관련 법령상의 개인정보보호 규정을 준수하며, 관련 법령에 의거한 개인정보처리방침을 정하여 이용자 권익 보호에 최선을 다하겠습니다. 회사는 이용자의 개인정보를 [개인정보의 수집목적]에서 고지한 범위 내에서 사용하며, 이용자의 사전 동의 없이는 동 범위를 초과하여 이용하거나 원칙적으로 이용자의 개인정보를 외부에 제공 또는 위탁하지 않습니다. 다만, 아래의 경우에는 예외로 합니다.
+            세른(SERN (이하 “회사”))은 "정보통신망 이용촉진 및 정보보호에 관한 법률", “개인정보보호법”, "통신비밀보호법", "전기통신사업법" 및 “전자상거래 등에서의 소비자 보호에 관한 법률” 등 정보통신서비스제공자가 준수하여야 할 관련 법령상의 개인정보보호 규정을 준수하며, 관련 법령에 의거한 개인정보처리방침을 정하여 이용자 권익 보호에 최선을 다하겠습니다. 회사는 이용자의 개인정보를 [개인정보의 수집목적]에서 고지한 범위 내에서 사용하며, 이용자의 사전 동의 없이는 동 범위를 초과하여 이용하거나 원칙적으로 이용자의 개인정보를 외부에 제공 또는 위탁하지 않습니다. 다만, 아래의 경우에는 예외로 합니다.
           </Text>
           <View style={styles.bulletList}>
             <Text style={styles.bulletItem}>• 이용자가 사전에 동의한 경우(이용자가 사전에 동의한 경우란, 서비스 이용 등을 위하여 이용자가 자발적으로 자신의 개인정보를 제3자에게 제공하는 것에 동의하는 것을 의미합니다.)</Text>
@@ -95,12 +95,12 @@ const PrivacyPolicyScreen = () => {
             회사는 데이터 분석과 데이터 분산 저장을 위해서 이용자의 개인정보를 해외 서비스에 위탁하고 있어요.
           </Text>
           <View style={styles.bulletList}>
-            <Text style={styles.bulletItem}>• 회사명: Amazon Web Services, Inc</Text>
+            <Text style={styles.bulletItem}>• 회사명: Amazon Web Services, MongoDB, CloudiNary, Redis</Text>
             <Text style={styles.bulletItem}>• 목적: Services를 이용한 데이터 저장</Text>
             <Text style={styles.bulletItem}>• 연락처: </Text>
-            <Text style={styles.bulletItem}>• 개인정보 이전 국가: 미국 (Amazon Oregon Region)</Text>
+            <Text style={styles.bulletItem}>• 개인정보 이전 국가: 미국 </Text>
             <Text style={styles.bulletItem}>• 이전되는 항목: 수집하는 모든 개인정보</Text>
-            <Text style={styles.bulletItem}>• 이전 일시 및 방법: 데이터 수집 후 수분 이내 Amazon 클라우드 컴퓨팅 환경에 개인정보 보관</Text>
+            <Text style={styles.bulletItem}>• 이전 일시 및 방법: 데이터 수집 후 수분 이내 Amazon 클라우드 컴퓨팅 환경에 개인정보 보관 및 클라우드 DataBase 저장</Text>
             <Text style={styles.bulletItem}>• 보유 및 이용기간: 회원탈퇴 또는 위탁계약 종료 시</Text>
           </View>
 
@@ -156,9 +156,9 @@ const PrivacyPolicyScreen = () => {
           </Text>
           <Text style={styles.subHeader}>개인정보보호 책임자</Text>
           <View style={styles.bulletList}>
-            <Text style={styles.bulletItem}>• 이름: </Text>
+            <Text style={styles.bulletItem}>• 이름: 채민식</Text>
             <Text style={styles.bulletItem}>• 직위: 대표</Text>
-            <Text style={styles.bulletItem}>• 연락처: </Text>
+            <Text style={styles.bulletItem}>• 연락처: ballorunrun@gmail.com </Text>
           </View>
 
           {/* 고지의 의무 */}

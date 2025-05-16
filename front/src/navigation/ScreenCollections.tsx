@@ -70,6 +70,9 @@ import IdentityVerificationSample from "../screens/dash/KakaoPayApiTest/PortOne/
 import PortoneCard from "../screens/dash/KakaoPayApiTest/PortOne/PortoneCard";
 import DeliveryNoticeScreen from "../screens/order/OrderCategory/notice/DeliveryNoticeScreen";
 import DeliveryDetail from "../screens/delivery/DeliveryDetailComponents/DeliveryDetail";
+import FindIdScreen from "../screens/auth/FindId/\bFindIdScreen";
+import ResetPasswordScreen from "../screens/auth/FindPW/ResetPasswordScreen";
+import FindPasswordScreen from "../screens/auth/FindPW/FindPasswordScreen";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -267,6 +270,18 @@ export const dashboardStack = [
   {
     name:"DeliveryNoticeScreen",
     component: DeliveryNoticeScreen,
+  },
+  {
+    name:"FindIdScreen",
+    component:FindIdScreen,
+  },
+  {
+    name:"ResetPasswordScreen",
+    component:ResetPasswordScreen
+  },
+  {
+    name:"FindPasswordScreen",
+    component:FindPasswordScreen,
   }
 ];
 

@@ -90,9 +90,9 @@ const LoginScreen: React.FC = () => {
         <View style={styles.linkRow}>
           <TouchableOpacity onPress={onRegister}><Text style={styles.linkTxt}>회원가입</Text></TouchableOpacity>
           <View style={styles.pipe}/>
-          <Text style={styles.linkTxt}>아이디 찾기</Text>
+          <TouchableOpacity onPress={()=> {navigate("FindIdScreen")}}><Text style={styles.linkTxt}>아이디 찾기</Text></TouchableOpacity>
           <View style={styles.pipe}/>
-          <Text style={styles.linkTxt}>비밀번호 찾기</Text>
+          <TouchableOpacity onPress={()=> {navigate("FindPasswordScreen")}}><Text style={styles.linkTxt}>비밀번호 찾기</Text></TouchableOpacity>
         </View>
 
         {/* apple */}

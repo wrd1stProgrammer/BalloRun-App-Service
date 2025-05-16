@@ -20,7 +20,7 @@ const CarrierAgreementScreen = () => {
           {/* 제1조 (목적) */}
           <Text style={styles.sectionHeader}>제1조 (목적)</Text>
           <Text style={styles.termsText}>
-            본 약관은 ㈜세른(Sern, 이하 “회사”)이 “발로뛰어” 서비스 이용약관 제2조에 정의된 캐리어(이하 “수탁인”)에게 본 약관 제3조 기재 업무를 위탁함에 있어서 회사와 수탁인의 권리와 의무에 관한 사항을 정함을 그 목적으로 합니다.
+            본 약관은 세른(SERN, 이하 “회사”)이 “발로뛰어” 서비스 이용약관 제2조에 정의된 캐리어(이하 “수탁인”)에게 본 약관 제3조 기재 업무를 위탁함에 있어서 회사와 수탁인의 권리와 의무에 관한 사항을 정함을 그 목적으로 합니다.
           </Text>
 
           {/* 제2조 (수탁인의 지위) */}
@@ -37,7 +37,7 @@ const CarrierAgreementScreen = () => {
             <Text style={styles.bulletItem}>• 회사가 수탁인에게 위탁하는 업무(이하 “위탁업무”)는 다음 각호와 같습니다.</Text>
           </View>
           <View style={[styles.bulletList, { marginLeft: 30 }]}>
-            <Text style={styles.bulletItem}>1. “앱이름적어” (이하 “서비스”) 고객이 요청하는 업무(이하 “서비스”)의 수행</Text>
+            <Text style={styles.bulletItem}>1. “발로뛰어” (이하 “서비스”) 고객이 요청하는 업무(이하 “서비스”)의 수행</Text>
             <Text style={styles.bulletItem}>2. 제1호 업무에 직접 또는 간접적으로 부수하는 업무</Text>
           </View>
           <Text style={styles.termsText}>

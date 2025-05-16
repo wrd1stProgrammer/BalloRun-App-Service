@@ -20,7 +20,7 @@ const TermsScreen = () => {
           {/* 1. 계정 관련 */}
           <Text style={styles.sectionHeader}>1. 계정 관련</Text>
           <Text style={styles.termsText}>
-            세른(Sern (이하 “회사“))는 아이디, 비밀번호, 그리고 휴대전화 번호 인증을 필수로 하여 계정을 생성하실 수 있습니다. 다만, 실제 휴대전화의 소유주임을 확인하기 위해서 가입 당시 인증 절차를 거치게 됩니다. 또한, 다른 모바일 기기에서 서비스 사용을 연속하기 위해서는 기존에 가입하고 인증했던 휴대전화 번호로 재인증을 해야 합니다. 아래의 경우에는 계정 생성을 승인하지 않을 수 있습니다.
+            세른(SERN (이하 “회사“))는 아이디, 비밀번호, 그리고 휴대전화 번호 인증을 필수로 하여 계정을 생성하실 수 있습니다. 다만, 실제 휴대전화의 소유주임을 확인하기 위해서 가입 당시 인증 절차를 거치게 됩니다. 또한, 다른 모바일 기기에서 서비스 사용을 연속하기 위해서는 기존에 가입하고 인증했던 휴대전화 번호로 재인증을 해야 합니다. 아래의 경우에는 계정 생성을 승인하지 않을 수 있습니다.
           </Text>
           <View style={styles.bulletList}>
             <Text style={styles.bulletItem}>• 다른 사람의 명의나 휴대전화 번호 등 개인 정보를 이용하여 계정을 생성하려 한 경우</Text>
@@ -110,17 +110,17 @@ const TermsScreen = () => {
             <View style={[styles.bulletList, styles.nestedList]}>
               <Text style={styles.bulletItem}>• 캐리어 매칭 전 취소: 과금 안 됨</Text>
               <Text style={styles.bulletItem}>• 캐리어 매칭 후 5분 이내 취소: 전액 환불</Text>
-              <Text style={styles.bulletItem}>• 캐리어 매칭 후 5분 초과 ~ 10분 이내 취소: 1000원 과금 후 서비스비 전액 환불</Text>
-              <Text style={styles.bulletItem}>• 캐리어매칭 후 10분 초과 ~ 20분 이내 취소: 3,000원 과금 후 서비스비 전액 환불</Text>
-              <Text style={styles.bulletItem}>• 캐리어 매칭 후 20분 초과 취소: 5,000원 과금 후 서비스 비 전액 환불</Text>
+              <Text style={styles.bulletItem}>• 캐리어 매칭 후 5분 초과 ~ 10분 이내 취소: 서비스 비에서 1000원 과금 후 나머지 전액 환불</Text>
+              <Text style={styles.bulletItem}>• 캐리어매칭 후 10분 초과 ~ 20분 이내 취소: 서비스 비에서 3000원 과금 후 나머지 전액 환불</Text>
+              <Text style={styles.bulletItem}>• 캐리어 매칭 후 20분 초과 취소: 서비스 비에서 5000원 과금 후 나머지 전액 환불</Text>
               <Text style={styles.bulletItem}>• 단, 주문 금액이 패널티 금액을 초과할 시 전액 과금 됨.</Text>
             </View>
             <Text style={styles.bulletItem}>C. 시간 예약 서비스의 경우</Text>
 <View style={[styles.bulletList, styles.nestedList]}>
   <Text style={styles.bulletItem}>• 캐리어 매칭 전 취소: 과금 없음</Text>
   <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 기준 2시간 이전 취소: 과금 없음</Text>
-  <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 기준 1시간 ~ 2시간 전 취소: 1,000원 과금 후 서비스비 전액 환불</Text>
-  <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 기준 1시간 이내 취소: 3,000원 과금 후 서비스비 전액 환불</Text>
+  <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 기준 1시간 ~ 2시간 전 취소: 서비스 비에서 1000원 과금 후 나머지 전액 환불</Text>
+  <Text style={styles.bulletItem}>• 캐리어 매칭 후 서비스 시간 기준 1시간 이내 취소: 서비스 비에서 3000원 과금 후 나머지 전액 환불</Text>
   <Text style={styles.bulletItem}>• 서비스 시간 이후 취소 또는 무단 미이용: 전액 과금</Text>
   <Text style={styles.bulletItem}>• 단, 주문 금액이 패널티 금액을 초과할 시 전액 과금 됨.</Text>
 </View>

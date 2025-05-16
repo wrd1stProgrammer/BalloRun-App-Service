@@ -7,7 +7,7 @@ const {
     saveFcmToken,
     kakaologin,
     applelogin,
-    
+    findIdByUserInfo
 } = require("../controllers/auth/auth");
 const router = express.Router();
 
@@ -31,6 +31,10 @@ router.post("/verifyEmail",sendEmail);
 router.post("/checkNickname",checkNicknameApi);
 router.post("/checkUserId",checkUserIdApi);
 router.post("/checkEmail",checkEmailApi);
+
+//id find, pw find
+router.post("/findId",findIdByUserInfo);
+router.post("resetpw")
 module.exports = router;
 
 

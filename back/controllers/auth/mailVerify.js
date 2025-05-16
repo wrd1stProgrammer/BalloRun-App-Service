@@ -34,7 +34,7 @@ const sendEmail = async (req, res) => {
         await transporter.sendMail({
             from: process.env.GMAIL_USER,
             to: email,
-            subject: "캠퍼스커피 이메일 인증 코드",
+            subject: "발로뛰어 이메일 인증 코드",
             html: `
                 <div style="font-family: Arial, sans-serif; text-align: center;">
                     <h2>이메일 인증 코드</h2>

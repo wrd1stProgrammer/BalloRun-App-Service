@@ -90,6 +90,18 @@ export const appleLogin = (identityToken:string) => async (dispatch: any) => {
   }
 };
 
+export const resetPasswordAction = (password:string,email:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/auth/resetPw',{
+      password,
+      email,
+    });
+    
+  } catch (error: any) {
+    console.log('PROFILE ->', error);
+  }
+};
+
 
 
 
@@ -307,5 +319,19 @@ export const updateAlarmState = (chatNotifications:boolean,adNotifications:boole
       Alert.alert('네트워크 오류', '서버와 연결되지 않았습니다. 나중에 다시 시도해주세요.');
     }
     throw error; // 컴포넌트에서 에러 처리 가능하도록 throw
+  }
+};
+
+export const findIdByUserInfoAction = ( name:string, phone:number, email:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/auth/findId',{
+      name,
+      phone,
+      email,
+    });
+    return res.data;
+    
+  } catch (error: any) {
+    console.log('닉네임 검증 에러 ->', error);
   }
 };

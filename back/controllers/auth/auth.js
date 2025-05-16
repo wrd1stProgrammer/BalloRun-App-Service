@@ -10,6 +10,29 @@ const jwt = require("jsonwebtoken");
 const jwksClient = require('jwks-rsa');
 const bcryptjs = require('bcryptjs');
 
+const findIdByUserInfo = async (req, res) => {
+  const { name, phone, email } = req.body;
+
+  try {
+    // name, phone, email로 User 조회
+    const user = await User.findOne({ name, phone, email });
+
+    if (user) {
+      // 일치하는 사용자 있으면 userId 리턴
+      return res.json({ userId: user.userId });
+    }
+
+    // 없으면 404와 메시지
+    return res.status(404).json({ message: '일치하는 정보가 없습니다.' });
+  } catch (err) {
+    console.error('아이디 찾기 중 에러 ->', err);
+    return res.status(500).json({ message: '서버 에러가 발생했습니다.' });
+  }
+};
+
+
+
+
 const register = async (req, res) => {
   const { username,nickname,userId,email,password,phone, } = req.body;
 
@@ -443,4 +466,5 @@ const refreshToken = async (req, res) => {
     saveFcmToken,
     kakaologin,
     applelogin,
+    findIdByUserInfo
   };
