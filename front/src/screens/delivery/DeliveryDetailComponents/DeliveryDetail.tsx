@@ -1,10 +1,12 @@
+import { getDistance } from 'geolib';
 import React, { useRef, useState, useEffect } from "react";
 import { acceptActionHandler } from "../../../redux/actions/riderAction";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import { navigate } from "../../../navigation/NavigationUtils";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
+// import { getWalkingDirections } from "../../../utils/Geolocation/Directions";
 import Geolocation from "react-native-geolocation-service";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack } from "../../../navigation/NavigationUtils";
@@ -44,13 +46,31 @@ const DeliveryDetail: React.FC = () => {
   const mapRef = useRef<MapView>(null);
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
+  const [distance, setDistance] = useState<number | null>(null);
+  const [walkingRoute, setWalkingRoute] = useState<{ latitude: number; longitude: number }[]>([]);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLat(pos.coords.latitude);
-        setUserLng(pos.coords.longitude);
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setUserLat(latitude);
+        setUserLng(longitude);
+        if (deliveryItem && deliveryItem.lat && deliveryItem.lng) {
+          console.log("출발 좌표:", latitude, longitude);
+          console.log("도착 좌표:", deliveryItem.lat, deliveryItem.lng);
+          const dist = getDistance(
+            { latitude, longitude },
+            { latitude: parseFloat(deliveryItem.lat), longitude: parseFloat(deliveryItem.lng) }
+          );
+          setDistance(dist);
+
+          // const route = await getWalkingDirections(
+          //   { lat: latitude, lng: longitude },
+          //   { lat: parseFloat(deliveryItem.lat), lng: parseFloat(deliveryItem.lng) }
+          // );
+          // setWalkingRoute(route);
+        }
       },
       (err) => console.log(err),
       { enableHighAccuracy: true }
@@ -105,6 +125,13 @@ const DeliveryDetail: React.FC = () => {
             pinColor="blue"
           />
         )}
+        {walkingRoute.length > 0 && (
+          <Polyline
+            coordinates={walkingRoute}
+            strokeColor="#006AFF"
+            strokeWidth={4}
+          />
+        )}
       </MapView>
 
       <TouchableOpacity
@@ -123,7 +150,7 @@ const DeliveryDetail: React.FC = () => {
         <Ionicons name="navigate" size={24} color="#000" />
       </TouchableOpacity>
 
-      <DeliveryDetailBottomSheet deliveryItem={deliveryItem} onAccept={handleAccept} />
+      <DeliveryDetailBottomSheet deliveryItem={deliveryItem} onAccept={handleAccept} distance={distance ?? undefined} />
     </View>
   );
 };
@@ -131,8 +158,8 @@ const DeliveryDetail: React.FC = () => {
 const styles = StyleSheet.create({
   currentLocationButton: {
     position: "absolute",
-    bottom: 280,
-    right: 16,
+    top: 70,
+    right: 25,
     backgroundColor: "white",
     padding: 12,
     borderRadius: 25,
