@@ -1,4 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
+import { acceptActionHandler } from "../../../redux/actions/riderAction";
+import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
+import { navigate } from "../../../navigation/NavigationUtils";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
@@ -6,6 +9,7 @@ import Geolocation from "react-native-geolocation-service";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack } from "../../../navigation/NavigationUtils";
 import DeliveryDetailBottomSheet from "./DeliveryDetailBottomSheet";
+import { useAppDispatch } from "../../../redux/config/reduxHook";
 
 type DeliveryItem = {
   _id: string;
@@ -40,6 +44,7 @@ const DeliveryDetail: React.FC = () => {
   const mapRef = useRef<MapView>(null);
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -51,6 +56,24 @@ const DeliveryDetail: React.FC = () => {
       { enableHighAccuracy: true }
     );
   }, []);
+
+  const acceptHandler = async (orderId: string, orderType: "Order" | "NewOrder") => {
+    try {
+      await dispatch(acceptActionHandler(orderId, orderType));
+      dispatch(setIsOngoingOrder(true));
+      setTimeout(() => {
+        navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
+      }, 1500);
+    } catch (error) {
+      console.error("Error accepting order:", error);
+    }
+  };
+
+  const handleAccept = () => {
+    if (deliveryItem) {
+      acceptHandler(deliveryItem._id, deliveryItem.orderType);
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -100,7 +123,7 @@ const DeliveryDetail: React.FC = () => {
         <Ionicons name="navigate" size={24} color="#000" />
       </TouchableOpacity>
 
-      <DeliveryDetailBottomSheet deliveryItem={deliveryItem} />
+      <DeliveryDetailBottomSheet deliveryItem={deliveryItem} onAccept={handleAccept} />
     </View>
   );
 };

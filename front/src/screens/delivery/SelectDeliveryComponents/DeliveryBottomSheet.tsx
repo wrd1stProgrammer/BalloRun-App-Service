@@ -10,7 +10,6 @@ import { Ionicons } from "@expo/vector-icons";
 import MapView from 'react-native-maps';
 import { Dimensions } from 'react-native';
 import { navigate } from "../../../navigation/NavigationUtils";
-import DeliveryDetailModal from '../DeliveryDetailComponents/DeliveryDetail';
 import { useLocation } from '../../../utils/Geolocation/LocationContext';
 import { refetchUser } from '../../../redux/actions/userAction';
 import Cafe from "../../../assets/Icon/icon-coffee.png";

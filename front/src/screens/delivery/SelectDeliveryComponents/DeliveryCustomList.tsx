@@ -90,20 +90,26 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
     setShowSortOptions((prev) => !prev);
   };
 
-  const acceptHandler = async (orderId: string, orderType: "Order" | "NewOrder") => {
-    try {
-      await dispatch(acceptActionHandler(orderId, orderType));
-      setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
-      dispatch(setIsOngoingOrder(true));
-      // socket?.emit("start_tracking", { orderId });
-      // startTracking(orderId);
-      setTimeout(() => {
-        navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
-      }, 1500);
-    } catch (error) {
-      console.error("Error accepting order:", error);
-    }
-  };
+  
+
+  // const handleAccept = () => {
+  //   if (selectedItem) {
+  //     acceptHandler(selectedItem._id, selectedItem.orderType);
+  //     closeModal();
+  //   }
+  // };
+  // const acceptHandler = async (orderId: string, orderType: "Order" | "NewOrder") => {
+  //   try {
+  //     await dispatch(acceptActionHandler(orderId, orderType));
+  //     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
+  //     dispatch(setIsOngoingOrder(true));
+  //     setTimeout(() => {
+  //       navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
+  //     }, 1500);
+  //   } catch (error) {
+  //     console.error("Error accepting order:", error);
+  //   }
+  // };
 
   const renderItem: ListRenderItem<DeliveryItem> = ({ item }) => {
     const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
