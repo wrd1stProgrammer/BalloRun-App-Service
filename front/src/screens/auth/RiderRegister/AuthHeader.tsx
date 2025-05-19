@@ -14,9 +14,7 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({ step, totalSteps }) => {
 
   return (
     <View style={[authStyles.header, { zIndex: 1 }]}>
-      <TouchableOpacity style={authStyles.backButton} onPress={() => goBack()}>
-      <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
-      </TouchableOpacity>
+
       <View style={authStyles.progressBarContainer}>
         <View style={[authStyles.progressBar, { width: `${progress}%` }]} />
       </View>

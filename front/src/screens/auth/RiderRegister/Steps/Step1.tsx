@@ -24,17 +24,16 @@ const Step1Content: React.FC = () => {
       </View>
 
       <Text style={authStyles.description}>
-        • Upload a complete image of your ID document.{'\n'}
-        • Ensure all details are readable in the image you upload.{'\n'}
-        • Ensure the document is the original and has not expired.{'\n'}
-        • Place documents against a solid-colored background.
+        • 주민등록증 전체 이미지를 업로드합니다.{'\n'}
+        • 문서가 원본인지 확인합니다.{'\n'}
+        • 실물 주민등록증을 준비해주세요.
       </Text>
 
       <TouchableOpacity
         style={authStyles.wideEnableButton}
         onPress={() => navigate('Step2')}
       >
-        <Text style={authStyles.enableButtonText}>Continue</Text>
+        <Text style={authStyles.enableButtonText}>다음 </Text>
       </TouchableOpacity>
     </ScrollView>
   );

@@ -24,15 +24,16 @@ const RiderManual: React.FC = () => {
       </View>
 
       <Text style={authStyles.description}>
-        우리 앱을 쓰려면 뭐 여러가지 인증을 해야된다는 내용을 써야 함.
+        발로뛰어 캐리어(배달원)가 되려면 다음 내용을 따라 주십시오
       </Text>
-
+      {/* 
       <TouchableOpacity style={authStyles.learnMoreButton} onPress={() => console.log('Learn More pressed')}>
         <Ionicons name="information-circle-outline" size={16} color="#666" style={authStyles.learnMoreIcon} />
         <Text style={authStyles.learnMoreText}>How to enable Authenticator App</Text>
         <Text style={authStyles.learnMoreLink}>Learn More</Text>
       </TouchableOpacity>
-
+      */}
+      
       {/* Enable 버튼을 맨 아래에 넓게 배치 (80% 너비, 중앙 정렬) */}
       <TouchableOpacity style={[authStyles.wideEnableButton, { width: screenWidth * 0.8 }]} onPress={() => navigate('Step1')}>
         <Text style={authStyles.enableButtonText}>등록하기</Text>

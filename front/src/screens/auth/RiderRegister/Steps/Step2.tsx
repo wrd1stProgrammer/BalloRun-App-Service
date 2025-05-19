@@ -1,13 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Alert,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { authStyles } from '../AuthStepsStyles';
 import { navigate } from '../../../../navigation/NavigationUtils';
 import AuthHeader from '../AuthHeader';
-import { launchCamera, launchImageLibrary, CameraOptions, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
+import {
+  launchCamera,
+  launchImageLibrary,
+  CameraOptions,
+  ImagePickerResponse,
+  ImageLibraryOptions,
+} from 'react-native-image-picker';
+import { useAppDispatch } from '../../../../redux/config/reduxHook';
+import { uploadFile } from '../../../../redux/actions/fileAction';
 
 const Step2Content: React.FC = () => {
-  const [images, setImages] = useState<string | null>(null); // uri만 저장
+  const [images, setImages] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (images) {
@@ -19,121 +38,167 @@ const Step2Content: React.FC = () => {
     const options: CameraOptions = {
       mediaType: 'photo',
       cameraType: 'back',
-      videoQuality: "high",
+      videoQuality: 'high',
       saveToPhotos: true,
     };
 
     launchCamera(options, (response: ImagePickerResponse) => {
       if (response.didCancel) {
-        Alert.alert("사진 촬영이 취소되었습니다.");
+        Alert.alert('사진 촬영이 취소되었습니다.');
       } else if (response.errorMessage) {
-        Alert.alert("사진 촬영 중 오류가 발생했습니다.", response.errorMessage);
+        Alert.alert('사진 촬영 중 오류가 발생했습니다.', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
-        const uri = response.assets[0].uri;
-        setImages(uri || null);
+        setImages(response.assets[0].uri || null);
       }
     });
   };
 
   const handleImagePicker = async () => {
     const option: ImageLibraryOptions = {
-      mediaType: "photo",
+      mediaType: 'photo',
       selectionLimit: 1,
       includeBase64: true,
     };
 
-    const response: ImagePickerResponse = await launchImageLibrary(option);
+    const response = await launchImageLibrary(option);
 
     if (response.didCancel) Alert.alert('취소');
     else if (response.errorMessage) Alert.alert('Error: ' + response.errorMessage);
     else if (response.assets && response.assets.length > 0) {
-      const uri = response.assets[0].uri;
-      setImages(uri || null);
+      setImages(response.assets[0].uri || null);
     }
   };
 
-  const handleRemoveImage = () => {
-    setImages(null); // 이미지 상태를 null로 설정하여 제거
+  const handleRemoveImage = () => setImages(null);
+
+  const uploadIDcard = async () => {
+    if (!images) return;
+    try {
+      setUploading(true);
+      //await dispatch(uploadFile(images, 'verification_image'));
+      navigate('Step3', { images });
+    } catch (err) {
+      Alert.alert('업로드 중 오류가 발생했습니다.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
     <ScrollView contentContainerStyle={authStyles.container}>
-      <Text style={[authStyles.title, { textAlign: 'center' }]}>주민등록증 업로드</Text>
+      {/* 업로드 중일 때 오버레이 */}
+      {uploading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="black" />
+          <Text style={styles.loadingText}>업로드 중...</Text>
+        </View>
+      )}
 
-      {/* 이미지 미리보기 */}
+      <Text style={[authStyles.title, { textAlign: 'center' }]}>
+        주민등록증 업로드
+      </Text>
+
       {images ? (
         <View style={styles.imagePreviewContainer}>
           <Image source={{ uri: images }} style={styles.previewImage} />
           <TouchableOpacity
             style={styles.removeButton}
             onPress={handleRemoveImage}
+            disabled={uploading}
           >
             <Text style={styles.removeButtonText}>X</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={authStyles.iconContainer}>
-          <Ionicons name="camera" size={50} color="#666" />
+          <Ionicons name="camera" size={60} color="#999" />
         </View>
       )}
 
-      <Text style={[authStyles.description, { textAlign: 'center', marginBottom: 20 }]}>
-        {images ? '이미지가 선택되었습니다. 다른 이미지를 선택하려면 위 버튼을 사용하세요 ' : '문서 확인을 완료하기 위해 방법을 선택하세요'}
+      <Text
+        style={[
+          authStyles.description,
+          { textAlign: 'center', marginBottom: 20 },
+        ]}
+      >
+        {images
+          ? '이미지가 선택되었습니다. 다른 이미지를 선택하려면 아래 버튼을 이용하세요.'
+          : '문서 확인을 완료하기 위해 방법을 선택하세요.'}
       </Text>
 
       <TouchableOpacity
-        style={[styles.optionButton, { marginBottom: 10 }]}
+        style={styles.cardButton}
         onPress={handleTakePhoto}
+        disabled={uploading}
       >
-        <Ionicons name="camera" size={20} color="#666" style={{ marginRight: 10 }} />
-        <Text style={styles.optionButtonText}>휴대폰으로 사진 찍기</Text>
+        <Ionicons name="camera" size={24} color="#3384FF" />
+        <Text style={styles.cardButtonText}>휴대폰으로 사진 찍기</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.optionButton}
+        style={styles.cardButton}
         onPress={handleImagePicker}
+        disabled={uploading}
       >
-        <Ionicons name="image" size={20} color="#666" style={{ marginRight: 10 }} />
-        <Text style={styles.optionButtonText}>기존 사진 업로드</Text>
+        <Ionicons name="image" size={24} color="#3384FF" />
+        <Text style={styles.cardButtonText}>기존 사진에서 업로드</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[authStyles.wideEnableButton, { backgroundColor: '#3384FF', marginTop: 30 }]}
-        onPress={() => navigate('Step3',{images})}
+        disabled={!images || uploading}
+        style={[
+          authStyles.wideEnableButton,
+          {
+            backgroundColor: images ? '#3384FF' : '#CCC',
+            marginTop: 30,
+            opacity: images ? 1 : 0.6,
+          },
+        ]}
+        onPress={uploadIDcard}
       >
-        <Text style={authStyles.enableButtonText}>Continue</Text>
+        <Text
+          style={[
+            authStyles.enableButtonText,
+            { color: images ? '#FFF' : '#888' },
+          ]}
+        >
+          다음
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
 };
 
-const Step2: React.FC = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <AuthHeader step={2} totalSteps={6} />
-      <Step2Content />
-    </View>
-  );
-};
+const Step2: React.FC = () => (
+  <View style={{ flex: 1 }}>
+    <AuthHeader step={2} totalSteps={6} />
+    <Step2Content />
+  </View>
+);
 
 const styles = StyleSheet.create({
-  optionButton: {
+  cardButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    backgroundColor:'#3384FF',
-    borderColor: '#FFD700',
-    width: '90%',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    marginVertical: 8,
     marginHorizontal: '5%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    // iOS shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // Android shadow
+    elevation: 3,
   },
-  optionButtonText: {
+  cardButtonText: {
     fontSize: 16,
-    color: 'white',
+    color: '#333',
     fontWeight: '500',
-    textAlign: 'left',
+    marginLeft: 12,
   },
   imagePreviewContainer: {
     position: 'relative',
@@ -143,15 +208,15 @@ const styles = StyleSheet.create({
   },
   previewImage: {
     width: '100%',
-    height: 200, // 미리보기 이미지 크기 조정
+    height: 200,
     borderRadius: 8,
     resizeMode: 'cover',
   },
   removeButton: {
     position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: 'red',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -159,9 +224,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   removeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
+    color: '#fff',
+    fontSize: 12,
     fontWeight: 'bold',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  loadingText: {
+    marginTop: 12,
+    color: '#3384FF',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 

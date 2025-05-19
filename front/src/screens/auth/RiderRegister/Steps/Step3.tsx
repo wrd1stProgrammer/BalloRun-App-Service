@@ -23,7 +23,7 @@ const Step3Content: React.FC<{ images?: string | null }> = ({ images }) => {
         style={authStyles.wideEnableButton}
         onPress={() => navigate('Step4',{images})}
       >
-        <Text style={authStyles.enableButtonText}>Continue</Text>
+        <Text style={authStyles.enableButtonText}>다음</Text>
       </TouchableOpacity>
     </ScrollView>
   );
