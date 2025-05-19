@@ -390,7 +390,7 @@ const FourthScreen = ({ route }: FourthScreenProps) => {
       <View style={styles.header}><TouchableOpacity onPress={goBack} style={styles.backButton}><Ionicons name="chevron-back" size={24} color="#1A1A1A"/></TouchableOpacity><Text style={styles.headerTitle}>약관 동의</Text></View>
 
       {/* 로고+인삿말 */}
-      <View style={styles.greetingBox}><Image source={{uri:''}} style={styles.logo}/><Text style={styles.greetingText}>{`${name}님\n환영합니다!`}</Text></View>
+      <View style={styles.greetingBox}><Image src='' style={styles.logo}/><Text style={styles.greetingText}>{`${name}님\n환영합니다!`}</Text></View>
 
       {/* 카드 */}
       <ScrollView style={styles.card} contentContainerStyle={{paddingBottom:20}} showsVerticalScrollIndicator={false}>

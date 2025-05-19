@@ -119,11 +119,11 @@ const consumeNewOrderMessages = async (redisCli) => {
               const payload = {
                 title: "새 배달 요청!",
                 body:  "2km 이내, 심부름이 요청이 왔습니다 확인해보세요🚀",
-                data:  {  type: "order_aroundPush" }
+                data:  { type: "order_aroundPush" }
               };
               console.log(orderLat,orderLng, '-------------');
               // 지금 Id: newOrder._id 생략
-              // await notifyNearbyRiders(orderLng, orderLat, payload,orderData.userId);
+              await notifyNearbyRiders(orderLng, orderLat, payload,orderData.userId);
 
               
               // await session.commitTransaction();

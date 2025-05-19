@@ -18,8 +18,8 @@ jobs:
 
       - name: Decode GCP key            
         run: |
-          echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 -d > back/key.json
-          jq . back/key.json >/dev/null
+          echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 -d > back/campuscoffee-83cbf-74f467acc07d.json
+          jq . back/campuscoffee-83cbf-74f467acc07d.json >/dev/null
 
       - name: Docker Hub login
         uses: docker/login-action@v2

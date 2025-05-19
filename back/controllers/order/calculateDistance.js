@@ -4,6 +4,9 @@ const User  = require('../../models/User');
 
 async function notifyNearbyRiders(orderLng, orderLat, payload,excludeUserId) {
   // 1) 2km 반경 + 인증된 라이더만 조회
+
+  console.log('notifyNearbyRiders 시작 ');
+
   const riders = await User.find({
     isRider: true,
     aroundAlarm: true,
@@ -30,7 +33,7 @@ async function notifyNearbyRiders(orderLng, orderLat, payload,excludeUserId) {
   if (tokens.length === 0) return;
 
   // 2) FCM 한 번에 최대 500개 토큰씩 chunk
-  const CHUNK_SIZE = 500;
+  const CHUNK_SIZE = 50;
   for (let i = 0; i < tokens.length; i += CHUNK_SIZE) {
     const chunkTokens = tokens.slice(i, i + CHUNK_SIZE);
 

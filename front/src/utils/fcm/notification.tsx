@@ -133,11 +133,12 @@ const handleNotificationAction = (data: NotificationData): void => {
     navigate("BottomTab", {
         screen: "DeliveryRequestListScreen"
     });
-  } else if(data?.type === "order_around") {
+    // 주변 주문 푸시알림에 대해 딥링크 해야함.
+  } else if(data?.type === "order_around" ) {
     navigate("BottomTab", {
         screen: "DeliveryRequestListScreen"
     });
-  }
+  } 
 };
 
 // Notifee를 사용한 커스텀 알림 표시

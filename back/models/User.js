@@ -47,18 +47,21 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
     location: {
       type: {
-        type: String,            // 항상 "Point"
-        enum: ['Point'],         
-        required: false,
+        type: String,
+        enum: ['Point'],
+        required: true,
+        default: 'Point',
       },
       coordinates: {
-        type: [Number],          // [경도(lng), 위도(lat)]
+        type: [Number],
+        required: true,
         default: [0, 0],
-        required: false,
-      }
+      },
     },
+    
 
    phone:{
       type: Number,
@@ -152,6 +155,7 @@ UserSchema.pre('save', function (next) {
 });
 
 UserSchema.index({ location: '2dsphere' });
+
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
