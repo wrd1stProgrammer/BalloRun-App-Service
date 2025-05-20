@@ -19,6 +19,7 @@ type DeliveryItem = {
   deliveryType: "direct" | "cupholder" | any;
   startTime: string;
   deliveryFee: number;
+  riderRequest: string;
   price: number;
   cafeLogo: string;
   createdAt: string;

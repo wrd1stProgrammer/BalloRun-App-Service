@@ -118,7 +118,7 @@ const Chatting: React.FC = () => {
   // 로딩 중일 때 표시할 UI
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: Color.white, justifyContent: 'center', alignItems: 'center' }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#F9F9F9", justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color='#202632' />
 
       </SafeAreaView>
@@ -126,19 +126,19 @@ const Chatting: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Color.white }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9F9F9" }}>
       <View
         style={{
           paddingHorizontal: 24,
           paddingVertical: 16,
-          backgroundColor: Color.white,
+          backgroundColor: "#F9F9F9",
         }}
       >
         <Text style={[TYPOS.headline3, { color: Color.black }]}>채팅</Text>
       </View>
       <FlatList
         contentContainerStyle={{
-          backgroundColor: Color.white,
+          backgroundColor: "#F9F9F9",
           flex: 1,
         }}
         keyExtractor={(item) => item.id}

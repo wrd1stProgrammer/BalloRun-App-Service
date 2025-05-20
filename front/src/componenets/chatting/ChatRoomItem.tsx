@@ -107,7 +107,7 @@ const ChatRoomItem = ({
       <Pressable onPress={() => navigate('ChatRoom', { roomId, username, nickname, userImage })}>
         <View
           style={{
-            backgroundColor: Color.white,
+            backgroundColor: "#F9F9F9",
             padding: 16,
             flexDirection: 'row',
             position: 'relative',

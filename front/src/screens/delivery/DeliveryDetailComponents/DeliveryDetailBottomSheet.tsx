@@ -20,6 +20,9 @@ type DeliveryItem = {
   resolvedAddress: string;
   isReservation: boolean;
   orderType: "Order" | "NewOrder";
+  riderRequest:string;
+  images:string;
+  orderImages:string;
 };
 
 type Props = {
@@ -51,11 +54,11 @@ const DeliveryDetailBottomSheet: React.FC<Props> = ({ deliveryItem, onAccept, on
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.label}>배달 유형</Text>
-          <Text style={styles.value}>{deliveryItem.deliveryType === 'direct' ? '직접 전달' : '컵홀더 사용'}</Text>
+          <Text style={styles.value}>{deliveryItem.deliveryType === 'direct' ? '직접 전달' : '보관함 사용'}</Text>
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.label}>예약 주문</Text>
-          <Text style={styles.value}>{deliveryItem.isReservation ? '예' : '아니오'}</Text>
+          <Text style={styles.value}>{deliveryItem.isReservation ? 'O' : 'X'}</Text>
         </View>
       </View>
       <View style={styles.bottom}>

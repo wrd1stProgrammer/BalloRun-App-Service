@@ -61,7 +61,9 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           const riderUser = await User.findById(riderId); // 알람 일단 보려고 임시
           console.log('수락에서 riderUser', riderUser);
           riderUser.isDelivering = true;
+          
           riderUser.exp = (riderUser.exp || 0) + 10;
+
           
           await riderUser.save();
           console.log('riderUser UPdate',riderUser);

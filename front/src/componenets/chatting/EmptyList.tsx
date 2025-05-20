@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 20,
+    backgroundColor: "#F9F9F9"
   },
   text: {
     color: Color.neutral2,

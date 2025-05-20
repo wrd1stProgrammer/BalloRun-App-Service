@@ -173,6 +173,8 @@ const completeOrderHandler = async (req, res) => {
     rideruser.isDelivering = false;
     rideruser.save();
 
+    
+
 
     const { orderId, orderType } = req.body;
     const OrderModel = getOrderModel(orderType);
@@ -181,8 +183,13 @@ const completeOrderHandler = async (req, res) => {
       return res.status(404).json({ message: `${orderType} not found` });
     }
 
+    const deliveryFee = order.deliveryFee || 0;
+    rideruser.point = (rideruser.point || 0) + deliveryFee;
+    console.log(`riderUser point 증가: +${deliveryFee}`);
+
     order.status = "delivered";
     await order.save();
+    await rideruser.save();
     
     await invalidateOnGoingOrdersCache(order.userId, redisCli);
     await invalidateCompletedOrdersCache(order.userId, redisCli);

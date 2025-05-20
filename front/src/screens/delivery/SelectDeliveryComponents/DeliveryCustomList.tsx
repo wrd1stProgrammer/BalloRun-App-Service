@@ -26,6 +26,9 @@ type DeliveryItem = {
   address: string;
   deliveryType: "direct" | "cupHolder";
   startTime: string;
+  riderRequest: string;
+  images: string;
+  orderImages: string;
   deliveryFee: number;
   price: number;
   cafeLogo: string;

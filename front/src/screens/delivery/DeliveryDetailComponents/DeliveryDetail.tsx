@@ -30,6 +30,9 @@ type DeliveryItem = {
   resolvedAddress: string;
   isReservation: boolean;
   orderType: "Order" | "NewOrder";
+  riderRequest:string;
+  images:string;
+  orderImages:string;
 };
 
 type RouteParams = {
@@ -98,7 +101,7 @@ const DeliveryDetail: React.FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <TouchableOpacity style={styles.backButton} onPress={goBack}>
-        <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
+        <Ionicons name="chevron-back" size={26} color="#1A1A1A" />
       </TouchableOpacity>
       <MapView
         ref={mapRef}
@@ -171,9 +174,9 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
+    marginTop:16,
     top: 48,
-    left: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    left: 12,
     borderRadius: 20,
     padding: 8,
     zIndex: 10,
