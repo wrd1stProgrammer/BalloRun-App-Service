@@ -173,9 +173,6 @@ const completeOrderHandler = async (req, res) => {
     rideruser.isDelivering = false;
     rideruser.save();
 
-    
-
-
     const { orderId, orderType } = req.body;
     const OrderModel = getOrderModel(orderType);
     const order = await OrderModel.findById(orderId);
@@ -184,6 +181,8 @@ const completeOrderHandler = async (req, res) => {
     }
 
     const deliveryFee = order.deliveryFee || 0;
+    const originalMoney = order.priceOffer || 0;
+    rideruser.originalMoney = (rideruser.originalMoney || 0) + originalMoney;
     rideruser.point = (rideruser.point || 0) + deliveryFee;
     console.log(`riderUser point 증가: +${deliveryFee}`);
 

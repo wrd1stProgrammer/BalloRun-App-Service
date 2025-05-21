@@ -43,6 +43,10 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       default:0,
     },
+    originalMoney:{
+      type:Number,
+      default:0,
+    },
     address: {  // ✅ 기본 주소 추가
       type: String,
       default: "",

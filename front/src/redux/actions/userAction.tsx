@@ -207,12 +207,13 @@ export const registerAccount = (bankName:string,accountNumber:number,holder:stri
   }
 }; // ap
 
-export const withdrawAction = (withdrawAmount:number,fee:number,finalAmount:number) => async (dispatch: any) => {
+export const withdrawAction = (withdrawAmount:number,origin:number,fee:number,finalAmount:number) => async (dispatch: any) => {
   try {
     const res = await appAxios.post('/user/withdraw',{
       withdrawAmount,
       fee,
       finalAmount,
+      origin,
     });
   } catch (error: any) {
     console.log('account register ERROR ->', error);

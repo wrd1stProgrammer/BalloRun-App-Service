@@ -18,6 +18,10 @@ const WithdrawalSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  origin:{
+    type:Number,
+    required: false,
+  }, // 나중에 true
   status: {
     type: String,
     enum: ['pending', 'completed', 'failed'],

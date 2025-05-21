@@ -34,6 +34,7 @@ const getProfile = async (req, res) => {
         nickname: user?.nickname,
         userImage: user?.userImage,
         point: user.point,
+        originalMoney: user.originalMoney,
         email: user.email,
         isRider: user.isRider,
         isDelivering: user.isDelivering,
@@ -169,8 +170,8 @@ const withdrawApi = async (req, res) => {
     }
 
     // 2. 입력 검증
-    const { withdrawAmount, fee, finalAmount } = req.body;
-    if (!withdrawAmount || !fee || !finalAmount) {
+    const { withdrawAmount, fee, finalAmount,origin } = req.body;
+    if (!withdrawAmount || !fee || !finalAmount || !origin) {
       throw new BadRequestError("출금 금액, 수수료, 최종 출금 금액은 모두 필수 입력값입니다.");
     }
 
@@ -185,11 +186,13 @@ const withdrawApi = async (req, res) => {
       withdrawAmount,
       fee,
       finalAmount,
+      origin,
       status: 'pending'
     });
     await withdrawal.save();
 
     // 5. 사용자 잔액 업데이트
+    user.originalMoney -= origin;
     user.point -= withdrawAmount;
     await user.save();
 
@@ -211,40 +214,36 @@ const withdrawApi = async (req, res) => {
   }
 };
 
-// getWithdrawList API 추가
+// controllers/withdrawController.js
 const getWithdrawList = async (req, res) => {
   try {
-    // 1. 인증 및 사용자 확인
-    const accessToken = req.headers.authorization?.split(" ")[1];
-    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-    const userId = decodedToken.userId;
+    /* 1) 인증 */
+    const token = req.headers.authorization?.split(' ')[1];
+    const { userId } = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    // 2. 출금 내역 조회
+    /* 2) DB 조회 - origin(원금)까지 가져오기 */
     const withdrawals = await Withdrawal.find({ userId })
-      .sort({ createdAt: -1 }) // 최신순 정렬
-      .select("withdrawAmount fee finalAmount status createdAt"); // 필요한 필드만 선택
+      .sort({ createdAt: -1 })
+      .select('withdrawAmount origin fee finalAmount status createdAt'); // ← origin 추가
 
-    // 3. 데이터 형식화
-    const formattedWithdrawals = withdrawals.map((w) => ({
+    /* 3) 응답용 변환 */
+    const formatted = withdrawals.map((w) => ({
       id: w._id.toString(),
-      date: w.createdAt.toISOString().split("T")[0], // YYYY-MM-DD 형식
-      amount: `₩${w.withdrawAmount.toLocaleString()}`,
-      status:
-        w.status === "pending" ? "처리중 (24시간 내 처리 완료)" : "완료",
+      date: w.createdAt.toISOString().split('T')[0],
+      origin: `₩${(w.origin ?? 0).toLocaleString()}`,        // ● 원금
+      amount: `₩${w.finalAmount.toLocaleString()}`,           // 환전액(수수료 차감 후)
+      status: w.status === 'pending' ? '처리중 (24시간 내 완료)' : '완료',
     }));
 
-    // 4. 응답
-    res.status(StatusCodes.OK).json({ withdrawals: formattedWithdrawals });
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      res.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid token" });
-    } else {
-      res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Server error", error: error.message });
+    res.status(StatusCodes.OK).json({ withdrawals: formatted });
+  } catch (err) {
+    if (err instanceof jwt.JsonWebTokenError) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid token' });
     }
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 };
+
 
 const editProfile = async (req, res) => {
   console.log('editProfile');

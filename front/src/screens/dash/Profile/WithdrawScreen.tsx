@@ -1,264 +1,223 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert,ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { navigate, goBack } from '../../../navigation/NavigationUtils';
+import { goBack } from '../../../navigation/NavigationUtils';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
 import { refetchUser, withdrawAction, getWithdrawList } from '../../../redux/actions/userAction';
 
+/* ────── Types ────── */
 interface User {
-  account?: {
-    bankName: string;
-    accountNumber: string;
-    holder: string;
-  };
+  account?: { bankName: string; accountNumber: string; holder: string };
   point: number;
+  originalMoney: number;
+  level: number;
 }
-
 interface WithdrawScreenProps {
-  route: {
-    params: {
-      user: User;
-    };
-  };
+  route: { params: { user: User } };
 }
-
 interface WithdrawItem {
   id: string;
   date: string;
-  amount: string;
+  origin: string;   // ● 원금
+  amount: string;   // 환전된 금액
   status: string;
 }
 
 const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
   const user = route.params.user;
-  const [amount, setAmount] = useState('');
-  const [withdrawHistory, setWithdrawHistory] = useState<WithdrawItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false); // 자체 로딩 상태 추가
-
   const dispatch = useAppDispatch();
 
-  // 출금 내역 불러오기
-  useEffect(() => {
-    const fetchWithdrawHistory = async () => {
-      setIsLoading(true); // 로딩 시작
-      try {
-        const data = await dispatch(getWithdrawList());
-        if (data && data.withdrawals) {
-          setWithdrawHistory(data.withdrawals);
-        }
-      } catch (err) {
-        console.error('Failed to fetch withdraw history:', err);
-        Alert.alert('오류', '출금 내역을 불러오는데 실패했습니다.');
-      } finally {
-        setIsLoading(false); // 로딩 종료
-      }
-    };
+  const [amount, setAmount] = useState('');
+  const [history, setHistory] = useState<WithdrawItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
-    fetchWithdrawHistory();
+  /* 첫 진입 알림 */
+  useEffect(() => {
+    Alert.alert('알림', '매주 월요일만 출금 신청 가능합니다!', [{ text: '확인' }]);
+  }, []);
+
+  /* 출금 내역 로드 */
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await dispatch(getWithdrawList());
+        if (res?.withdrawals) setHistory(res.withdrawals);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [dispatch]);
 
-  // 출금 처리 핸들러
-  const handleWithdraw = async () => {
-    if (!/^\d+$/.test(amount)) {
-      Alert.alert('입력 오류', '숫자만 입력해주세요.');
-      return;
-    }
+  /* 출금 신청 */
+  const handleWithdraw = () => {
+    if (!/^\d+$/.test(amount)) return Alert.alert('입력 오류', '숫자만 입력해주세요.');
 
-    const withdrawAmount = parseInt(amount, 10);
-    const currentBalance = user.point || 0;
+    const request = parseInt(amount, 10);
+    if (request > user.point) return Alert.alert('출금 오류', '출금 한도 초과');
 
-    if (withdrawAmount > currentBalance) {
-      Alert.alert('출금 오류', '출금 가능한 액수를 초과했습니다.');
-      return;
-    }
-
-    const fee = withdrawAmount * 0.08;
-    const finalAmount = withdrawAmount - fee;
+    const feeRate = user.level === 1 ? 0.08 : user.level === 2 ? 0.075 : 0.07;
+    const fee = Math.floor(request * feeRate);
+    const finalAmount = request - fee;
+    const origin = user.originalMoney ?? 0;
 
     Alert.alert(
       '출금 확인',
-      `수수료 8%를 적용한 최종 출금 금액은 ₩${finalAmount.toLocaleString()}입니다.\n출금을 진행하시겠습니까? (24시간 내 처리 완료)`,
+      `원금: ₩${origin.toLocaleString()}\n` +
+        `포인트: ₩${request.toLocaleString()} → 수수료 ₩${fee.toLocaleString()} 차감\n` +
+        `예상 입금: ₩${(origin + finalAmount).toLocaleString()}`,
       [
         { text: '취소', style: 'cancel' },
         {
           text: '확인',
           onPress: async () => {
-            setIsLoading(true); // 출금 처리 중 로딩 시작
+            setLoading(true);
             try {
-              await dispatch(withdrawAction(withdrawAmount, fee, finalAmount));
-              console.log(`출금 요청: ₩${withdrawAmount}, 수수료: ₩${fee}, 최종: ₩${finalAmount}`);
+              await dispatch(withdrawAction(request, fee, origin, finalAmount));
               await dispatch(refetchUser());
-              const updatedHistory = await dispatch(getWithdrawList());
-              if (updatedHistory && updatedHistory.withdrawals) {
-                setWithdrawHistory(updatedHistory.withdrawals);
-              }
-              Alert.alert('출금 완료', '출금이 요청되었습니다. 24시간 내 처리 완료됩니다.');
+              const newest = await dispatch(getWithdrawList());
+              if (newest?.withdrawals) setHistory(newest.withdrawals);
               setAmount('');
               goBack();
-            } catch (err) {
-              console.error('Withdraw error:', err);
-              Alert.alert('오류', '출금 처리 중 오류가 발생했습니다.');
+            } catch {
+              Alert.alert('오류', '출금 처리 실패');
             } finally {
-              setIsLoading(false); // 로딩 종료
+              setLoading(false);
             }
           },
-          style: 'default',
         },
-      ],
-      { cancelable: true }
+      ]
     );
   };
 
+  /* ────── UI ────── */
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.root}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => goBack()}>
-          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
+        <TouchableOpacity onPress={goBack}>
+          <Ionicons name="chevron-back" size={26} color="#1A1A1A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>출금</Text>
       </View>
-      <View style={styles.content}>
-        {/* 계좌 정보 */}
-        <View style={styles.accountInfo}>
-          <Text style={styles.infoLabel}>은행명</Text>
-          <Text style={styles.infoValue}>{user?.account?.bankName || '정보 없음'}</Text>
-          <Text style={styles.infoLabel}>계좌번호</Text>
-          <Text style={styles.infoValue}>{user?.account?.accountNumber || '정보 없음'}</Text>
-          <Text style={styles.infoLabel}>예금주</Text>
-          <Text style={styles.infoValue}>{user?.account?.holder || '정보 없음'}</Text>
-        </View>
 
-        {/* 출금 금액 입력 */}
-        <View style={styles.inputSection}>
-          <Text style={styles.inputLabel}>출금 가능 금액 : {user.point}</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="₩0"
-            keyboardType="numeric"
-            value={amount}
-            onChangeText={(text) => {
-              const numericValue = text.replace(/[^0-9]/g, '');
-              setAmount(numericValue);
-            }}
-          />
-        </View>
-
-        {/* 출금 버튼 */}
-        <TouchableOpacity style={styles.withdrawButton} onPress={handleWithdraw} disabled={isLoading}>
-          <Text style={styles.withdrawButtonText}>
-            {isLoading ? '처리중...' : '출금하기'}
-          </Text>
-        </TouchableOpacity>
-
-        {/* 출금 내역 */}
-        <View style={styles.historySection}>
-          <Text style={styles.historyTitle}>출금 내역</Text>
-          {isLoading ? (
-            <Text>로딩 중...</Text>
-          ) : withdrawHistory.length === 0 ? (
-            <Text>출금 내역이 없습니다.</Text>
-          ) : (
-            <FlatList
-              data={withdrawHistory}
-              
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.historyItem}>
-                  <Text style={styles.historyDate}>{item.date}</Text>
-                  <Text style={styles.historyAmount}>{item.amount}</Text>
-                  <Text style={styles.historyStatus}>{item.status}</Text>
+      <FlatList
+        ListHeaderComponent={
+          <>
+            {/* 계좌 정보 카드 */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>계좌 정보</Text>
+              {[
+                ['은행명', user.account?.bankName ?? '정보 없음'],
+                ['계좌번호', user.account?.accountNumber ?? '정보 없음'],
+                ['예금주', user.account?.holder ?? '정보 없음'],
+              ].map(([l, v]) => (
+                <View style={styles.row} key={l}>
+                  <Text style={styles.label}>{l}</Text>
+                  <Text style={styles.value}>{v}</Text>
                 </View>
-              )}
-            />
-          )}
-        </View>
-      </View>
+              ))}
+            </View>
+
+            {/* 출금 입력 */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>출금 요청</Text>
+              <Text style={styles.balance}>
+                원금&nbsp;
+                <Text style={styles.highlight}>
+                  ₩{user.originalMoney.toLocaleString()}
+                </Text>
+                &nbsp;/&nbsp;포인트&nbsp;
+                <Text style={styles.highlight}>
+                  ₩{user.point.toLocaleString()}
+                </Text>
+              </Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="0"
+                keyboardType="numeric"
+                value={amount}
+                onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ''))}
+              />
+
+              <TouchableOpacity
+                style={[styles.button, (!amount || loading) && styles.buttonDisabled]}
+                disabled={!amount || loading}
+                onPress={handleWithdraw}
+              >
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>출금하기</Text>}
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.historyHeading}>출금 내역</Text>
+          </>
+        }
+        data={history}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.historyCard}>
+            <View style={styles.row}>
+              <Text style={styles.historyDate}>{item.date}</Text>
+              <Text style={styles.historyStatus}>{item.status}</Text>
+            </View>
+            <Text style={styles.historyAmount}>{item.origin}</Text>
+            <Text style={styles.historyAmount}>{item.amount}</Text>
+          </View>
+        )}
+        ListEmptyComponent={loading ? <ActivityIndicator style={{ marginTop: 24 }} /> : <Text style={styles.emptyText}>출금 내역이 없습니다.</Text>}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+      />
     </SafeAreaView>
   );
 };
 
+export default WithdrawScreen;
+
+/* ───────── Styles (동일) ───────── */
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
+  root: { flex: 1, backgroundColor: '#fff' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomColor: 'rgba(0,0,0,0.08)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginLeft: 10,
-  },
-  content: { padding: 16 },
-  accountInfo: {
-    backgroundColor: '#f5f5f5',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  infoLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  infoValue: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 8,
-  },
-  inputSection: { marginBottom: 16 },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
+  headerTitle: { fontSize: 20, fontWeight: '600', marginLeft: 12, color: '#1A1A1A' },
+  card: { backgroundColor: '#F9FAFB', borderRadius: 12, padding: 16, marginVertical: 8 },
+  cardTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12, color: '#333' },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  label: { fontSize: 14, color: '#6B7280' },
+  value: { fontSize: 14, fontWeight: '500', color: '#111' },
+  balance: { fontSize: 14, marginBottom: 8, color: '#6B7280' },
+  highlight: { color: '#3384FF', fontWeight: '600' },
   input: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderColor: 'rgba(0,0,0,0.1)',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    marginBottom: 12,
   },
-  withdrawButton: {
-    backgroundColor: '#4CAF50',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  withdrawButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  historySection: { marginTop: 16 },
-  historyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  historyItem: {
-    backgroundColor: '#f5f5f5',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  historyDate: { fontSize: 14, color: '#666' },
-  historyAmount: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginVertical: 4,
-  },
-  historyStatus: { fontSize: 14, color: '#4CAF50' },
+  button: { backgroundColor: '#3384FF', borderRadius: 8, paddingVertical: 14, alignItems: 'center' },
+  buttonDisabled: { backgroundColor: '#A7C7FF' },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  historyHeading: { marginTop: 16, marginBottom: 4, fontSize: 16, fontWeight: '600', color: '#333' },
+  historyCard: { backgroundColor: '#F3F4F6', borderRadius: 10, padding: 12, marginVertical: 4 },
+  historyDate: { fontSize: 13, color: '#6B7280' },
+  historyStatus: { fontSize: 13, color: '#3384FF' },
+  historyAmount: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', marginTop: 4 },
+  emptyText: { textAlign: 'center', marginTop: 32, color: '#6B7280' },
 });
-
-export default WithdrawScreen;

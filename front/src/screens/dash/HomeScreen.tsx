@@ -137,7 +137,7 @@ const HomeScreen: React.FC = () => {
               통신판매업 신고 2025-광주북구-0416 | 사업자등록번호 418-11-83101
             </Text>
             <Text style={styles.footerText}>
-              ballorunrun@gmail.com | 광주광역시 용주로 30번길 88,303호
+              ballorunrun@gmail.com | 광주광역시 북구 용주로 30번길 88,303호
             </Text>
             <Text style={styles.footerText}>
               전자금융분쟁 Tel 010-4128-4177(무료)
