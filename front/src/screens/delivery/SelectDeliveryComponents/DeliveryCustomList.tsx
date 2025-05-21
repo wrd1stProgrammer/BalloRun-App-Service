@@ -21,24 +21,24 @@ const SCREEN_WIDTH = 360;
 
 type DeliveryItem = {
   _id: string;
-  name: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
   address: string;
-  deliveryType: "direct" | "cupHolder";
+  deliveryType: "direct" | "cupholder" | any;
   startTime: string;
-  riderRequest: string;
-  images: string;
-  orderImages: string;
   deliveryFee: number;
+  riderRequest: string;
   price: number;
   cafeLogo: string;
   createdAt: string;
   endTime: string;
   lat: string;
   lng: string;
-  resolvedAddress: string;
+  resolvedAddress: string
   isReservation: boolean;
-  orderType: "Order" | "NewOrder";
+  orderType: "Order" | "NewOrder"; 
+  orderDetails: string;
+  images: string;
+  orderImages: string;
 };
 
 type DeliveryCustomListProps = {
@@ -93,26 +93,6 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
     setShowSortOptions((prev) => !prev);
   };
 
-  
-
-  // const handleAccept = () => {
-  //   if (selectedItem) {
-  //     acceptHandler(selectedItem._id, selectedItem.orderType);
-  //     closeModal();
-  //   }
-  // };
-  // const acceptHandler = async (orderId: string, orderType: "Order" | "NewOrder") => {
-  //   try {
-  //     await dispatch(acceptActionHandler(orderId, orderType));
-  //     setTrackingOrders((prev) => ({ ...prev, [orderId]: true }));
-  //     dispatch(setIsOngoingOrder(true));
-  //     setTimeout(() => {
-  //       navigate("BottomTab", { screen: "DeliveryRequestListScreen" });
-  //     }, 1500);
-  //   } catch (error) {
-  //     console.error("Error accepting order:", error);
-  //   }
-  // };
 
   const renderItem: ListRenderItem<DeliveryItem> = ({ item }) => {
     const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);

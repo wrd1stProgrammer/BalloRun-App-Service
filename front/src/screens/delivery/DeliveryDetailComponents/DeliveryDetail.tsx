@@ -3,9 +3,9 @@ import React, { useRef, useState, useEffect } from "react";
 import { acceptActionHandler } from "../../../redux/actions/riderAction";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import { navigate } from "../../../navigation/NavigationUtils";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Image, Text } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import MapView, { Marker, Polyline, Callout } from "react-native-maps";
 // import { getWalkingDirections } from "../../../utils/Geolocation/Directions";
 import Geolocation from "react-native-geolocation-service";
 import { Ionicons } from "@expo/vector-icons";
@@ -44,6 +44,7 @@ type RouteParams = {
 const DeliveryDetail: React.FC = () => {
   const route = useRoute<RouteProp<RouteParams, "DeliveryDetail">>();
   const { deliveryItem } = route.params;
+  console.log(deliveryItem)
   if (!deliveryItem) return null;
 
   const mapRef = useRef<MapView>(null);
@@ -120,7 +121,19 @@ const DeliveryDetail: React.FC = () => {
           }}
           title={deliveryItem.items[0].menuName}
           description={deliveryItem.address}
-        />
+        >
+          <Callout tooltip>
+            {deliveryItem.images ? (
+              <Image
+                source={{ uri: deliveryItem.images }}
+                style={{ width: 100, height: 100, borderRadius: 8 }}
+                resizeMode="cover"
+              />
+            ) : (
+              <Text>이미지 없음</Text>
+            )}
+          </Callout>
+        </Marker>
         {userLat && userLng && (
           <Marker
             coordinate={{ latitude: userLat, longitude: userLng }}
@@ -128,13 +141,7 @@ const DeliveryDetail: React.FC = () => {
             pinColor="blue"
           />
         )}
-        {walkingRoute.length > 0 && (
-          <Polyline
-            coordinates={walkingRoute}
-            strokeColor="#006AFF"
-            strokeWidth={4}
-          />
-        )}
+
       </MapView>
 
       <TouchableOpacity

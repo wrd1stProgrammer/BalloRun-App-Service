@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Image } from "react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -23,6 +23,7 @@ type DeliveryItem = {
   riderRequest:string;
   images:string;
   orderImages:string;
+  selectedFloor:string
 };
 
 type Props = {
@@ -30,6 +31,18 @@ type Props = {
   onAccept?: () => void;
   onReject?: () => void;
   distance?: number;
+};
+
+const getTimeRemaining = (endTime: string) => {
+  const now = new Date();
+  const deadline = new Date(endTime);
+  const diff = deadline.getTime() - now.getTime();
+
+  if (diff <= 0) return '마감됨';
+
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  return `${hours}시간 ${minutes}분 남음`;
 };
 
 const DeliveryDetailBottomSheet: React.FC<Props> = ({ deliveryItem, onAccept, onReject, distance }) => {
@@ -56,10 +69,39 @@ const DeliveryDetailBottomSheet: React.FC<Props> = ({ deliveryItem, onAccept, on
           <Text style={styles.label}>배달 유형</Text>
           <Text style={styles.value}>{deliveryItem.deliveryType === 'direct' ? '직접 전달' : '보관함 사용'}</Text>
         </View>
+        {deliveryItem.deliveryType === 'cupHolder' && (
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>보관함 층수</Text>
+            <Text style={styles.value}>{deliveryItem.selectedFloor || '정보 없음'}</Text>
+          </View>
+        )}
         <View style={styles.infoRow}>
           <Text style={styles.label}>예약 주문</Text>
           <Text style={styles.value}>{deliveryItem.isReservation ? 'O' : 'X'}</Text>
         </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>라이더 요청사항</Text>
+          <Text style={styles.value}>{deliveryItem.riderRequest || '없음'}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>마감까지</Text>
+          <Text style={styles.value}>{getTimeRemaining(deliveryItem.endTime)}</Text>
+        </View>
+        {deliveryItem.orderImages && (
+          <View style={{ marginVertical: 8 }}>
+            <Text style={styles.label}>주문 이미지</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {deliveryItem.orderImages.split(',').map((img, idx) => (
+                <Image
+                  key={idx}
+                  source={{ uri: img.trim() }}
+                  style={{ width: 120, height: 120, borderRadius: 8, marginRight: 10 }}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
       </View>
       <View style={styles.bottom}>
         <TouchableOpacity
@@ -83,14 +125,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 10,
   },
   top: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   tag: {
     fontSize: 12,
@@ -100,29 +143,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    marginBottom: 8,
+    marginBottom: 4,
   },
   shop: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#1A1A1A",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   fee: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#1A1A1A",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   distance: {
     fontSize: 12,
     color: "#6B7280",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   info: {
     fontSize: 11,
     color: "#9CA3AF",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   missions: {
     fontSize: 14,
@@ -154,7 +197,7 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   label: {
     fontSize: 13,
