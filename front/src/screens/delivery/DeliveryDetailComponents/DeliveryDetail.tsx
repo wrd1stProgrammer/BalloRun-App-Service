@@ -1,13 +1,23 @@
 /**
  * DeliveryDetail.tsx
- * react-native-image-viewing + Callout 자동 닫기
+ * - iOS/Android 안전 영역 맞춤 헤더·버튼
+ * - Android에서도 Callout 썸네일 보이도록 tooltip 분기
+ * - react-native-image-viewing + Callout 자동 닫기
  */
-import React, { useRef, useState, useEffect } from "react";
-import { View, StyleSheet, TouchableOpacity, Image, Text } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Text,
+  Platform,
+} from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import Geolocation from "react-native-geolocation-service";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute, RouteProp } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getDistance } from "geolib";
 import ImageViewing from "react-native-image-viewing";
 
@@ -18,7 +28,7 @@ import DeliveryDetailBottomSheet from "./DeliveryDetailBottomSheet";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
 
 /* -------------------------------------------------------------------------- */
-/*                                    Types                                   */
+/*                                   Types                                    */
 /* -------------------------------------------------------------------------- */
 type DeliveryItem = {
   _id: string;
@@ -43,39 +53,38 @@ type DeliveryItem = {
 };
 
 type RouteParams = {
-  DeliveryDetail: {
-    deliveryItem: DeliveryItem;
-  };
+  DeliveryDetail: { deliveryItem: DeliveryItem };
 };
 
 /* -------------------------------------------------------------------------- */
-/*                              DeliveryDetail                                */
+/*                               Component                                    */
 /* -------------------------------------------------------------------------- */
 const DeliveryDetail: React.FC = () => {
-  /* ----------------------------- Nav & Params ----------------------------- */
+  const insets = useSafeAreaInsets(); // 안전 영역
   const route = useRoute<RouteProp<RouteParams, "DeliveryDetail">>();
   const { deliveryItem } = route.params;
   if (!deliveryItem) return null;
 
-  /* ------------------------------ Local State ----------------------------- */
+  /* refs */
   const mapRef = useRef<MapView>(null);
-  const markerRef = useRef<Marker>(null);           // ★ 마커 ref
+  const markerRef = useRef<Marker>(null);
+
+  /* state */
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [viewerVisible, setViewerVisible] = useState(false);
 
-  /* ------------------------------ Redux Hook ------------------------------ */
+  /* redux */
   const dispatch = useAppDispatch();
 
-  /* ----------------------------- Geolocation ------------------------------ */
+  /* geolocation */
   useEffect(() => {
     Geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
         setUserLat(latitude);
         setUserLng(longitude);
-
         const dist = getDistance(
           { latitude, longitude },
           { latitude: +deliveryItem.lat, longitude: +deliveryItem.lng }
@@ -87,10 +96,10 @@ const DeliveryDetail: React.FC = () => {
     );
   }, []);
 
-  /* --------------------------- Accept Order Flow -------------------------- */
-  const acceptHandler = async (orderId: string, orderType: "Order" | "NewOrder") => {
+  /* accept */
+  const acceptHandler = async () => {
     try {
-      await dispatch(acceptActionHandler(orderId, orderType));
+      await dispatch(acceptActionHandler(deliveryItem._id, deliveryItem.orderType));
       dispatch(setIsOngoingOrder(true));
       setTimeout(() => navigate("BottomTab", { screen: "DeliveryRequestListScreen" }), 1500);
     } catch (e) {
@@ -98,30 +107,27 @@ const DeliveryDetail: React.FC = () => {
     }
   };
 
-  /* ----------------------------- Callout 제어 ----------------------------- */
+  /* callout / viewer */
   const openViewer = () => {
-    // Callout 닫고(=미리보기 사라짐) -> 뷰어 표시
     markerRef.current?.hideCallout();
     setViewerVisible(true);
   };
-
   const closeViewer = () => {
     setViewerVisible(false);
-    // 혹시 남아 있을 수도 있으니 한 번 더 hide
     markerRef.current?.hideCallout();
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                                  Render                                    */
-  /* -------------------------------------------------------------------------- */
   return (
     <View style={{ flex: 1 }}>
-      {/* ---------- 뒤로가기 ---------- */}
-      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+      {/* 뒤로가기 */}
+      <TouchableOpacity
+        style={[styles.backButton, { top: insets.top + 8 }]}
+        onPress={goBack}
+      >
         <Ionicons name="chevron-back" size={26} color="#1A1A1A" />
       </TouchableOpacity>
 
-      {/* ---------- 지도 ---------- */}
+      {/* 지도 */}
       <MapView
         ref={mapRef}
         style={{ flex: 1 }}
@@ -134,12 +140,13 @@ const DeliveryDetail: React.FC = () => {
       >
         {/* 주문지 마커 */}
         <Marker
-          ref={markerRef}   // ★ ref 연결
+          ref={markerRef}
           coordinate={{ latitude: +deliveryItem.lat, longitude: +deliveryItem.lng }}
-          title={deliveryItem.items[0].menuName}
-          description={deliveryItem.address}
         >
-          <Callout tooltip onPress={openViewer}>
+          <Callout
+            tooltip={Platform.OS === "ios"} // iOS만 tooltip
+            onPress={openViewer}
+          >
             {deliveryItem.orderImages ? (
               <TouchableOpacity activeOpacity={0.85} onPress={openViewer}>
                 <Image source={{ uri: deliveryItem.orderImages }} style={styles.calloutImage} />
@@ -150,7 +157,7 @@ const DeliveryDetail: React.FC = () => {
           </Callout>
         </Marker>
 
-        {/* 내 위치 마커 */}
+        {/* 내 위치 */}
         {userLat && userLng && (
           <Marker
             coordinate={{ latitude: userLat, longitude: userLng }}
@@ -160,9 +167,9 @@ const DeliveryDetail: React.FC = () => {
         )}
       </MapView>
 
-      {/* ---------- 현재 위치 이동 버튼 ---------- */}
+      {/* 현재 위치 버튼 */}
       <TouchableOpacity
-        style={styles.currentLocationButton}
+        style={[styles.currentLocationButton, { top: insets.top + 50 }]}
         onPress={() => {
           if (userLat && userLng) {
             mapRef.current?.animateToRegion({
@@ -177,14 +184,14 @@ const DeliveryDetail: React.FC = () => {
         <Ionicons name="navigate" size={24} color="#000" />
       </TouchableOpacity>
 
-      {/* ---------- 상세 바텀시트 ---------- */}
+      {/* 바텀시트 */}
       <DeliveryDetailBottomSheet
         deliveryItem={deliveryItem}
         distance={distance ?? undefined}
-        onAccept={() => acceptHandler(deliveryItem._id, deliveryItem.orderType)}
+        onAccept={acceptHandler}
       />
 
-      {/* ---------- 전체 화면 이미지 뷰어 ---------- */}
+      {/* 이미지 뷰어 */}
       <ImageViewing
         images={[{ uri: deliveryItem.orderImages }]}
         imageIndex={0}
@@ -199,14 +206,18 @@ const DeliveryDetail: React.FC = () => {
 };
 
 /* -------------------------------------------------------------------------- */
-/*                                    Style                                    */
-/* -------------------------------------------------------------------------- */
 const styles = StyleSheet.create({
+  backButton: {
+    position: "absolute",
+    left: 12,
+    borderRadius: 20,
+    padding: 8,
+    zIndex: 10,
+  },
   currentLocationButton: {
     position: "absolute",
-    top: 70,
     right: 25,
-    backgroundColor: "white",
+    backgroundColor: "#FFF",
     padding: 12,
     borderRadius: 25,
     elevation: 4,
@@ -214,15 +225,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-  },
-  backButton: {
-    position: "absolute",
-    marginTop: 16,
-    top: 48,
-    left: 12,
-    borderRadius: 20,
-    padding: 8,
-    zIndex: 10,
   },
   calloutImage: {
     width: 120,

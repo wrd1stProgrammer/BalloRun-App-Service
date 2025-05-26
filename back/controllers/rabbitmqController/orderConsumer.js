@@ -89,8 +89,18 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
             console.log(`기존 채팅방 사용 (${chatRoom._id})`);
           }
 
+          const cacheKey = "activeOrders";
+          let redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
+          redisOrders = redisOrders.filter((order) => order._id.toString() !== orderId);
+          await redisCli.set(cacheKey, JSON.stringify(redisOrders));
+
+          await invalidateOnGoingOrdersCache(userId, redisCli);
+
+          console.log(`🚀 Order ${orderId} removed from Redis`);
+
           // 5️⃣ 푸쉬 알림 -> 배달매칭 완료, 채팅방 생성 알림
           if(orderUser.allOrderAlarm){
+            console.log('매칭완료 로그');
             const notipayload = {
               title: `배달요청이 수락되었습니다.`,
               body: `주문 현황을 조회하여 실시간으로 확인하세요!`,
@@ -106,14 +116,7 @@ const consumeOrderAcceptQueue = async (redisCli, chatIo) => {
           }
 
           // 6️⃣ Redis에서 해당 주문 제거 (배달이 수락됨)
-          const cacheKey = "activeOrders";
-          let redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
-          redisOrders = redisOrders.filter((order) => order._id.toString() !== orderId);
-          await redisCli.set(cacheKey, JSON.stringify(redisOrders));
-
-          await invalidateOnGoingOrdersCache(userId, redisCli);
-
-          console.log(`🚀 Order ${orderId} removed from Redis`);
+          
 
           channel.ack(msg);
         } catch (error) {
