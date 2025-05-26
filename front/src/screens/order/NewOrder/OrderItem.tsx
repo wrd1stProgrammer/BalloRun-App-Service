@@ -36,7 +36,7 @@ const getStatusMessage = (status: string) => {
     case "pending":
       return { text: "주문 접수 완료", color: "#3384FF" };
     case "goToCafe":
-      return { text: "카페로 이동 중", color: "#3384FF" };
+      return { text: "구매 장소로 이동 중", color: "#3384FF" };
     case "makingMenu":
       return { text: "메뉴 준비 중", color: "#3384FF" };
     case "goToClient":

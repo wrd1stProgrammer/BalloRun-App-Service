@@ -1,8 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Image } from "react-native";
+/**
+ * DeliveryDetailBottomSheet.tsx
+ * - Draggable bottom sheet (full ↔ peek)
+ * - Image viewer (react-native-image-viewing)
+ * - Safe-area 대응
+ */
 
-const { width } = Dimensions.get("window");
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import ImageViewing from "react-native-image-viewing";
+
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
+import {
+  PanGestureHandler,
+  PanGestureHandlerGestureEvent,
+} from "react-native-gesture-handler";
+
+const { width, height: SCREEN_H } = Dimensions.get("window");
+
+/* -------------------------------------------------------------------------- */
+/*                                   types                                    */
+/* -------------------------------------------------------------------------- */
 type DeliveryItem = {
   _id: string;
   name: string;
@@ -20,192 +50,337 @@ type DeliveryItem = {
   resolvedAddress: string;
   isReservation: boolean;
   orderType: "Order" | "NewOrder";
-  riderRequest:string;
-  images:string;
-  orderImages:string;
-  selectedFloor:string
+  riderRequest: string;
+  images: string;
+  orderImages: string;
+  selectedFloor: string;
 };
 
 type Props = {
   deliveryItem: DeliveryItem;
   onAccept?: () => void;
-  onReject?: () => void;
   distance?: number;
 };
 
-const getTimeRemaining = (endTime: string) => {
+/* -------------------------------------------------------------------------- */
+/*                          helpers (마감 시간 계산)                          */
+/* -------------------------------------------------------------------------- */
+const getTimeRemaining = (end: string) => {
   const now = new Date();
-  const deadline = new Date(endTime);
-  const diff = deadline.getTime() - now.getTime();
-
-  if (diff <= 0) return '마감됨';
-
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  return `${hours}시간 ${minutes}분 남음`;
+  const dead = new Date(end);
+  const diff = dead.getTime() - now.getTime();
+  if (diff <= 0) return "마감됨";
+  const h = Math.floor(diff / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  return `${h}시간 ${m}분 남음`;
 };
 
-const DeliveryDetailBottomSheet: React.FC<Props> = ({ deliveryItem, onAccept, onReject, distance }) => {
+/* ----------------------- Snap positions (y-offset) ----------------------- */
+const SNAP = {
+  FULL: 0, // 완전 펼침 (시트 상단이 화면 하단과 맞닿음)
+  PEEK: 365, // 잠깐 내린 상태
+};
+
+/* -------------------------------------------------------------------------- */
+/*                         DeliveryDetailBottomSheet                          */
+/* -------------------------------------------------------------------------- */
+export default function DeliveryDetailBottomSheet({
+  deliveryItem,
+  onAccept,
+  distance,
+}: Props) {
+  const insets = useSafeAreaInsets();
+  const [viewerVisible, setViewerVisible] = useState(false);
+
+  /* 주문 이미지 배열 */
+  const images = deliveryItem.images
+    ? deliveryItem.images.split(",").map((u) => ({ uri: u.trim() }))
+    : [];
+
+  /* ----------------------- Reanimated 공유 값 ----------------------- */
+  const translateY = useSharedValue(SNAP.FULL);
+
+  /* ------------------------- 제스처 정의 ------------------------- */
+  const onGestureEvent = (e: PanGestureHandlerGestureEvent) => {
+    const { translationY } = e.nativeEvent;
+    translateY.value = Math.max(
+      SNAP.FULL,
+      translateY.value + translationY
+    );
+  };
+
+  const onHandlerStateChange = (_: PanGestureHandlerGestureEvent) => {
+    const dest =
+      translateY.value < SNAP.PEEK ? SNAP.FULL : SNAP.PEEK;
+    translateY.value = withSpring(dest, { 
+      damping: 25,            // `↑`값이 크면 감쇠가 커져 덜 튐   (기본 10)
+      stiffness: 200,         // `↓`값이 작으면 텐션이 느슨해짐    (기본 100)
+      mass: 1.3,              // 관성 조절 (기본 1)
+      overshootClamping: true // 목표 지점을 넘어가지 않고 딱 멈춤
+     });
+  };
+
+  /* ---------------------- Animated Style ---------------------- */
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  /* ------------------------------------------------------------------ */
+  /*                              Render                                */
+  /* ------------------------------------------------------------------ */
   return (
-    <View style={styles.container}>
-      <View style={styles.top}>
-        <Text style={styles.tag}>{deliveryItem.deliveryType}</Text>
-        <Text style={styles.shop}>{deliveryItem.items[0]?.cafeName}</Text>
-        <Text style={styles.fee}>{deliveryItem.deliveryFee.toLocaleString()}원</Text>
-        <Text style={styles.distance}>배달거리 {distance ? (distance / 1000).toFixed(1) : '-'}km</Text>
-        <Text style={styles.info}>* 일부 매장의 조리 완료 시간은 과거 배달 기록으로 계산됩니다.</Text>
-      </View>
-      {/* Delivery details for decision */}
-      <View style={{ marginBottom: 20 }}>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>주문종류</Text>
-          <Text style={styles.value}>{deliveryItem.name}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>배달 주소</Text>
-          <Text style={styles.value}>{deliveryItem.resolvedAddress}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>배달 유형</Text>
-          <Text style={styles.value}>{deliveryItem.deliveryType === 'direct' ? '직접 전달' : '보관함 사용'}</Text>
-        </View>
-        {deliveryItem.deliveryType === 'cupHolder' && (
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>보관함 층수</Text>
-            <Text style={styles.value}>{deliveryItem.selectedFloor || '정보 없음'}</Text>
-          </View>
-        )}
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>예약 주문</Text>
-          <Text style={styles.value}>{deliveryItem.isReservation ? 'O' : 'X'}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>라이더 요청사항</Text>
-          <Text style={styles.value}>{deliveryItem.riderRequest || '없음'}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>마감까지</Text>
-          <Text style={styles.value}>{getTimeRemaining(deliveryItem.endTime)}</Text>
-        </View>
-        {deliveryItem.orderImages && (
-          <View style={{ marginVertical: 8 }}>
-            <Text style={styles.label}>주문 이미지</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {deliveryItem.orderImages.split(',').map((img, idx) => (
-                <Image
-                  key={idx}
-                  source={{ uri: img.trim() }}
-                  style={{ width: 120, height: 120, borderRadius: 8, marginRight: 10 }}
-                  resizeMode="cover"
-                />
-              ))}
-            </ScrollView>
-          </View>
-        )}
-      </View>
-      <View style={styles.bottom}>
-        <TouchableOpacity
-          style={[styles.accept, { flex: 1 }]}
-          onPress={onAccept}
+    <>
+      {/* ===== 바텀시트 ===== */}
+      <PanGestureHandler
+        onGestureEvent={onGestureEvent}
+        onEnded={onHandlerStateChange}
+      >
+        <Animated.View
+          style={[
+            styles.container,
+            sheetStyle,
+            { paddingBottom: insets.bottom + 5 },
+          ]}
         >
-          <Text style={styles.acceptText}>주문 수락</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          {/* ───────── Handle Bar ───────── */}
+          <TouchableOpacity
+            activeOpacity={1}
+            style={styles.handle}
+            onPress={() =>
+              (translateY.value = withSpring(
+                translateY.value === SNAP.FULL ? SNAP.PEEK : SNAP.FULL,
+                { damping: 18 }
+              ))
+            }
+          />
+
+          {/* ============ Header ============ */}
+          <View style={styles.header}>
+            <View style={styles.tagChip}>
+              <Ionicons
+                name={
+                  deliveryItem.deliveryType === "direct" ? "walk" : "cube"
+                }
+                size={14}
+                color="#3384FF"
+                style={{ marginRight: 4 }}
+              />
+              <Text style={styles.tagText}>
+                {deliveryItem.deliveryType === "direct"
+                  ? "직접 전달"
+                  : "보관함"}
+              </Text>
+            </View>
+
+            <Text style={styles.cafeName}>
+              {deliveryItem.items[0]?.cafeName}
+            </Text>
+
+            <View style={styles.metaRow}>
+              <Ionicons name="cash-outline" size={18} color="#667085" />
+              <Text style={styles.metaText}>
+                {deliveryItem.deliveryFee.toLocaleString()}원
+              </Text>
+              <Ionicons
+                name="location-outline"
+                size={18}
+                color="#667085"
+                style={{ marginLeft: 12 }}
+              />
+              <Text style={styles.metaText}>
+                {distance ? (distance / 1000).toFixed(1) : "-"} km
+              </Text>
+            </View>
+          </View>
+
+          {/* ============ Info Card ============ */}
+          <View style={styles.card}>
+            {[
+              {
+                icon: "receipt-outline",
+                label: "상세 요청 주문내용",
+                value: deliveryItem.items?.[0]?.menuName ?? "메뉴 없음",
+              },
+              {
+                icon: "pin-outline",
+                label: "배달 주소",
+                value: deliveryItem.resolvedAddress,
+              },
+              {
+                icon: "pricetag-outline",
+                label: "예약 주문",
+                value: deliveryItem.isReservation ? "O" : "X",
+              },
+              {
+                icon: "time-outline",
+                label: "마감까지",
+                value: getTimeRemaining(deliveryItem.endTime),
+              },
+              {
+                icon: "people-outline",
+                label: "라이더에게 요청",
+                value: deliveryItem.riderRequest || "없음",
+              },
+              deliveryItem.deliveryType === "cupHolder" && {
+                icon: "layers-outline",
+                label: "보관함 층수",
+                value: deliveryItem.selectedFloor || "정보 없음",
+              },
+            ]
+              .filter(Boolean)
+              .map((row, idx, arr) => (
+                <View
+                  key={idx}
+                  style={[
+                    styles.infoRow,
+                    idx !== arr.length - 1 && { borderBottomWidth: 0.6 },
+                  ]}
+                >
+                  <View style={styles.rowLeft}>
+                    <Ionicons
+                      name={row.icon as any}
+                      size={16}
+                      color="#667085"
+                    />
+                    <Text style={styles.rowLabel}>{row.label}</Text>
+                  </View>
+                  <Text style={styles.rowValue}>{row.value}</Text>
+                </View>
+              ))}
+
+            {/* ---- 이미지 보기 ---- */}
+            {images.length > 0 && (
+              <TouchableOpacity
+                style={styles.imageBtn}
+                onPress={() => setViewerVisible(true)}
+              >
+                <Ionicons name="images-outline" size={18} color="#3384FF" />
+                <Text style={styles.imageBtnText}>
+                  상세 주문 이미지 ({images.length})
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* ============ 수락 버튼 ============ */}
+          <TouchableOpacity style={styles.acceptBtn} onPress={onAccept}>
+            <Text style={styles.acceptText}>주문 수락</Text>
+          </TouchableOpacity>
+
+          {/* ============ 이미지 뷰어 ============ */}
+          <ImageViewing
+            images={images}
+            visible={viewerVisible}
+            onRequestClose={() => setViewerVisible(false)}
+            presentationStyle="fullScreen"
+          />
+        </Animated.View>
+      </PanGestureHandler>
+    </>
   );
-};
+}
 
-export default DeliveryDetailBottomSheet;
-
+/* -------------------------------------------------------------------------- */
+/*                                   styles                                   */
+/* -------------------------------------------------------------------------- */
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
     bottom: 0,
     width,
     backgroundColor: "#fff",
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 12,
+    paddingHorizontal: 18,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 10,
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 12,
   },
-  top: {
-    marginBottom: 12,
+  handle: {
+    alignSelf: "center",
+    width: 48,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: "#D0D5DD",
+    marginBottom: 8,
   },
-  tag: {
-    fontSize: 12,
-    color: "#006AFF",
-    backgroundColor: "#E6F0FF",
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    marginBottom: 4,
-  },
-  shop: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1A1A1A",
-    marginBottom: 4,
-  },
-  fee: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1A1A1A",
-    marginBottom: 4,
-  },
-  distance: {
-    fontSize: 12,
-    color: "#6B7280",
-    marginBottom: 4,
-  },
-  info: {
-    fontSize: 11,
-    color: "#9CA3AF",
-    marginBottom: 4,
-  },
-  missions: {
-    fontSize: 14,
-    color: "#1A1A1A",
-  },
-  highlight: {
-    fontWeight: "bold",
-  },
-  bottom: {
+
+  /* ---------- Header ---------- */
+  header: { marginBottom: 14 },
+  tagChip: {
     flexDirection: "row",
-    // Single button full width
-    justifyContent: "center",
-    gap: 0,
-  },
-  accept: {
-    backgroundColor: "#006AFF",
-    borderRadius: 8,
-    paddingVertical: 14,
     alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#E6F0FF",
+    borderRadius: 12,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
   },
-  acceptText: {
-    fontSize: 16,
-    color: "#fff",
-    fontWeight: "600",
+  tagText: { fontSize: 12, color: "#3384FF", fontWeight: "600" },
+  cafeName: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#0F172A",
+    marginTop: 6,
   },
-  disabled: {
-    backgroundColor: "#A5C8FF",
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 6,
+  },
+  metaText: { fontSize: 14, color: "#475467", marginLeft: 4 },
+
+  /* ---------- Card ---------- */
+  card: {
+    backgroundColor: "#F9FAFB",
+    borderRadius: 16,
+    paddingVertical: 10,
+    marginBottom: 20,
   },
   infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderColor: "#E4E7EC",
   },
-  label: {
-    fontSize: 13,
-    color: '#6B7280',
+  rowLeft: { flexDirection: "row", alignItems: "center" },
+  rowLabel: { fontSize: 14, color: "#667085", marginLeft: 6 },
+  rowValue: {
+    maxWidth: "60%",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#0F172A",
+    textAlign: "right",
   },
-  value: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1A1A1A',
+
+  /* ---------- 이미지 버튼 ---------- */
+  imageBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+  },
+  imageBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#3384FF",
+    marginLeft: 6,
+  },
+
+  /* ---------- 수락 버튼 ---------- */
+  acceptBtn: {
+    backgroundColor: "#3384FF",
+    borderRadius: 12,
+    alignItems: "center",
+    paddingVertical: 17,
+  },
+  acceptText: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
 });
