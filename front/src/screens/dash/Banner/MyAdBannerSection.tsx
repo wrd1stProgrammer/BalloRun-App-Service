@@ -15,7 +15,7 @@ interface BannerSectionProps {
 const MyAdBannerSection: React.FC<BannerSectionProps> = ({ data, bannerWidth }) => {
   return (
     <View style={[styles.container, { width: bannerWidth }]}>
-      <Image source={{ uri: data.imageUrl }} style={[styles.image, { width: bannerWidth }]} />
+      <Image source={data.image} style={[styles.image, { width: bannerWidth }]} />
       <Text style={styles.title}>{data.title}</Text>
     </View>
   );

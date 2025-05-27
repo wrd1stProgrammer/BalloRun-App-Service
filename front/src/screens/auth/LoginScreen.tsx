@@ -16,11 +16,15 @@ import { userlogin, kakaoLogin } from '../../redux/actions/userAction';
 import { login as kakaoLoginFn, getProfile as getKakaoProfile } from '@react-native-seoul/kakao-login';
 import { navigate } from '../../navigation/NavigationUtils';
 import AppleLoginButton from './AppleLoginButton';
+import { screenHeight,screenWidth } from '../../utils/Scaling';
 
 const LoginScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+
+  const screenH = screenHeight;
+  const scrennW = screenWidth;
 
   /* kakao */
   const onKakao = async () => {
@@ -45,7 +49,7 @@ const LoginScreen: React.FC = () => {
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS==='ios'?'padding':'height'}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* logo */}
-        <Image source={require('../../assets/Icon/product.png')} style={styles.logo}/>
+        <Image source={require('../../assets/Icon/appstore.png')} style={styles.logo}/>
         <Text style={styles.slogan}>발로뛰어와 함께 심부름을 시작하세요!</Text>
 
         {/* ID & PW */}
@@ -83,7 +87,7 @@ const LoginScreen: React.FC = () => {
 
         {/* kakao */}
         <Pressable style={styles.kakaoBtn} onPress={onKakao} android_ripple={{color:'rgba(0,0,0,0.05)'}}>
-          <Image source={require('../../assets/Icon/kakaologin.png')} style={styles.kakaoImg}/>
+          <Image source={require('../../assets/Icon/kakaologin2.png')} style={styles.kakaoImg}/>
         </Pressable>
 
         {/* links */}
@@ -107,8 +111,8 @@ export default LoginScreen;
 /* ---------- styles ---------- */
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#FFFFFF' },
-  container: { flexGrow: 1, alignItems: 'center', paddingTop: 200, paddingHorizontal: 24, paddingBottom: 140 },
-  logo: { width: 140, height: 40, resizeMode: 'contain', marginBottom: 6 },
+  container: { flexGrow: 1, alignItems: 'center', paddingTop: 100, paddingHorizontal: 24, paddingBottom: 140 },
+  logo: { width:screenWidth*0.2, height: screenHeight*0.2, resizeMode: 'contain', marginBottom: 6 },
   slogan: { fontSize: 11, letterSpacing: 1, fontWeight: '600', color: '#6A6B71', marginBottom: 32 },
 
   inputWrap: { width: '100%', marginBottom: 24 },
@@ -117,7 +121,7 @@ const styles = StyleSheet.create({
 
   loginBtn: { width: '100%', height: 48, borderRadius: 6, backgroundColor: '#3A3A3C', justifyContent: 'center', alignItems: 'center', marginBottom: 14 },
   loginDisabled: { backgroundColor: '#D1D1D6' },
-  loginTxt: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  loginTxt: { color: '#fff', fontSize: 18, fontWeight: '600' },
 
   kakaoBtn: { width: '100%', height: 48, borderRadius: 6, overflow: 'hidden', marginBottom: 24 },
   kakaoImg: { width: '100%', height: '100%', resizeMode: 'cover' },

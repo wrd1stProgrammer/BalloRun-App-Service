@@ -10,9 +10,9 @@ export default function MyAdBanner() {
   const [slideTime, setSlideTime] = useState(1);
 
   const bannerLists = [
-    { id: 1, imageUrl: 'https://m.wakers.shop/_dj/img/banner.jpg', title: '광고배너 1' },
-    { id: 2, imageUrl: 'https://m.wakers.shop/_dj/img/banner.jpg', title: '광고배너 2' },
-    { id: 3, imageUrl: 'https://m.wakers.shop/_dj/img/banner.jpg', title: '광고배너 3' },
+    { id: 1, image: require('../../../assets/banner/b5.png')},
+    { id: 2, image: require('../../../assets/banner/b5.png')},
+    { id: 3, image: require('../../../assets/banner/b5.png') },
   ];
 
   useEffect(() => {
@@ -31,7 +31,6 @@ export default function MyAdBanner() {
         renderItem={renderItem}
         width={screenWidth} // 전체 슬라이더 너비
         height={120}
-        itemWidth={bannerWidth} // 각 슬라이드 너비
         loop
         autoPlay
         autoPlayInterval={slideTime * 1000}

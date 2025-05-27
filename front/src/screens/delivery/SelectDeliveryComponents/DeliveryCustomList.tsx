@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,15 +7,19 @@ import {
   StyleSheet,
   Image,
   ListRenderItem,
+  Alert,
 } from "react-native";
-import { MapSocketContext } from "../../../utils/sockets/MapSocket";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
-import { acceptActionHandler } from "../../../redux/actions/riderAction";
 import { navigate } from "../../../navigation/NavigationUtils";
-import { useLocation } from "../../../utils/Geolocation/LocationContext";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
-import Cafe from "../../../assets/Icon/icon-coffee.png";
-import Noodle from "../../../assets/Icon/icon-noodles.png";
+
+const IMAGES: Record<string, any> = {
+  "편의점": require("../../../assets/Icon/cs64.png"),
+  "커피": require("../../../assets/Icon/cafe64.png"),
+  "음식": require("../../../assets/Icon/food64.png"),
+  "기타": require("../../../assets/Icon/etc64.png"),
+  "물품": require("../../../assets/Icon/product64.png"),
+};
 
 const SCREEN_WIDTH = 360;
 
@@ -33,9 +37,9 @@ type DeliveryItem = {
   endTime: string;
   lat: string;
   lng: string;
-  resolvedAddress: string
+  resolvedAddress: string;
   isReservation: boolean;
-  orderType: "Order" | "NewOrder"; 
+  orderType: "Order" | "NewOrder";
   orderDetails: string;
   images: string;
   orderImages: string;
@@ -69,9 +73,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
   const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // const socket = useContext(MapSocketContext);
   const dispatch = useAppDispatch();
-  // const { startTracking } = useLocation();
 
   useEffect(() => {
     let filtered = [...deliveryItems];
@@ -93,38 +95,59 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
     setShowSortOptions((prev) => !prev);
   };
 
+  // cafeName에 따라 이미지 결정 (기본값: 기타)
+  const getCategoryImage = (cafeName: string): any => {
+    return IMAGES[cafeName] || IMAGES["기타"];
+  };
 
   const renderItem: ListRenderItem<DeliveryItem> = ({ item }) => {
     const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
     const now = new Date();
     const endTime = new Date(item.endTime);
     const diff = endTime.getTime() - now.getTime();
-    const timeRemaining =
-      diff <= 0
-        ? "종료됨"
-        : `${Math.floor(diff / (1000 * 60 * 60))}시간 ${Math.floor(
-            (diff % (1000 * 60 * 60)) / (1000 * 60)
-          )}분 남음`;
-    const isCafe = item.items[0].cafeName === "편의점";
+    const minutes = Math.max(0, Math.floor(diff / (1000 * 60)));
+    const isEnded = diff <= 0;
+    const timeRemaining = isEnded ? "종료됨" : `${minutes}분 남음`;
+
+    const cafeName = item.items[0]?.cafeName || "기타";
+    const imageSource = getCategoryImage(cafeName);
+
+    const handleAcceptPress = () => {
+      if (isEnded) {
+        Alert.alert("알림", "이미 마감된 배달입니다.");
+        return;
+      }
+      navigate("DeliveryDetail", { deliveryItem: item });
+    };
 
     return (
       <View style={styles.itemContainer}>
         <View style={styles.leftSection}>
-          <Image source={isCafe ? Noodle : Cafe} style={styles.cafeLogo} />
+          <Image source={imageSource} style={styles.cafeLogo} />
           <Text style={styles.timeRemaining}>{timeRemaining}</Text>
         </View>
         <View style={styles.centerSection}>
-          <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
+          <Text style={styles.cafeName}>{cafeName}</Text>
           <Text style={styles.info}>{item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
           <Text style={styles.info}>{distance} km</Text>
           <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
         </View>
         <TouchableOpacity
-          onPress={() => navigate("DeliveryDetail", { deliveryItem: item })}
-          style={[styles.acceptButton, trackingOrders[item._id] && styles.disabledButton]}
-          disabled={trackingOrders[item._id]}
+          onPress={handleAcceptPress}
+          style={[
+            styles.acceptButton,
+            trackingOrders[item._id] && styles.disabledButton,
+            isEnded && styles.endedButton,
+          ]}
+          disabled={trackingOrders[item._id] || isEnded}
         >
-          <Text style={styles.buttonText}>{trackingOrders[item._id] ? "배달 중" : "수락"}</Text>
+          <Text style={[
+            styles.buttonText,
+            isEnded && styles.endedButtonText,
+            trackingOrders[item._id] && styles.disabledButtonText
+          ]}>
+            {isEnded ? "마감" : trackingOrders[item._id] ? "배달 중" : "수락"}
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -312,10 +335,19 @@ const styles = StyleSheet.create({
   disabledButton: {
     backgroundColor: "#9CA3AF",
   },
+  endedButton: {
+    backgroundColor: "#B0B0B0",
+  },
   buttonText: {
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "600",
+  },
+  disabledButtonText: {
+    color: "#E5E7EB",
+  },
+  endedButtonText: {
+    color: "#F5F5F5",
   },
   emptyContainer: {
     flex: 1,
