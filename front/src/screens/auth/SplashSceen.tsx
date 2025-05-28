@@ -6,7 +6,7 @@ import {jwtDecode} from 'jwt-decode';
 import { navigate,resetAndNavigate } from "../../navigation/NavigationUtils";
 import { refresh_tokens } from "../../redux/config/apiConfig";
 import { refetchUser } from "../../redux/actions/userAction";
-import Logo from "../../assets/images/eighteenSplash.png";
+import Logo from "../../assets/images/splash.png";
 import { requestUserPermission } from "../../utils/fcm/fcmToken";
 
 
@@ -69,14 +69,14 @@ const SplashScreen: FC = () => {
         <Animated.Image
           source={Logo}
           style={{
+            width: '90%',
+            height: '90%',
             flex:1,
             resizeMode: 'contain',
             transform: [{scale}],
           }}
         />
-        <Text>
-          Reelzzz
-        </Text>
+
       </View>
     </View>
   );

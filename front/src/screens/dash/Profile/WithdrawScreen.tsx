@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Alert,
   ActivityIndicator,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,8 +29,8 @@ interface WithdrawScreenProps {
 interface WithdrawItem {
   id: string;
   date: string;
-  origin: string;   // ● 원금
-  amount: string;   // 환전된 금액
+  origin: string;
+  amount: string;
   status: string;
 }
 
@@ -41,12 +42,21 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
   const [history, setHistory] = useState<WithdrawItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  /* 첫 진입 알림 */
+  // 모달 상태
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [confirmInfo, setConfirmInfo] = useState<{
+    request: number;
+    fromOrigin: number;
+    fromPoint: number;
+    fee: number;
+    finalAmount: number;
+  } | null>(null);
+
   useEffect(() => {
-    Alert.alert('알림', '매주 월요일만 출금 신청 가능합니다!', [{ text: '확인' }]);
+    // 안내 알림 (원하면 삭제)
+    // Alert.alert('알림', '매주 월요일만 출금 신청 가능합니다!', [{ text: '확인' }]);
   }, []);
 
-  /* 출금 내역 로드 */
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -59,50 +69,119 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
     })();
   }, [dispatch]);
 
-  /* 출금 신청 */
+  /* 출금 신청 (원금 우선 차감) */
   const handleWithdraw = () => {
-    if (!/^\d+$/.test(amount)) return Alert.alert('입력 오류', '숫자만 입력해주세요.');
-
+    if (!/^\d+$/.test(amount)) {
+      setConfirmInfo(null);
+      setConfirmVisible(false);
+      return;
+    }
     const request = parseInt(amount, 10);
-    if (request > user.point) return Alert.alert('출금 오류', '출금 한도 초과');
+    if (request > user.originalMoney + user.point) {
+      setConfirmInfo(null);
+      setConfirmVisible(false);
+      return;
+    }
 
-    const feeRate = user.level === 1 ? 0.08 : user.level === 2 ? 0.075 : 0.07;
-    const fee = Math.floor(request * feeRate);
-    const finalAmount = request - fee;
-    const origin = user.originalMoney ?? 0;
+    let fromOrigin = 0;
+    let fromPoint = 0;
+    let fee = 0;
+    let finalAmount = 0;
 
-    Alert.alert(
-      '출금 확인',
-      `원금: ₩${origin.toLocaleString()}\n` +
-        `포인트: ₩${request.toLocaleString()} → 수수료 ₩${fee.toLocaleString()} 차감\n` +
-        `예상 입금: ₩${(origin + finalAmount).toLocaleString()}`,
-      [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '확인',
-          onPress: async () => {
-            setLoading(true);
-            try {
-              await dispatch(withdrawAction(request, fee, origin, finalAmount));
-              await dispatch(refetchUser());
-              const newest = await dispatch(getWithdrawList());
-              if (newest?.withdrawals) setHistory(newest.withdrawals);
-              setAmount('');
-              goBack();
-            } catch {
-              Alert.alert('오류', '출금 처리 실패');
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ]
-    );
+    // 원금 우선 차감
+    if (user.originalMoney >= request) {
+      fromOrigin = request;
+      fromPoint = 0;
+      fee = 0;
+      finalAmount = fromOrigin;
+    } else {
+      fromOrigin = user.originalMoney;
+      fromPoint = request - user.originalMoney;
+      const feeRate = user.level === 1 ? 0.08 : user.level === 2 ? 0.075 : 0.07;
+      fee = Math.floor(fromPoint * feeRate);
+      finalAmount = fromOrigin + (fromPoint - fee);
+    }
+    setConfirmInfo({ request, fromOrigin, fromPoint, fee, finalAmount });
+    setConfirmVisible(true);
   };
 
-  /* ────── UI ────── */
+  const confirmWithdraw = async () => {
+    if (!confirmInfo) return;
+    setLoading(true);
+    setConfirmVisible(false);
+    try {
+      await dispatch(
+        withdrawAction(
+          confirmInfo.request,
+          confirmInfo.fromOrigin,
+          confirmInfo.fromPoint,
+          confirmInfo.fee,
+          confirmInfo.finalAmount
+        )
+      );
+      await dispatch(refetchUser());
+      const newest = await dispatch(getWithdrawList());
+      if (newest?.withdrawals) setHistory(newest.withdrawals);
+      setAmount('');
+      goBack();
+    } catch {
+      // 실패시 알림
+      // Alert.alert('오류', '출금 처리 실패');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.root}>
+      {/* 출금 확인 모달 */}
+      <Modal
+        transparent
+        visible={confirmVisible}
+        animationType="fade"
+        onRequestClose={() => setConfirmVisible(false)}
+      >
+        <Pressable style={styles.modalBg} onPress={() => setConfirmVisible(false)}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>출금 확인</Text>
+            {confirmInfo && (
+              <View style={{ marginBottom: 14 }}>
+                <Text style={styles.modalRow}>
+                  <Text style={styles.modalLabel}>출금 금액: </Text>
+                  ₩{confirmInfo.request.toLocaleString()}
+                </Text>
+                <Text style={styles.modalRow}>
+                  <Text style={styles.modalLabel}>원금에서: </Text>
+                  ₩{confirmInfo.fromOrigin.toLocaleString()}
+                </Text>
+                <Text style={styles.modalRow}>
+                  <Text style={styles.modalLabel}>포인트에서: </Text>
+                  ₩{confirmInfo.fromPoint.toLocaleString()}
+                </Text>
+                {confirmInfo.fee > 0 && (
+                  <Text style={styles.modalRow}>
+                    <Text style={styles.modalLabel}>수수료(포인트): </Text>
+                    ₩{confirmInfo.fee.toLocaleString()}
+                  </Text>
+                )}
+                <Text style={[styles.modalRow, { fontWeight: 'bold', color: '#3384FF', fontSize: 16 }]}>
+                  <Text style={styles.modalLabel}>예상 입금: </Text>
+                  ₩{confirmInfo.finalAmount.toLocaleString()}
+                </Text>
+              </View>
+            )}
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setConfirmVisible(false)}>
+                <Text style={styles.modalBtnCancelText}>취소</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalBtn} onPress={confirmWithdraw}>
+                <Text style={styles.modalBtnText}>확인</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
+
       <View style={styles.header}>
         <TouchableOpacity onPress={goBack}>
           <Ionicons name="chevron-back" size={26} color="#1A1A1A" />
@@ -174,7 +253,13 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
             <Text style={styles.historyAmount}>{item.amount}</Text>
           </View>
         )}
-        ListEmptyComponent={loading ? <ActivityIndicator style={{ marginTop: 24 }} /> : <Text style={styles.emptyText}>출금 내역이 없습니다.</Text>}
+        ListEmptyComponent={
+          loading ? (
+            <ActivityIndicator style={{ marginTop: 24 }} />
+          ) : (
+            <Text style={styles.emptyText}>출금 내역이 없습니다.</Text>
+          )
+        }
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
       />
     </SafeAreaView>
@@ -183,7 +268,7 @@ const WithdrawScreen: React.FC<WithdrawScreenProps> = ({ route }) => {
 
 export default WithdrawScreen;
 
-/* ───────── Styles (동일) ───────── */
+/* ───────── Styles ───────── */
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#fff' },
   header: {
@@ -220,4 +305,15 @@ const styles = StyleSheet.create({
   historyStatus: { fontSize: 13, color: '#3384FF' },
   historyAmount: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', marginTop: 4 },
   emptyText: { textAlign: 'center', marginTop: 32, color: '#6B7280' },
+  // 모달 스타일 추가
+  modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.18)', justifyContent: 'center', alignItems: 'center' },
+  modalCard: { width: 300, backgroundColor: '#fff', borderRadius: 14, padding: 22, elevation: 4 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#222', marginBottom: 16, textAlign: 'center' },
+  modalRow: { fontSize: 15, marginBottom: 4, color: '#222' },
+  modalLabel: { color: '#888' },
+  modalBtn: { flex: 1, backgroundColor: '#3384FF', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
+  modalBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
+  modalBtnCancel: { flex: 1, backgroundColor: '#f3f4f6', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
+  modalBtnCancelText: { color: '#222', fontWeight: 'bold', fontSize: 15 },
 });
+

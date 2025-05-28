@@ -22,6 +22,7 @@ const WithdrawalSchema = new mongoose.Schema({
     type:Number,
     required: false,
   }, // 나중에 true
+  fromPoint: { type: Number, required: true }, // 포인트 출금액
   status: {
     type: String,
     enum: ['pending', 'completed', 'failed'],

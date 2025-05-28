@@ -165,35 +165,49 @@ const withdrawApi = async (req, res) => {
     const userId = decodedToken.userId;
 
     const user = await User.findById(userId);
-    if (!user) {
-      throw new NotFoundError("User not found");
+    if (!user) throw new NotFoundError("User not found");
+
+    // 2. 입력 검증 (프론트의 파라미터 이름에 맞춰 수정)
+    const { request, fromOrigin, fromPoint, fee, finalAmount } = req.body;
+    if (
+      typeof request !== 'number' ||
+      typeof fromOrigin !== 'number' ||
+      typeof fromPoint !== 'number' ||
+      typeof fee !== 'number' ||
+      typeof finalAmount !== 'number'
+    ) {
+      throw new BadRequestError("필수 입력값 누락 또는 형식 오류");
     }
 
-    // 2. 입력 검증
-    const { withdrawAmount, fee, finalAmount,origin } = req.body;
-    if (!withdrawAmount || !fee || !finalAmount || !origin) {
-      throw new BadRequestError("출금 금액, 수수료, 최종 출금 금액은 모두 필수 입력값입니다.");
+    // 3. 로직 체크
+    if (request !== fromOrigin + fromPoint) {
+      throw new BadRequestError("출금 금액이 원금+포인트 합과 다릅니다.");
     }
-
-    // 3. 잔액 확인
-    if (withdrawAmount > user.point) {
-      throw new BadRequestError("출금 요청 금액이 사용자 잔액을 초과합니다.");
+    if (fromOrigin > user.originalMoney) {
+      throw new BadRequestError("원금이 부족합니다.");
+    }
+    if (fromPoint > user.point) {
+      throw new BadRequestError("포인트가 부족합니다.");
+    }
+    if (request > user.originalMoney + user.point) {
+      throw new BadRequestError("출금 요청 금액이 전체 잔액을 초과합니다.");
     }
 
     // 4. 출금 요청 생성
     const withdrawal = new Withdrawal({
       userId: user._id,
-      withdrawAmount,
+      withdrawAmount: request,
       fee,
       finalAmount,
-      origin,
-      status: 'pending'
+      origin: fromOrigin, // 실제 출금 원금
+      fromPoint,          // 실제 출금 포인트 (schema에 필드 추가 권장)
+      status: 'pending',
     });
     await withdrawal.save();
 
     // 5. 사용자 잔액 업데이트
-    user.originalMoney -= origin;
-    user.point -= withdrawAmount;
+    user.originalMoney -= fromOrigin;
+    user.point -= fromPoint;
     await user.save();
 
     // 6. 응답
@@ -202,7 +216,7 @@ const withdrawApi = async (req, res) => {
       withdrawal: {
         id: withdrawal._id,
         status: withdrawal.status,
-        finalAmount: withdrawal.finalAmount
+        finalAmount: withdrawal.finalAmount,
       }
     });
   } catch (error) {
@@ -213,6 +227,7 @@ const withdrawApi = async (req, res) => {
     }
   }
 };
+
 
 // controllers/withdrawController.js
 const getWithdrawList = async (req, res) => {
