@@ -55,11 +55,29 @@ const AddressSettingScreen = () => {
             <Header title="주소 설정"   showEdit={true} 
   onEditPress={() => navigate('AddressEditScreen')} />
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => navigate('AddressSearchScreen')} style={styles.searchBar}>
+                <TouchableOpacity
+                    onPress={() => {
+                        if (addressList.length >= 10) {
+                            Alert.alert("알림", "주소는 최대 10개까지만 등록할 수 있습니다.");
+                        } else {
+                            navigate('AddressSearchScreen');
+                        }
+                    }}
+                    style={styles.searchBar}
+                >
                     <Ionicons name="search" size={20} color="black" />
                     <Text style={styles.buttonText}>지번, 도로명, 건물명으로 검색</Text>
                 </TouchableOpacity>
-                <Pressable style={styles.locationButton} onPress={() => navigate("FindMap")}>
+                <Pressable
+                    style={styles.locationButton}
+                    onPress={() => {
+                        if (addressList.length >= 10) {
+                            Alert.alert("알림", "주소는 최대 10개까지만 등록할 수 있습니다.");
+                        } else {
+                            navigate("FindMap");
+                        }
+                    }}
+                >
                     <Ionicons name="locate" size={20} color="white" />
                     <Text style={styles.locationButtonText}>현재 위치로 찾기</Text>
                 </Pressable>

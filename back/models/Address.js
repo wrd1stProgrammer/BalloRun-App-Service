@@ -14,4 +14,14 @@ const AddressSchema = new mongoose.Schema({
   lng: { type: Number, required: true },
 });
 
+AddressSchema.pre('save', async function (next) {
+  const count = await mongoose.model('Address').countDocuments({ userId: this.userId });
+  if (count >= 10) {
+    const err = new Error('주소는 최대 10개까지만 등록할 수 있습니다.');
+    err.name = 'AddressLimitError';
+    return next(err);
+  }
+  next();
+});
+
 module.exports = mongoose.model('Address', AddressSchema);
