@@ -99,11 +99,11 @@ function PortOneSample() {
       <Payment
         ref={controller}
         request={{
-          paymentId,                    
+          paymentId: paymentId,                    
           storeId: "store-68c88836-7529-4771-9a3a-ee81b2552a83",
           channelKey: "channel-key-e760a2da-6273-4d91-a47d-322d03bba0f9",
-          orderName,
-          totalAmount,
+          orderName: orderName,
+          totalAmount: totalAmount,
           currency: "CURRENCY_KRW",
           payMethod: "EASY_PAY",
           customer: {
@@ -111,7 +111,9 @@ function PortOneSample() {
             phoneNumber: String(user?.phone) ?? "01000000000",
             email: user?.email ?? "",
           },
-          easyPay: { easyPayProvider },
+          easyPay: {
+            easyPayProvider: easyPayProvider,
+          },
           customData: { item: "1222" },
         }}
         onError={(err) => Alert.alert("결제 실패", err.message)}

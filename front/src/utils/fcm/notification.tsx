@@ -138,6 +138,10 @@ const handleNotificationAction = (data: NotificationData): void => {
     navigate("BottomTab", {
         screen: "DeliveryRequestListScreen"
     });
+  } else if(data?.type === "order_aroundPush" ) {
+    navigate("BottomTab", {
+        screen: "DeliveryRequestListScreen"
+    });
   } 
 };
 
