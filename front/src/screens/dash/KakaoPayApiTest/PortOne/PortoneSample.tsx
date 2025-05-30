@@ -108,7 +108,7 @@ function PortOneSample() {
           payMethod: "EASY_PAY",
           customer: {
             fullName: user?.username ?? "",
-            phoneNumber: String(user?.phone) ?? "01000000000",
+            phoneNumber: "010-4128-4177",
             email: user?.email ?? "",
           },
           easyPay: {
