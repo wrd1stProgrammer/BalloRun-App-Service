@@ -19,7 +19,7 @@ import Noodle from "../../../assets/Icon/icon-noodles.png";
 
 const screenHeight = Dimensions.get('window').height; // 현재 디바이스 화면 높이
 
-const snapPoints = ['25%', '30%', '35%'].map(percent => {
+const snapPoints = ['30%', '30%', '35%'].map(percent => {
   return (parseFloat(percent) / 100) * screenHeight;
 });
 
@@ -126,49 +126,67 @@ const acceptHandler = async (orderId: string,  orderType: "Order" | "NewOrder") 
   //   }
   // };
 
-  // 배달 아이템 렌더링 함수
+// 배달 아이템 렌더링 함수 (신규)
 const renderItem = ({ item }) => {
-    const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
-    const now = new Date();
-    const endTime = new Date(item.endTime);
-    const diff = endTime - now;
-    const timeRemaining = diff <= 0 ? "종료됨" : `${Math.floor(diff / (1000 * 60 * 60))}시간 ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))}분 남음`;
-    const isCafe = item.items[0].cafeName=="편의점"
+  const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng));
+  const now = new Date();
+  const endTime = new Date(item.endTime);
+  const diff = endTime - now;
+  const timeRemaining =
+    diff <= 0
+      ? "마감됨"
+      : `${Math.floor(diff / (1000 * 60 * 60))}시간 ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))}분 남음`;
 
-    return (
-      <View style={styles.itemContainer}>
-        {/* 왼쪽: 카페 로고 및 종료 시간 */}
-        <View style={styles.leftSection}>
-          {isCafe ? <Image source={Noodle} style={styles.cafeLogo} />: <Image source={Cafe} style={styles.cafeLogo} />}
-          
-          <Text style={styles.timeRemaining}>{timeRemaining}</Text>
+  const typeInfo =
+    item.deliveryType === "direct"
+      ? { label: "직접 전달", icon: "walk" }
+      : { label: "보관함", icon: "cube" };
+
+  return (
+    <View style={styles.cardContainer}>
+      {/* 헤더(칩/카페명/가격-거리) */}
+      <View style={styles.headerRow}>
+        <View style={styles.tagChip}>
+          <Ionicons name={typeInfo.icon} size={14} color="#3384FF" style={{ marginRight: 4 }} />
+          <Text style={styles.tagText}>{typeInfo.label}</Text>
         </View>
-
-
-        {/* 중앙: 배달 정보 */}
-        <View style={styles.centerSection}>
-          <Text style={styles.cafeName}>{item.items[0].cafeName}</Text>
-          <Text style={styles.info}>배달 종류: {item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
-          <Text style={styles.info}>거리: {distance} km</Text>
-                    <Text style={styles.price}>배달팁: {item.deliveryFee}원</Text>
-
-        </View>
-
-        {/* 오른쪽: 수락 버튼 */}
-        <View style={styles.rightSection}>
-          <TouchableOpacity
-            onPress={() => navigate("DeliveryDetail", { deliveryItem: item })}
-            style={[styles.button, trackingOrders[item._id] && styles.disabledButton]}
-            disabled={trackingOrders[item._id]}
-          >
-            <Text style={styles.buttonText}>
-              {trackingOrders[item._id] ? "배달 중..." : "수락하기"}
-            </Text>
-          </TouchableOpacity>
+        <Text style={styles.cafeName}>{item.items[0]?.cafeName}</Text>
+        <View style={styles.metaRow}>
+          <Ionicons name="cash-outline" size={16} color="#667085" />
+          <Text style={styles.metaText}>{item.deliveryFee.toLocaleString()}원</Text>
+          <Ionicons name="location-outline" size={16} color="#667085" style={{ marginLeft: 10 }} />
+          <Text style={styles.metaText}>{distance.toFixed(1)} km</Text>
         </View>
       </View>
-    );
-  };
+
+      {/* 정보 행들 */}
+      <View style={styles.infoRow}>
+        <Ionicons name="time-outline" size={16} color="#667085" style={{ marginRight: 4 }} />
+        <Text style={styles.infoLabel}>마감</Text>
+        <Text style={styles.infoValue}>{timeRemaining}</Text>
+      </View>
+      <View style={styles.infoRow}>
+        <Ionicons name="pin-outline" size={16} color="#667085" style={{ marginRight: 4 }} />
+        <Text style={styles.infoLabel}>주소</Text>
+        <Text style={styles.infoValue}>{item.address}</Text>
+      </View>
+
+      {/* 수락 버튼 */}
+      <TouchableOpacity
+        onPress={() => navigate("DeliveryDetail", { deliveryItem: item })}
+        style={[
+          styles.acceptBtn,
+          (trackingOrders[item._id] || diff <= 0) && styles.disabledButton,
+        ]}
+        disabled={trackingOrders[item._id] || diff <= 0}
+      >
+        <Text style={styles.acceptText}>
+          {diff <= 0 ? "마감" : trackingOrders[item._id] ? "배달 중..." : "수락하기"}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
   return (
     <>
@@ -215,12 +233,12 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 10,
+    zIndex: 100,
     shadowColor: "#000",
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 10,
   },
   card: {
     backgroundColor: '#fff',
@@ -265,9 +283,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
-  },
-  disabledButton: {
-    backgroundColor: '#bbb',
   },
   buttonText: {
     color: '#fff',
@@ -328,63 +343,70 @@ const styles = StyleSheet.create({
   },
 
 
-  /** 🏷️ Delivery Item Card **/
-  itemContainer: {
+  /** 🏷️ Delivery Item Card (NEW) **/
+  cardContainer: {
+    backgroundColor: "#F9FAFB",
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  headerRow: { marginBottom: 12 },
+  tagChip: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 15,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2, // Android shadow
+    alignSelf: "flex-start",
+    backgroundColor: "#E6F0FF",
+    borderRadius: 12,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    marginBottom: 4,
   },
-
-  /** 📍 Left Section (Cafe Logo & Time) **/
-  leftSection: {
+  tagText: { fontSize: 12, color: "#3384FF", fontWeight: "600" },
+  cafeName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#0F172A",
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  metaRow: {
+    flexDirection: "row",
     alignItems: "center",
-    marginRight: 13,
+    marginTop: 2,
+    marginBottom: 2,
   },
-  cafeLogo: {
-    width: 60,
-    height: 60,
-    borderRadius: 25,
-  },
-  timeRemaining: {
-    fontSize: 12,
-    color: "#4B5563",
-    fontWeight: "600",
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 3, // Softer edges
-    textAlign: "center",
-    marginTop: 6,
-    backgroundColor: "#F3F4F6",
-  },
+  metaText: { fontSize: 14, color: "#475467", marginLeft: 4 },
 
-  /** 🏠 Middle Section (Details) **/
-  centerSection: {
-    flex: 1,
-    justifyContent: "center",
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 2,
   },
- 
-  info: {
+  infoLabel: { fontSize: 14, color: "#667085", marginRight: 6, minWidth: 44 },
+  infoValue: {
     fontSize: 14,
-    color: "#6B7280",
     fontWeight: "500",
-    marginBottom: 3,
+    color: "#0F172A",
+    flexShrink: 1,
   },
 
-
-  /** ✅ Right Section (Accept Button) **/
-  rightSection: {
-    justifyContent: "center",
-
+  acceptBtn: {
+    backgroundColor: "#3384FF",
+    borderRadius: 12,
+    alignItems: "center",
+    paddingVertical: 14,
+    marginTop: 14,
   },
+  acceptText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#FFF",
+  },
+  disabledButton: { backgroundColor: "#A0AEC0" },
  
 
 

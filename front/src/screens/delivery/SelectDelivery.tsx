@@ -48,7 +48,7 @@ function SelectDelivery() {
   const [watchId, setWatchId] = useState<number | null>(null);
 
   const dispatch = useAppDispatch();
-  const bottomAnim = useRef(new Animated.Value(height * 0.02)).current; // 초기 위치 (화면 높이의 2%)
+  const bottomAnim = useRef(new Animated.Value(height * 0.01)).current; // 초기 위치 (화면 높이의 2%)
 
   useEffect(() => {
     Animated.spring(tabIndicator, {
@@ -170,24 +170,29 @@ function SelectDelivery() {
               mapRef={mapRef}
             />
           )}
-          <Animated.View style={[styles.gpsButton, { bottom: bottomAnim }]}>
-            <TouchableOpacity
-              onPress={() => {
-                if (mapRef.current) {
-                  mapRef.current.animateToRegion({
-                    latitude: userLat ?? 35.175570,
-                    longitude: userLng ?? 126.907074,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                  }, 500);
-                }
-              }}
-            >
-              <FontAwesome name="location-arrow" size={24} color="white" />
-            </TouchableOpacity>
-          </Animated.View>
         </>
       )}
+          {!isListView && (
+            <Animated.View style={[styles.gpsButton, { bottom: bottomAnim }]}>
+              <TouchableOpacity
+                style={styles.gpsTouchable}
+                onPress={() => {
+                  if (mapRef.current) {
+                    mapRef.current.animateToRegion({
+                      latitude: userLat ?? 35.175570,
+                      longitude: userLng ?? 126.907074,
+                      latitudeDelta: 0.01,
+                      longitudeDelta: 0.01,
+                    }, 500);
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <FontAwesome name="location-arrow" size={18} color="#3384FF" />
+                <Text style={styles.gpsText}>내 위치</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
           </SafeAreaView>
       
     </>
@@ -224,11 +229,31 @@ const styles = StyleSheet.create({
   },
   gpsButton: {
     position: 'absolute',
-    right: 20,
-    backgroundColor: '#6C63FF',
-    padding: 12,
-    borderRadius: 30,
-    elevation: 5,
+    right: 18,
+    backgroundColor: '#fff',
+    padding: 0,
+    borderRadius: 18,
+    elevation: 10,
+    zIndex: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+  },
+  gpsTouchable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+  },
+  gpsText: {
+    fontSize: 13,
+    color: '#3384FF',
+    fontWeight: '600',
+    marginLeft: 6,
   },
   
 });
