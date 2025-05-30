@@ -64,7 +64,7 @@ const goToCafeHandler = async (req, res) => {
     if(orderUser.allOrderAlarm){
       if (orderUser && orderUser.fcmToken) {
         const notificationPayload = {
-          title: "캐리어 픽업 중!",
+          title: "러너 픽업 중!",
           body: `배달 상태를 실시간으로 확인해보세요.`,
           data: { type: "order_goToCafe" },
         };
@@ -139,7 +139,7 @@ const goToClientHandler = async (req, res) => {
     if(orderUser.allOrderAlarm){
       if (orderUser && orderUser.fcmToken) {
         const notificationPayload = {
-          title: "캐리어가 배달을 시작했어요!",
+          title: "러너가 배달을 시작했어요!",
           body: `배달 상태를 실시간으로 확인해보세요.`,
           data: { type: "order_goToClient" },
         };

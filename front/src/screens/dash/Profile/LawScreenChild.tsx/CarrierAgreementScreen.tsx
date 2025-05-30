@@ -11,16 +11,16 @@ const CarrierAgreementScreen = () => {
         <TouchableOpacity onPress={() => goBack()} style={styles.backButton} activeOpacity={0.7}>
           <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
-        <Text style={styles.topBarTitle}>캐리어 업무위수탁약관</Text>
+        <Text style={styles.topBarTitle}>러너 업무위수탁약관</Text>
       </View>
 
-      {/* 캐리어 업무위수탁약관 내용 (스크롤 가능) */}
+      {/* 러너 업무위수탁약관 내용 (스크롤 가능) */}
       <ScrollView style={styles.contentContainer}>
         <View style={styles.termsSection}>
           {/* 제1조 (목적) */}
           <Text style={styles.sectionHeader}>제1조 (목적)</Text>
           <Text style={styles.termsText}>
-            본 약관은 세른(SERN, 이하 “회사”)이 “발로뛰어” 서비스 이용약관 제2조에 정의된 캐리어(이하 “수탁인”)에게 본 약관 제3조 기재 업무를 위탁함에 있어서 회사와 수탁인의 권리와 의무에 관한 사항을 정함을 그 목적으로 합니다.
+            본 약관은 세른(SERN, 이하 “회사”)이 “발로뛰어” 서비스 이용약관 제2조에 정의된 러너(이하 “수탁인”)에게 본 약관 제3조 기재 업무를 위탁함에 있어서 회사와 수탁인의 권리와 의무에 관한 사항을 정함을 그 목적으로 합니다.
           </Text>
 
           {/* 제2조 (수탁인의 지위) */}
@@ -55,7 +55,7 @@ const CarrierAgreementScreen = () => {
           <View style={styles.bulletList}>
             <Text style={styles.bulletItem}>• 회사는 수탁인의 위탁업무 수행에 대한 대가로 위탁보수(이하 ‘수익금’)를 지급하며, 이 때의 수익금은 ‘앱이름’ 서비스 요청 고객이 정한 금액으로 합니다.</Text>
             <Text style={styles.bulletItem}>• 회사는 수탁인의 인출신청에 따라 수탁인이 지정한 계좌로 수익금을 지급합니다. 수탁인은 위 지급일로부터 2일 전까지 인출 신청을 하여야 합니다. 또한, 근로 기준법 제43조 ‘임금은 직접 근로자에게 그 전액을 지급하여야 한다’에 의거하여 본인 명의가 아닌 가족 혹은 타 명의 계좌를 등록하셨다면 수익금 지급이 자동 보류됩니다. 적립 수익금의 금액과 관계없이 회사를 통하지 않고 직거래로 위탁업무 진행 및 수익금을 지급받을 경우, 이를 위해 개인 연락처를 공유할 경우, 활동이 영구 정지되며, 고객과 발생하는 모든 분쟁에 대해 회사가 중재 및 책임지지 않습니다.</Text>
-            <Text style={styles.bulletItem}>• 회사는 적립 수익금에서 서비스 수수료 8%를 차감하고 원천징수 3.3% 공제한 후 수탁인이 지정한 계좌로 수익금을 지급합니다. 회사는 서비스 이용에 대한 대가로서 수수료를 징수할 뿐, 고객과 수탁인 사이의 개별 거래에 관여하는 것은 아니며, 수익금 지급 업무를 처리한다고 하여도, 개별 거래에 대한 고객과 수탁인의 법적 책임을 대신 부담하지 않습니다.</Text>
+            <Text style={styles.bulletItem}>• 회사는 적립 수익금에서 차등별 서비스 수수료 (8%,7.5%,7%)를 차감하고 원천징수 3.3% 공제한 후 수탁인이 지정한 계좌로 수익금을 지급합니다. 회사는 서비스 이용에 대한 대가로서 수수료를 징수할 뿐, 고객과 수탁인 사이의 개별 거래에 관여하는 것은 아니며, 수익금 지급 업무를 처리한다고 하여도, 개별 거래에 대한 고객과 수탁인의 법적 책임을 대신 부담하지 않습니다.</Text>
             <Text style={styles.bulletItem}>• 수탁인은 특수고용직으로 근로기준법상 회사는 수탁인에게 수익금 지급 명세서 교부 의무가 없습니다.</Text>
           </View>
 

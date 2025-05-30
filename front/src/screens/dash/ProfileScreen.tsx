@@ -96,7 +96,7 @@ const ProfileScreen = () => {
             </View>
 
             <Text style={styles.status}>
-              캐리어 인증상태 : {statusKo(user?.verificationStatus)}
+              러너 인증상태 : {statusKo(user?.verificationStatus)}
             </Text>
           </View>
         </View>

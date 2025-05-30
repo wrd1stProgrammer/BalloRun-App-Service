@@ -105,7 +105,7 @@ function PortoneCard() {
           payMethod: 'CARD',
           customer: {
             fullName: user?.username ?? '',
-            phoneNumber: user?.phone ?? '01000000000',
+            phoneNumber: String(user?.phone) ?? '01000000000',
             email: user?.email ?? '',
           },
           customData: { item: '1222' },

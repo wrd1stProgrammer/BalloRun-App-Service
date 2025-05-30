@@ -67,9 +67,10 @@ const register = async (req, res) => {
       password: hashedPassword,
       username,
       loginProvider: "user",
-      userImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s',
+      userImage: 'https://res.cloudinary.com/dodyuxi5o/image/upload/v1748538083/user64_oygh7a.png',
     });
-
+    //https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s
+//https://res.cloudinary.com/dodyuxi5o/image/upload/v1748538083/user64_oygh7a.png
     await newUser.save();
 
     const newRefreshToken = newUser.createRefreshToken();

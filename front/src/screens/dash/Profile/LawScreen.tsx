@@ -39,7 +39,7 @@ const LawScreen = () => {
         
         <TouchableOpacity style={styles.menuItem} onPress={() => navigate("CarrierAgreementScreen")} activeOpacity={0.7}>
           <Ionicons name="call-outline" size={22} color="#333" />
-          <Text style={styles.menuText}>캐리어 업무위수탁약관</Text>
+          <Text style={styles.menuText}>러너 업무위수탁약관</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

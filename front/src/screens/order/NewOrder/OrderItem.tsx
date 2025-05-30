@@ -131,7 +131,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
 
   const handleLocationPress = () => {
     // navigate("LiveMap", { orderId, status });
-    Alert.alert("알림", "업데이트 예정입니다.");
+    //Alert.alert("알림", "업데이트 예정입니다.");
   };
 
 
@@ -226,7 +226,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
             style={[styles.actionButton, styles.buttonSpacing]}
             onPress={handleLocationPress}
           >
-            <Text style={styles.actionButtonText}>위치 보기</Text>
+            <Text style={styles.actionButtonText}>배달 중..</Text>
           </TouchableOpacity>
         );
     }

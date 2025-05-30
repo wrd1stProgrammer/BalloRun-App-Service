@@ -24,7 +24,7 @@ const RiderManual: React.FC = () => {
       </View>
 
       <Text style={authStyles.description}>
-        발로뛰어 캐리어(배달원)가 되려면 다음 내용을 따라 주십시오
+        발로뛰어 래너(배달원)가 되려면 다음 내용을 따라 주십시오
       </Text>
       {/* 
       <TouchableOpacity style={authStyles.learnMoreButton} onPress={() => console.log('Learn More pressed')}>
