@@ -370,10 +370,8 @@ const kakaologin = async (req, res) => {
   const { email, loginProvider } = req.body;
 
   try {
-    // 1. 이메일로 기존 사용자 조회
     let user = await User.findOne({ email });
 
-    // 2. 사용자 없으면 신규 생성
     if (!user) {
       let userId = email.split('@')[0];
       let username = userId;
