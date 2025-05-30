@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema(
     admin:{ // 관리자 작업 하기 위해 따로 생성.
       type:String,
       default:false,
+      required: true,
     },
     email: {
       type: String,

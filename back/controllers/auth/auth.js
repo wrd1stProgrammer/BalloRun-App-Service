@@ -69,7 +69,7 @@ const register = async (req, res) => {
       loginProvider: "user",
       userImage: 'https://res.cloudinary.com/dodyuxi5o/image/upload/v1748538083/user64_oygh7a.png',
     });
-    //https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s
+    //https://res.cloudinary.com/dodyuxi5o/image/upload/v1748584790/user_2657939_u4j1li.png
 //https://res.cloudinary.com/dodyuxi5o/image/upload/v1748538083/user64_oygh7a.png
     await newUser.save();
 
@@ -107,7 +107,7 @@ const login = async (req, res) => {
 
     // 임시 로직 
     if (!user.userImage) {
-      user.userImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s';
+      user.userImage = 'https://res.cloudinary.com/dodyuxi5o/image/upload/v1748584790/user_2657939_u4j1li.png';
       user.save();
     }
 
@@ -224,7 +224,7 @@ const applelogin = async (req, res) => {
         nickname,
         username,
         password: hashedPassword,
-        userImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s',
+        userImage: 'https://res.cloudinary.com/dodyuxi5o/image/upload/v1748584790/user_2657939_u4j1li.png',
         loginProvider: 'apple', // 로그인 제공자 기록
       });
       await user.save();
@@ -272,7 +272,7 @@ const applelogin = async (req, res) => {
     });
   }
 };
-
+/*
 const kakaologin = async (req, res) => {
   const { email, loginProvider } = req.body;
 
@@ -316,7 +316,7 @@ const kakaologin = async (req, res) => {
         userId,
         username,
         password: hashedPassword,
-        userImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMwji6ZSccePZz-0s7YFXy0XmOXr1B-mn1IQ&s',
+        userImage: 'https://res.cloudinary.com/dodyuxi5o/image/upload/v1748584790/user_2657939_u4j1li.png',
       });
       await user.save();
     }
@@ -361,6 +361,95 @@ const kakaologin = async (req, res) => {
     console.error('카카오 로그인 에러:', error);
     res.status(500).json({ 
       message: error.message || '카카오 로그인 중 문제가 발생했습니다.' 
+    });
+  }
+};
+*/
+
+const kakaologin = async (req, res) => {
+  const { email, loginProvider } = req.body;
+
+  try {
+    // 1. 이메일로 기존 사용자 조회
+    let user = await User.findOne({ email });
+
+    // 2. 사용자 없으면 신규 생성
+    if (!user) {
+      let userId = email.split('@')[0];
+      let username = userId;
+      let nickname = userId;
+
+      // userId 중복 방지
+      let isUserIdUnique = false;
+      while (!isUserIdUnique) {
+        const existingUser = await User.findOne({ userId });
+        if (!existingUser) {
+          isUserIdUnique = true;
+        } else {
+          const randomSuffix = Math.floor(Math.random() * 90) + 10;
+          userId = `${userId}${randomSuffix}`;
+        }
+      }
+
+      const randomPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcryptjs.hash(randomPassword, 10);
+
+      user = new User({
+        email,
+        userId,
+        username,
+        password: hashedPassword,
+        userImage:
+          'https://res.cloudinary.com/dodyuxi5o/image/upload/v1748584790/user_2657939_u4j1li.png',
+        // isActive 기본값이 스키마에 true 라면 별도 설정 불필요
+      });
+      await user.save();
+    }
+    // 3. user가 존재하면서 비활성화 상태라면 차단
+    else if (!user.isActive) {
+      console.error('로그인 실패: 계정 비활성화');
+      return res
+        .status(401)
+        .json({ message: '계정이 비활성화되었습니다. 다시 가입해주세요.' });
+    }
+
+    // 4. 토큰 생성 및 응답
+    const newAccessToken = user.createAccessToken();
+    const newRefreshToken = user.createRefreshToken();
+
+    await Token.findOneAndUpdate(
+      { email: user.email },
+      { token: newRefreshToken },
+      { upsert: true }
+    );
+
+    res.status(200).json({
+      tokens: {
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken,
+      },
+      user: {
+        _id: user._id,
+        exp: user.exp,
+        level: user.level,
+        admin: user.admin,
+        username: user.username,
+        nickname: user.nickname,
+        userId: user.userId,
+        userImage: user.userImage,
+        email: user.email,
+        phone: user.phone,
+        point: user.point,
+        originalMoney: user.originalMoney,
+        isDelivering: user.isDelivering,
+        verificationStatus: user.verificationStatus,
+        account: user.account ?? null,
+      },
+    });
+  } catch (error) {
+    console.error('카카오 로그인 에러:', error);
+    res.status(500).json({
+      message: error.message || '카카오 로그인 중 문제가 발생했습니다.',
     });
   }
 };
