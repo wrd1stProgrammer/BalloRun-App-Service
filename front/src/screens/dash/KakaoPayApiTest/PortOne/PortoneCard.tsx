@@ -40,12 +40,15 @@ function PortoneCard() {
 
   /** 결제 완료 */
   const handlePaymentComplete = async (result: any) => {
-    /** 1) 결제 실패·취소 */
-    if (result.status !== 'PAID') {
+    /** 1) 결제 실패·취소
+     * 
+     if (result.status !== 'PAID') {
       Alert.alert('다시 시도해주세요', `status: ${result.status}`);
       goBack();
       return;
     }
+     */
+    
 
     /** 2) 결제 성공 → 주문 확정 */
     try {
