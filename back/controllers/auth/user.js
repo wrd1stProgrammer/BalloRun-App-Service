@@ -84,16 +84,15 @@ const updateProfile = async (req, res) => {
 };
 
 const saveVerification = async (req, res) => {
-  //const { idImage, faceImage } = req.body;
-  const { idImage } = req.body;
-  const userId = req.user?.userId; // JWT 토큰에서 추출 (인증 미들웨어 필요)
-  console.log(userId, 'userId 문제?');
+  const { idImage, faceImage } = req.body;
 
-  // 지금 사진 못 직으니 임시 주석
-  /*
+  const userId = req.user?.userId; // JWT 토큰에서 추출 (인증 미들웨어 필요)
+
+  // 지금 사진 못 찍으니 임시 주석
+  
   if (!idImage || !faceImage) {
     return res.status(400).json({ message: 'Both idImage and faceImage are required' });
-  } */
+  } 
 
   try {
     // 사용자 확인
@@ -106,6 +105,7 @@ const saveVerification = async (req, res) => {
     const verification = new Verification({
       userId,
       idImage,
+      faceImage,
       status: 'pending',
     });
     await verification.save();
@@ -115,12 +115,34 @@ const saveVerification = async (req, res) => {
     //user.isRider = true; // 임시 로직 원래 관리자가 승인 해야됨.
     await user.save();
 
+    // --------------- (여기서부터 관리자 알림) ---------------
+    try {
+      const admins = await User.find({ admin: true, fcmToken: { $exists: true, $ne: null } });
+      const adminPayload = {
+        title: `[관리자] 라이더 인증 신청`,
+        body: `${user.username || user._id}님의 라이더 인증 신청이 도착했습니다.`,
+        data: { type: "admin_verification_request", verificationId: verification._id.toString() },
+      };
+      for (const admin of admins) {
+        try {
+          await sendPushNotification(admin.fcmToken, adminPayload);
+          console.log(`관리자 ${admin.username || admin._id}에게 인증신청 알림 전송 완료`);
+        } catch (err) {
+          console.error(`관리자 ${admin.username || admin._id} 인증신청 알림 실패:`, err);
+        }
+      }
+    } catch (err) {
+      console.error("관리자 인증신청 알림 전송 실패:", err);
+    }
+    // -------------------------------------------------------
+
     res.status(200).json({ message: '라이더 인증 요청이 성공 됨.', verificationId: verification._id });
   } catch (error) {
     console.error('Error in saveVerification:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 const registerAccountApi = async (req, res) => {
   try {

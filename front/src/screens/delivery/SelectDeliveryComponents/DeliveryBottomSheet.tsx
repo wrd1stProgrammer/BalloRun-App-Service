@@ -181,7 +181,7 @@ const renderItem = ({ item }) => {
         disabled={trackingOrders[item._id] || diff <= 0}
       >
         <Text style={styles.acceptText}>
-          {diff <= 0 ? "마감" : trackingOrders[item._id] ? "배달 중..." : "수락하기"}
+          {diff <= 0 ? "마감" : trackingOrders[item._id] ? "배달 중..." : "주문확인"}
         </Text>
       </TouchableOpacity>
     </View>

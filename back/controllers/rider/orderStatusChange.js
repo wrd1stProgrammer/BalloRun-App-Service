@@ -170,8 +170,9 @@ const completeOrderHandler = async (req, res) => {
     const userId = req.user.userId;
 
     const rideruser = await User.findById(userId);
+
+    // 변경할 모든 필드 한 번에 수정
     rideruser.isDelivering = false;
-    rideruser.save();
 
     const { orderId, orderType } = req.body;
     const OrderModel = getOrderModel(orderType);
@@ -187,24 +188,26 @@ const completeOrderHandler = async (req, res) => {
     console.log(`riderUser point 증가: +${deliveryFee}`);
 
     order.status = "delivered";
+
+    // 저장은 각각 한 번씩만! (동시에 await로 병렬처리 X)
     await order.save();
     await rideruser.save();
-    
+
     await invalidateOnGoingOrdersCache(order.userId, redisCli);
     await invalidateCompletedOrdersCache(order.userId, redisCli);
 
     emitOrderStatus(req, order, "delivered");
 
     // 주문자 정보 조회 및 푸시 알림 전송
-    const orderUser = await User.findById(order.userId).select('fcmToken').lean();
-    if(orderUser.allOrderAlarm){
-      if (orderUser && orderUser.fcmToken) {
+    const orderUser = await User.findById(order.userId).select('fcmToken allOrderAlarm').lean();
+    if (orderUser?.allOrderAlarm) {
+      if (orderUser.fcmToken) {
         const notificationPayload = {
           title: "배달이 완료되었습니다!",
           body: `배달 상태를 확인해 보시고 별점을 남겨주세요!.`,
           data: { type: "order_complete" },
         };
-  
+
         try {
           await sendPushNotification(orderUser.fcmToken, notificationPayload);
           console.log(`주문자 ${order.userId}에게 알림 전송 성공`);
@@ -222,6 +225,7 @@ const completeOrderHandler = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 module.exports = {
   goToCafeHandler,
