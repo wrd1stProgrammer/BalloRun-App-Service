@@ -122,15 +122,7 @@ const OrderCupHolderLocationScreen = () => {
         </TouchableOpacity>
       )}
 
-      <View style={styles.toggleButtons}>
-        <TouchableOpacity style={styles.toggleButton} onPress={() => setIsMapView(false)}>
-          <Text style={styles.toggleButtonText}>리스트로 보기</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.toggleButton} onPress={() => setIsMapView(true)}>
-          <Text style={styles.toggleButtonText}>지도로 보기</Text>
-        </TouchableOpacity>
-        <Animated.View style={[styles.underline, { transform: [{ translateX: tabIndicator }] }]} />
-      </View>
+
 
       {isMapView ? (
         <>

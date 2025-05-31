@@ -91,7 +91,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
     const isChatRoom = await dispatch(checkChatRoomAction(roomId));
     return isChatRoom;
   };
- // 대소문자.
+
   const showOrderDetails = () => {
     navigate("OrderDetailScreen", { orderId, orderType });
   };
@@ -134,9 +134,6 @@ const OrderItem: React.FC<OrderItemProps> = ({
     //Alert.alert("알림", "업데이트 예정입니다.");
   };
 
-
-  
-
   const handleStarPress = (selectedRating: number) => {
     setRating(selectedRating);
   };
@@ -148,7 +145,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
     }
 
     try {
-      setReviewModalVisible(false); // Close modal immediately
+      setReviewModalVisible(false);
       await dispatch(rateStarsAction(orderId, rating));
       await dispatch(refetchUser());
       setLocalIsRated(true);
@@ -162,7 +159,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
       ]);
     } catch (error) {
       Alert.alert("오류", "별점 등록에 실패했습니다.");
-      setReviewModalVisible(true); // Reopen modal if error occurs
+      setReviewModalVisible(true);
     }
   };
 
@@ -181,16 +178,17 @@ const OrderItem: React.FC<OrderItemProps> = ({
   const renderActionButton = () => {
     switch (status) {
       case "pending":
+        return null; // 이 부분도 버튼 숨김!
       case "goToCafe":
       case "makingMenu":
       case "goToClient":
-      case "complete": 
+      case "complete":
         return (
           <TouchableOpacity
             style={[styles.actionButton, styles.buttonSpacing]}
             onPress={handleLocationPress}
           >
-            <Text style={styles.actionButtonText}>위치 보기</Text>
+            <Text style={styles.actionButtonText}>배달 중..</Text>
           </TouchableOpacity>
         );
       case "delivered":
@@ -250,13 +248,13 @@ const OrderItem: React.FC<OrderItemProps> = ({
         </View>
 
         <View style={styles.content}>
-        <View style={styles.iconContainer}>
-  <Image
-    source={getIconSource(name)}
-    style={styles.iconImage}
-    resizeMode="contain"
-  />
-</View>
+          <View style={styles.iconContainer}>
+            <Image
+              source={getIconSource(name)}
+              style={styles.iconImage}
+              resizeMode="contain"
+            />
+          </View>
           <View style={styles.info}>
             <Text style={styles.name}>{name}</Text>
             <Text style={styles.orderDetails}>{orderDetails}</Text>
@@ -264,12 +262,15 @@ const OrderItem: React.FC<OrderItemProps> = ({
           </View>
         </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.chatButton, styles.buttonSpacing]} onPress={handleChatPress}>
-            <Text style={styles.chatButtonText}>채팅 문의</Text>
-          </TouchableOpacity>
-          {renderActionButton()}
-        </View>
+        {/* pending 상태가 아닐 때만 버튼 영역 렌더링 */}
+        {status !== "pending" && (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={[styles.chatButton, styles.buttonSpacing]} onPress={handleChatPress}>
+              <Text style={styles.chatButtonText}>채팅 문의</Text>
+            </TouchableOpacity>
+            {renderActionButton()}
+          </View>
+        )}
       </View>
 
       <Modal

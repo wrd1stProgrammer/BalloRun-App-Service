@@ -20,9 +20,11 @@ const Step6Content: React.FC = () => {
 
       <TouchableOpacity
         style={authStyles.wideEnableButton}
-        onPress={() => navigate('HomeScreen')} // 홈 화면으로 이동 (실제 경로에 맞게 수정)
+        onPress={() => navigate('BottomTab',{
+          screen: "HomeScreen"
+        })} // 홈 화면으로 이동 (실제 경로에 맞게 수정)
       >
-        <Text style={authStyles.enableButtonText}>Go to Home</Text>
+        <Text style={authStyles.enableButtonText}>완료</Text>
       </TouchableOpacity>
     </ScrollView>
   );

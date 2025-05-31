@@ -105,7 +105,7 @@ export const resetPasswordAction = (password:string,email:string) => async (disp
 
 
 
-export const register = (name:string, nickname:string, id:string, email:string, password:string, phone:number) => async (dispatch: any) => {
+export const register = (name:string, nickname:string, id:string, email:string, password:string) => async (dispatch: any) => {
   try {
     const res = await appAxios.post('/auth/register',{
       username: name,
@@ -113,7 +113,6 @@ export const register = (name:string, nickname:string, id:string, email:string, 
       userId: id,
       email: email,
       password:password,
-      phone: phone,
     });
     resetAndNavigate('LoginScreen');
     

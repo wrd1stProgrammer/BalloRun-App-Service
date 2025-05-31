@@ -140,7 +140,7 @@ const handleNotificationAction = (data: NotificationData): void => {
     });
   } else if(data?.type === "order_aroundPush" ) {
     navigate("BottomTab", {
-        screen: "DeliveryRequestListScreen"
+        screen: "HomeScreen"
     });
   } 
 };

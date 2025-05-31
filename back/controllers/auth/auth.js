@@ -34,7 +34,7 @@ const findIdByUserInfo = async (req, res) => {
 
 
 const register = async (req, res) => {
-  const { username,nickname,userId,email,password,phone, } = req.body;
+  const { username,nickname,userId,email,password } = req.body;
 
   try {
     // 이메일이 이미 존재하는지 확인
@@ -62,7 +62,6 @@ const register = async (req, res) => {
     const newUser = new User({
       email,
       nickname,
-      phone,
       userId,
       password: hashedPassword,
       username,

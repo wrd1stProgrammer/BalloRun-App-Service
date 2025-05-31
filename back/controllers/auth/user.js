@@ -5,7 +5,7 @@ const User = require("../../models/User");
 const Verification = require("../../models/Verification");
 const Withdrawal = require("../../models/Withdrawl");
 const WithdrawalReason = require("../../models/WithdrawlReason");
-
+const {sendPushNotification} = require("../../utils/sendPushNotification");
 const { default: mongoose } = require("mongoose");
 
 // Get user profile
@@ -157,6 +157,7 @@ const registerAccountApi = async (req, res) => {
   }
 };
 
+
 const withdrawApi = async (req, res) => {
   try {
     // 1. 인증 및 사용자 확인
@@ -199,8 +200,8 @@ const withdrawApi = async (req, res) => {
       withdrawAmount: request,
       fee,
       finalAmount,
-      origin: fromOrigin, // 실제 출금 원금
-      fromPoint,          // 실제 출금 포인트 (schema에 필드 추가 권장)
+      origin: fromOrigin,
+      fromPoint,
       status: 'pending',
     });
     await withdrawal.save();
@@ -210,7 +211,27 @@ const withdrawApi = async (req, res) => {
     user.point -= fromPoint;
     await user.save();
 
-    // 6. 응답
+    // 6. 관리자에게 출금신청 알림 전송 (추가)
+    try {
+      const admins = await User.find({ admin: true, fcmToken: { $exists: true, $ne: null } });
+      const adminPayload = {
+        title: `[관리자] 출금신청 도착`,
+        body: `${user.username}님의 ${request.toLocaleString()}원 출금신청이 들어왔습니다.`,
+        data: { type: "admin_withdrawal_request", withdrawalId: withdrawal._id.toString() },
+      };
+      for (const admin of admins) {
+        try {
+          await sendPushNotification(admin.fcmToken, adminPayload);
+          console.log(`관리자 ${admin.username} (${admin._id})에게 출금 알림 전송 완료`);
+        } catch (err) {
+          console.error(`관리자 ${admin.username} 출금 알림 실패:`, err);
+        }
+      }
+    } catch (err) {
+      console.error("관리자 출금 알림 전송 실패:", err);
+    }
+
+    // 7. 응답
     res.status(StatusCodes.OK).json({
       msg: "출금 요청이 성공적으로 접수되었습니다.",
       withdrawal: {
@@ -227,7 +248,6 @@ const withdrawApi = async (req, res) => {
     }
   }
 };
-
 
 // controllers/withdrawController.js
 const getWithdrawList = async (req, res) => {

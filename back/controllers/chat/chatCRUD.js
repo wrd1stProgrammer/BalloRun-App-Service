@@ -1,5 +1,7 @@
 const ChatRoom = require("../../models/ChatRoom"); // ChatRoom 모델 import
 const Report = require("../../models/Report");
+const User = require("../../models/User");
+const {sendPushNotification} = require("../../utils/sendPushNotification");
 const { BadRequestError,UnauthenticatedError,} = require("../../errors");
 
 const { default: mongoose } = require("mongoose");
@@ -26,7 +28,7 @@ const deleteChatRoom = async (req,res) => {
 
 // 채팅방 존재 여부 확인 함수
 const checkChatRoomApi = async (req, res) => {
-  const { roomId } = req.query; 
+  const { roomId } = req.params; 
   try {
     // roomId로 채팅방 조회
     const chatRoom = await ChatRoom.findById(roomId);
@@ -87,7 +89,7 @@ const toggleChatRoomAlarm = async (req, res) => {
 
 const reportChatApi = async (req, res) => {
   const { reason, username, chatRoomId } = req.body;
-  const reporter = req.user.userId; // 요청한 사용자 ID (인증 미들웨어에서 제공된다고 가정)
+  const reporter = req.user.userId;
 
   try {
     // reporter가 없는 경우 (인증되지 않은 사용자)
@@ -113,12 +115,37 @@ const reportChatApi = async (req, res) => {
     // 신고 데이터 저장
     const report = new Report({
       reason,
-      reportedUser: username, // 신고 당한 사람
+      reportedUser: username,
       chatRoomId,
-      reporter, // 신고한 사람
+      reporter,
       reportedAt: new Date(),
     });
     await report.save();
+
+    // ✅ 관리자에게 신고 알림 전송
+    try {
+      const admins = await User.find({ admin: true, fcmToken: { $exists: true, $ne: null } });
+      const adminPayload = {
+        title: `[관리자] 채팅방 신고 접수`,
+        body: `${username}님이 채팅방에서 신고되었습니다.`,
+        data: { 
+          type: "admin_chat_report",
+          reportId: report._id.toString(),
+          reportedUser: username,
+          reason: reason,
+        },
+      };
+      for (const admin of admins) {
+        try {
+          await sendPushNotification(admin.fcmToken, adminPayload);
+          console.log(`관리자 ${admin.username} (${admin._id})에게 신고 알림 전송 완료`);
+        } catch (err) {
+          console.error(`관리자 ${admin.username} 신고 알림 실패:`, err);
+        }
+      }
+    } catch (err) {
+      console.error("관리자 신고 알림 전송 실패:", err);
+    }
 
     res.status(200).json({ message: '신고가 접수되었습니다.' });
   } catch (error) {

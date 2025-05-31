@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, Text, View, SafeAreaView, Alert, ActivityIndicator } from 'react-native'; // ActivityIndicator 추가
+import { FlatList, Text, View, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
 import TYPOS from '../../componenets/chatting/etc/TYPOS';
 import ChatRoomItem from '../../componenets/chatting/ChatRoomItem';
 import Color from '../../constants/Colors';
@@ -13,7 +13,6 @@ import { setChatRooms } from '../../redux/reducers/chatSlice';
 import { updateLastChat } from '../../redux/reducers/chatSlice';
 import { appAxios } from '../../redux/config/apiConfig';
 
-// 전부 필수 데이터
 interface RoomData {
   id: string;
   title: string;
@@ -28,22 +27,29 @@ interface RoomData {
 
 const Chatting: React.FC = () => {
   const [rooms, setRooms] = useState<RoomData[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
+  const [isLoading, setIsLoading] = useState(true);
   const socket = useContext(ChatSocketContext);
   const access_token = token_storage.getString('access_token');
   const dispatch = useAppDispatch();
+
+  // 정렬 함수
+  const sortByLastChatAtDesc = (rooms: RoomData[]) => {
+    return [...rooms].sort(
+      (a, b) => new Date(b.lastChatAt).getTime() - new Date(a.lastChatAt).getTime()
+    );
+  };
 
   useEffect(() => {
     if (!socket) return;
 
     const handleGetChatList = () => {
-      setIsLoading(true); // 데이터 요청 시작 시 로딩 상태 활성화
+      setIsLoading(true);
       socket.emit('room-list', { token: access_token });
       socket.on('room-list', ({ data: { chatRoomList } }) => {
-        // 리덕스에 마지막 메시지와 시간 저장
+        const sortedRooms = sortByLastChatAtDesc(chatRoomList);
         dispatch(
           setChatRooms(
-            chatRoomList.map((room: RoomData) => ({
+            sortedRooms.map((room: RoomData) => ({
               id: room.id,
               lastChat: room.lastChat,
               lastChatAt: room.lastChatAt,
@@ -51,20 +57,22 @@ const Chatting: React.FC = () => {
             }))
           )
         );
-        setRooms(chatRoomList);
-        console.log(rooms);
-        setIsLoading(false); // 데이터 로딩 완료 시 로딩 상태 비활성화
+        setRooms(sortedRooms);
+        setIsLoading(false);
       });
     };
 
     const handleRoomUpdated = (data: { roomId: string; lastMessage: string; lastMessageAt: string; unreadCount: number }) => {
       const { roomId, lastMessage, lastMessageAt, unreadCount } = data;
       dispatch(updateLastChat({ roomId, lastChat: lastMessage, lastChatAt: lastMessageAt, unreadCount }));
-      setRooms((prevRooms) =>
-        prevRooms.map((room) =>
-          room.id === roomId ? { ...room, lastChat: lastMessage, lastChatAt: lastMessageAt, unreadCount } : room
-        )
-      );
+      setRooms((prevRooms) => {
+        const updated = prevRooms.map((room) =>
+          room.id === roomId
+            ? { ...room, lastChat: lastMessage, lastChatAt: lastMessageAt, unreadCount }
+            : room
+        );
+        return sortByLastChatAtDesc(updated);
+      });
     };
 
     handleGetChatList();
@@ -74,25 +82,21 @@ const Chatting: React.FC = () => {
     return () => {
       socket.off('room-list');
       socket.off('room-updated');
-      setIsLoading(false); // 컴포넌트 언마운트 시 로딩 상태 초기화
+      setIsLoading(false);
     };
   }, [socket, dispatch]);
 
   const onExitPressHandler = async (id: string) => {
     Alert.alert(
-      '채팅방 나가기', // 제목
-      '채팅방을 나가면 대화 내용이 모두 삭제되며 복구할 수 없어요. 채팅방을 나갈까요?', // 메시지
+      '채팅방 나가기',
+      '채팅방을 나가면 대화 내용이 모두 삭제되며 복구할 수 없어요. 채팅방을 나갈까요?',
       [
-        {
-          text: '취소',
-          style: 'cancel', // 취소 버튼
-        },
+        { text: '취소', style: 'cancel' },
         {
           text: '나가기',
           onPress: async () => {
-            const isExit = await dispatch(chatExitHandler(id)); // 채팅방 나가기 액션 실행
+            const isExit = await dispatch(chatExitHandler(id));
             if (isExit == "true") {
-              // isExit가 true이면 해당 채팅방을 목록에서 제거
               setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
             } else {
               console.log("채팅방 나가기 실패");
@@ -100,27 +104,23 @@ const Chatting: React.FC = () => {
           },
         },
       ],
-      { cancelable: true } // 바깥쪽 터치로 닫기 가능
+      { cancelable: true }
     );
   };
 
-  // 채팅방 알람 끄기 설정 -> api 제작 해야함
   const onToggleNotificationHandler = async (id: string) => {
     try {
       await appAxios.patch(`/chat/alarm/${id}`);
       console.log('알람 끄기 ㅇㅋ');
-      // setRooms(chatRoomList);
     } catch (error) {
       console.log(error);
     }
   };
 
-  // 로딩 중일 때 표시할 UI
   if (isLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#F9F9F9", justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color='#202632' />
-
       </SafeAreaView>
     );
   }

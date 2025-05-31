@@ -19,8 +19,8 @@ export const chatExitHandler =(chatRoomId:string) => async(dispatch:any) => {
 
   export const checkChatRoomAction =(roomId:string) => async(dispatch:any) => {
     try {
+      console.log('roomID는 있냐?????',roomId);
       const res = await appAxios.get(`/chat/checkchatroom/${roomId}`);
-      console.log(res);
       return res.data;
     } catch (error) {
       console.error(':', error);

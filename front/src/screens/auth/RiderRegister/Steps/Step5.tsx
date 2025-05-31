@@ -72,7 +72,7 @@ const Step5Content: React.FC<{ images?: string | null, faceImage?: string | null
             style={authStyles.wideEnableButton}
             onPress={() => navigate('Step6')}
           >
-            <Text style={authStyles.enableButtonText}>Continue</Text>
+            <Text style={authStyles.enableButtonText}>다음</Text>
           </TouchableOpacity>
         </>
       ) : (

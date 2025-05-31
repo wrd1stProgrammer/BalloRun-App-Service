@@ -14,7 +14,7 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
-  
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../../navigation/NavigationUtils";
@@ -31,7 +31,6 @@ import Modal from 'react-native-modal';
 import { selectUser } from "../../../redux/reducers/userSlice";
 import { refetchUser } from "../../../redux/actions/userAction";
 import { Payment, PortOneController } from '@portone/react-native-sdk';
-import { Image } from "react-native";
 
 type RootStackParamList = {
   OrderFinalScreen: {
@@ -58,6 +57,9 @@ type RootStackParamList = {
 };
 
 type OrderFinalScreenRouteProp = RouteProp<RootStackParamList, "OrderFinalScreen">;
+
+const MIN_POINT_USE = 3000; // 포인트 3000 이상부터 사용 가능
+const MIN_CARD_PAY = 1000;  // 결제금액 최소 1000원
 
 const OrderFinalScreen = () => {
   const route = useRoute<OrderFinalScreenRouteProp>();
@@ -87,15 +89,14 @@ const OrderFinalScreen = () => {
 
   const dispatch = useAppDispatch();
 
-  // paymentId 생성 함수 -> 테스트용 임시임
+  // paymentId 생성 함수
   const generatePaymentId = () => {
-    const timestamp = Date.now().toString(36); // 타임스탬프를 36진수로 변환
-    const randomStr = Math.random().toString(36).substring(2, 8); // 랜덤 문자열 (6자리)
-    return `pay_${timestamp}_${randomStr}`; // 예: "pay_kj9p2x_7b4n1m"
+    const timestamp = Date.now().toString(36);
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    return `pay_${timestamp}_${randomStr}`;
   };
 
   useEffect(() => {
-    // 컴포넌트 마운트 시 paymentId 생성
     setPaymentId(generatePaymentId());
   }, []);
 
@@ -104,16 +105,6 @@ const OrderFinalScreen = () => {
       setPoints(user.point);
     }
   }, [user]);
-
-  // useEffect(() => {
-  //   const fetchAddress = async () => {
-  //     if (lat && lng) {
-  //       const fetchedAddress = await reverseGeocode(String(lat), String(lng));
-  //       setResolvedAddress(fetchedAddress);
-  //     }
-  //   };
-  //   fetchAddress();
-  // }, [lat, lng]);
 
   const finalLat = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.latitude : user?.lat;
   const finalLng = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.longitude : user?.lng;
@@ -170,6 +161,10 @@ const OrderFinalScreen = () => {
   const handleRemoveImage = () => setSelectedImageUri(null);
 
   const totalAmount = parseInt(priceOffer.replace("원", "").replace(",", "")) + parseInt(deliveryFee.replace("원", "").replace(",", ""));
+  // 포인트 사용 최대치는 (결제금액-1000) 이하, 단 3000P 이상부터만 가능
+  const maxPointUsable = points >= MIN_POINT_USE
+    ? Math.min(points, Math.max(totalAmount - MIN_CARD_PAY, 0))
+    : 0;
   const finalAmount = totalAmount - usedPoints;
 
   const formatTime = (date: Date) => {
@@ -178,15 +173,25 @@ const OrderFinalScreen = () => {
     return `${hours}시 ${minutes < 10 ? "0" : ""}${minutes}분`;
   };
 
+  // 포인트 입력 핸들러 (최소/최대조건 적용)
   const handlePointsChange = (text: string) => {
-    const numericValue = parseInt(text.replace(/[^0-9]/g, "")) || 0;
-    if (numericValue > points) {
-      setUsedPoints(points);
-    } else if (numericValue > totalAmount) {
-      setUsedPoints(totalAmount);
+    let numericValue = parseInt(text.replace(/[^0-9]/g, "")) || 0;
+    if (points < MIN_POINT_USE) {
+      setUsedPoints(0);
+      return;
+    }
+    if (numericValue > maxPointUsable) {
+      setUsedPoints(maxPointUsable);
+    } else if (numericValue < 0) {
+      setUsedPoints(0);
     } else {
       setUsedPoints(numericValue);
     }
+  };
+
+  // 전액 버튼도 동일
+  const handleAllPoints = () => {
+    setUsedPoints(maxPointUsable);
   };
 
   const handlePaymentMethodSelect = (method: string) => {
@@ -194,7 +199,6 @@ const OrderFinalScreen = () => {
   };
 
   const initiatePayment = () => {
-    
     const orderDetailsData = {
       paymentId,
       name,
@@ -420,27 +424,45 @@ const OrderFinalScreen = () => {
 
                   <View style={styles.pointsContainer}>
                     <Text style={styles.sectionTitle}>포인트 사용</Text>
-                    <Text style={styles.pointsBalance}>보유 포인트: {points.toLocaleString()}P</Text>
+                    <Text style={styles.pointsBalance}>보유 포인트: {points.toLocaleString()}P  (1000원 미만으로 포인트 사용 불가능)</Text>
                     <View style={styles.pointsInputContainer}>
                       <TextInput
-                        style={styles.pointsInput}
+                        style={[
+                          styles.pointsInput,
+                          points < MIN_POINT_USE && { backgroundColor: "#f2f2f2", color: "#aaa" }
+                        ]}
                         placeholder="사용할 포인트를 입력하세요"
                         placeholderTextColor="#999"
                         keyboardType="numeric"
                         value={usedPoints.toString()}
+                        editable={points >= MIN_POINT_USE}
                         onChangeText={handlePointsChange}
                       />
                       <TouchableOpacity
-                        style={styles.pointsAllButton}
-                        onPress={() => setUsedPoints(Math.min(points, totalAmount))}
+                        style={[
+                          styles.pointsAllButton,
+                          points < MIN_POINT_USE || maxPointUsable <= 0 ? { backgroundColor: "#ddd" } : {},
+                        ]}
+                        onPress={handleAllPoints}
+                        disabled={points < MIN_POINT_USE || maxPointUsable <= 0}
                       >
                         <Text style={styles.pointsAllButtonText}>전액 사용</Text>
                       </TouchableOpacity>
                     </View>
+                    {points < MIN_POINT_USE &&
+                      <Text style={{ color: "#F00", marginTop: 8, fontSize: 13 }}>
+                        포인트는 3,000P 이상부터 사용 가능
+                      </Text>
+                    }
+                    {points >= MIN_POINT_USE && maxPointUsable <= 0 &&
+                      <Text style={{ color: "#F00", marginTop: 8, fontSize: 13 }}>
+                        결제금액 1,000원 이상 남겨야 카드 결제 가능합니다
+                      </Text>
+                    }
                   </View>
 
                   <View style={styles.paymentContainer}>
-                    <View style={styles.paymentRow}>
+                    <View className="row">
                       <Text style={styles.paymentLabel}>결제 금액</Text>
                       <Text style={styles.paymentTotal}>{finalAmount.toLocaleString()}원</Text>
                     </View>
@@ -475,7 +497,6 @@ const OrderFinalScreen = () => {
                         label: "네이버페이",
                         icon: require("../../../assets/Icon/naverpay2.png")
                       },
-                      
                       {
                         key: "EASY_PAY_PROVIDER_TOSSPAY",
                         label: "토스페이",
@@ -486,7 +507,7 @@ const OrderFinalScreen = () => {
                         label: "카카오페이",
                         icon: require("../../../assets/Icon/kakao.png")
                       },
-                      { key: "CARD", label: "신용/체크카드",icon: require("../../../assets/Icon/card.png") },
+                      { key: "CARD", label: "신용/체크카드", icon: require("../../../assets/Icon/card.png") },
                     ].map((m) => (
                       <TouchableOpacity
                         key={m.key}
@@ -498,7 +519,6 @@ const OrderFinalScreen = () => {
                         onPress={() => handlePaymentMethodSelect(m.key)}
                         activeOpacity={0.8}
                       >
-                        {/* 라디오 버튼 */}
                         <View
                           style={[
                             styles.radioOuter,
@@ -510,11 +530,7 @@ const OrderFinalScreen = () => {
                             <View style={styles.radioInner} />
                           )}
                         </View>
-
-    {/* 아이콘 */}
                         <Image source={m.icon} style={styles.paymentIcon} resizeMode="contain" />
-
-                        {/* 라벨 + 뱃지 */}
                         <View style={styles.paymentTextGroup}>
                           <Text style={styles.paymentLabelText}>{m.label}</Text>
                           {m.discount && (
@@ -533,17 +549,11 @@ const OrderFinalScreen = () => {
                     <Text style={styles.noticeText}>배달 상품 주의사항 동의</Text>
                     <Ionicons name="chevron-forward" size={16} color="#999" />
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.noticeRow} onPress={() => navigate("CancelNoticeScreen")}>
-                    <Text style={styles.noticeText}>배달 취소 주의사항 동의</Text>
-                    <Ionicons name="chevron-forward" size={16} color="#999" />
-                  </TouchableOpacity>
+
                   <Text style={styles.confirmText}>위 내용을 확인하였으며 결제에 동의합니다</Text>
                 </View>
-                
               </TouchableWithoutFeedback>
             </ScrollView>
-
-
           </KeyboardAvoidingView>
           <TouchableOpacity style={styles.kakaoPayButton} onPress={initiatePayment}>
             <Text style={styles.kakaoPayButtonText}>
@@ -815,77 +825,73 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
-
-    /* ===== 결제 수단 리스트용 스타일 ===== */
-    paymentListContainer: {
-      borderWidth: 1,
-      borderColor: "#e0e0e0",
-      borderRadius: 12,
-      marginBottom: 20,
-      backgroundColor: "#fff",
-    },
-    paymentItem: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingVertical: 18,
-      paddingHorizontal: 20,
-      borderBottomWidth: 1,
-      borderColor: "#e0e0e0",
-    },
-    paymentItemSelected: {
-      
-    },
-    radioOuter: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      borderWidth: 2,
-      borderColor: "#ccc",
-      justifyContent: "center",
-      alignItems: "center",
-      marginRight: 14,
-    },
-    radioOuterSelected: {
-      borderColor: "#00C37A",
-    },
-    radioInner: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      backgroundColor: "#00C37A",
-    },
-    paymentIconPlaceholder: {
-      width: 28,
-      height: 28,
-      marginRight: 14,
-    },
-    paymentTextGroup: {
-      flex: 1,
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    paymentLabelText: {
-      fontSize: 16,
-      color: "#1a1a1a",
-      flexShrink: 1,
-    },
-    discountBadge: {
-      marginLeft: 8,
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-      borderRadius: 4,
-      backgroundColor: "#f0f8ff",
-    },
-    discountBadgeText: {
-      fontSize: 12,
-      color: "#3384FF",
-      fontWeight: "600",
-    },
-    paymentIcon: {
-      width: 40,
-      height: 40,
-      marginRight: 10,
-    },
+  paymentListContainer: {
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 12,
+    marginBottom: 20,
+    backgroundColor: "#fff",
+  },
+  paymentItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  paymentItemSelected: {},
+  radioOuter: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+  radioOuterSelected: {
+    borderColor: "#00C37A",
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#00C37A",
+  },
+  paymentIconPlaceholder: {
+    width: 28,
+    height: 28,
+    marginRight: 14,
+  },
+  paymentTextGroup: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  paymentLabelText: {
+    fontSize: 16,
+    color: "#1a1a1a",
+    flexShrink: 1,
+  },
+  discountBadge: {
+    marginLeft: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: "#f0f8ff",
+  },
+  discountBadgeText: {
+    fontSize: 12,
+    color: "#3384FF",
+    fontWeight: "600",
+  },
+  paymentIcon: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
+  },
 });
 
 export default OrderFinalScreen;

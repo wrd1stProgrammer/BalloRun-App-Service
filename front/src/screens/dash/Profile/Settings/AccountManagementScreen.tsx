@@ -46,13 +46,6 @@ const AccountManagementScreen = () => {
           </View>
 
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>전화번호</Text>
-            <View style={styles.valueContainer}>
-              <Text style={styles.infoValue}>{user?.phone}</Text>
-            </View>
-          </View>
-
-          <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>이메일</Text>
             <View style={styles.valueContainer}>
               <Text style={styles.infoValue}>{user?.email}</Text>

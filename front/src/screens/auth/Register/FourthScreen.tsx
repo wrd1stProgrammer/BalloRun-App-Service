@@ -332,7 +332,7 @@ const { width } = Dimensions.get('window');
 
 type RootStackParamList = {
   FourthScreen: {
-    name: string; nickname: string; id: string; password: string; email: string; phone: number;
+    name: string; nickname: string; id: string; password: string; email: string;
   };
 };
 
@@ -349,7 +349,7 @@ const TERMS = [
 /********************  메인 컴포넌트  *******************/
 
 const FourthScreen = ({ route }: FourthScreenProps) => {
-  const { name, nickname, id, email, password, phone } = route.params;
+  const { name, nickname, id, email, password} = route.params;
   const dispatch = useAppDispatch();
 
   const init = TERMS.reduce((acc, t) => ({ ...acc, [t.key]: false }), {} as Record<string, boolean>);
@@ -371,7 +371,7 @@ const FourthScreen = ({ route }: FourthScreenProps) => {
   /* 다음 */
   const handleNext = async () => {
     if (!allRequiredChecked) return;
-    try { await dispatch(register(name, nickname, id, email, password, phone));
+    try { await dispatch(register(name, nickname, id, email, password));
       Alert.alert('회원가입 완료','회원가입이 성공적으로 완료되었습니다!',[{text:'확인',onPress:()=>resetAndNavigate('LoginScreen')}]); }
     catch { Alert.alert('오류','회원가입에 실패했습니다. 다시 시도해주세요.'); }
   };

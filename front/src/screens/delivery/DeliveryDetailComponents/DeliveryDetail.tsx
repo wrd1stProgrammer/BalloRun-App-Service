@@ -132,10 +132,10 @@ const DeliveryDetail: React.FC = () => {
         ref={mapRef}
         style={{ flex: 1 }}
         initialRegion={{
-          latitude: +deliveryItem.lat,
+          latitude: +deliveryItem.lat-0.002,
           longitude: +deliveryItem.lng,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
         }}
       >
         {/* 주문지 마커 */}
@@ -173,10 +173,10 @@ const DeliveryDetail: React.FC = () => {
         onPress={() => {
           if (userLat && userLng) {
             mapRef.current?.animateToRegion({
-              latitude: userLat,
+              latitude: userLat-0.002,
               longitude: userLng,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
             });
           }
         }}

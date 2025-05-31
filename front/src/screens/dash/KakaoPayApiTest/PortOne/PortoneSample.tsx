@@ -43,14 +43,18 @@ function PortOneSample() {
 
   /** 결제 완료 */
   const handlePaymentComplete = async (result: any) => {
-    /** 1) 결제 실패·취소
-     * 
-     if (result.status !== "PAID") {
-      Alert.alert("다시 시도해주세요", `status: ${result.status}`);
+    console.log('결제 완료 콜백 결과:', JSON.stringify(result, null, 2));
+    // 취소/실패 케이스 분기
+    if (
+      result.pgMessage?.includes('취소') ||
+      result.message?.includes('취소') ||
+      result.code === 'FAILURE_TYPE_PG' ||
+      result.pgCode === '01'
+    ) {
+      Alert.alert('결제가 취소되었습니다.', '다시 시도해주세요');
       goBack();
       return;
     }
-     */
     
 
     /** 2) 결제 성공 → 주문 확정 */
@@ -111,7 +115,6 @@ function PortOneSample() {
           payMethod: "EASY_PAY",
           customer: {
             fullName: user?.username ?? "",
-            phoneNumber: "010-4128-4177",
             email: user?.email ?? "",
           },
           easyPay: {

@@ -6,7 +6,7 @@ const { sendPushNotification } = require("../../utils/sendPushNotification");
 
 const newOrderCreate = async (req, res) => {
   const {
-    paymentId, // 추가: 결제 ID를 클라이언트에서 전달받음
+    paymentId,
     name,
     orderDetails,
     priceOffer,
@@ -26,14 +26,6 @@ const newOrderCreate = async (req, res) => {
   } = req.body;
 
   const userId = req.user.userId;
-
-  // // 필수 필드 검증
-  // const requiredFields = ["name", "orderDetails", "priceOffer", "deliveryFee", "deliveryAddress"];
-  // for (const field of requiredFields) {
-  //   if (!req.body[field]) {
-  //     return res.status(400).json({ message: `${field} 필드가 누락되었습니다.` });
-  //   }
-  // }
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -76,8 +68,8 @@ const newOrderCreate = async (req, res) => {
       endTime,
       selectedFloor,
       resolvedAddress,
-      usedPoints, // 메시지에 포함
-      status: "pending", // 수정: 상태를 'pending'으로 초기화
+      usedPoints,
+      status: "pending",
     });
 
     // RabbitMQ 메시지 전송
@@ -93,12 +85,11 @@ const newOrderCreate = async (req, res) => {
 
     channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
 
-
     await session.commitTransaction();
     session.endSession();
 
-    // 푸시 알림 전송
-    if(user.allOrderAlarm){
+    // ✅ 주문자에게 푸시 알림 전송
+    if (user.allOrderAlarm) {
       try {
         const notipayload = {
           title: `배달요청이 완료되었습니다.`,
@@ -112,13 +103,32 @@ const newOrderCreate = async (req, res) => {
           console.log(`사용자 ${userId}의 FCM 토큰이 없습니다.`);
         }
       } catch (error) {
-          console.error("푸시 알림 전송 실패:", error);
+        console.error("푸시 알림 전송 실패:", error);
       }
+    }
+
+    // ✅ 추가: 관리자(admin:true)에게도 같은 알림 전송
+    try {
+      const admins = await User.find({ admin: true, fcmToken: { $exists: true, $ne: null } });
+      const adminPayload = {
+        title: `[관리자] 신규 주문 발생`,
+        body: `${user.username}님의 주문이 생성되었습니다.`,
+        data: { type: "admin_new_order" },
+      };
+      for (const admin of admins) {
+        try {
+          await sendPushNotification(admin.fcmToken, adminPayload);
+          console.log(`관리자 ${admin.username} (${admin._id})에게 푸시 알림 전송 완료`);
+        } catch (err) {
+          console.error(`관리자 ${admin.username} 알림 실패:`, err);
+        }
+      }
+    } catch (err) {
+      console.error("관리자 알림 전송 실패:", err);
     }
 
     res.status(201).json({ message: "Order received and being processed." });
   } catch (error) {
-    // 트랜잭션이 아직 커밋되지 않은 경우에만 abort 호출
     if (session.inTransaction()) {
       await session.abortTransaction();
     }

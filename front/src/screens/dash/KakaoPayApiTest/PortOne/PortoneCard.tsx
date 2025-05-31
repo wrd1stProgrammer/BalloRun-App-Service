@@ -40,14 +40,19 @@ function PortoneCard() {
 
   /** 결제 완료 */
   const handlePaymentComplete = async (result: any) => {
-    /** 1) 결제 실패·취소
-     * 
-     if (result.status !== 'PAID') {
-      Alert.alert('다시 시도해주세요', `status: ${result.status}`);
+
+    console.log('결제 완료 콜백 결과:', JSON.stringify(result, null, 2));
+    // 취소/실패 케이스 분기
+    if (
+      result.pgMessage?.includes('취소') ||
+      result.message?.includes('취소') ||
+      result.code === 'FAILURE_TYPE_PG' ||
+      result.pgCode === '01'
+    ) {
+      Alert.alert('결제가 취소되었습니다.', '다시 시도해주세요');
       goBack();
       return;
     }
-     */
     
 
     /** 2) 결제 성공 → 주문 확정 */
@@ -101,14 +106,13 @@ function PortoneCard() {
         request={{
           paymentId:paymentId,
           storeId: 'store-68c88836-7529-4771-9a3a-ee81b2552a83',
-          channelKey: 'channel-key-e760a2da-6273-4d91-a47d-322d03bba0f9',
+          channelKey: 'channel-key-7de7c992-3c02-4880-ad48-52bea7fa095c',
           orderName: orderName,
           totalAmount: totalAmount,
           currency: 'CURRENCY_KRW',
           payMethod: 'CARD',
           customer: {
             fullName: user?.username ?? '',
-            phoneNumber: '010-4128-4177',
             email: user?.email ?? '',
           },
           customData: { item: '1222' },

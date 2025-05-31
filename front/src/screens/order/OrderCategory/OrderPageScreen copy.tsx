@@ -30,7 +30,6 @@ type OrderPageScreenRouteProp = RouteProp<RootStackParamList, "OrderPageScreen">
 
 const OrderPageScreen = () => {
   const user = useAppSelector(selectUser);
-  
   const route = useRoute<OrderPageScreenRouteProp>();
   const { name } = route.params;
 
@@ -46,21 +45,27 @@ const OrderPageScreen = () => {
     }
   }, [images]);
 
+  useEffect(() => {
+    // 화면이 마운트될 때 키보드 강제 닫기(깜빡임 예방)
+    Keyboard.dismiss();
+  }, []);
+
   const handleNextPress = () => {
-  if (deliveryMethod === "direct") {
-    if (!user?.address) {
+    if (deliveryMethod === "direct" && !user?.address) {
       Alert.alert("주소 설정 필요", "홈에서 배달 주소를 지정해주세요.");
       return;
     }
-  }
-    navigate(deliveryMethod === "direct" ? "OrderFinalScreen" : "OrderCupHolderLocationScreen", {
-      name,
-      orderDetails,
-      priceOffer: priceOffer || "0", // 빈 값일 경우 0으로 전송
-      deliveryFee: deliveryFee || "0", // 빈 값일 경우 0으로 전송
-      images,
-      deliveryMethod,
-    });
+    navigate(
+      deliveryMethod === "direct" ? "OrderFinalScreen" : "OrderCupHolderLocationScreen",
+      {
+        name,
+        orderDetails,
+        priceOffer: priceOffer || "0",
+        deliveryFee: deliveryFee || "0",
+        images,
+        deliveryMethod,
+      }
+    );
   };
 
   const handleImagePicker = async () => {
@@ -88,17 +93,17 @@ const OrderPageScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={{ flex: 1 }}>
               <Header title={name} />
               <View style={styles.content}>
@@ -162,7 +167,7 @@ const OrderPageScreen = () => {
                       onPress={() => setDeliveryMethod("cupHolder")}
                     >
                       <Text style={deliveryMethod === "cupHolder" ? styles.selectedButtonText : styles.buttonText}>
-                        음료보관대
+                        보관소 (전남대 한시 시행)
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -180,8 +185,8 @@ const OrderPageScreen = () => {
                 <Text style={styles.nextButtonText}>다음</Text>
               </TouchableOpacity>
             </View>
-          </TouchableWithoutFeedback>
-        </ScrollView>
+          </ScrollView>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
