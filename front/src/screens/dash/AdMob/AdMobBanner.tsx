@@ -1,10 +1,16 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
 
 const AdMobBanner = () => {
   return (
     <View style={styles.container}>
+      <Image
+        source={require('../../../assets/banner/ballorun_tempor_banner.png')}
+        style={{ width: 320, height: 100 }}
+      />
+
+      {/*
       <BannerAd
         unitId={TestIds.BANNER} // 테스트용 ID (배포 시 실제 ID로 변경)
         size={BannerAdSize.LARGE_BANNER} // 320x100 크기
@@ -12,6 +18,7 @@ const AdMobBanner = () => {
           requestNonPersonalizedAdsOnly: true, // 비개인화 광고 요청
         }}
       />
+      */}
     </View>
   );
 };
