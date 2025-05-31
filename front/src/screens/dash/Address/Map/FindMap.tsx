@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 30,
+    top: Platform.OS === "ios" ? 60 : 30,
     left: 20,
     zIndex: 10,
     backgroundColor: "white",
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   addressBox: {
     position: "absolute",
-    top: 80,
+    top: Platform.OS === "ios" ? 120 : 80,
     left: 20,
     right: 20,
     backgroundColor: "white",

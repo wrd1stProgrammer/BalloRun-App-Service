@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import { View, Text, FlatList, Pressable, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../../utils/OrderComponents/Header';
@@ -38,6 +40,23 @@ const AddressSettingScreen = () => {
 
         fetchAddresses();
     }, [user]);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!user?._id) return;
+
+            const fetchAddresses = async () => {
+                try {
+                    const response = await appAxios.get(`/address/list/${user._id}`);
+                    setAddressList(response.data);
+                } catch (error) {
+                    console.error('❌ Failed to fetch addresses:', error);
+                }
+            };
+
+            fetchAddresses();
+        }, [user])
+    );
 
     const handleSelectAddress = async (item: Address ) => {
         try {
