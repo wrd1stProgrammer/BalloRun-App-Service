@@ -110,11 +110,12 @@ const consumeNewOrderMessages = async (redisCli) => {
   
               await invalidateOnGoingOrdersCache(orderData.userId, redisCli);
   
+              const delayMs = new Date(newOrder.endTime) - new Date(newOrder.startTime);
               await channel.publish(
                 delayedExchange,
                 "delayed_route.neworder",
                 Buffer.from(JSON.stringify({ orderId: newOrder._id, type: "neworder" })),
-                { headers: { "x-delay": 1200000000 }, persistent: true }
+                { headers: { "x-delay": delayMs }, persistent: true }
               );
 
               const orderLat = parseFloat(newOrder.lat);
