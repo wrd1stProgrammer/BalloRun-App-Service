@@ -56,7 +56,7 @@ const consumeMessages = async (emitCancel, redisCli) => {
               delayedExchange,
               "delayed_route.order", // 바인딩 시 사용한 라우팅 키
               Buffer.from(JSON.stringify({ orderId: order._id, type: "order"  })),
-              { headers: { "x-delay": 120000 }, persistent: true } // 3분(180초 = 180,000ms) 1분 테스트
+              { headers: { "x-delay": 3600000 }, persistent: true } 
             );
 
             channel.ack(msg);

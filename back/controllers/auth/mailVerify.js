@@ -40,7 +40,7 @@ const sendEmail = async (req, res) => {
                     <h2>이메일 인증 코드</h2>
                     <p>아래의 6자리 인증 코드를 입력해 주세요.</p>
                     <h1 style="color: #2D89EF;">${verificationCode}</h1>
-                    <p>이 코드는 5분 동안 유효합니다.</p>
+                    <p>이 코드는 3분 동안 유효합니다.</p>
                 </div>
             `,
         });

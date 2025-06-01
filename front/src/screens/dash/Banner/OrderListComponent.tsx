@@ -22,7 +22,8 @@ const categories: Category[] = [
   { name: '기타', icon: require('../../../assets/Icon/etc32.png'), screen: 'OrderPageScreen' },
 ];
 
-const OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
+const 
+OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
   const handleCategoryPress = (screen: string, name: string) => {
     if (user?.isOngoingOrder) {
       Alert.alert(

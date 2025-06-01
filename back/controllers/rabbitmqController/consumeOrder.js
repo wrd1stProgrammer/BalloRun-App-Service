@@ -67,7 +67,7 @@ const consumeNewOrderMessages = async (redisCli) => {
               
               // 결제 검증
               if(orderData.isAdmin){
-                return;
+                
               }else{
                 const paymentResult = await verifyPayment(paymentId, newOrder._id);
               if (!paymentResult) {
@@ -112,7 +112,7 @@ const consumeNewOrderMessages = async (redisCli) => {
   
               const redisOrders = JSON.parse(await redisCli.get(cacheKey)) || [];
               redisOrders.push(transformedOrder);
-              await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 12000 });
+              await redisCli.set(cacheKey, JSON.stringify(redisOrders), { EX: 3600 });
   
               await invalidateOnGoingOrdersCache(orderData.userId, redisCli);
   
