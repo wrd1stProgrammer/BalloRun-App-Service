@@ -36,6 +36,7 @@ const newOrderCreate = async (req, res) => {
       await session.abortTransaction();
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
+    
 
     // 포인트 사용 시 유저 포인트 감소
     if (usedPoints > 0) {
@@ -70,6 +71,7 @@ const newOrderCreate = async (req, res) => {
       resolvedAddress,
       usedPoints,
       status: "pending",
+      isAdmin : user.admin,
     });
 
     // RabbitMQ 메시지 전송
@@ -112,7 +114,7 @@ const newOrderCreate = async (req, res) => {
       const admins = await User.find({ admin: true, fcmToken: { $exists: true, $ne: null } });
       const adminPayload = {
         title: `[관리자] 신규 주문 발생`,
-        body: `${user.username}님의 주문이 생성되었습니다.`,
+        body: `${user.username}님의 주문이 생성되었습니다.${priceOffer},${deliveryFee}`,
         data: { type: "admin_new_order" },
       };
       for (const admin of admins) {

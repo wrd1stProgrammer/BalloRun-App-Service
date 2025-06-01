@@ -89,6 +89,16 @@ const OrderFinalScreen = () => {
 
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    console.log(user?.admin);
+    if (user?.admin) {
+      Alert.alert(
+        'Test Account Notice',
+        "This account is for App Review testing purposes only.\n\nRegardless of which payment method you select, no actual payment will be processed and your delivery request will be submitted immediately.\n\nPlease note that real payments are only available for users located in Korea.\nTo test real payment flows, please log in using a non-test account from the credentials we provided.\n\nThank you!"
+      );
+    }
+  }, []);
+
   // paymentId 생성 함수
   const generatePaymentId = () => {
     const timestamp = Date.now().toString(36);
@@ -199,6 +209,7 @@ const OrderFinalScreen = () => {
   };
 
   const initiatePayment = () => {
+
     const orderDetailsData = {
       paymentId,
       name,
@@ -218,22 +229,27 @@ const OrderFinalScreen = () => {
       resolvedAddress,
       usedPoints,
     };
-    if(selectedPaymentMethod === "CARD"){
-      navigate("PortoneCard", {
-        paymentId,
-        orderName: name,
-        totalAmount: finalAmount,
-        orderDetails: orderDetailsData,
-      });
+    if(user?.admin){
+      handleNextPress();
     }else{
-      navigate("PortoneSample", {
-        paymentId,
-        orderName: name,
-        totalAmount: finalAmount,
-        easyPayProvider: selectedPaymentMethod,
-        orderDetails: orderDetailsData,
-      });
+      if(selectedPaymentMethod === "CARD"){
+        navigate("PortoneCard", {
+          paymentId,
+          orderName: name,
+          totalAmount: finalAmount,
+          orderDetails: orderDetailsData,
+        });
+      }else{
+        navigate("PortoneSample", {
+          paymentId,
+          orderName: name,
+          totalAmount: finalAmount,
+          easyPayProvider: selectedPaymentMethod,
+          orderDetails: orderDetailsData,
+        });
+      }
     }
+    
   };
 
   return (

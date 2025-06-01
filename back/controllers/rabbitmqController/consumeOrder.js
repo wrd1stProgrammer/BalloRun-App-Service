@@ -50,7 +50,8 @@ const consumeNewOrderMessages = async (redisCli) => {
               const orderData = JSON.parse(msg.content.toString());
               const {paymentId, userId, name, orderDetails, priceOffer, deliveryFee, ...rest } = orderData;
               console.log(orderData,'orderData검증');
-              
+              console.log('admin',orderData.isAdmin);
+
               const newOrder = new NewOrder({
                 ...orderData,
                 usedPoints: orderData.usedPoints || 0,
@@ -63,9 +64,12 @@ const consumeNewOrderMessages = async (redisCli) => {
               //트랜잭션 커밋해야 저장이 되니 커밋하고 결제 검증 이럼 디비 저장됨?
               await session.commitTransaction();
               
-
+              
               // 결제 검증
-              const paymentResult = await verifyPayment(paymentId, newOrder._id);
+              if(orderData.isAdmin){
+                return;
+              }else{
+                const paymentResult = await verifyPayment(paymentId, newOrder._id);
               if (!paymentResult) {
                 throw new Error("결제 검증 실패");
               }
@@ -78,6 +82,8 @@ const consumeNewOrderMessages = async (redisCli) => {
                 //newOrder.paymentId = paymentResult.paymentId; // paymentId 갱신
               }
               await newOrder.save();
+              }
+              
 
               const transformedOrder = {
                 _id: newOrder._id,
@@ -180,7 +186,7 @@ const consumeNewOrderMessages = async (redisCli) => {
   // 결제 검증 함수 
   const verifyPayment = async (paymentId,orderId) => {
     try {
-      console.log(`${process.env.PORTONE_API_SECRET}`,'.env 잘 됐나ㅣ');
+      //console.log(`${process.env.PORTONE_API_SECRET}`,'.env 잘 됐나ㅣ');
       // 포트원 결제 내역 단건 조회 API 호출 -> 이거 제대로!!!!!
       const paymentResponse = await fetch(
         `https://api.portone.io/payments/${encodeURIComponent(paymentId)}`,

@@ -147,16 +147,19 @@ const HomeScreen: React.FC = () => {
             </Text>
           </View>
         </ScrollView>
-
+        {/** 
+         * 
+         * 
         {isOngoingOrder && !isMatching && <FixedOrderStatusBanner />}
         {isOngoingOrder && isMatching && ongoingOrder && (
-          console.log("NewFixedOrderStatusBanner 렌더링"),
           <NewFixedOrderStatusBanner 
             order={ongoingOrder} 
             isOngoingOrder={isOngoingOrder} 
             isMatching={isMatching} 
           />
         )}
+        **/}
+        
       </View>
     </SafeAreaView>
   );

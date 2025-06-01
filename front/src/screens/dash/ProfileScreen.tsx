@@ -17,6 +17,8 @@ import { Logout } from '../../redux/actions/userAction';
 import { navigate } from '../../navigation/NavigationUtils';
 import Modal from 'react-native-modal';
 
+const LEVEL_LABELS = ['발바닥', '슬리퍼', '운동화']; // Lv.1,2,3
+
 const ProfileScreen = () => {
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
@@ -35,6 +37,8 @@ const ProfileScreen = () => {
       : user.level === 2
       ? Math.min((user.exp / 300) * 100, 100)
       : 100;
+
+  const levelLabel = (lv: number | undefined) => LEVEL_LABELS[(lv ?? 1) - 1] || LEVEL_LABELS[0];
 
   /* ────── actions ────── */
   const handleAccountCheck = () => {
@@ -69,11 +73,20 @@ const ProfileScreen = () => {
       >
         {/* Profile Card */}
         <View style={styles.profileSection}>
-          <Image source={{ uri: user?.userImage }} style={styles.userImage} />
+          <Image
+            source={user?.userImage ? { uri: user.userImage } : require('../../assets/Icon/user64.png')}
+            style={styles.userImage}
+          />
 
           <View style={styles.userInfo}>
-            <Text style={styles.userusername}>{user?.username}</Text>
-
+            <View style={styles.levelRow}>
+              <Text style={styles.userusername}>{user?.username}</Text>
+              <View style={styles.levelBadge}>
+                <Text style={styles.levelBadgeText}>
+                  {levelLabel(user?.level)}
+                </Text>
+              </View>
+            </View>
             {/* 원금/포인트 + 출금 버튼 */}
             <View style={styles.balanceRow}>
               <View>
@@ -84,7 +97,6 @@ const ProfileScreen = () => {
                   포인트 : {user?.point ?? 0}
                 </Text>
               </View>
-
               {user?.verificationStatus === 'verified' && (
                 <TouchableOpacity
                   style={styles.withdrawButton}
@@ -126,7 +138,7 @@ const ProfileScreen = () => {
           </View>
           <View style={styles.underline} />
           <View style={styles.expRow}>
-            <Text style={styles.expText}>Lv.{user?.level ?? 1}</Text>
+            <Text style={styles.expText}>Lv.{user?.level ?? 1} {levelLabel(user?.level)}</Text>
             <Text style={styles.expText}>경험치 {expPct().toFixed(0)}%</Text>
           </View>
           <View style={styles.expContainer}>
@@ -159,13 +171,16 @@ const ProfileScreen = () => {
           </TouchableOpacity>
 
           <Text style={styles.sectionTitle}>기타</Text>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigate('EventScreen')}
+          >
             <Ionicons
               name="information-circle-outline"
               size={22}
               color="#333"
             />
-            <Text style={styles.menuText}>정보 동의 설정</Text>
+            <Text style={styles.menuText}>이벤트</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -192,12 +207,12 @@ const ProfileScreen = () => {
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>등급별 혜택</Text>
           {[
-            { lv: 1, fee: '8%' },
-            { lv: 2, fee: '7.5%' },
-            { lv: 3, fee: '7%' },
-          ].map(({ lv, fee }) => (
+            { lv: 1, fee: '8%', label: LEVEL_LABELS[0] },
+            { lv: 2, fee: '7.5%', label: LEVEL_LABELS[1] },
+            { lv: 3, fee: '7%', label: LEVEL_LABELS[2] },
+          ].map(({ lv, fee, label }) => (
             <View style={styles.benefitItem} key={lv}>
-              <Text style={styles.benefitLevel}>Lv.{lv}</Text>
+              <Text style={styles.benefitLevel}>Lv.{lv} {label}</Text>
               <Text style={styles.benefitText}>출금 수수료 {fee}</Text>
             </View>
           ))}
@@ -248,7 +263,17 @@ const styles = StyleSheet.create({
   },
   userImage: { width: 90, height: 90, borderRadius: 45, marginRight: 20 },
   userInfo: { flex: 1 },
-  userusername: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 6 },
+  levelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  userusername: { fontSize: 22, fontWeight: 'bold', color: '#333', marginRight: 10 },
+  levelBadge: {
+    backgroundColor: '#eee',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginLeft: 4,
+  },
+  levelBadgeText: { fontSize: 14, color: '#007bff', fontWeight: 'bold' },
+
   balanceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
