@@ -40,6 +40,10 @@ interface OrderItem {
   status: string;
   riderId: string;
   orderType: string;
+  roomId:string;
+  username: string;
+  userImage: string;
+  nickname: string;
 }
 
 interface Props {
@@ -214,9 +218,14 @@ const DeliveryList: React.FC<Props> = ({ activeTab }) => {
               onPress={() => setSelectedOrder(item)}
             />
             <ActionBtn
-              icon="camera-alt"
-              label="사진 업로드"
-              onPress={() => navigate("DeliveryImage", { item })}
+              icon="chat"
+              label="1:1 채팅"
+              onPress={() => navigate("ChatRoom", {
+                roomId: item.roomId,
+                username: item.username,
+                nickname: item.nickname,
+                userImage: item.userImage,
+              })}
             />
           </View>
         )}

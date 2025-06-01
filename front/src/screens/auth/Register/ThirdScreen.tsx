@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { navigate, goBack } from '../../../navigation/NavigationUtils';
@@ -34,6 +35,7 @@ const ThirdScreen = ({ route }: ThirdScreenProps) => {
   const [step, setStep] = useState<0 | 1>(0);
   const [error, setError] = useState('');
   const [timer, setTimer] = useState(180); // 3분
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -59,11 +61,13 @@ const ThirdScreen = ({ route }: ThirdScreenProps) => {
 
   // 이메일 인증코드 발송
   const handleSendCode = async () => {
+    if (isSending) return;
     setError('');
     if (!phone.trim() || !phone.includes('@')) {
       setError('유효한 이메일을 입력해주세요');
       return;
     }
+    setIsSending(true);
     try {
       // verifyEmail action이 실제로 인증코드를 반환해야 함
       const returnedCode = await dispatch(verifyEmail(phone));
@@ -73,6 +77,7 @@ const ThirdScreen = ({ route }: ThirdScreenProps) => {
     } catch {
       setError('인증번호 전송에 실패했습니다');
     }
+    setIsSending(false);
   };
 
   // 인증코드 검증
@@ -143,13 +148,21 @@ const ThirdScreen = ({ route }: ThirdScreenProps) => {
           <TouchableOpacity
             style={[
               styles.nextButton,
-              step === 1 && timer === 0 ? { backgroundColor: '#aaa' } : {},
+              (step === 1 && timer === 0) || isSending ? { backgroundColor: '#aaa' } : {},
             ]}
             onPress={step === 0 ? handleSendCode : handleVerify}
-            disabled={step === 1 && timer === 0}
+            disabled={step === 1 && timer === 0 || isSending}
+            activeOpacity={isSending ? 1 : 0.8}
           >
+            {isSending ? (
+              <ActivityIndicator color="#fff" size="small" style={{ marginRight: 8 }} />
+            ) : null}
             <Text style={styles.nextButtonText}>
-              {step === 0 ? '인증번호 보내기' : '확인'}
+              {isSending
+                ? ''
+                : step === 0
+                  ? '인증번호 보내기'
+                  : '확인'}
             </Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
@@ -183,9 +196,11 @@ const styles = StyleSheet.create({
   errorText: { color: 'red', fontSize: 14, marginTop: -16, marginBottom: 16 },
   nextButton: {
     backgroundColor: '#3384FF',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
     position: 'absolute',
     bottom: 20,
     left: 20,

@@ -1,10 +1,3 @@
-/**
- * DeliveryDetailBottomSheet.tsx
- * - Draggable bottom sheet (full ↔ peek)
- * - Image viewer (react-native-image-viewing)
- * - Safe-area 대응
- */
-
 import React, { useState } from "react";
 import {
   View,
@@ -12,27 +5,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import ImageViewing from "react-native-image-viewing";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
+import { PanGestureHandler, PanGestureHandlerGestureEvent } from "react-native-gesture-handler";
 
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
-import {
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-} from "react-native-gesture-handler";
+const { width } = Dimensions.get("window");
 
-const { width, height: SCREEN_H } = Dimensions.get("window");
-
-/* -------------------------------------------------------------------------- */
-/*                                   types                                    */
-/* -------------------------------------------------------------------------- */
 type DeliveryItem = {
   _id: string;
   name: string;
@@ -58,13 +40,10 @@ type DeliveryItem = {
 
 type Props = {
   deliveryItem: DeliveryItem;
-  onAccept?: () => void;
+  onAccept?: () => Promise<void> | void;
   distance?: number;
 };
 
-/* -------------------------------------------------------------------------- */
-/*                          helpers (마감 시간 계산)                          */
-/* -------------------------------------------------------------------------- */
 const getTimeRemaining = (end: string) => {
   const now = new Date();
   const dead = new Date(end);
@@ -75,15 +54,11 @@ const getTimeRemaining = (end: string) => {
   return `${h}시간 ${m}분 남음`;
 };
 
-/* ----------------------- Snap positions (y-offset) ----------------------- */
 const SNAP = {
-  FULL: 0, // 완전 펼침 (시트 상단이 화면 하단과 맞닿음)
-  PEEK: 365, // 잠깐 내린 상태
+  FULL: 0,
+  PEEK: 365,
 };
 
-/* -------------------------------------------------------------------------- */
-/*                         DeliveryDetailBottomSheet                          */
-/* -------------------------------------------------------------------------- */
 export default function DeliveryDetailBottomSheet({
   deliveryItem,
   onAccept,
@@ -91,16 +66,14 @@ export default function DeliveryDetailBottomSheet({
 }: Props) {
   const insets = useSafeAreaInsets();
   const [viewerVisible, setViewerVisible] = useState(false);
+  const [acceptLoading, setAcceptLoading] = useState(false);
 
-  /* 주문 이미지 배열 */
   const images = deliveryItem.images
     ? deliveryItem.images.split(",").map((u) => ({ uri: u.trim() }))
     : [];
 
-  /* ----------------------- Reanimated 공유 값 ----------------------- */
   const translateY = useSharedValue(SNAP.FULL);
 
-  /* ------------------------- 제스처 정의 ------------------------- */
   const onGestureEvent = (e: PanGestureHandlerGestureEvent) => {
     const { translationY } = e.nativeEvent;
     translateY.value = Math.max(
@@ -112,22 +85,29 @@ export default function DeliveryDetailBottomSheet({
   const onHandlerStateChange = (_: PanGestureHandlerGestureEvent) => {
     const dest =
       translateY.value < SNAP.PEEK ? SNAP.FULL : SNAP.PEEK;
-    translateY.value = withSpring(dest, { 
-      damping: 25,            // `↑`값이 크면 감쇠가 커져 덜 튐   (기본 10)
-      stiffness: 200,         // `↓`값이 작으면 텐션이 느슨해짐    (기본 100)
-      mass: 1.3,              // 관성 조절 (기본 1)
-      overshootClamping: true // 목표 지점을 넘어가지 않고 딱 멈춤
-     });
+    translateY.value = withSpring(dest, {
+      damping: 25,
+      stiffness: 200,
+      mass: 1.3,
+      overshootClamping: true,
+    });
   };
 
-  /* ---------------------- Animated Style ---------------------- */
   const sheetStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
 
-  /* ------------------------------------------------------------------ */
-  /*                              Render                                */
-  /* ------------------------------------------------------------------ */
+  // 버튼 onPress
+  const handleAccept = async () => {
+    if (acceptLoading) return;
+    setAcceptLoading(true);
+    try {
+      await onAccept?.();
+    } finally {
+      setAcceptLoading(false);
+    }
+  };
+
   return (
     <>
       {/* ===== 바텀시트 ===== */}
@@ -263,8 +243,17 @@ export default function DeliveryDetailBottomSheet({
           </View>
 
           {/* ============ 수락 버튼 ============ */}
-          <TouchableOpacity style={styles.acceptBtn} onPress={onAccept}>
-            <Text style={styles.acceptText}>주문 수락</Text>
+          <TouchableOpacity
+            style={[styles.acceptBtn, acceptLoading && { opacity: 0.7 }]}
+            onPress={handleAccept}
+            disabled={acceptLoading}
+            activeOpacity={acceptLoading ? 1 : 0.85}
+          >
+            {acceptLoading ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Text style={styles.acceptText}>주문 수락</Text>
+            )}
           </TouchableOpacity>
 
           {/* ============ 이미지 뷰어 ============ */}
@@ -280,9 +269,6 @@ export default function DeliveryDetailBottomSheet({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                   styles                                   */
-/* -------------------------------------------------------------------------- */
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
@@ -306,8 +292,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#D0D5DD",
     marginBottom: 8,
   },
-
-  /* ---------- Header ---------- */
   header: { marginBottom: 14 },
   tagChip: {
     flexDirection: "row",
@@ -331,8 +315,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   metaText: { fontSize: 14, color: "#475467", marginLeft: 4 },
-
-  /* ---------- Card ---------- */
   card: {
     backgroundColor: "#F9FAFB",
     borderRadius: 16,
@@ -356,8 +338,6 @@ const styles = StyleSheet.create({
     color: "#0F172A",
     textAlign: "right",
   },
-
-  /* ---------- 이미지 버튼 ---------- */
   imageBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -370,8 +350,6 @@ const styles = StyleSheet.create({
     color: "#3384FF",
     marginLeft: 6,
   },
-
-  /* ---------- 수락 버튼 ---------- */
   acceptBtn: {
     backgroundColor: "#3384FF",
     borderRadius: 12,

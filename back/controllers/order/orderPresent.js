@@ -1,5 +1,6 @@
 const Order = require("../../models/Order");
 const NewOrder = require("../../models/NewOrder");
+const ChatRoom = require("../../models/ChatRoom");
 
 const User = require("../../models/User");
 
@@ -107,36 +108,48 @@ const getDeliveryList = async (req, res) => {
   const cacheKey = `completedOrders:delivery:${userId}`;
 
   try {
-
-    const orders = await Order.find({ riderId: userId }).lean();
-    const newOrder = await NewOrder.find({ riderId: userId }).lean();
-
-    const transformedNewOrders = newOrder.map(newOrder => ({
-      _id: newOrder._id,
-      userId:newOrder.userId,
-      items: [
-        {
-          menuName: newOrder.orderDetails, // orderDetails 값을 menuName으로
-          cafeName: newOrder.name, // name 값을 cafeName으로
-        }
-      ],
-      status: newOrder.status,
-      deliveryType: newOrder.deliveryType,
-      startTime: newOrder.createdAt,
-      deliveryFee: newOrder.deliveryFee,
-      createdAt: newOrder.createdAt,
-      updatedAt: newOrder.updatedAt,
-      riderRequest: newOrder.riderRequest,
-      endTime: newOrder.pickupTime,
-      lat: newOrder.lat,
-      lng: newOrder.lng,
-      orderType: newOrder.orderType,
-      images: newOrder.images,
-      orderImages: newOrder.orderImages,
-    }));
+    const newOrders = await NewOrder.find({ riderId: userId }).lean();
 
 
-    const combinedOrders = [...orders, ...transformedNewOrders];
+    // NewOrder 모델 변환 (roomId, 주문자 정보 추가)
+    const transformedNewOrders = await Promise.all(
+      newOrders.map(async (newOrder) => {
+        const chatRoom = await ChatRoom.findOne({
+          users: { $all: [newOrder.userId, newOrder.riderId || null] }
+        });
+        // 주문자 정보 조회
+        const user = await User.findById(newOrder.userId).lean();
+        return {
+          _id: newOrder._id,
+          userId: newOrder.userId,
+          items: [
+            {
+              menuName: newOrder.orderDetails,
+              cafeName: newOrder.name,
+            }
+          ],
+          status: newOrder.status,
+          deliveryType: newOrder.deliveryType,
+          startTime: newOrder.createdAt,
+          deliveryFee: newOrder.deliveryFee,
+          createdAt: newOrder.createdAt,
+          updatedAt: newOrder.updatedAt,
+          riderRequest: newOrder.riderRequest,
+          endTime: newOrder.pickupTime,
+          lat: newOrder.lat,
+          lng: newOrder.lng,
+          orderType: newOrder.orderType,
+          images: newOrder.images,
+          orderImages: newOrder.orderImages,
+          roomId: chatRoom ? chatRoom._id : null, // 추가
+          username: user.username,
+          userImage: user.userImage,
+          nickname: user.nickname,
+        };
+      })
+    );
+
+    const combinedOrders = [...transformedNewOrders];
 
     res.json(combinedOrders);
   } catch (error) {
@@ -144,6 +157,8 @@ const getDeliveryList = async (req, res) => {
     res.status(500).json({ message: "서버 오류" });
   }
 };
+
+
 
 const getDeliveryOngoingList = async (req, res) => {
   const userId = req.user.userId;
