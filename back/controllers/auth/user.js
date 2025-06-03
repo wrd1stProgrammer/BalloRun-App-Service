@@ -372,9 +372,10 @@ const taltaeApi = async (req, res) => {
       createdAt: new Date(),
     });
 
-    // username과 nickname을 "탈퇴한 사용자"로 변경
-    user.username = '탈퇴한 사용자';
+    const timestamp = Date.now();
+    user.username = `탈퇴한 사용자_${timestamp}`;
     user.nickname = '탈퇴한 사용자';
+    
     user.isActive = false; // 소프트 삭제 (법때매 실제 삭제아닌 삭제 상태)
     user.deletedAt = new Date();
     await user.save();

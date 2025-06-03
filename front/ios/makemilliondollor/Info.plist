@@ -39,70 +39,66 @@
 	<string>ca-app-pub-9384938904470201~6596569647</string>
 	<key>KAKAO_APP_KEY</key>
 	<string>ea648111b964cded4b08fdbaf9616a8d</string>
-<key>LSApplicationQueriesSchemes</key>
-<array>
-    <!-- 기존 scheme -->
-    <string>kakao1197111</string>
-    <string>kakaokompassauth</string>
-    <string>storykompassauth</string>
-    <string>kakaolink</string>
-    <string>kakaotalk</string>
-
-    <!-- 추가된 scheme -->
-    <string>kftc-bankpay</string>
-    <string>ispmobile</string>
-    <string>hdcardappcardansimclick</string>
-    <string>smhyundaiansimclick</string>
-    <string>hyundaicardappcardid</string>
-    <string>shinhan-sr-ansimclick</string>
-    <string>shinhan-sr-ansimclick-naverpay</string>
-    <string>shinhan-sr-ansimclick-payco</string>
-    <string>shinhan-sr-ansimclick-lpay</string>
-    <string>shinhan-sr-ansimclick-mola</string>
-    <string>smshinhanansimclick</string>
-    <string>smailapp</string>
-    <string>kb-acp</string>
-    <string>kb-auth</string>
-    <string>kb-screen</string>
-    <string>kbbank</string>
-    <string>liivbank</string>
-    <string>newliiv</string>
-    <string>mpocket.online.ansimclick</string>
-    <string>ansimclickscard</string>
-    <string>ansimclickipcollect</string>
-    <string>vguardstart</string>
-    <string>samsungpay</string>
-    <string>scardcertiapp</string>
-    <string>monimopay</string>
-    <string>monimopayauth</string>
-    <string>lottesmartpay</string>
-    <string>lotteappcard</string>
-    <string>lmslpay</string>
-    <string>lpayapp</string>
-    <string>cloudpay</string>
-    <string>hanawalletmembers</string>
-    <string>nhappcardansimclick</string>
-    <string>nonghyupcardansimclick</string>
-    <string>nhallonepayansimclick</string>
-    <string>citispay</string>
-    <string>citicardappkr</string>
-    <string>citimobileapp</string>
-    <string>payco</string>
-    <string>com.wooricard.wcard</string>
-    <string>newsmartpib</string>
-    <string>NewSmartPib</string>
-    <string>supertoss</string>
-    <string>naversearchthirdlogin</string>
-    <string>kakaobank</string>
-    <string>v3mobileplusweb</string>
-    <string>line</string>
-    <string>alipays</string>
-    <string>weixin</string>
-    <string>tauthlink</string>
-    <string>ktauthexternalcall</string>
-    <string>upluscorporation</string>
-</array>
-
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>kakao1197111</string>
+		<string>kakaokompassauth</string>
+		<string>storykompassauth</string>
+		<string>kakaolink</string>
+		<string>kakaotalk</string>
+		<string>kftc-bankpay</string>
+		<string>ispmobile</string>
+		<string>hdcardappcardansimclick</string>
+		<string>smhyundaiansimclick</string>
+		<string>hyundaicardappcardid</string>
+		<string>shinhan-sr-ansimclick</string>
+		<string>shinhan-sr-ansimclick-naverpay</string>
+		<string>shinhan-sr-ansimclick-payco</string>
+		<string>shinhan-sr-ansimclick-lpay</string>
+		<string>shinhan-sr-ansimclick-mola</string>
+		<string>smshinhanansimclick</string>
+		<string>smailapp</string>
+		<string>kb-acp</string>
+		<string>kb-auth</string>
+		<string>kb-screen</string>
+		<string>kbbank</string>
+		<string>liivbank</string>
+		<string>newliiv</string>
+		<string>mpocket.online.ansimclick</string>
+		<string>ansimclickscard</string>
+		<string>ansimclickipcollect</string>
+		<string>vguardstart</string>
+		<string>samsungpay</string>
+		<string>scardcertiapp</string>
+		<string>monimopay</string>
+		<string>monimopayauth</string>
+		<string>lottesmartpay</string>
+		<string>lotteappcard</string>
+		<string>lmslpay</string>
+		<string>lpayapp</string>
+		<string>cloudpay</string>
+		<string>hanawalletmembers</string>
+		<string>nhappcardansimclick</string>
+		<string>nonghyupcardansimclick</string>
+		<string>nhallonepayansimclick</string>
+		<string>citispay</string>
+		<string>citicardappkr</string>
+		<string>citimobileapp</string>
+		<string>payco</string>
+		<string>com.wooricard.wcard</string>
+		<string>newsmartpib</string>
+		<string>NewSmartPib</string>
+		<string>supertoss</string>
+		<string>naversearchthirdlogin</string>
+		<string>kakaobank</string>
+		<string>v3mobileplusweb</string>
+		<string>line</string>
+		<string>alipays</string>
+		<string>weixin</string>
+		<string>tauthlink</string>
+		<string>ktauthexternalcall</string>
+		<string>upluscorporation</string>
+	</array>
 	<key>LSMinimumSystemVersion</key>
 	<string>12.0</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -126,25 +122,42 @@
 			</dict>
 		</dict>
 	</dict>
+
 	<key>NSCameraUsageDescription</key>
-	<string>앱에서 카메라를 사용하려면 접근 권한이 필요합니다.</string>
+	<string>배송 요청 시 사진을 업로드하거나, 러너 등록 시 신분증 촬영을 위해 카메라 접근 권한이 필요합니다.
+Camera access is required to upload photos during delivery requests or to capture ID during runner registration.</string>
+
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>이 앱은 항상 위치 정보를 사용하여 실시간 위치 추적 기능을 제공합니다.</string>
+	<string>배송지를 설정하거나, 러너 이용 시 실시간 위치 확인을 위해 위치 정보가 필요합니다.
+Location access is needed to set the delivery address or track the runner’s real-time location during service.</string>
+
 	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
 	<dict>
 		<key>LocationAccuracy</key>
-		<string>이 앱은 정밀한 위치 데이터를 사용하여 보다 정확한 서비스를 제공합니다.</string>
+		<string>정확한 위치 데이터를 활용하여 사용자에게 정밀한 위치 기반 서비스를 제공합니다.
+This app uses precise location data to provide accurate location-based services.</string>
 	</dict>
+
 	<key>NSLocationUsageDescription</key>
-	<string>이 앱은 위치 서비스를 사용하여 사용자에게 맞춤형 서비스를 제공합니다.</string>
+	<string>배송지 추천 및 서비스 지역 판단을 위해 위치 정보가 사용됩니다.
+Location data is used to recommend nearby delivery options and determine service availability.</string>
+
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>이 앱은 사용 중 위치 정보를 사용하여 현재 위치를 제공합니다.</string>
+	<string>배송지를 설정하거나, 러너 이용 시 실시간 위치 확인을 위해 위치 정보가 필요합니다.
+Location access is needed to set the delivery address or track the runner’s real-time location during service.</string>
+
 	<key>NSMicrophoneUsageDescription</key>
-	<string>비디오 녹화를 위해 마이크 사용 권한이 필요합니다.</string>
+	<string>비디오 녹화를 위해 마이크 사용 권한이 필요합니다.
+Microphone access is required for video recording.</string>
+
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>앱에서 사진을 선택하려면 접근 권한이 필요합니다.</string>
+	<string>앱에서 사진을 선택하려면 접근 권한이 필요합니다.
+Photo library access is required to select photos in the app.</string>
+
 	<key>NSUserTrackingUsageDescription</key>
-	<string>이 식별자는 개인화된 광고를 제공하는 데 사용됩니다.</string>
+	<string>이 식별자는 개인화된 광고를 제공하는 데 사용됩니다.
+This identifier is used to provide personalized advertisements.</string>
+
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
