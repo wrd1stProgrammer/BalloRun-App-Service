@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  userImage: { width: 90, height: 90, borderRadius: 45, marginRight: 20 },
+  userImage: { width: 70, height: 70, borderRadius: 45, marginRight: 20 },
   userInfo: { flex: 1 },
   levelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   userusername: { fontSize: 22, fontWeight: 'bold', color: '#333', marginRight: 10 },

@@ -11,9 +11,18 @@ const newOrderRouter = require("../routes/neworder");
 const address = require("../routes/address");
 const noticeRouter = require("../routes/notice");
 const paymentRouter = require("../routes/payment");
+const path = require('path');                // ← 추가
+
 
 module.exports = async (app) => {
     const router = express.Router();
+
+        // 1) withdraw.html을 직접 클라이언트에 보내기
+        router.get('/withdrawhtml', (req, res) => {
+            // __dirname은 현재 파일(routes.js)이 위치한 절대 경로를 가리킵니다.
+            // 따라서 withdraw.html 경로는 path.join(__dirname, 'withdraw.html') 과 같습니다.
+            res.sendFile(path.join(__dirname, 'withdraw.html'));
+        });
 
     // 기본 경로
     router.get('/', (req, res) => {

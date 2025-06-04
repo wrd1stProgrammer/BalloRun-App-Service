@@ -159,6 +159,7 @@ OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
       <View style={styles.bannerContainer}>
         <AdMobBanner />
       </View>
+
     </View>
   );
 };
@@ -261,8 +262,13 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   bannerContainer: {
-    marginTop: 20,
-    marginBottom: 15,
+    marginTop: 40,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  bannerContainer2: {
+    marginTop: 15,
+    marginBottom: 1,
     alignItems: 'center',
   },
 });
