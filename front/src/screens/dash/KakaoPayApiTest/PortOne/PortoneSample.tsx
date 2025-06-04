@@ -108,7 +108,7 @@ function PortOneSample() {
         request={{
           paymentId: paymentId,                    
           storeId: "store-68c88836-7529-4771-9a3a-ee81b2552a83",
-          channelKey: "channel-key-e760a2da-6273-4d91-a47d-322d03bba0f9",
+          channelKey: "channel-key-7de7c992-3c02-4880-ad48-52bea7fa095c",
           orderName: orderName,
           totalAmount: totalAmount,
           currency: "CURRENCY_KRW",
