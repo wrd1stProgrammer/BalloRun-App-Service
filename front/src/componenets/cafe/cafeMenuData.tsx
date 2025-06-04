@@ -12,6 +12,8 @@ interface MenuItem {
     price: string; // 가격 문자열 (예: '2000원')
     image: string; // 이미지 경로 또는 URL
   }
+
+  
   
   // 데이터 배열 정의
   const menuItems: MenuItem[] = [
