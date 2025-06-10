@@ -11,7 +11,6 @@ const newOrderRouter = require("../routes/neworder");
 const address = require("../routes/address");
 const noticeRouter = require("../routes/notice");
 const paymentRouter = require("../routes/payment");
-const path = require('path');                // ← 추가
 
 
 module.exports = async (app) => {
@@ -19,7 +18,7 @@ module.exports = async (app) => {
 
     // 기본 경로
     router.get('/', (req, res) => {
-        res.send('Hello, World!');
+        res.send('안녕하세요 앱스토어,플레이스토어에 발로뛰어 검색 후 다운로드 부탁드립니다 !! ');
     });
 
     router.get('/health', (req, res) => {

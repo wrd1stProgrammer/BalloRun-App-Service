@@ -140,7 +140,6 @@ const UserSchema = new mongoose.Schema(
     isFirstRegister:{
       type:Boolean,
       deafault:true,
-      required:true,
     }
   },
   { timestamps: true }

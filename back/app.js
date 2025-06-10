@@ -60,14 +60,14 @@ async function startServer() {
   await fcmConnect(); // await 맞나
 
 
-  // RabbitMQ 소비자 실행 (7초 딜레이)
+  // RabbitMQ 소비자 실행 (15초 딜레이)
   setTimeout(async() => {
     console.log("10초 후에 RabbitMQ 소비자 실행 시작!!!!!!");
     await consumeMessages(emitCancel, redisCli);
     await consumeDelayedMessages(emitCancel,redisCli);
     await consumeOrderAcceptQueue(redisCli);
     await consumeNewOrderMessages(redisCli);
-  }, 10000);
+  }, 15000);
 
 
   // server,app -> loaders
