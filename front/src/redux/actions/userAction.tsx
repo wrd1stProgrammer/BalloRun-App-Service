@@ -51,8 +51,10 @@ export const kakaoLogin = (email:string) => async (dispatch: any) => {
       email,
       loginProvider:"kakao",
     });
+    console.log(res.data.user, "res");
 
-    if (res.data.user.isFirstRegister && res.data.user.username === "progress") {
+    if (res.data.user.isFirstRegister && res.data.user.username === 'progress') {
+      console.log(res.data.user, "user");
       // 첫 소셜 로그인시
       resetAndNavigate('SocialRegisterScreen', {
         email: res.data.user.email,

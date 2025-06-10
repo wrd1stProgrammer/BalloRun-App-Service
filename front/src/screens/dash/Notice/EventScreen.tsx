@@ -6,24 +6,22 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { navigate,goBack } from '../../../navigation/NavigationUtils';
+import { navigate } from '../../../navigation/NavigationUtils';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { appAxios } from '../../../redux/config/apiConfig';
-import { Alert } from 'react-native';
 import { useAppSelector } from '../../../redux/config/reduxHook';
 import { selectUser } from '../../../redux/reducers/userSlice';
-
 
 const EventScreen: React.FC<{ route: any }> = ({ route }) => {
   const navigation = useNavigation();
   const [notices, setNotices] = useState([]);
-  const user =  useAppSelector(selectUser);
-
+  const user = useAppSelector(selectUser);
 
   useEffect(() => {
-    
+    fetchNotices();
   }, []);
 
   const fetchNotices = async () => {
@@ -43,22 +41,32 @@ const EventScreen: React.FC<{ route: any }> = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header: 좌우 공간 맞추어 중앙정렬 */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>이벤트</Text>
-        {user?.admin && (
+        <View style={styles.sideButton}>
           <TouchableOpacity
-            onPress={() => navigate('CreateNotice', { user })}
-            style={styles.writeButton}
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
           >
-            <Ionicons name="create-outline" size={28} color="#000" />
+            <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
           </TouchableOpacity>
-        )}
+        </View>
+        <View style={styles.headerTitleWrapper}>
+          <Text style={styles.headerTitle}>이벤트</Text>
+        </View>
+        <View style={styles.sideButton}>
+          {user?.admin ? (
+            <TouchableOpacity
+              onPress={() => navigate('CreateNotice', { user })}
+              style={styles.writeButton}
+            >
+              <Ionicons name="create-outline" size={28} color="#000" />
+            </TouchableOpacity>
+          ) : (
+            // admin이 아니면 빈 View로 공간 확보
+            <View style={styles.writeButton} />
+          )}
+        </View>
       </View>
 
       <ScrollView style={styles.content}>
@@ -80,6 +88,8 @@ const EventScreen: React.FC<{ route: any }> = ({ route }) => {
   );
 };
 
+const BUTTON_WIDTH = 38; // 아이콘 + padding 감안
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -88,22 +98,36 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    height: 54,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+    backgroundColor: '#fff',
+  },
+  sideButton: {
+    width: BUTTON_WIDTH,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backButton: {
     padding: 5,
+  },
+  headerTitleWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#000',
+    textAlign: 'center',
   },
   writeButton: {
     padding: 5,
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     flex: 1,

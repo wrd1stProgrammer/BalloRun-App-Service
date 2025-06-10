@@ -222,6 +222,7 @@ const applelogin = async (req, res) => {
         userId,
         nickname,
         username,
+        isFirstRegister: true,
         password: hashedPassword,
         userImage: 'https://res.cloudinary.com/dodyuxi5o/image/upload/v1748584790/user_2657939_u4j1li.png',
         loginProvider: 'apple', // 로그인 제공자 기록
@@ -396,6 +397,8 @@ const kakaologin = async (req, res) => {
         email,
         userId,
         username,
+        nickname,
+        isFirstRegister: true,
         password: hashedPassword,
         userImage:
           'https://res.cloudinary.com/dodyuxi5o/image/upload/v1748584790/user_2657939_u4j1li.png',
