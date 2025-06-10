@@ -80,7 +80,7 @@ const ProfileScreen = () => {
 
           <View style={styles.userInfo}>
             <View style={styles.levelRow}>
-              <Text style={styles.userusername}>{user?.username}</Text>
+              <Text style={styles.userusername}>{user?.nickname}</Text>
               <View style={styles.levelBadge}>
                 <Text style={styles.levelBadgeText}>
                   {levelLabel(user?.level)}

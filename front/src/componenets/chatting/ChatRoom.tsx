@@ -13,6 +13,8 @@ import { selectUser } from '../../redux/reducers/userSlice';
 import { updateLastChat } from '../../redux/reducers/chatSlice';
 import { useAppDispatch } from '../../redux/config/reduxHook';
 
+// 👉 추가
+import ImageViewing from 'react-native-image-viewing';
 
 export type ChatRoomScreenProps = StackScreenProps<RootStackParamList, 'ChatRoom'>;
 
@@ -33,11 +35,16 @@ type ChatData = {
 const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
   const socket = useContext(ChatSocketContext);
   const access_token = token_storage.getString('access_token');
-  const { roomId, username, nickname, userImage } = route.params; // userImage 추출
+  const { roomId, username, nickname, userImage } = route.params;
   const [chatData, setChatData] = useState<ChatData>({});
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const scrollViewRef = useRef<ScrollView | null>(null);
+
+  // 👉 이미지 뷰어 상태 관리
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [imageViewerImages, setImageViewerImages] = useState<{uri: string}[]>([]);
+  const [imageViewerIndex, setImageViewerIndex] = useState(0);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -45,7 +52,6 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
     }, 100);
   };
   
-
   useEffect(() => {
     scrollToBottom();
   }, [chatData]);
@@ -140,6 +146,28 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
     scrollToBottom();
   };
 
+  // 👉 이미지 터치 시 핸들러
+  const onImagePress = (imageUrl: string) => {
+    // 모든 날짜를 합쳐서 이미지 메시지들만 추출
+    const images: {uri: string}[] = [];
+    let foundIndex = 0;
+    let count = 0;
+
+    Object.values(chatData).forEach((messages) => {
+      messages.forEach((msg) => {
+        if (msg.imageUrl) {
+          if (msg.imageUrl === imageUrl) foundIndex = count;
+          images.push({ uri: msg.imageUrl });
+          count++;
+        }
+      });
+    });
+
+    setImageViewerImages(images);
+    setImageViewerIndex(foundIndex);
+    setImageViewerVisible(true);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -165,11 +193,13 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
                     imageUrl={messageChild.imageUrl}
                     isSentByMe={!!messageChild.isMe}
                     isLoading={messageChild.isLoading}
-                    userImage={userImage} // userImage 전달
+                    userImage={userImage}
                     {...(!!messageChild.timeOfDay &&
                       !!messageChild.timestamp && {
                         timeStamp: `${messageChild.timeOfDay} ${messageChild.timestamp}`,
                       })}
+                    // 👉 이미지 터치 핸들러 전달
+                    onImagePress={messageChild.imageUrl ? () => onImagePress(messageChild.imageUrl!) : undefined}
                   />
                   <View style={{ paddingBottom: 4 }} key={messageChild.id + index} />
                 </React.Fragment>
@@ -187,6 +217,14 @@ const ChatRoom = ({ navigation, route }: ChatRoomScreenProps) => {
         </ScrollView>
         <Input chatRoomId={roomId} onPostMessageHandler={onPostMessageHandler} />
       </KeyboardAvoidingView>
+      {/* 👉 이미지 뷰어 */}
+      <ImageViewing
+        images={imageViewerImages}
+        imageIndex={imageViewerIndex}
+        visible={imageViewerVisible}
+        onRequestClose={() => setImageViewerVisible(false)}
+        // (필요 시 Header/Footer 등도 커스터마이즈 가능)
+      />
     </SafeAreaView>
   );
 };

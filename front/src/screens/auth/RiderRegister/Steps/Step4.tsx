@@ -71,7 +71,7 @@ const Step4Content: React.FC<Step4ContentProps> = ({ images }) => {
     <ScrollView contentContainerStyle={authStyles.container}>
       {uploading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#3384FF" />
+          <ActivityIndicator size="small" color="#3384FF" />
           <Text style={styles.loadingText}>업로드 중...</Text>
         </View>
       )}

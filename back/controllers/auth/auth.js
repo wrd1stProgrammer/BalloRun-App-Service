@@ -196,7 +196,7 @@ const applelogin = async (req, res) => {
     if (!user) {
       // 3. 존재하지 않는 경우 신규 사용자 생성
       let userId = email.split('@')[0];
-      let username = userId;
+      let username = "progress";
       let nickname = userId;
 
       // 3-1. userId 중복 확인 및 중복 방지 로직
@@ -262,6 +262,7 @@ const applelogin = async (req, res) => {
         isDelivering: user.isDelivering,
         verificationStatus: user.verificationStatus,
         account: user.account ?? null, // account가 undefined일 경우 null로 처리
+        isFirstRegister: user.isFirstRegister,
       },
     });
   } catch (error) {
@@ -373,7 +374,7 @@ const kakaologin = async (req, res) => {
 
     if (!user) {
       let userId = email.split('@')[0];
-      let username = userId;
+      let username = "progress";
       let nickname = userId;
 
       // userId 중복 방지
@@ -441,6 +442,7 @@ const kakaologin = async (req, res) => {
         isDelivering: user.isDelivering,
         verificationStatus: user.verificationStatus,
         account: user.account ?? null,
+        isFirstRegister: user.isFirstRegister,
       },
     });
   } catch (error) {
@@ -548,6 +550,61 @@ const refreshToken = async (req, res) => {
     }
   };
 
+  const socialRegister = async (req, res) => {
+    const { nickname,username,email } = req.body;
+  
+    if (!nickname || !username ||!email) {
+      return res.status(400).json({ error: '필수 바디 누락' });
+    }
+  
+    try {
+      // userId로 사용자 조회
+      const user = await User.findOne({email});
+  
+      if (!user) {
+        return res.status(404).json({ error: '해당 userId에 해당하는 사용자를 찾을 수 없습니다.' });
+      }
+
+      user.nickname = nickname;
+      user.username = username;
+      user.isFirstRegister = false;
+      
+      const newAccessToken = user.createAccessToken();
+      const newRefreshToken = user.createRefreshToken();
+
+      await user.save();
+
+      res.status(200).json({
+        tokens: {
+          access_token: newAccessToken,
+          refresh_token: newRefreshToken,
+        },
+        user: {
+          _id: user._id,
+          exp: user.exp,
+          level: user.level,
+          admin: user.admin,
+          username: user.username,
+          nickname: user.nickname,
+          userId: user.userId,
+          userImage: user.userImage,
+          email: user.email,
+          phone: user.phone,
+          point: user.point,
+          originalMoney: user.originalMoney,
+          isDelivering: user.isDelivering,
+          verificationStatus: user.verificationStatus,
+          account: user.account ?? null,
+          isFirstRegister: user.isFirstRegister,
+        },
+      });
+
+
+    } catch (error) {
+      res.status(500).json({ error: 'FCM 토큰 저장 또는 업데이트 실패', error});
+    }
+  };
+
   module.exports = {
     register,
     login,
@@ -556,5 +613,6 @@ const refreshToken = async (req, res) => {
     saveFcmToken,
     kakaologin,
     applelogin,
-    findIdByUserInfo
+    findIdByUserInfo,
+    socialRegister,
   };

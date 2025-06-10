@@ -73,7 +73,7 @@ const PayResult: React.FC<PayResultProps> = ({ route, navigation }) => {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="small" />
       <Text>결제 진행 중...</Text>
     </View>
   );

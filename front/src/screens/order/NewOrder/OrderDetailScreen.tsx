@@ -93,7 +93,7 @@ const OrderDetailScreen: React.FC = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="small" color="#000" />
         <Text style={styles.loadingText}>불러오는 중...</Text>
       </SafeAreaView>
     );

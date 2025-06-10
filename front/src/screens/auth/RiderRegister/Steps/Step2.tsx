@@ -89,7 +89,7 @@ const Step2Content: React.FC = () => {
       {/* 업로드 중일 때 오버레이 */}
       {uploading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="black" />
+          <ActivityIndicator size="small" color="black" />
           <Text style={styles.loadingText}>업로드 중...</Text>
         </View>
       )}

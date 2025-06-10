@@ -133,7 +133,7 @@ const ChatRoomItem = ({
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={[{ color: Color.black }, TYPOS.headline4]}>
-                  {username}
+                  {nickname}
                 </Text>
                 {!localIsAlarm && (
                   <Ionicons name="notifications-off-outline" size={16} color={Color.neutral2} style={{ marginLeft: 4 }} />

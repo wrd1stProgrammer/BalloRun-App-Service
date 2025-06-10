@@ -256,7 +256,7 @@ const OrderFinalScreen = () => {
     <SafeAreaView style={styles.container}>
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#000" />
+          <ActivityIndicator size="small" color="#000" />
           <Text style={styles.loadingText}>주문 접수 중...</Text>
         </View>
       ) : (

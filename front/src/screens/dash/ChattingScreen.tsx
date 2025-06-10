@@ -120,7 +120,7 @@ const Chatting: React.FC = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#F9F9F9", justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color='#202632' />
+        <ActivityIndicator size="small" color='#202632' />
       </SafeAreaView>
     );
   }

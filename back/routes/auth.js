@@ -7,7 +7,8 @@ const {
     saveFcmToken,
     kakaologin,
     applelogin,
-    findIdByUserInfo
+    findIdByUserInfo,
+    socialRegister,
 } = require("../controllers/auth/auth");
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.post("/resetPw", resetPassword);
 router.post("/saveFcmToken",saveFcmToken);
 router.post("/kakaologin",kakaologin);
 router.post("/applelogin",applelogin);
-
+router.post("/socialregister",socialRegister);
 //mail router 
 router.post("/verifyEmail",sendEmail);
 
@@ -34,7 +35,9 @@ router.post("/checkEmail",checkEmailApi);
 
 //id find, pw find
 router.post("/findId",findIdByUserInfo);
-router.post("resetpw")
+router.post("resetpw");
+
+
 module.exports = router;
 
 

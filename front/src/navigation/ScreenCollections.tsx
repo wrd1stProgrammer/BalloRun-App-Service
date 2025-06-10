@@ -74,6 +74,7 @@ import FindIdScreen from "../screens/auth/FindId/\bFindIdScreen";
 import ResetPasswordScreen from "../screens/auth/FindPW/ResetPasswordScreen";
 import FindPasswordScreen from "../screens/auth/FindPW/FindPasswordScreen";
 import EventScreen from "../screens/dash/Notice/EventScreen";
+import SocialRegisterScreen from "../screens/auth/Register/SocialRegister";
 // ++ New Screen Stack
 
 export const authStack = [
@@ -354,6 +355,10 @@ export const orderStack = [
   {
     name:"TalTaeScreen",
     component:TalTaeScreen,
+  },
+  {
+    name:"SocialRegisterScreen",
+    component: SocialRegisterScreen,
   }
 ];
 

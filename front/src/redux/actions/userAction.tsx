@@ -9,6 +9,7 @@ import { Alert } from 'react-native';
 import { requestUserPermission } from '../../utils/fcm/fcmToken';
 import { setTokens } from '../reducers/userSlice';
 
+
 const handleSignInSuccess = async (res: any, dispatch: any) => {
   const { access_token, refresh_token } = res.data.tokens;
   token_storage.set('access_token', res.data.tokens.access_token);
@@ -50,8 +51,16 @@ export const kakaoLogin = (email:string) => async (dispatch: any) => {
       email,
       loginProvider:"kakao",
     });
-    // 로그인 성공 시 처리
-    await handleSignInSuccess(res, dispatch);
+
+    if (res.data.user.isFirstRegister && res.data.user.username === "progress") {
+      // 첫 소셜 로그인시
+      resetAndNavigate('SocialRegisterScreen', {
+        email: res.data.user.email,
+      });
+      return; // 이후 진행 X
+    }else{
+      await handleSignInSuccess(res, dispatch);
+    }
     
     return res.data;
     
@@ -73,8 +82,16 @@ export const appleLogin = (identityToken:string) => async (dispatch: any) => {
       identityToken,
       loginProvider:"kakao",
     });
-    // 로그인 성공 시 처리 
-    await handleSignInSuccess(res, dispatch);
+
+    if (res.data.user.isFirstRegister && res.data.user.username === "progress") {
+      // 첫 소셜 로그인시
+      resetAndNavigate('SocialRegisterScreen', {
+        email: res.data.user.email,
+      });
+      return; // 이후 진행 X
+    }else{
+      await handleSignInSuccess(res, dispatch);
+    }
     
     return res.data;
     
@@ -130,6 +147,23 @@ export const checkNicknameDuplicateAction = ( nickname:string) => async (dispatc
     
   } catch (error: any) {
     console.log('닉네임 검증 에러 ->', error);
+  }
+};
+
+export const socialRegisterAction = ( nickname:string, username:string, email:string) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/auth/socialregister',{
+      nickname,
+      username,
+      email,
+    });
+    // 로그인 성공 시 처리
+    await handleSignInSuccess(res, dispatch);
+
+    return res.data;
+    
+  } catch (error: any) {
+    console.log('소셜 가입 마지막 에러 ->', error);
   }
 };
 
@@ -334,5 +368,18 @@ export const findIdByUserInfoAction = ( name:string, phone:number, email:string)
     
   } catch (error: any) {
     console.log('닉네임 검증 에러 ->', error);
+  }
+};
+
+export const countRunnerAction = ( curLat: number, curLng: number) => async (dispatch: any) => {
+  try {
+    const res = await appAxios.post('/user/countrunner',{
+      curLat,
+      curLng,
+    });
+    return res.data;
+    
+  } catch (error: any) {
+    console.log('러너 카운트 에러 ->', error);
   }
 };

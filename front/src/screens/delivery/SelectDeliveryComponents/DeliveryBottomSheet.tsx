@@ -196,7 +196,7 @@ const renderItem = ({ item }) => {
       <BottomSheet snapPoints={snapPoints}>
         <View style={styles.container}>
           {loading ? (
-            <ActivityIndicator size="large" color="#000" />
+            <ActivityIndicator size="small" color="#000" />
           ) : (
             <FlatList
               data={deliveryItems}

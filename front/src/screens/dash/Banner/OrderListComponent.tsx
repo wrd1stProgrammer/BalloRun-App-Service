@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Alert, Image, Image
 import { Ionicons } from '@expo/vector-icons';
 import { navigate } from '../../../navigation/NavigationUtils';
 import AdMobBanner from '../AdMob/AdMobBanner';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // 추가
 
 interface OrderListProps {
   user: any;
@@ -152,7 +153,7 @@ OrderListComponent: React.FC<OrderListProps> = ({ user }) => {
 
       {/* 배달하기 버튼 */}
       <TouchableOpacity style={styles.deliveryButton} onPress={handleDeliveryPress}>
-        <Ionicons name="bicycle" size={28} color="white" style={styles.deliveryIcon} />
+        <Icon name="run-fast" size={28} color="white" style={styles.deliveryIcon} />
         <Text style={styles.deliveryButtonText}>배달하기</Text>
       </TouchableOpacity>
 

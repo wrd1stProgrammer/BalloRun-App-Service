@@ -129,7 +129,7 @@ const AppBar: React.FC<AppBarProps> = ({ onBackPress, username = '진관', nickn
       <TouchableOpacity onPress={onBackPress}>
         <Ionicons name="chevron-back" size={24} color="#000" />
       </TouchableOpacity>
-      <Text style={styles.title}>{username}</Text>
+      <Text style={styles.title}>{nickname}</Text>
       <View style={styles.icons}>
         <TouchableOpacity style={styles.icon} onPress={handleReportPress}>
           <Ionicons name="radio-outline" size={24} color="#000" />

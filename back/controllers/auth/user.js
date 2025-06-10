@@ -343,7 +343,10 @@ const updateAddress = async (req, res) => {
           return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
       }
 
+      user.curLat = lat;
+      user.curLng = lng;
       user.address = address;
+
     // GeoJSON 포맷으로 저장
       user.location = {
        type: 'Point',
@@ -463,6 +466,41 @@ const updateNotificationSettings = async (req, res) => {
   }
 };
 
+const countrunnerApi = async (req, res) => {
+  try {
+    const { curLat, curLng } = req.body;
+
+    if (
+      typeof curLat !== 'number' ||
+      typeof curLng !== 'number' ||
+      isNaN(curLat) ||
+      isNaN(curLng)
+    ) {
+      return res.status(400).json({ message: 'curLat 및 curLng를 숫자로 전달해야 합니다.' });
+    }
+
+    // GeoJSON $nearSphere 쿼리: 경도(longitude), 위도(latitude) 순서
+    // maxDistance 단위는 미터(m) -> 3km = 3000m
+    const nearbyCount = await User.countDocuments({
+      verificationStatus: 'verified',
+      location: {
+        $nearSphere: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [curLng, curLat], // [경도, 위도]
+          },
+          $maxDistance: 3000, // 단위: 미터 (3km)
+        },
+      },
+    });
+
+    return res.json({ count: nearbyCount });
+  } catch (err) {
+    console.error('[nearby-count 에러]', err);
+    return res.status(500).json({ message: '서버 내부 오류' });
+  }
+}
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -474,5 +512,6 @@ module.exports = {
   updateAddress,
   taltaeApi,
   accountUpdate,
-  updateNotificationSettings
+  updateNotificationSettings,
+  countrunnerApi,
 };

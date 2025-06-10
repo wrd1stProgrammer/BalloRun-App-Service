@@ -90,7 +90,7 @@ const CafeMenuListScreen: React.FC = () => {
 
       {/* 로딩 중 표시 */}
       {loading ? (
-        <ActivityIndicator size="large" color="#000" style={styles.loader} />
+        <ActivityIndicator size="small" color="#000" style={styles.loader} />
       ) : (
         <>
           <View style={styles.container_1}>

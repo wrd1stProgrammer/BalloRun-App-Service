@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { navigate, goBack } from '../../../navigation/NavigationUtils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppDispatch } from '../../../redux/config/reduxHook';
-import { verifyEmail } from '../../../redux/actions/userAction';
+import { checkEmailDuplicateAction, verifyEmail } from '../../../redux/actions/userAction';
 
 type RootStackParamList = {
   ThirdScreen: { name: string; nickname: string; id: string; password: string; email: string };
@@ -69,7 +69,15 @@ const ThirdScreen = ({ route }: ThirdScreenProps) => {
     }
     setIsSending(true);
     try {
-      // verifyEmail action이 실제로 인증코드를 반환해야 함
+      // 1. 이메일 중복 체크
+      const result = await dispatch(checkEmailDuplicateAction(phone));
+      if (result && result.available === false) {
+        setError('중복된 이메일입니다');
+        setIsSending(false);
+        return;
+      }
+  
+      // 2. 중복 아니면 인증번호 발송
       const returnedCode = await dispatch(verifyEmail(phone));
       setSentCode(returnedCode || '');
       setStep(1);
@@ -143,6 +151,7 @@ const ThirdScreen = ({ route }: ThirdScreenProps) => {
             )}
 
             {error.length > 0 && <Text style={styles.errorText}>{error}</Text>}
+
           </View>
 
           <TouchableOpacity

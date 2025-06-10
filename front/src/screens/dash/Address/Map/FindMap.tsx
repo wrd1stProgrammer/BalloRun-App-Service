@@ -71,7 +71,7 @@ const FindMap = () => {
   if (loading || !region) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="small" color="#000" />
         <Text style={{ marginTop: 10 }}>지도를 불러오는 중...</Text>
       </View>
     );

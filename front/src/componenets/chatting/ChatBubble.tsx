@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import TYPOS from './etc/TYPOS';
 import Color from '../../constants/Colors';
 
@@ -9,10 +9,11 @@ interface ChatBubbleProps {
   timeStamp?: string;
   imageUrl?: string;
   isLoading?: boolean;
-  userImage?: string; // userImage prop 추가
+  userImage?: string;
+  onImagePress?: () => void; // 추가
 }
 
-const ChatBubble = ({ message, isSentByMe, timeStamp, imageUrl, isLoading, userImage }: ChatBubbleProps) => {
+const ChatBubble = ({ message, isSentByMe, timeStamp, imageUrl, isLoading, userImage, onImagePress }: ChatBubbleProps) => {
   const bubbleStyles = isSentByMe ? styles.sentBubble : styles.receivedBubble;
   const textStyles = isSentByMe ? styles.sentText : styles.receivedText;
 
@@ -41,11 +42,16 @@ const ChatBubble = ({ message, isSentByMe, timeStamp, imageUrl, isLoading, userI
       <View style={[styles.bubbleContainer, bubbleStyles]}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
-            <ActivityIndicator size="small" color="#000" style={styles.loadingSpinner} />
+            {/* 이미지일 때만 Touchable 처리 */}
+            <TouchableOpacity onPress={onImagePress} disabled={!imageUrl}>
+              <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+              <ActivityIndicator size="small" color="#000" style={styles.loadingSpinner} />
+            </TouchableOpacity>
           </View>
         ) : imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+          <TouchableOpacity onPress={onImagePress}>
+            <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+          </TouchableOpacity>
         ) : (
           message.trim().length > 0 && <Text style={textStyles}>{message}</Text>
         )}
@@ -68,15 +74,15 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   sentBubble: {
-    backgroundColor: '#5b9bf9', // 이미지와 유사한 파란색
+    backgroundColor: '#5b9bf9',
     borderBottomRightRadius: 4,
   },
   receivedBubble: {
-    backgroundColor: '#E5E5EA', // 이미지와 유사한 회색
+    backgroundColor: '#E5E5EA',
     borderBottomLeftRadius: 4,
   },
   sentText: {
-    color: '#fff', // 파란색 배경에 흰색 글씨
+    color: '#fff',
     fontSize: 16,
   },
   receivedText: {
@@ -105,7 +111,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
-    overflow: 'hidden', // 이미지가 둥글게 보이도록
+    overflow: 'hidden',
   },
   avatarImage: {
     width: '100%',

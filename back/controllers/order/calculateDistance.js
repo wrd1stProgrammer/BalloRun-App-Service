@@ -6,7 +6,7 @@ async function notifyNearbyRiders(orderLng, orderLat, payload, excludeUserId) {
 
   // 1) 2km 반경 + 인증된 라이더만 조회
   const riders = await User.find({
-    isRider: true,
+    verificationStatus: 'verified',
     aroundAlarm: true,
     _id: { $ne: excludeUserId },
     $and: [

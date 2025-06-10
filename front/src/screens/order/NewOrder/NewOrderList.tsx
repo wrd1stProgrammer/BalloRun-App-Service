@@ -78,7 +78,7 @@ const NewOrderList: React.FC<OrderListProps> = ({ activeTab }) => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="small" color="#000" />
       </View>
     );
   }

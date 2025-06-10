@@ -175,7 +175,7 @@ const OrderList: React.FC<OrderListProps> = ({activeTab}) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="small" color="#000" />
       </SafeAreaView>
     );
   }

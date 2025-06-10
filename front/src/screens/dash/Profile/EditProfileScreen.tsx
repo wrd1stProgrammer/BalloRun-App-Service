@@ -203,7 +203,7 @@ const EditProfileScreen = () => {
 
       {isLoading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#000" />
+          <ActivityIndicator size="small" color="#000" />
         </View>
       )}
     </View>

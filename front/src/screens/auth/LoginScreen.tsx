@@ -75,6 +75,7 @@ const LoginScreen: React.FC = () => {
             onChangeText={setPassword}
           />
         </View>
+        <TouchableOpacity onPress={()=> navigate("SocialRegisterScreen")}><Text>test</Text></TouchableOpacity>
 
         {/* native login */}
         <TouchableOpacity

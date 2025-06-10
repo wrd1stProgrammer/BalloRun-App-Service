@@ -52,6 +52,15 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // address에 대한 현재 위,경도 임.
+    curLat:{
+      type: Number,
+      default: 0,
+    },
+    curLng:{
+      type:Number,
+      default:0,
+    },
 
     location: {
       type: {
@@ -128,6 +137,10 @@ const UserSchema = new mongoose.Schema(
       type:Boolean,
       default:true,
     },
+    isFirstRegister:{
+      type:Boolean,
+      deafault:true,
+    }
   },
   { timestamps: true }
 );

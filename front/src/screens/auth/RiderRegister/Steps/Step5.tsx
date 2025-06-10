@@ -50,7 +50,7 @@ const Step5Content: React.FC<{ images?: string | null, faceImage?: string | null
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="small" color="#000" />
         <Text style={styles.loadingText}>인증 데이터를 업로드 중입니다...</Text>
       </View>
     );
