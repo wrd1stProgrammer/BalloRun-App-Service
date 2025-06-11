@@ -8,6 +8,7 @@ import { navigate } from '../../../navigation/NavigationUtils';
 import { useAppSelector, useAppDispatch } from '../../../redux/config/reduxHook';
 import { selectUser, selectUserAddress, setUserAddress, } from '../../../redux/reducers/userSlice';
 import { appAxios } from '../../../redux/config/apiConfig';
+import { refetchUser } from '../../../redux/actions/userAction';
 
 interface Address {
     _id: string;
@@ -63,6 +64,7 @@ const AddressSettingScreen = () => {
             await appAxios.put(`/user/${user?._id}/update-address`, { address: item.address, lat: item.lat, lng: item.lng });
             dispatch(setUserAddress({ address: item.address, detail: item.detail, postalCode: item.postalCode, addressType: item.addressType, riderNote: item.riderNote, lat: item.lat, lng: item.lng }));
             setSelectedAddress(item._id);
+            await dispatch(refetchUser());
         } catch (error) {
             console.error("주소 업데이트 실패:", error);
             Alert.alert("오류", "주소를 설정하는 중 문제가 발생했습니다.");
@@ -71,8 +73,8 @@ const AddressSettingScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="주소 설정"   showEdit={true} 
-  onEditPress={() => navigate('AddressEditScreen')} />
+            <Header title="주소 설정" showEdit={true}
+                onEditPress={() => navigate('AddressEditScreen')} />
             <View style={styles.container}>
                 <TouchableOpacity
                     onPress={() => {
@@ -100,14 +102,17 @@ const AddressSettingScreen = () => {
                     <Ionicons name="locate" size={20} color="white" />
                     <Text style={styles.locationButtonText}>현재 위치로 찾기</Text>
                 </Pressable>
+    
+                {/* 안내 문구 (중앙, 작은 회색) */}
 
+    
                 <FlatList
                     data={addressList}
                     keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
                         <Pressable
                             style={styles.addressItem}
-                    onPress={() => handleSelectAddress(item)}
+                            onPress={() => handleSelectAddress(item)}
                         >
                             <View>
                                 <Text style={styles.addressName}>{item.address}</Text>
@@ -117,13 +122,24 @@ const AddressSettingScreen = () => {
                         </Pressable>
                     )}
                 />
+                                <Text style={styles.infoText}>
+                    주소 변경 시 '주변 러너'를 터치해 새로고침 해주세요
+                </Text>
             </View>
         </SafeAreaView>
     );
+    
 };
 
 
 const styles = StyleSheet.create({
+    infoText: {
+        fontSize: 12,
+        color: '#888',
+        textAlign: 'center',      // 중앙 정렬
+        marginVertical: 1,
+        marginBottom: 12,         // 리스트와 거리 조금 띄우기
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',

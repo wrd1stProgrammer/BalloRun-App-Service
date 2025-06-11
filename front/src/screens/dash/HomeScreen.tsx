@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  Alert, // Alert import
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -38,7 +37,8 @@ const HomeScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const orderSocket = useContext(WebSocketContext);
 
-  const [runnerCount, setRunnerCount] = useState<number>(0);
+  const [runnerCount, setRunnerCount] = useState<number | null>(null);
+  const [runnerLoading, setRunnerLoading] = useState<boolean>(false);
 
   const displayAddress = user?.address
     ? (() => {
@@ -47,25 +47,14 @@ const HomeScreen: React.FC = () => {
       })()
     : '주소를 설정하세요';
 
+  // 주문/소켓 부분 기존 그대로 유지
   useEffect(() => {
-    const fetchOrdersAndRunners = async () => {
+    const fetchOrders = async () => {
       await dispatch(clearOngoingOrder());
       await dispatch(refetchUser());
-      if (user?.address) {
-        try {
-          const response = await dispatch(countRunnerAction(user?.curLat, user?.curLng));
-          if (response > 0) setRunnerCount(response);
-          else setRunnerCount(0);
-        } catch (error) {
-          console.log('러너 수 조회 오류:', error);
-          setRunnerCount(0);
-        }
-      } else {
-        setRunnerCount(0);
-      }
     };
-    fetchOrdersAndRunners();
-  }, [user?.address, dispatch]);
+    fetchOrders();
+  }, [dispatch]);
 
   useEffect(() => {
     if (!orderSocket) {
@@ -102,9 +91,20 @@ const HomeScreen: React.FC = () => {
     };
   }, [orderSocket, user?._id, dispatch]);
 
-  // 👇 주변 러너 설명 alert 핸들러
-  const onRunnerInfoPress = () => {
-    alert('현재 위치로 등록한 주소 기준 3km 이내 등록된 러너 수입니다.');
+  // 👇 주변 러너 박스 터치 시에만 러너 수 요청
+  const handleRunnerBoxPress = async () => {
+    if (!user?.address || user?.curLat == null || user?.curLng == null) {
+      setRunnerCount(null);
+      return;
+    }
+    setRunnerLoading(true);
+    try {
+      const response = await dispatch(countRunnerAction(user.curLat, user.curLng));
+      setRunnerCount(response.count ?? 0);
+    } catch (error) {
+      setRunnerCount(0);
+    }
+    setRunnerLoading(false);
   };
 
   return (
@@ -127,19 +127,29 @@ const HomeScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
             {/* 주변 러너 박스 */}
-            <TouchableOpacity style={styles.runnerBox} activeOpacity={0.85} onPress={onRunnerInfoPress}>
+            <TouchableOpacity
+              style={styles.runnerBox}
+              activeOpacity={0.85}
+              onPress={handleRunnerBoxPress}
+            >
               <View style={styles.runnerInner}>
                 <View style={styles.runnerIconCircle}>
                   <Icon name="run-fast" size={20} color="#26a69a" />
                 </View>
                 <Text style={styles.runnerLabel}>주변 러너  </Text>
                 <Text style={styles.runnerCountText}>
-                  <Text style={{ fontWeight: 'bold', fontSize: 17, color: '#009688' }}>
-                    {runnerCount}
-                  </Text>
-                  <Text style={{ fontSize: 13, color: '#26a69a', fontWeight: '600' }}>
-                    {' '}명
-                  </Text>
+                  {runnerLoading ? (
+                    <Text style={{ fontSize: 13, color: '#26a69a' }}>조회중...</Text>
+                  ) : (
+                    <>
+                      <Text style={{ fontWeight: 'bold', fontSize: 17, color: '#009688' }}>
+                        {runnerCount !== null ? runnerCount : '?'}
+                      </Text>
+                      <Text style={{ fontSize: 13, color: '#26a69a', fontWeight: '600' }}>
+                        {' '}명
+                      </Text>
+                    </>
+                  )}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -178,6 +188,7 @@ const HomeScreen: React.FC = () => {
 };
 
 export default HomeScreen;
+
 
 const styles = StyleSheet.create({
   safeContainer: {
