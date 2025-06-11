@@ -17,6 +17,8 @@ interface UserData {
   detail?: string;
   postalCode?: string;
   addressType?: string;
+  curLat?: number;    
+  curLng?: number;  
 }
 
 // 슬라이스 상태 인터페이스
@@ -38,6 +40,8 @@ const initialState: UserState = {
     riderNote: '',
     lat: 0,
     lng: 0,
+    curLat: 0,    //
+    curLng: 0,    //
   },
   ongoingOrder: null,
   isMatching: false,

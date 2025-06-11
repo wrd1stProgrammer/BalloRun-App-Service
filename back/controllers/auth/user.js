@@ -43,6 +43,8 @@ const getProfile = async (req, res) => {
         allOrderAlarm: user.allOrderAlarm,
         allAdAlarm : user.allAdAlarm,
         allChatAlarm: user.allChatAlarm,
+        curLat: user.curLat,
+        curLng: user.curLng,
       }, // 임시로 4개만 뿌림.
     });
   } catch (error) {
@@ -469,6 +471,7 @@ const updateNotificationSettings = async (req, res) => {
 const countrunnerApi = async (req, res) => {
   try {
     const { curLat, curLng } = req.body;
+    console.log(curLat, curLng, "카운트 러너");
 
     if (
       typeof curLat !== 'number' ||
@@ -479,27 +482,29 @@ const countrunnerApi = async (req, res) => {
       return res.status(400).json({ message: 'curLat 및 curLng를 숫자로 전달해야 합니다.' });
     }
 
-    // GeoJSON $nearSphere 쿼리: 경도(longitude), 위도(latitude) 순서
-    // maxDistance 단위는 미터(m) -> 3km = 3000m
-    const nearbyCount = await User.countDocuments({
+    // $nearSphere로 3km 반경 riders 실제 조회
+    const riders = await User.find({
       verificationStatus: 'verified',
-      location: {
-        $nearSphere: {
-          $geometry: {
-            type: 'Point',
-            coordinates: [curLng, curLat], // [경도, 위도]
+      $and: [
+        { location: { $exists: true, $type: 'object' } },
+        {
+          location: {
+            $nearSphere: {
+              $geometry: { type: 'Point', coordinates: [curLng, curLat] },
+              $maxDistance: 3000, // 3km
+            },
           },
-          $maxDistance: 3000, // 단위: 미터 (3km)
         },
-      },
-    });
+      ],
+    }).select('_id'); // 또는 'fcmToken' 등 필요한 필드만
 
-    return res.json({ count: nearbyCount });
+    // riders 배열 길이로 개수 반환
+    return res.json({ count: riders.length });
   } catch (err) {
     console.error('[nearby-count 에러]', err);
     return res.status(500).json({ message: '서버 내부 오류' });
   }
-}
+};
 
 module.exports = {
   getProfile,
