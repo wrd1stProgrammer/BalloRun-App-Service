@@ -164,10 +164,10 @@ const OrderPageScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.deliveryButton, deliveryMethod === "cupHolder" && styles.selectedButton]}
-                      onPress={() => setDeliveryMethod("cupHolder")}
+                      
                     >
                       <Text style={deliveryMethod === "cupHolder" ? styles.selectedButtonText : styles.buttonText}>
-                        보관소 (전남대 한시 시행)
+                        보관소 (서비스 준비 중)
                       </Text>
                     </TouchableOpacity>
                   </View>
