@@ -7,14 +7,13 @@
 
 # 발로뛰어, 심부름하고 용돈 벌자!
 
-걸어서 배달을 해보세요!
-+설명 추가..
+✔ 심부름이 필요할 땐 '발로뛰어' 하세요!
+밖에 나가기 귀찮거나, 시간이 부족할 때, 원하는 음식·물품·무엇이든 심부름 요청이 가능합니다.
 <br><br>
-## [🚀발로뛰어 다운로드](https://drive.google.com/file/d/1uBQsr30guslfm38HbrAQWMXV6wStFYUm/view?usp=drive_link)
-!!dev 서버 디버그용 apk Link
+## [🚀발로뛰어 다운로드](https://apps.apple.com/kr/app/%EB%B0%9C%EB%A1%9C%EB%9B%B0%EC%96%B4/id6746105907)
+
 
 <br>
-<img src="https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/logo_final.png" width="200">
 
 # 📖 목차 
  - [개요](#개요) 
@@ -61,11 +60,6 @@
 
 ![React Native](https://img.shields.io/badge/React_Native-61DAFB?style=flat&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript) ![Redux](https://img.shields.io/badge/Redux-764ABC?style=flat&logo=redux) ![MMKV](https://img.shields.io/badge/MMKV-000000?style=flat&logo=mmkv)
 
-### 빌드 툴
-- Expo CLI
-
-![Expo CLI](https://img.shields.io/badge/Expo_CLI-000020?style=flat&logo=expo)
-
 ### 데이터베이스
 - MongoDB
 - Cloudinary
@@ -75,6 +69,7 @@
 
 ### 인프라
 - AWS EC2
+- AWS Auto Scaliung & LoadBallencer
 - GitHub Actions
 - Docker
 - DockerHub
@@ -115,24 +110,16 @@
 ?? 개발의 전반적인 지식을 쌓으려고 했습니다. (추가 예정)
 
 
-
-## 화면 구성💻
-![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/006.jpg)
-![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/007.jpg)
-![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/008.jpg)
-![first](https://github.com/wrd1stProgrammer/eighteen/blob/sub/front/src/assets/images/009.jpg)
-
-
 ## 핵심 기능⭐
 
 
 ### 🌠로그인
 - **소셜 로그인**  
-  - 소셜 로그인 구현을 위해 OAuth2 인증 방식을 사용했으며, 엑세스 토큰으로 받아오는 유저 정보를 커스텀하여 사용하였습니다.  
+  - 소셜 로그인은 Apple,KAKAO를 사용함.
 - **일반 로그인**  
   - 자체 로그인 방식으로는 회원가입 시 입력한 비밀번호를 해시 암호화 알고리즘을 적용하여 나온 해시값을 DB에 저장하였습니다.  
   - 로그인 시 사용한 해시 알고리즘을 찾아 비밀번호의 정합성을 검증하였습니다.  
-  - FCM 서비스를 이용해 전화번호 인증 기능을 활용하였습니다.
+  - 이메일 인증을 사용함.
 
 ### 🌠주문 요청/조회
 - **주문 요청**  
@@ -157,17 +144,14 @@
   - 이를 통해 동시성 문제를 해결하고, 주문 수락 프로세스의 안정성과 처리 속도를 개선하였습니다.
  
 ### 🌠결제
-- **카카오페이 단건 결제**
-  - (mokup 코드만 작성 완료, 아직 계약 성사 전 단계)
+- **KG이니시스 상점 계약**
   - `Front-End`에서 사용자가 결제 요청을 시작하면 `Back-End`로 결제 데이터를 전송하였습니다.  
   - `Back-End`는 카카오페이 단일 결제 API를 호출하여 결제 준비 요청(`/v1/payment/ready`)을 수행하고, TID(거래 고유 번호)를 발급받아 저장하였습니다.  
   - 사용자를 카카오페이 결제 페이지로 리다이렉트하여 결제를 완료하도록 하였으며, 성공 시 `/v1/payment/approve` API를 호출해 결제를 승인하였습니다.  
   - 결제 승인 후 결과를 `DB`에 저장하고, `Front-End`에 결제 완료 알림을 전송하여 UI에서 확인할 수 있도록 하였습니다.  
   - 결제 취소 요청 시 `/v1/payment/cancel` API를 호출하여 취소 요청을 처리하고, 결과를 `DB`에 반영한 후 사용자에게 알림을 전송하였습니다.  
   - 결제 요청 시 필수 파라미터(예: `cid`, `partner_order_id`, `partner_user_id`, `item_name`, `quantity`, `total_amount`, `approval_url`, `cancel_url`, `fail_url`)를 설정하여 안정적인 결제 흐름을 보장하였습니다.  
-- **네이버페이 준비 중**  
-  - 네이버페이 결제 기능은 현재 개발 중이며, 추후 추가될 예정입니다.
- 
+
 ### 🌠이미지 업로드 기능
 - **주문 관련 이미지 업로드**  
   - 사용자가 주문 요청 시 관련 사진(예: 요청사항 사진)과 비대면 배달을 위한 상세 주소 이미지를 업로드할 수 있도록 구현하였습니다.  
