@@ -20,21 +20,28 @@ import { Ionicons } from "@expo/vector-icons";
 import { goBack, navigate } from "../../../navigation/NavigationUtils";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useAppDispatch, useAppSelector } from "../../../redux/config/reduxHook";
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../../../redux/config/reduxHook";
 import { neworderCompleteHandler } from "../../../redux/actions/newOrderAction";
-import { launchImageLibrary, ImagePickerResponse, ImageLibraryOptions } from 'react-native-image-picker';
+import {
+  launchImageLibrary,
+  ImagePickerResponse,
+  ImageLibraryOptions,
+} from "react-native-image-picker";
 import { uploadFile } from "../../../redux/actions/fileAction";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 import { Picker } from "@react-native-picker/picker";
 import Header from "../../../utils/OrderComponents/Header";
-import Modal from 'react-native-modal';
+import Modal from "react-native-modal";
 import { selectUser } from "../../../redux/reducers/userSlice";
 import { refetchUser } from "../../../redux/actions/userAction";
-import { Payment, PortOneController } from '@portone/react-native-sdk';
+import { Payment, PortOneController } from "@portone/react-native-sdk";
 
 type RootStackParamList = {
   OrderFinalScreen: {
-    paymentId:string;
+    paymentId: string;
     name: string;
     orderDetails: string;
     priceOffer: string;
@@ -56,25 +63,40 @@ type RootStackParamList = {
   };
 };
 
-type OrderFinalScreenRouteProp = RouteProp<RootStackParamList, "OrderFinalScreen">;
+type OrderFinalScreenRouteProp = RouteProp<
+  RootStackParamList,
+  "OrderFinalScreen"
+>;
 
 const MIN_POINT_USE = 3000; // 포인트 3000 이상부터 사용 가능
-const MIN_CARD_PAY = 1000;  // 결제금액 최소 1000원
+const MIN_CARD_PAY = 1000; // 결제금액 최소 1000원
 
 const OrderFinalScreen = () => {
   const route = useRoute<OrderFinalScreenRouteProp>();
-  const { name, orderDetails, priceOffer, deliveryFee, images, deliveryMethod, selectedMarker } = route.params;
+  const {
+    name,
+    orderDetails,
+    priceOffer,
+    deliveryFee,
+    images,
+    deliveryMethod,
+    selectedMarker,
+  } = route.params;
 
   const user = useAppSelector(selectUser);
 
-  const [deliveryAddress, setDeliveryAddress] = useState(user?.detail || "없음");
+  const [deliveryAddress, setDeliveryAddress] = useState(
+    user?.detail || "없음"
+  );
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [riderRequest, setRiderRequest] = useState(user.riderNote || "");
   const [floor, setFloorState] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [startTime, setStartTimeLocal] = useState(new Date());
-  const [endTime, setEndTimeLocal] = useState(() => new Date(new Date().getTime() + 60 * 60 * 1000));
+  const [endTime, setEndTimeLocal] = useState(
+    () => new Date(new Date().getTime() + 60 * 60 * 1000)
+  );
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [reservationChecked, setReservationChecked] = useState(false);
@@ -82,10 +104,9 @@ const OrderFinalScreen = () => {
   const [points, setPoints] = useState(0);
   const [usedPoints, setUsedPoints] = useState(0);
   const [paymentId, setPaymentId] = useState(""); // 테스트용 임시
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("EASY_PAY_PROVIDER_KAKAOPAY");
-
-  const lat = user?.lat;
-  const lng = user?.lng;
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
+    "EASY_PAY_PROVIDER_KAKAOPAY"
+  );
 
   const dispatch = useAppDispatch();
 
@@ -93,7 +114,7 @@ const OrderFinalScreen = () => {
     console.log(user?.admin);
     if (user?.admin) {
       Alert.alert(
-        'Test Account Notice',
+        "Test Account Notice",
         "This account is for App Review testing purposes only.\n\nRegardless of which payment method you select, no actual payment will be processed and your delivery request will be submitted immediately.\n\nPlease note that real payments are only available for users located in Korea.\nTo test real payment flows, please log in using a non-test account from the credentials we provided.\n\nThank you!"
       );
     }
@@ -116,9 +137,16 @@ const OrderFinalScreen = () => {
     }
   }, [user]);
 
-  const finalLat = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.latitude : user?.lat;
-  const finalLng = deliveryMethod === "cupHolder" ? selectedMarker.coordinate.longitude : user?.lng;
-  const finalAddress = deliveryMethod === "cupHolder" ? selectedMarker.title : deliveryAddress;
+  const finalLat =
+    deliveryMethod === "cupHolder"
+      ? selectedMarker.coordinate.latitude
+      : user?.lat;
+  const finalLng =
+    deliveryMethod === "cupHolder"
+      ? selectedMarker.coordinate.longitude
+      : user?.lng;
+  const finalAddress =
+    deliveryMethod === "cupHolder" ? selectedMarker.title : deliveryAddress;
 
   useEffect(() => {
     if (!reservationChecked) setStartTimeLocal(new Date());
@@ -129,29 +157,40 @@ const OrderFinalScreen = () => {
   }, [deliveryMethod]);
 
   const handleNextPress = async () => {
-    setIsLoading(true);
-    const imageResponse = images ? await dispatch(uploadFile(images, "neworderInfo_image")) : null;
-    const imageResponse2 = selectedImageUri ? await dispatch(uploadFile(selectedImageUri, "neworderPickup_image")) : null;
+    if (floor && !selectedFloor) {
+      Alert.alert("층 선택 필요", "컵홀더 배달 시에는 층을 선택해야 합니다.");
+      return;
+    }
 
-    await dispatch(neworderCompleteHandler(
-      paymentId,
-      name,
-      orderDetails,
-      parseInt(priceOffer.replace("원", "").replace(",", "")),
-      parseInt(deliveryFee.replace("원", "").replace(",", "")),
-      riderRequest,
-      imageResponse || "",
-      imageResponse2 || "",
-      finalLat?.toString() || "",
-      finalLng?.toString() || "",
-      finalAddress,
-      deliveryMethod,
-      startTime.getTime(),
-      endTime.getTime(),
-      selectedFloor,
-      resolvedAddress,
-      usedPoints
-    ));
+    setIsLoading(true);
+    const imageResponse = images
+      ? await dispatch(uploadFile(images, "neworderInfo_image"))
+      : null;
+    const imageResponse2 = selectedImageUri
+      ? await dispatch(uploadFile(selectedImageUri, "neworderPickup_image"))
+      : null;
+
+    await dispatch(
+      neworderCompleteHandler(
+        paymentId,
+        name,
+        orderDetails,
+        parseInt(priceOffer.replace("원", "").replace(",", "")),
+        parseInt(deliveryFee.replace("원", "").replace(",", "")),
+        riderRequest,
+        imageResponse || "",
+        imageResponse2 || "",
+        finalLat?.toString() || "",
+        finalLng?.toString() || "",
+        finalAddress,
+        deliveryMethod,
+        startTime.getTime(),
+        endTime.getTime(),
+        selectedFloor,
+        resolvedAddress,
+        usedPoints
+      )
+    );
     await dispatch(refetchUser());
     dispatch(setIsOngoingOrder(true));
     setTimeout(() => {
@@ -161,20 +200,29 @@ const OrderFinalScreen = () => {
   };
 
   const handleImagePicker = async () => {
-    const options: ImageLibraryOptions = { mediaType: "photo", includeBase64: true, selectionLimit: 1 };
+    const options: ImageLibraryOptions = {
+      mediaType: "photo",
+      includeBase64: true,
+      selectionLimit: 1,
+    };
     const response: ImagePickerResponse = await launchImageLibrary(options);
-    if (response.didCancel) Alert.alert('취소');
-    else if (response.errorMessage) Alert.alert('Error: ' + response.errorMessage);
-    else if (response.assets && response.assets.length > 0) setSelectedImageUri(response.assets[0].uri || null);
+    if (response.didCancel) Alert.alert("취소");
+    else if (response.errorMessage)
+      Alert.alert("Error: " + response.errorMessage);
+    else if (response.assets && response.assets.length > 0)
+      setSelectedImageUri(response.assets[0].uri || null);
   };
 
   const handleRemoveImage = () => setSelectedImageUri(null);
 
-  const totalAmount = parseInt(priceOffer.replace("원", "").replace(",", "")) + parseInt(deliveryFee.replace("원", "").replace(",", ""));
+  const totalAmount =
+    parseInt(priceOffer.replace("원", "").replace(",", "")) +
+    parseInt(deliveryFee.replace("원", "").replace(",", ""));
   // 포인트 사용 최대치는 (결제금액-1000) 이하, 단 3000P 이상부터만 가능
-  const maxPointUsable = points >= MIN_POINT_USE
-    ? Math.min(points, Math.max(totalAmount - MIN_CARD_PAY, 0))
-    : 0;
+  const maxPointUsable =
+    points >= MIN_POINT_USE
+      ? Math.min(points, Math.max(totalAmount - MIN_CARD_PAY, 0))
+      : 0;
   const finalAmount = totalAmount - usedPoints;
 
   const formatTime = (date: Date) => {
@@ -209,7 +257,6 @@ const OrderFinalScreen = () => {
   };
 
   const initiatePayment = () => {
-
     const orderDetailsData = {
       paymentId,
       name,
@@ -229,17 +276,17 @@ const OrderFinalScreen = () => {
       resolvedAddress,
       usedPoints,
     };
-    if(user?.admin){
+    if (user?.admin) {
       handleNextPress();
-    }else{
-      if(selectedPaymentMethod === "CARD"){
+    } else {
+      if (selectedPaymentMethod === "CARD") {
         navigate("PortoneCard", {
           paymentId,
           orderName: name,
           totalAmount: finalAmount,
           orderDetails: orderDetailsData,
         });
-      }else{
+      } else {
         navigate("PortoneSample", {
           paymentId,
           orderName: name,
@@ -249,7 +296,6 @@ const OrderFinalScreen = () => {
         });
       }
     }
-    
   };
 
   return (
@@ -277,7 +323,11 @@ const OrderFinalScreen = () => {
                   {!floor && (
                     <>
                       <Text style={styles.sectionTitle}>배달 주소</Text>
-                      <TextInput style={styles.input} value={user?.address} editable={false} />
+                      <TextInput
+                        style={styles.input}
+                        value={user?.address}
+                        editable={false}
+                      />
                       <Text style={styles.sectionTitle}>상세 배달 주소</Text>
                       <View style={styles.addressInputContainer}>
                         <TextInput
@@ -288,9 +338,20 @@ const OrderFinalScreen = () => {
                           value={deliveryAddress}
                           onChangeText={setDeliveryAddress}
                         />
-                        <TouchableOpacity onPress={selectedImageUri ? handleRemoveImage : handleImagePicker} style={styles.cameraIcon}>
+                        <TouchableOpacity
+                          onPress={
+                            selectedImageUri
+                              ? handleRemoveImage
+                              : handleImagePicker
+                          }
+                          style={styles.cameraIcon}
+                        >
                           <Ionicons
-                            name={selectedImageUri ? "close-outline" : "camera-outline"}
+                            name={
+                              selectedImageUri
+                                ? "close-outline"
+                                : "camera-outline"
+                            }
                             size={24}
                             color={selectedImageUri ? "#ff3b30" : "#000"}
                           />
@@ -303,10 +364,19 @@ const OrderFinalScreen = () => {
                     <>
                       <Text style={styles.sectionTitle}>층 선택</Text>
                       <View style={styles.pickerContainer}>
-                        <Picker selectedValue={selectedFloor} onValueChange={(itemValue) => setSelectedFloor(itemValue)}>
+                        <Picker
+                          selectedValue={selectedFloor}
+                          onValueChange={(itemValue) =>
+                            setSelectedFloor(itemValue)
+                          }
+                        >
                           <Picker.Item label="층을 선택해주세요" value="" />
                           {selectedMarker.floors.map((floor: string) => (
-                            <Picker.Item key={floor} label={floor} value={floor} />
+                            <Picker.Item
+                              key={floor}
+                              label={floor}
+                              value={floor}
+                            />
                           ))}
                         </Picker>
                       </View>
@@ -316,32 +386,59 @@ const OrderFinalScreen = () => {
                   <Text style={styles.sectionTitle}>배달 요청 시간</Text>
                   <View style={styles.timeContainer}>
                     <TouchableOpacity
-                      style={[styles.timeInput, !reservationChecked && styles.disabledTimeInput]}
-                      onPress={() => reservationChecked && setShowStartPicker(true)}
+                      style={[
+                        styles.timeInput,
+                        !reservationChecked && styles.disabledTimeInput,
+                      ]}
+                      onPress={() =>
+                        reservationChecked && setShowStartPicker(true)
+                      }
                     >
-                      <Text style={[styles.timeText, !reservationChecked && styles.disabledText]}>
+                      <Text
+                        style={[
+                          styles.timeText,
+                          !reservationChecked && styles.disabledText,
+                        ]}
+                      >
                         {formatTime(startTime)}
                       </Text>
                     </TouchableOpacity>
                     <Text style={styles.timeDivider}>~</Text>
-                    <TouchableOpacity style={styles.timeInput} onPress={() => setShowEndPicker(true)}>
+                    <TouchableOpacity
+                      style={styles.timeInput}
+                      onPress={() => setShowEndPicker(true)}
+                    >
                       <Text style={styles.timeText}>{formatTime(endTime)}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.toggleButton, reservationChecked && styles.toggleButtonActive]}
+                      style={[
+                        styles.toggleButton,
+                        reservationChecked && styles.toggleButtonActive,
+                      ]}
                       onPress={() => setReservationChecked(!reservationChecked)}
                     >
-                      <Text style={[styles.toggleText, reservationChecked && styles.toggleTextActive]}>
+                      <Text
+                        style={[
+                          styles.toggleText,
+                          reservationChecked && styles.toggleTextActive,
+                        ]}
+                      >
                         예약
                       </Text>
                     </TouchableOpacity>
                   </View>
 
-                  {showStartPicker && reservationChecked && (
-                    Platform.OS === 'ios' ? (
-                      <Modal isVisible={true} onBackdropPress={() => setShowStartPicker(false)}>
+                  {showStartPicker &&
+                    reservationChecked &&
+                    (Platform.OS === "ios" ? (
+                      <Modal
+                        isVisible={true}
+                        onBackdropPress={() => setShowStartPicker(false)}
+                      >
                         <View style={styles.timePickerModal}>
-                          <Text style={styles.timePickerTitle}>시작 시간 선택</Text>
+                          <Text style={styles.timePickerTitle}>
+                            시작 시간 선택
+                          </Text>
                           <DateTimePicker
                             value={startTime}
                             mode="time"
@@ -351,12 +448,19 @@ const OrderFinalScreen = () => {
                               if (selectedDate) {
                                 setShowStartPicker(false);
                                 if (selectedDate < new Date()) {
-                                  Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
+                                  Alert.alert(
+                                    "유효하지 않은 시간",
+                                    "현재 시간보다 이전 시간을 선택할 수 없습니다."
+                                  );
                                   return;
                                 }
                                 setStartTimeLocal(selectedDate);
                                 if (selectedDate >= endTime) {
-                                  setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+                                  setEndTimeLocal(
+                                    new Date(
+                                      selectedDate.getTime() + 60 * 60 * 1000
+                                    )
+                                  );
                                 }
                               }
                             }}
@@ -373,23 +477,34 @@ const OrderFinalScreen = () => {
                           setShowStartPicker(false);
                           if (selectedDate) {
                             if (selectedDate < new Date()) {
-                              Alert.alert("유효하지 않은 시간", "현재 시간보다 이전 시간을 선택할 수 없습니다.");
+                              Alert.alert(
+                                "유효하지 않은 시간",
+                                "현재 시간보다 이전 시간을 선택할 수 없습니다."
+                              );
                               return;
                             }
                             setStartTimeLocal(selectedDate);
                             if (selectedDate >= endTime) {
-                              setEndTimeLocal(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+                              setEndTimeLocal(
+                                new Date(
+                                  selectedDate.getTime() + 60 * 60 * 1000
+                                )
+                              );
                             }
                           }
                         }}
                       />
-                    )
-                  )}
-                  {showEndPicker && (
-                    Platform.OS === 'ios' ? (
-                      <Modal isVisible={true} onBackdropPress={() => setShowEndPicker(false)}>
+                    ))}
+                  {showEndPicker &&
+                    (Platform.OS === "ios" ? (
+                      <Modal
+                        isVisible={true}
+                        onBackdropPress={() => setShowEndPicker(false)}
+                      >
                         <View style={styles.timePickerModal}>
-                          <Text style={styles.timePickerTitle}>종료 시간 선택</Text>
+                          <Text style={styles.timePickerTitle}>
+                            종료 시간 선택
+                          </Text>
                           <DateTimePicker
                             value={endTime}
                             mode="time"
@@ -399,7 +514,10 @@ const OrderFinalScreen = () => {
                               if (selectedDate) {
                                 setShowEndPicker(false);
                                 if (selectedDate <= startTime) {
-                                  Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
+                                  Alert.alert(
+                                    "유효하지 않은 시간",
+                                    "종료 시간은 시작 시간보다 늦어야 합니다."
+                                  );
                                   return;
                                 }
                                 setEndTimeLocal(selectedDate);
@@ -418,15 +536,17 @@ const OrderFinalScreen = () => {
                           setShowEndPicker(false);
                           if (selectedDate) {
                             if (selectedDate <= startTime) {
-                              Alert.alert("유효하지 않은 시간", "종료 시간은 시작 시간보다 늦어야 합니다.");
+                              Alert.alert(
+                                "유효하지 않은 시간",
+                                "종료 시간은 시작 시간보다 늦어야 합니다."
+                              );
                               return;
                             }
                             setEndTimeLocal(selectedDate);
                           }
                         }}
                       />
-                    )
-                  )}
+                    ))}
 
                   <Text style={styles.sectionTitle}>주문 요청사항</Text>
                   <TextInput
@@ -440,12 +560,18 @@ const OrderFinalScreen = () => {
 
                   <View style={styles.pointsContainer}>
                     <Text style={styles.sectionTitle}>포인트 사용</Text>
-                    <Text style={styles.pointsBalance}>보유 포인트: {points.toLocaleString()}P  (1000원 미만으로 포인트 사용 불가능)</Text>
+                    <Text style={styles.pointsBalance}>
+                      보유 포인트: {points.toLocaleString()}P (1000원 미만으로
+                      포인트 사용 불가능)
+                    </Text>
                     <View style={styles.pointsInputContainer}>
                       <TextInput
                         style={[
                           styles.pointsInput,
-                          points < MIN_POINT_USE && { backgroundColor: "#f2f2f2", color: "#aaa" }
+                          points < MIN_POINT_USE && {
+                            backgroundColor: "#f2f2f2",
+                            color: "#aaa",
+                          },
                         ]}
                         placeholder="사용할 포인트를 입력하세요"
                         placeholderTextColor="#999"
@@ -457,48 +583,74 @@ const OrderFinalScreen = () => {
                       <TouchableOpacity
                         style={[
                           styles.pointsAllButton,
-                          points < MIN_POINT_USE || maxPointUsable <= 0 ? { backgroundColor: "#ddd" } : {},
+                          points < MIN_POINT_USE || maxPointUsable <= 0
+                            ? { backgroundColor: "#ddd" }
+                            : {},
                         ]}
                         onPress={handleAllPoints}
                         disabled={points < MIN_POINT_USE || maxPointUsable <= 0}
                       >
-                        <Text style={styles.pointsAllButtonText}>전액 사용</Text>
+                        <Text style={styles.pointsAllButtonText}>
+                          전액 사용
+                        </Text>
                       </TouchableOpacity>
                     </View>
-                    {points < MIN_POINT_USE &&
-                      <Text style={{ color: "#F00", marginTop: 8, fontSize: 13 }}>
+                    {points < MIN_POINT_USE && (
+                      <Text
+                        style={{ color: "#F00", marginTop: 8, fontSize: 13 }}
+                      >
                         포인트는 3,000P 이상부터 사용 가능
                       </Text>
-                    }
-                    {points >= MIN_POINT_USE && maxPointUsable <= 0 &&
-                      <Text style={{ color: "#F00", marginTop: 8, fontSize: 13 }}>
+                    )}
+                    {points >= MIN_POINT_USE && maxPointUsable <= 0 && (
+                      <Text
+                        style={{ color: "#F00", marginTop: 8, fontSize: 13 }}
+                      >
                         결제금액 1,000원 이상 남겨야 카드 결제 가능합니다
                       </Text>
-                    }
+                    )}
                   </View>
 
                   <View style={styles.paymentContainer}>
                     <View className="row">
                       <Text style={styles.paymentLabel}>결제 금액</Text>
-                      <Text style={styles.paymentTotal}>{finalAmount.toLocaleString()}원</Text>
+                      <Text style={styles.paymentTotal}>
+                        {finalAmount.toLocaleString()}원
+                      </Text>
                     </View>
                     <View style={styles.paymentDetail}>
                       <View style={styles.paymentRow}>
                         <Text style={styles.paymentSubLabel}>총 금액</Text>
-                        <Text style={styles.paymentSubValue}>{totalAmount.toLocaleString()}원</Text>
+                        <Text style={styles.paymentSubValue}>
+                          {totalAmount.toLocaleString()}원
+                        </Text>
                       </View>
                       <View style={styles.paymentRow}>
                         <Text style={styles.paymentSubLabel}>메뉴 금액</Text>
-                        <Text style={styles.paymentSubValue}>{parseInt(priceOffer.replace("원", "").replace(",", "")).toLocaleString()}원</Text>
+                        <Text style={styles.paymentSubValue}>
+                          {parseInt(
+                            priceOffer.replace("원", "").replace(",", "")
+                          ).toLocaleString()}
+                          원
+                        </Text>
                       </View>
                       <View style={styles.paymentRow}>
                         <Text style={styles.paymentSubLabel}>배달팁</Text>
-                        <Text style={styles.paymentSubValue}>{parseInt(deliveryFee.replace("원", "").replace(",", "")).toLocaleString()}원</Text>
+                        <Text style={styles.paymentSubValue}>
+                          {parseInt(
+                            deliveryFee.replace("원", "").replace(",", "")
+                          ).toLocaleString()}
+                          원
+                        </Text>
                       </View>
                       {usedPoints > 0 && (
                         <View style={styles.paymentRow}>
-                          <Text style={styles.paymentSubLabel}>포인트 할인</Text>
-                          <Text style={styles.discountValue}>-{usedPoints.toLocaleString()}원</Text>
+                          <Text style={styles.paymentSubLabel}>
+                            포인트 할인
+                          </Text>
+                          <Text style={styles.discountValue}>
+                            -{usedPoints.toLocaleString()}원
+                          </Text>
                         </View>
                       )}
                     </View>
@@ -511,19 +663,23 @@ const OrderFinalScreen = () => {
                       {
                         key: "EASY_PAY_PROVIDER_NAVERPAY",
                         label: "네이버페이",
-                        icon: require("../../../assets/Icon/naverpay2.png")
+                        icon: require("../../../assets/Icon/naverpay2.png"),
                       },
                       {
                         key: "EASY_PAY_PROVIDER_TOSSPAY",
                         label: "토스페이",
-                        icon: require("../../../assets/Icon/tosspay2.jpeg")
+                        icon: require("../../../assets/Icon/tosspay2.jpeg"),
                       },
                       {
                         key: "EASY_PAY_PROVIDER_KAKAOPAY",
                         label: "카카오페이",
-                        icon: require("../../../assets/Icon/kakao.png")
+                        icon: require("../../../assets/Icon/kakao.png"),
                       },
-                      { key: "CARD", label: "신용/체크카드", icon: require("../../../assets/Icon/card.png") },
+                      {
+                        key: "CARD",
+                        label: "신용/체크카드",
+                        icon: require("../../../assets/Icon/card.png"),
+                      },
                     ].map((m) => (
                       <TouchableOpacity
                         key={m.key}
@@ -546,7 +702,11 @@ const OrderFinalScreen = () => {
                             <View style={styles.radioInner} />
                           )}
                         </View>
-                        <Image source={m.icon} style={styles.paymentIcon} resizeMode="contain" />
+                        <Image
+                          source={m.icon}
+                          style={styles.paymentIcon}
+                          resizeMode="contain"
+                        />
                         <View style={styles.paymentTextGroup}>
                           <Text style={styles.paymentLabelText}>{m.label}</Text>
                           {m.discount && (
@@ -561,19 +721,30 @@ const OrderFinalScreen = () => {
                     ))}
                   </View>
 
-                  <TouchableOpacity style={styles.noticeRow} onPress={() => navigate("DeliveryNoticeScreen")}>
-                    <Text style={styles.noticeText}>배달 상품 주의사항 동의</Text>
+                  <TouchableOpacity
+                    style={styles.noticeRow}
+                    onPress={() => navigate("DeliveryNoticeScreen")}
+                  >
+                    <Text style={styles.noticeText}>
+                      배달 상품 주의사항 동의
+                    </Text>
                     <Ionicons name="chevron-forward" size={16} color="#999" />
                   </TouchableOpacity>
 
-                  <Text style={styles.confirmText}>위 내용을 확인하였으며 결제에 동의합니다</Text>
+                  <Text style={styles.confirmText}>
+                    위 내용을 확인하였으며 결제에 동의합니다
+                  </Text>
                 </View>
               </TouchableWithoutFeedback>
             </ScrollView>
           </KeyboardAvoidingView>
-          <TouchableOpacity style={styles.kakaoPayButton} onPress={initiatePayment}>
+          <TouchableOpacity
+            style={styles.kakaoPayButton}
+            onPress={initiatePayment}
+          >
             <Text style={styles.kakaoPayButtonText}>
-              {finalAmount.toLocaleString()}원 {selectedPaymentMethod.split('_').pop()} 결제
+              {finalAmount.toLocaleString()}원{" "}
+              {selectedPaymentMethod.split("_").pop()} 결제
             </Text>
           </TouchableOpacity>
         </>

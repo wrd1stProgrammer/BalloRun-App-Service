@@ -43,9 +43,9 @@ function DeliveryCustomMap({
   onFilter,
   selectedLat,
   selectedLng,
-  watchId
+  watchId,
 }: DeliveryCustomMapProps) {
-  const [centerLat, setCenterLat] = useState<number | null>(35.175570);
+  const [centerLat, setCenterLat] = useState<number | null>(35.17557);
   const [centerLng, setCenterLng] = useState<number | null>(126.907074);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
@@ -60,7 +60,10 @@ function DeliveryCustomMap({
     };
   }, [watchId]);
 
-  const handleRegionChangeComplete = (region: { latitude: number; longitude: number }) => {
+  const handleRegionChangeComplete = (region: {
+    latitude: number;
+    longitude: number;
+  }) => {
     if (!isMarkerSelected) {
       setCenterLat(region.latitude);
       setCenterLng(region.longitude);
@@ -105,8 +108,9 @@ function DeliveryCustomMap({
   };
 
   const handleFilterPress = (type: string | null) => {
+    const filterValue = type === "all" ? null : type;
     setSelectedFilter(type);
-    onFilter(type);
+    onFilter(filterValue);
   };
 
   return (
@@ -121,7 +125,7 @@ function DeliveryCustomMap({
         ref={mapRef}
         style={{ flex: 1 }}
         initialRegion={{
-          latitude: centerLat ?? 35.175570,
+          latitude: centerLat ?? 35.17557,
           longitude: centerLng ?? 126.907074,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
@@ -157,7 +161,7 @@ function DeliveryCustomMap({
       {/* 필터 버튼 */}
       <View style={styles.buttonContainer}>
         {[
-          { label: "전체 보기", value: null },
+          { label: "전체 보기", value: "all" },
           { label: "컵홀더 주문만", value: "cupHolder" },
           { label: "직접 주문만", value: "direct" },
         ].map(({ label, value }) => {
@@ -165,10 +169,18 @@ function DeliveryCustomMap({
           return (
             <TouchableOpacity
               key={label}
-              style={[styles.filterButton, isActive && styles.activeFilterButton]}
+              style={[
+                styles.filterButton,
+                isActive && styles.activeFilterButton,
+              ]}
               onPress={() => handleFilterPress(value)}
             >
-              <Text style={[styles.filterButtonText, isActive && styles.activeFilterText]}>
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  isActive && styles.activeFilterText,
+                ]}
+              >
                 {label}
               </Text>
             </TouchableOpacity>
