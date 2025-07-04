@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
-import { useFocusEffect } from '@react-navigation/native';
-import BannerSection from './BannerSection';
-import { useAppDispatch } from '../../../redux/config/reduxHook';
-import { getNewOrderToBanner } from '../../../redux/actions/orderAction';
-import { useLocation } from '../../../utils/Geolocation/LocationContext';
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
+import Carousel from "react-native-reanimated-carousel";
+import { useFocusEffect } from "@react-navigation/native";
+import BannerSection from "./BannerSection";
+import { useAppDispatch } from "../../../redux/config/reduxHook";
+import { getNewOrderToBanner } from "../../../redux/actions/orderAction";
+import { useLocation } from "../../../utils/Geolocation/LocationContext";
 
-const screenWidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get("window").width;
 
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371; // 지구 반지름 (km)
@@ -40,11 +40,11 @@ export default function Banner() {
 
   const fetchData = async () => {
     try {
-      console.log('주변 배달 fetchData 시작');
+      console.log("주변 배달 fetchData 시작");
       const result = await dispatch(getNewOrderToBanner());
       setBannerLists(result.data);
     } catch (error) {
-      console.error('배너 데이터 불러오기 실패:', error);
+      console.error("배너 데이터 불러오기 실패:", error);
     }
   };
 
@@ -70,7 +70,7 @@ export default function Banner() {
             parseFloat(item.lat),
             parseFloat(item.lng)
           ).toFixed(1)
-        : '0';
+        : "0";
     return <BannerSection data={item} distance={distance} />;
   };
 
@@ -80,13 +80,12 @@ export default function Banner() {
         <Carousel
           data={bannerLists}
           renderItem={renderItem}
-          width={screenWidth*0.95}
+          width={screenWidth * 0.95}
           height={50}
           loop
           autoPlay
           autoPlayInterval={slideTime * 1000}
           vertical
-          style={{ width: screenWidth }}
           mode="parallax"
           modeConfig={{
             parallaxScrollingScale: 0.95,
@@ -104,20 +103,20 @@ export default function Banner() {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
     height: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyContainer: {
-    width: '100%',
+    width: "100%",
     height: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyText: {
     fontSize: 14,
-    color: '#666',
-    fontFamily: 'NotoSansKR-Regular',
+    color: "#666",
+    fontFamily: "NotoSansKR-Regular",
   },
 });
