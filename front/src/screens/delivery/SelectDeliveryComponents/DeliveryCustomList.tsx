@@ -9,22 +9,27 @@ import {
   ListRenderItem,
   Alert,
 } from "react-native";
-import { useAppDispatch } from "../../../redux/config/reduxHook";
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../../../redux/config/reduxHook";
+import { selectUser } from "../../../redux/reducers/userSlice";
 import { navigate } from "../../../navigation/NavigationUtils";
 import { setIsOngoingOrder } from "../../../redux/reducers/userSlice";
 
 const IMAGES: Record<string, any> = {
-  "편의점": require("../../../assets/Icon/cs64.png"),
-  "커피": require("../../../assets/Icon/cafe64.png"),
-  "음식": require("../../../assets/Icon/food64.png"),
-  "기타": require("../../../assets/Icon/etc64.png"),
-  "물품": require("../../../assets/Icon/product64.png"),
+  편의점: require("../../../assets/Icon/cs64.png"),
+  커피: require("../../../assets/Icon/cafe64.png"),
+  음식: require("../../../assets/Icon/food64.png"),
+  기타: require("../../../assets/Icon/etc64.png"),
+  물품: require("../../../assets/Icon/product64.png"),
 };
 
 const SCREEN_WIDTH = 360;
 
 type DeliveryItem = {
   _id: string;
+  userId: string;
   items: { menuName: string; quantity: number; cafeName: string }[];
   address: string;
   deliveryType: "direct" | "cupholder" | any;
@@ -51,7 +56,12 @@ type DeliveryCustomListProps = {
   userLng: number;
 };
 
-function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+function getDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
@@ -65,25 +75,39 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return R * c;
 }
 
-const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, userLat, userLng }) => {
+const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({
+  deliveryItems,
+  userLat,
+  userLng,
+}) => {
   const [sortedItems, setSortedItems] = useState<DeliveryItem[]>([]);
-  const [sortCriteria, setSortCriteria] = useState<"distance" | "price">("distance");
-  const [selectedDeliveryType, setSelectedDeliveryType] = useState<"all" | "direct" | "cupHolder">("all");
+  const [sortCriteria, setSortCriteria] = useState<"distance" | "price">(
+    "distance"
+  );
+  const [selectedDeliveryType, setSelectedDeliveryType] = useState<
+    "all" | "direct" | "cupHolder"
+  >("all");
   const [showSortOptions, setShowSortOptions] = useState(false);
-  const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>({});
+  const [trackingOrders, setTrackingOrders] = useState<Record<string, boolean>>(
+    {}
+  );
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
 
   useEffect(() => {
     let filtered = [...deliveryItems];
     if (selectedDeliveryType !== "all") {
-      filtered = filtered.filter((item) => item.deliveryType === selectedDeliveryType);
+      filtered = filtered.filter(
+        (item) => item.deliveryType === selectedDeliveryType
+      );
     }
     if (sortCriteria === "distance") {
-      filtered.sort((a, b) =>
-        getDistance(userLat, userLng, parseFloat(a.lat), parseFloat(a.lng)) -
-        getDistance(userLat, userLng, parseFloat(b.lat), parseFloat(b.lng))
+      filtered.sort(
+        (a, b) =>
+          getDistance(userLat, userLng, parseFloat(a.lat), parseFloat(a.lng)) -
+          getDistance(userLat, userLng, parseFloat(b.lat), parseFloat(b.lng))
       );
     } else {
       filtered.sort((a, b) => b.deliveryFee - a.deliveryFee);
@@ -101,7 +125,12 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
   };
 
   const renderItem: ListRenderItem<DeliveryItem> = ({ item }) => {
-    const distance = getDistance(userLat, userLng, parseFloat(item.lat), parseFloat(item.lng)).toFixed(1);
+    const distance = getDistance(
+      userLat,
+      userLng,
+      parseFloat(item.lat),
+      parseFloat(item.lng)
+    ).toFixed(1);
     const now = new Date();
     const endTime = new Date(item.endTime);
     const diff = endTime.getTime() - now.getTime();
@@ -111,7 +140,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
 
     const cafeName = item.items[0]?.cafeName || "기타";
     const imageSource = getCategoryImage(cafeName);
-
+    const isMyOrder = item.userId === user?._id;
     const handleAcceptPress = () => {
       if (isEnded) {
         Alert.alert("알림", "이미 마감된 배달입니다.");
@@ -128,27 +157,47 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
         </View>
         <View style={styles.centerSection}>
           <Text style={styles.cafeName}>{cafeName}</Text>
-          <Text style={styles.info}>{item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}</Text>
-          <Text style={styles.info}>{distance} km</Text>
-          <Text style={styles.price}>{item.deliveryFee.toLocaleString()}원</Text>
-        </View>
-        <TouchableOpacity
-          onPress={handleAcceptPress}
-          style={[
-            styles.acceptButton,
-            trackingOrders[item._id] && styles.disabledButton,
-            isEnded && styles.endedButton,
-          ]}
-          disabled={trackingOrders[item._id] || isEnded}
-        >
-          <Text style={[
-            styles.buttonText,
-            isEnded && styles.endedButtonText,
-            trackingOrders[item._id] && styles.disabledButtonText
-          ]}>
-            {isEnded ? "마감" : trackingOrders[item._id] ? "배달 중" : "수락"}
+          <Text style={styles.info}>
+            {item.deliveryType === "direct" ? "직접 배달" : "컵홀더 배달"}
           </Text>
-        </TouchableOpacity>
+          <Text style={styles.info}>{distance} km</Text>
+          <Text style={styles.price}>
+            {item.deliveryFee.toLocaleString()}원
+          </Text>
+        </View>
+        <View>
+          <TouchableOpacity
+            onPress={handleAcceptPress}
+            style={[
+              styles.acceptButton,
+              trackingOrders[item._id] && styles.disabledButton,
+              isEnded && styles.endedButton,
+              isMyOrder && styles.disabledButton,
+            ]}
+            disabled={trackingOrders[item._id] || isEnded || isMyOrder}
+          >
+            <Text
+              style={[
+                styles.buttonText,
+                isEnded && styles.endedButtonText,
+                trackingOrders[item._id] && styles.disabledButtonText,
+              ]}
+            >
+              {isEnded
+                ? "마감"
+                : isMyOrder
+                ? "내 주문"
+                : trackingOrders[item._id]
+                ? "배달 중"
+                : "수락"}
+            </Text>
+          </TouchableOpacity>
+          {isMyOrder && (
+            <Text style={{ color: "#9CA3AF", fontSize: 12, marginTop: 4 }}>
+              본인이 주문한 배달입니다
+            </Text>
+          )}
+        </View>
       </View>
     );
   };
@@ -200,10 +249,20 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
         {["all", "direct", "cupHolder"].map((type) => (
           <TouchableOpacity
             key={type}
-            style={[styles.filterButton, selectedDeliveryType === type && styles.activeFilterButton]}
-            onPress={() => setSelectedDeliveryType(type as "all" | "direct" | "cupHolder")}
+            style={[
+              styles.filterButton,
+              selectedDeliveryType === type && styles.activeFilterButton,
+            ]}
+            onPress={() =>
+              setSelectedDeliveryType(type as "all" | "direct" | "cupHolder")
+            }
           >
-            <Text style={[styles.filterButtonText, selectedDeliveryType === type && styles.activeFilterText]}>
+            <Text
+              style={[
+                styles.filterButtonText,
+                selectedDeliveryType === type && styles.activeFilterText,
+              ]}
+            >
               {type === "all" ? "전체" : type === "direct" ? "직접" : "컵홀더"}
             </Text>
           </TouchableOpacity>
@@ -215,7 +274,9 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         ListEmptyComponent={renderEmptyList}
-        contentContainerStyle={sortedItems.length === 0 ? { flex: 1 } : undefined}
+        contentContainerStyle={
+          sortedItems.length === 0 ? { flex: 1 } : undefined
+        }
         refreshing={isRefreshing}
         onRefresh={() => {
           setIsRefreshing(true);
@@ -224,7 +285,6 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({ deliveryItems, 
           }, 1000);
         }}
       />
-
     </View>
   );
 };
