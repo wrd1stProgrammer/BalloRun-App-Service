@@ -28,7 +28,7 @@ export const getOrderData = () => async (dispatch: any) => {
   try {
     const res = await appAxios.get("/rider/getOrderData"); // 서버로 GET 요청
     if (res.data.success) {
-      // console.log("주문 데이터를 성공적으로 가져옴:", res.data.orders);
+      console.log("주문 데이터를 성공적으로 가져옴:", res.data.orders);
       return res.data.orders; // 주문 데이터를 반환
     } else {
       console.log("주문 데이터 없음:", res.data.message);

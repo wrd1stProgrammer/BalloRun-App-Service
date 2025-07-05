@@ -275,7 +275,6 @@ const getCompletedNewOrders = async (req, res) => {
 
         return {
           _id: newOrder._id,
-          userId: newOrder.userId,
           name: newOrder.name,
           status: newOrder.status,
           createdAt: newOrder.createdAt,
