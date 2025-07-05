@@ -1,16 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { SafeAreaView,Alert, Animated, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import DeliveryCustomMap from './SelectDeliveryComponents/DeliveryCustomMap';
-import DeliveryBottomSheet from './SelectDeliveryComponents/DeliveryBottomSheet';
-import DeliveryCustomList from './SelectDeliveryComponents/DeliveryCustomList';
-import { getOrderData } from '../../redux/actions/riderAction';
-import { useAppDispatch } from '../../redux/config/reduxHook';
-import Geolocation from 'react-native-geolocation-service';
-import MapView from 'react-native-maps';
-import { FontAwesome } from '@expo/vector-icons';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  SafeAreaView,
+  Alert,
+  Animated,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import DeliveryCustomMap from "./SelectDeliveryComponents/DeliveryCustomMap";
+import DeliveryBottomSheet from "./SelectDeliveryComponents/DeliveryBottomSheet";
+import DeliveryCustomList from "./SelectDeliveryComponents/DeliveryCustomList";
+import { getOrderData } from "../../redux/actions/riderAction";
+import { useAppDispatch } from "../../redux/config/reduxHook";
+import Geolocation from "react-native-geolocation-service";
+import MapView from "react-native-maps";
+import { FontAwesome } from "@expo/vector-icons";
 
-const { height,width } = Dimensions.get("window");
-
+const { height, width } = Dimensions.get("window");
 
 type DeliveryItem = {
   _id: string;
@@ -26,9 +34,9 @@ type DeliveryItem = {
   endTime: string;
   lat: string;
   lng: string;
-  resolvedAddress: string
+  resolvedAddress: string;
   isReservation: boolean;
-  orderType: "Order" | "NewOrder"; 
+  orderType: "Order" | "NewOrder";
   orderDetails: string;
   images: string;
   orderImages: string;
@@ -38,7 +46,8 @@ function SelectDelivery() {
   const tabIndicator = useRef(new Animated.Value(0)).current;
   const [deliveryItems, setDeliveryItems] = useState<DeliveryItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<DeliveryItem[]>([]);
-  const [selectedDeliveryItem, setSelectedDeliveryItem] = useState<DeliveryItem | null>(null);
+  const [selectedDeliveryItem, setSelectedDeliveryItem] =
+    useState<DeliveryItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isListView, setIsListView] = useState(true);
 
@@ -77,7 +86,7 @@ function SelectDelivery() {
         setUserLng(longitude);
       },
       (error) => {
-        Alert.alert('위치 추적 오류', error.message);
+        Alert.alert("위치 추적 오류", error.message);
       },
       { enableHighAccuracy: true, interval: 5000, distanceFilter: 10 }
     );
@@ -106,7 +115,9 @@ function SelectDelivery() {
     if (type === "reservation") {
       setFilteredItems(deliveryItems.filter((item) => item.isReservation));
     } else if (type) {
-      setFilteredItems(deliveryItems.filter((item) => item.deliveryType === type));
+      setFilteredItems(
+        deliveryItems.filter((item) => item.deliveryType === type)
+      );
     } else {
       setFilteredItems(deliveryItems);
     }
@@ -115,86 +126,92 @@ function SelectDelivery() {
 
   return (
     <>
-        <SafeAreaView style={styles.container}>
-    
-      <View style={styles.toggleButtons}>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            
-          ]}
-          onPress={() => setIsListView(true)}
-        >
-          <Text style={styles.toggleButtonText}>
-            리스트로 보기
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-                      ]}
-          onPress={() => setIsListView(false)}
-        >
-          <Text style={styles.toggleButtonText}>
-            지도로 보기
-          </Text>
-        </TouchableOpacity>
-        <Animated.View style={[styles.underline, { transform: [{ translateX: tabIndicator }] }]} />
+      <SafeAreaView style={{ backgroundColor: "#f9f9f9" }}>
+        <View style={styles.toggleButtons}>
+          <TouchableOpacity
+            style={[styles.toggleButton]}
+            onPress={() => setIsListView(true)}
+          >
+            <Text style={styles.toggleButtonText}>리스트로 보기</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toggleButton]}
+            onPress={() => setIsListView(false)}
+          >
+            <Text style={styles.toggleButtonText}>지도로 보기</Text>
+          </TouchableOpacity>
+          <Animated.View
+            style={[
+              styles.underline,
+              { transform: [{ translateX: tabIndicator }] },
+            ]}
+          />
+        </View>
+      </SafeAreaView>
 
-      </View>
-
-      {isListView ? (
-        <DeliveryCustomList deliveryItems={deliveryItems} userLat={userLat} userLng={userLng} />
-      ) : (
-        <>
-          <DeliveryCustomMap
-            mapRef={mapRef}
-            deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
-            loading={loading}
-            onMarkerSelect={handleMarkerSelect}
-            onFilter={handleFilter}
+      <View style={styles.container}>
+        {isListView ? (
+          <DeliveryCustomList
+            deliveryItems={deliveryItems}
             userLat={userLat}
             userLng={userLng}
-            watchId={watchId}
-            selectedLat={selectedDeliveryItem?.lat}
-            selectedLng={selectedDeliveryItem?.lng}
           />
-          {selectedDeliveryItem && (
-            <DeliveryBottomSheet
-              deliveryItems={selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems}
+        ) : (
+          <>
+            <DeliveryCustomMap
+              mapRef={mapRef}
+              deliveryItems={
+                selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems
+              }
               loading={loading}
+              onMarkerSelect={handleMarkerSelect}
+              onFilter={handleFilter}
               userLat={userLat}
               userLng={userLng}
-              setUserLat={setUserLat}
-              setUserLng={setUserLng}
-              mapRef={mapRef}
+              watchId={watchId}
+              selectedLat={selectedDeliveryItem?.lat}
+              selectedLng={selectedDeliveryItem?.lng}
             />
-          )}
-        </>
-      )}
-          {!isListView && (
-            <Animated.View style={[styles.gpsButton, { bottom: bottomAnim }]}>
-              <TouchableOpacity
-                style={styles.gpsTouchable}
-                onPress={() => {
-                  if (mapRef.current) {
-                    mapRef.current.animateToRegion({
-                      latitude: userLat ?? 35.175570,
+            {selectedDeliveryItem && (
+              <DeliveryBottomSheet
+                deliveryItems={
+                  selectedDeliveryItem ? [selectedDeliveryItem] : filteredItems
+                }
+                loading={loading}
+                userLat={userLat}
+                userLng={userLng}
+                setUserLat={setUserLat}
+                setUserLng={setUserLng}
+                mapRef={mapRef}
+              />
+            )}
+          </>
+        )}
+        {!isListView && (
+          <Animated.View style={[styles.gpsButton, { bottom: bottomAnim }]}>
+            <TouchableOpacity
+              style={styles.gpsTouchable}
+              onPress={() => {
+                if (mapRef.current) {
+                  mapRef.current.animateToRegion(
+                    {
+                      latitude: userLat ?? 35.17557,
                       longitude: userLng ?? 126.907074,
                       latitudeDelta: 0.01,
                       longitudeDelta: 0.01,
-                    }, 500);
-                  }
-                }}
-                activeOpacity={0.7}
-              >
-                <FontAwesome name="location-arrow" size={18} color="#3384FF" />
-                <Text style={styles.gpsText}>내 위치</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          )}
-          </SafeAreaView>
-      
+                    },
+                    500
+                  );
+                }
+              }}
+              activeOpacity={0.7}
+            >
+              <FontAwesome name="location-arrow" size={18} color="#3384FF" />
+              <Text style={styles.gpsText}>내 위치</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+      </View>
     </>
   );
 }
@@ -228,34 +245,33 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
   },
   gpsButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 18,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 0,
     borderRadius: 18,
     elevation: 10,
     zIndex: 100,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
   },
   gpsTouchable: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 18,
   },
   gpsText: {
     fontSize: 13,
-    color: '#3384FF',
-    fontWeight: '600',
+    color: "#3384FF",
+    fontWeight: "600",
     marginLeft: 6,
   },
-  
 });
 
 export default SelectDelivery;
