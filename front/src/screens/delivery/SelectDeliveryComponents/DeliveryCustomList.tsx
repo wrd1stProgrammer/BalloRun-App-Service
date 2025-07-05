@@ -165,7 +165,13 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({
             {item.deliveryFee.toLocaleString()}원
           </Text>
         </View>
-        <View>
+        <View
+          style={{
+            width: 80,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <TouchableOpacity
             onPress={handleAcceptPress}
             style={[
@@ -173,6 +179,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({
               trackingOrders[item._id] && styles.disabledButton,
               isEnded && styles.endedButton,
               isMyOrder && styles.disabledButton,
+              { width: "100%" },
             ]}
             disabled={trackingOrders[item._id] || isEnded || isMyOrder}
           >
@@ -181,6 +188,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({
                 styles.buttonText,
                 isEnded && styles.endedButtonText,
                 trackingOrders[item._id] && styles.disabledButtonText,
+                { textAlign: "center", width: "100%" },
               ]}
             >
               {isEnded
@@ -192,11 +200,17 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({
                 : "수락"}
             </Text>
           </TouchableOpacity>
-          {isMyOrder && (
-            <Text style={{ color: "#9CA3AF", fontSize: 12, marginTop: 4 }}>
-              본인이 주문한 배달입니다
-            </Text>
-          )}
+          <View
+            style={{ height: isMyOrder ? 18 : 0, marginTop: isMyOrder ? 4 : 0 }}
+          >
+            {isMyOrder && (
+              <Text
+                style={{ color: "#9CA3AF", fontSize: 12, textAlign: "center" }}
+              >
+                본인이 주문한 배달입니다
+              </Text>
+            )}
+          </View>
         </View>
       </View>
     );
@@ -390,7 +404,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#2563EB",
     borderRadius: 8,
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10, // reduced from 12
+    alignItems: "center", // ✅ added for Android support
   },
   disabledButton: {
     backgroundColor: "#9CA3AF",
