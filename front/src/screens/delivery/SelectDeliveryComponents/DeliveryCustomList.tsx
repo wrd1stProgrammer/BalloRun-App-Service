@@ -207,7 +207,7 @@ const DeliveryCustomList: React.FC<DeliveryCustomListProps> = ({
               <Text
                 style={{ color: "#9CA3AF", fontSize: 12, textAlign: "center" }}
               >
-                본인이 주문한 배달입니다
+                내가 주문한 배달
               </Text>
             )}
           </View>
