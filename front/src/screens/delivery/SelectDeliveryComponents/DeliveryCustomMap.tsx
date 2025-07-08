@@ -41,16 +41,17 @@ function DeliveryCustomMap({
   loading,
   onMarkerSelect,
   onFilter,
-  selectedLat,
-  selectedLng,
   watchId,
 }: DeliveryCustomMapProps) {
   const [centerLat, setCenterLat] = useState<number | null>(35.17557);
   const [centerLng, setCenterLng] = useState<number | null>(126.907074);
   const [isMarkerSelected, setIsMarkerSelected] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>("all");
   const markerPressRef = useRef<boolean>(false);
 
+  useEffect(() => {
+    onFilter(null);
+  }, []);
   useEffect(() => {
     return () => {
       if (watchId !== null) {
