@@ -7,10 +7,17 @@ import {
   Alert,
   Modal,
 } from "react-native";
-import { navigate, resetAndNavigate } from "../../../navigation/NavigationUtils";
+import {
+  navigate,
+  resetAndNavigate,
+} from "../../../navigation/NavigationUtils";
 import { useAppDispatch } from "../../../redux/config/reduxHook";
 import { checkChatRoomAction } from "../../../redux/actions/chatAction";
-import { rateStarsAction, getCompletedNewOrdersHandler } from "../../../redux/actions/orderAction";
+import {
+  rateStarsAction,
+  getCompletedNewOrdersHandler,
+  getOngoingNewOrdersHandler,
+} from "../../../redux/actions/orderAction";
 import { refetchUser } from "../../../redux/actions/userAction";
 import Icon from "react-native-vector-icons/Ionicons";
 import { Image } from "react-native";
@@ -18,7 +25,14 @@ import { Image } from "react-native";
 interface OrderItemProps {
   orderId: string;
   name: string;
-  status: "pending" | "goToCafe" | "makingMenu" | "goToClient" | "delivered" | "cancelled" | "complete";
+  status:
+    | "pending"
+    | "goToCafe"
+    | "makingMenu"
+    | "goToClient"
+    | "delivered"
+    | "cancelled"
+    | "complete";
   createdAt: string;
   orderDetails: string;
   priceOffer: number;
@@ -52,7 +66,11 @@ const getStatusMessage = (status: string) => {
 
 const getIconSource = (name: string) => {
   const lower = name.toLowerCase();
-  if (lower.includes("편의점") || lower.includes("gs") || lower.includes("cu")) {
+  if (
+    lower.includes("편의점") ||
+    lower.includes("gs") ||
+    lower.includes("cu")
+  ) {
     return require("../../../assets/Icon/cs64.png");
   } else if (lower.includes("물품") || lower.includes("이마트")) {
     return require("../../../assets/Icon/product64.png");
@@ -101,22 +119,58 @@ const OrderItem: React.FC<OrderItemProps> = ({
     if (chatRoomExists === 1) {
       navigate("ChatRoom", { roomId, username, nickname, userImage });
     } else {
-      Alert.alert("알림", "존재하지 않는 채팅방입니다.", [{ text: "확인", style: "cancel" }], {
-        cancelable: true,
-      });
+      Alert.alert(
+        "알림",
+        "존재하지 않는 채팅방입니다.",
+        [{ text: "확인", style: "cancel" }],
+        {
+          cancelable: true,
+        }
+      );
     }
   };
 
-  const handlerOrderCancel = () => {
-    Alert.alert(
-      "주문 취소 확인",
-      "정말 주문을 취소하시겠습니까?",
-      [
-        { text: "아니오", style: "cancel" },
-        { text: "예", onPress: () => navigate("CancelOrderScreen", { orderId, orderType }) },
-      ],
-      { cancelable: false }
-    );
+  const handlerOrderCancel = async () => {
+    try {
+      const updatedOngoingOrders = await dispatch(getOngoingNewOrdersHandler());
+      const updatedCompletedOrders = await dispatch(
+        getCompletedNewOrdersHandler()
+      );
+      const updatedOrders = [
+        ...updatedOngoingOrders,
+        ...updatedCompletedOrders,
+      ];
+
+      const currentOrder = updatedOrders.find(
+        (order: any) => order._id === orderId
+      );
+
+      if (
+        !currentOrder ||
+        !["pending", "goToCafe", "makingMenu", "goToClient"].includes(
+          currentOrder.status
+        )
+      ) {
+        Alert.alert("취소 불가", "이미 처리되었거나 만료된 주문입니다.");
+        return;
+      }
+
+      Alert.alert(
+        "주문 취소 확인",
+        "정말 주문을 취소하시겠습니까?",
+        [
+          { text: "아니오", style: "cancel" },
+          {
+            text: "예",
+            onPress: () =>
+              navigate("CancelOrderScreen", { orderId, orderType }),
+          },
+        ],
+        { cancelable: false }
+      );
+    } catch (error) {
+      Alert.alert("오류", "주문 상태를 확인하지 못했습니다.");
+    }
   };
 
   const handleReorderPress = () => {
@@ -203,7 +257,10 @@ const OrderItem: React.FC<OrderItemProps> = ({
             disabled={localIsRated}
           >
             <Text
-              style={[styles.actionButtonText, localIsRated ? styles.disabledButtonText : null]}
+              style={[
+                styles.actionButtonText,
+                localIsRated ? styles.disabledButtonText : null,
+              ]}
             >
               {localIsRated ? "평가 완료" : "별점 평가"}
             </Text>
@@ -234,7 +291,9 @@ const OrderItem: React.FC<OrderItemProps> = ({
     <>
       <View style={styles.card}>
         <View style={styles.header}>
-          <Text style={[styles.status, { color: statusInfo.color }]}>{statusInfo.text}</Text>
+          <Text style={[styles.status, { color: statusInfo.color }]}>
+            {statusInfo.text}
+          </Text>
           <View style={styles.headerRight}>
             <TouchableOpacity onPress={showOrderDetails}>
               <Text style={styles.detailsButton}>주문 상세</Text>
@@ -258,14 +317,19 @@ const OrderItem: React.FC<OrderItemProps> = ({
           <View style={styles.info}>
             <Text style={styles.name}>{name}</Text>
             <Text style={styles.orderDetails}>{orderDetails}</Text>
-            <Text style={styles.price}>가격: {priceOffer}원 | 배달팁: {deliveryFee}원</Text>
+            <Text style={styles.price}>
+              가격: {priceOffer}원 | 배달팁: {deliveryFee}원
+            </Text>
           </View>
         </View>
 
         {/* pending 상태가 아닐 때만 버튼 영역 렌더링 */}
         {status !== "pending" && (
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={[styles.chatButton, styles.buttonSpacing]} onPress={handleChatPress}>
+            <TouchableOpacity
+              style={[styles.chatButton, styles.buttonSpacing]}
+              onPress={handleChatPress}
+            >
               <Text style={styles.chatButtonText}>채팅 문의</Text>
             </TouchableOpacity>
             {renderActionButton()}
@@ -288,9 +352,7 @@ const OrderItem: React.FC<OrderItemProps> = ({
               <Text style={styles.submitButton}>완료</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.starContainer}>
-            {renderStars()}
-          </View>
+          <View style={styles.starContainer}>{renderStars()}</View>
         </View>
       </Modal>
     </>
