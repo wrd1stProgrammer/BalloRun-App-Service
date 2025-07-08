@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,11 +6,11 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+} from "react-native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-import { useAppDispatch, useAppSelector } from '../../redux/config/reduxHook';
-import { navigate } from '../../navigation/NavigationUtils';
+import { useAppDispatch, useAppSelector } from "../../redux/config/reduxHook";
+import { navigate } from "../../navigation/NavigationUtils";
 import {
   selectUser,
   selectIsOngoingOrder,
@@ -19,15 +19,13 @@ import {
   selectIsMatching,
   selectOngoingOrder,
   clearOngoingOrder,
-} from '../../redux/reducers/userSlice';
-import { WebSocketContext } from '../../utils/sockets/Socket';
-import { countRunnerAction, refetchUser } from '../../redux/actions/userAction';
-import Banner from './Banner/Banner';
-import OrderListComponent from './Banner/OrderListComponent';
-import MyAdBanner from './Banner/MyAdBanner';
-import FixedOrderStatusBanner from './Banner/FixedOrderStatusBanner';
-import NewFixedOrderStatusBanner from './Banner/NewFixedOrderStatusBanner';
-import AdMobBanner from './AdMob/AdMobBanner';
+} from "../../redux/reducers/userSlice";
+import { WebSocketContext } from "../../utils/sockets/Socket";
+import { countRunnerAction, refetchUser } from "../../redux/actions/userAction";
+import Banner from "./Banner/Banner";
+import OrderListComponent from "./Banner/OrderListComponent";
+import MyAdBanner from "./Banner/MyAdBanner";
+import RunnerBox from "./components/RunnerBox";
 
 const HomeScreen: React.FC = () => {
   const user = useAppSelector(selectUser);
@@ -42,10 +40,10 @@ const HomeScreen: React.FC = () => {
 
   const displayAddress = user?.address
     ? (() => {
-        const parts = user.address.split(' ');
-        return parts.length >= 3 ? parts.slice(2).join(' ') : user.address;
+        const parts = user.address.split(" ");
+        return parts.length >= 3 ? parts.slice(2).join(" ") : user.address;
       })()
-    : '주소를 설정하세요';
+    : "주소를 설정하세요";
 
   // 주문/소켓 부분 기존 그대로 유지
   useEffect(() => {
@@ -58,36 +56,34 @@ const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     if (!orderSocket) {
-      console.log('orderSocket error');
+      console.log("orderSocket error");
       return;
     }
-    orderSocket.emit('join', user?._id);
+    orderSocket.emit("join", user?._id);
 
-    orderSocket.on('order_accepted', (orderData) => {
-      console.log('order_accepted 이벤트 수신:', orderData);
+    orderSocket.on("order_accepted", (orderData) => {
+      console.log("order_accepted 이벤트 수신:", orderData);
       dispatch(setOngoingOrder(orderData));
       dispatch(setIsMatching(true));
     });
 
-    orderSocket.on('order_completed', ({ orderId }) => {
+    orderSocket.on("order_completed", ({ orderId }) => {
       console.log(`✅ 주문자 화면: 배달 완료 감지 -> 주문 ID: ${orderId}`);
       dispatch(clearOngoingOrder());
     });
 
-    orderSocket.on('emitCancel', ({ orderId, message }) => {
+    orderSocket.on("emitCancel", ({ orderId, message }) => {
       console.log(`주문자 화면: 배달 캔슬 감지 -> 주문 ID: ${orderId}`);
       console.log(`주문 취소 사유: ${message}`);
       dispatch(clearOngoingOrder());
-      alert(
-        `주문이 취소되었습니다.\n주문 ID: ${orderId}\n사유: ${message}`
-      );
+      alert(`주문이 취소되었습니다.\n주문 ID: ${orderId}\n사유: ${message}`);
     });
 
     return () => {
-      orderSocket.off('order_accepted');
-      orderSocket.off('order_completed');
-      orderSocket.off('emitCancel');
-      console.log('리스너 정리 완료');
+      orderSocket.off("order_accepted");
+      orderSocket.off("order_completed");
+      orderSocket.off("emitCancel");
+      console.log("리스너 정리 완료");
     };
   }, [orderSocket, user?._id, dispatch]);
 
@@ -99,7 +95,9 @@ const HomeScreen: React.FC = () => {
     }
     setRunnerLoading(true);
     try {
-      const response = await dispatch(countRunnerAction(user.curLat, user.curLng));
+      const response = await dispatch(
+        countRunnerAction(user.curLat, user.curLng)
+      );
       setRunnerCount(response.count ?? 0);
     } catch (error) {
       setRunnerCount(0);
@@ -112,11 +110,13 @@ const HomeScreen: React.FC = () => {
       <View style={{ flex: 1 }}>
         <ScrollView
           style={styles.container}
-          contentContainerStyle={{ alignContent: 'center' }}
+          contentContainerStyle={{ alignContent: "center" }}
         >
           <View style={styles.headerContainer}>
             <View style={styles.greetingContainer}>
-              <TouchableOpacity onPress={() => navigate('AddressSettingScreen')}>
+              <TouchableOpacity
+                onPress={() => navigate("AddressSettingScreen")}
+              >
                 <Text
                   style={styles.userName}
                   numberOfLines={1}
@@ -127,32 +127,11 @@ const HomeScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
             {/* 주변 러너 박스 */}
-            <TouchableOpacity
-              style={styles.runnerBox}
-              activeOpacity={0.85}
+            <RunnerBox
+              runnerCount={runnerCount}
+              runnerLoading={runnerLoading}
               onPress={handleRunnerBoxPress}
-            >
-              <View style={styles.runnerInner}>
-                <View style={styles.runnerIconCircle}>
-                  <Icon name="run-fast" size={20} color="#26a69a" />
-                </View>
-                <Text style={styles.runnerLabel}>주변 러너  </Text>
-                <Text style={styles.runnerCountText}>
-                  {runnerLoading ? (
-                    <Text style={{ fontSize: 13, color: '#26a69a' }}>조회중...</Text>
-                  ) : (
-                    <>
-                      <Text style={{ fontWeight: 'bold', fontSize: 17, color: '#009688' }}>
-                        {runnerCount !== null ? runnerCount : '?'}
-                      </Text>
-                      <Text style={{ fontSize: 13, color: '#26a69a', fontWeight: '600' }}>
-                        {' '}명
-                      </Text>
-                    </>
-                  )}
-                </Text>
-              </View>
-            </TouchableOpacity>
+            />
           </View>
 
           <View style={styles.bannerContainer}>
@@ -178,7 +157,8 @@ const HomeScreen: React.FC = () => {
               전자금융분쟁 Tel 010-4128-4177 / 010-7493-0323
             </Text>
             <Text style={styles.footerText}>
-              SERN(세른)은 통신판매중개자로 , 판매자가 등록한 상품정보 및 거래 등에 대해 발생한 문제는 SERN(세른)에서 해결해드립니다.
+              SERN(세른)은 통신판매중개자로 , 판매자가 등록한 상품정보 및 거래
+              등에 대해 발생한 문제는 SERN(세른)에서 해결해드립니다.
             </Text>
           </View>
         </ScrollView>
@@ -189,21 +169,20 @@ const HomeScreen: React.FC = () => {
 
 export default HomeScreen;
 
-
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     paddingTop: 0,
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 1,
     margin: 15,
   },
@@ -213,20 +192,20 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 4,
   },
   // 주변 러너 박스 스타일
   runnerBox: {
-    backgroundColor: 'rgba(38, 166, 154, 0.10)',
+    backgroundColor: "rgba(38, 166, 154, 0.10)",
     borderRadius: 16,
     paddingVertical: 10,
     paddingHorizontal: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     elevation: 2,
-    shadowColor: '#009688',
+    shadowColor: "#009688",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.09,
     shadowRadius: 3,
@@ -234,35 +213,35 @@ const styles = StyleSheet.create({
     minWidth: 84,
   },
   runnerInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 1,
   },
   runnerIconCircle: {
-    backgroundColor: '#B2DFDB',
+    backgroundColor: "#B2DFDB",
     borderRadius: 50,
     width: 28,
     height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 7,
   },
   runnerCountText: {
     fontSize: 17,
-    color: '#009688',
-    fontWeight: 'bold',
+    color: "#009688",
+    fontWeight: "bold",
   },
   runnerLabel: {
     fontSize: 13,
-    color: '#009688',
-    fontWeight: '600',
+    color: "#009688",
+    fontWeight: "600",
     letterSpacing: 0.5,
     marginTop: 2,
   },
   bannerContainer: {
     marginBottom: 15,
     marginTop: 15,
-    alignItems: 'center',
+    alignItems: "center",
   },
   footerTextContainer: {
     padding: 10,
@@ -270,25 +249,25 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 11,
-    color: '#666',
-    textAlign: 'left',
+    color: "#666",
+    textAlign: "left",
     marginLeft: 10,
     marginBottom: 4,
   },
   footerTextt: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: '#666',
-    textAlign: 'left',
+    fontWeight: "bold",
+    color: "#666",
+    textAlign: "left",
     marginLeft: 10,
     marginBottom: 4,
   },
   orderNotice: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 15,
-    textAlign: 'left',
-    marginLeft: 18,   // 광고 배너와 왼쪽 맞추기
-    marginBottom: 0,  // 마진 없이
+    textAlign: "left",
+    marginLeft: 18, // 광고 배너와 왼쪽 맞추기
+    marginBottom: 0, // 마진 없이
     marginTop: 0,
     letterSpacing: -1,
   },
