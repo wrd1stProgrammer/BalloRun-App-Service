@@ -34,7 +34,7 @@ module.exports = async (app) => {
     app.use("/cafe",authMiddleware,cafeRouter);
     app.use("/order",authMiddleware,orderRouter);
     app.use("/rider",authMiddleware,riderRouter);
-    app.use("/file",authMiddleware,fileRouter);
+    app.use("/file",fileRouter);
     app.use("/chat",authMiddleware,chatRouter);
     app.use("/neworder",authMiddleware,newOrderRouter);
     app.use("/address",authMiddleware,address);
