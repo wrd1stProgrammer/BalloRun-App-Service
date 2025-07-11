@@ -27,6 +27,8 @@ const uploadMedia = async (req, res) => {
       folder = "verifiacation_image";
     } else if (mediaType === "newUserProfile_image"){
       folder = "newUserProfile_image";
+    } else if (mediaType === "face_image"){
+      folder = "face_image";
     }
      else {
       throw new BadRequestError("이상한 타입.");

@@ -11,6 +11,7 @@ const newOrderRouter = require("../routes/neworder");
 const address = require("../routes/address");
 const noticeRouter = require("../routes/notice");
 const paymentRouter = require("../routes/payment");
+const geminiRouter = require("../routes/gemini");
 
 
 module.exports = async (app) => {
@@ -39,6 +40,8 @@ module.exports = async (app) => {
     app.use("/address",authMiddleware,address);
     app.use("/notices",authMiddleware,noticeRouter);
     app.use("/payment",authMiddleware,paymentRouter);
+
+    app.use("/gemini",geminiRouter);
 
     console.log('라우트 설정 OK');
 };

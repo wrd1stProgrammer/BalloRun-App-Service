@@ -22,6 +22,7 @@
   "homepage": "https://github.com/wrd1stProgrammer/semicolonApp#readme",
   "dependencies": {
     "@actions/github": "^6.0.0",
+    "@google/generative-ai": "^0.24.1",
     "amqplib": "^0.10.5",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
