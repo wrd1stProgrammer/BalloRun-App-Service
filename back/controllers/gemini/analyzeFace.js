@@ -1,7 +1,7 @@
 // controllers/faceController.js
 require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const runVision = require('./runVision');                 // Google Cloud Vision util
+const runVisionWithModel = require('./runVision');                 // Google Cloud Vision util
 const parseFaceAnalysis = require('../../utils/parseFaceAnalysis');
 
 /*────────────────────────────────────────────────────────
@@ -10,8 +10,12 @@ const parseFaceAnalysis = require('../../utils/parseFaceAnalysis');
    · Vision API로 1차 특징 추출 후 “점수화 + 요약” 용도로 충분
 ────────────────────────────────────────────────────────*/
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const textModel = genAI.getGenerativeModel({
+const primaryVision = genAI.getGenerativeModel({
   model: 'gemini-1.5-flash',
+  generationConfig: { responseMimeType: 'text/plain' },
+});
+const fallbackVision = genAI.getGenerativeModel({
+  model: 'gemini-2.0-flash-lite',
   generationConfig: { responseMimeType: 'text/plain' },
 });
 
@@ -85,7 +89,17 @@ You are an expert "Face Analysis AI" that converts raw face features into 5 scor
     `.trim();
 
     // 2‑2. Vision API + Gemini 호출
-    const visionRaw = await runVision(facePrompt, imageResponse);
+    let visionRaw;
+    try {
+      visionRaw = await runVisionWithModel(primaryVision, facePrompt, imageResponse);
+    } catch (err) {
+      if (err.status === 503) {
+        console.warn('[analyzeFace] primary model overloaded, retrying with fallback');
+        visionRaw = await runVisionWithModel(fallbackVision, facePrompt, imageResponse);
+      } else {
+        throw err;
+      }
+    }
 
     // 2‑3. JSON 파싱 & 검증
     const scores = parseFaceAnalysis(visionRaw);
